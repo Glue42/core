@@ -10,8 +10,8 @@
   "scripts": {
     "build": "lerna run build",
     "test": "lerna run test",
-    "version": "node ./scripts/preversion.js && lerna version",
-    "publish": "lerna publish from-git --yes"
+    "version:full": "node ./scripts/preversion.js && lerna version",
+    "publish:full": "lerna publish from-git --yes"
   },
   "devDependencies": {
     "@lerna/changed": "^3.20.0",
