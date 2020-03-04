@@ -9,15 +9,19 @@
   ],
   "scripts": {
     "build": "lerna run build",
-    "test": "lerna run test",
-    "version:full": "node ./scripts/preversion.js && lerna version",
-    "publish:full": "lerna publish from-git --yes"
+    "test": "npm run test:scripts && lerna run test",
+    "version:full": "node ./scripts/preversion/index.js && lerna version",
+    "publish:full": "lerna publish from-git --yes",
+    "test:scripts": "mocha ./scripts/test/**/*spec.js"
   },
   "devDependencies": {
     "@lerna/changed": "^3.20.0",
     "@lerna/run": "^3.20.0",
+    "chai": "^4.2.0",
     "lerna": "^3.20.2",
     "lerna-changelog": "^1.0.0",
+    "mocha": "^7.1.0",
+    "rewire": "^4.0.1",
     "simple-git": "^1.131.0"
   }
 }

@@ -1,4 +1,7 @@
-const getPackagesAllPaths = (fs) => {
+const { join } = require('path');
+const fs = require('fs');
+
+const getPackagesAllPaths = () => {
     return new Promise((resolve, reject) => {
         fs.readdir(packagesDirectory, (err, paths) => {
             if (err) {
@@ -6,7 +9,7 @@ const getPackagesAllPaths = (fs) => {
             }
 
             const packagesPaths = paths
-                .map((file) => path.join(packagesDirectory, file))
+                .map((file) => join(packagesDirectory, file))
                 .filter((filePath) => fs.lstatSync(filePath).isDirectory());
 
             resolve(packagesPaths);
@@ -16,7 +19,7 @@ const getPackagesAllPaths = (fs) => {
 
 const getPackageJson = (packagePath) => {
     return new Promise((resolve, reject) => {
-        const packageJsonPath = path.join(packagePath, 'package.json')
+        const packageJsonPath = join(packagePath, 'package.json')
         fs.readFile(packageJsonPath, 'UTF-8', (err, data) => {
             if (err) {
                 return reject(err);
@@ -30,16 +33,16 @@ const getPackageJson = (packagePath) => {
     });
 };
 
-const getAllPackageJsons = async (updatedNames, fs) => {
+const getAllPackageJsons = async (updatedNames) => {
     // we get all because the name of the package and the name of the package dir might be different
-    const paths = await getPackagesAllPaths(fs);
+    const paths = await getPackagesAllPaths();
 
     const packages = await Promise.all(paths.map((p) => getPackageJson(p)));
 
     return packages.filter((pkg) => updatedNames.includes(pkg.contents.name));
 }
 
-const overwritePackageJson = (package, fs) => {
+const overwritePackageJson = (package) => {
     return new Promise((resolve, reject) => {
         if (!package.changed) {
             console.log(`Package ${package.contents.name} is not changed, skipping overwriting`);
@@ -57,7 +60,7 @@ const overwritePackageJson = (package, fs) => {
     });
 };
 
-const setLatestTagPerPackage = async (allTags, packagesJsons, fs) => {
+const setLatestTagPerPackage = async (allTags, packagesJsons) => {
     packagesJsons.forEach((pkgJson) => {
         const name = pkgJson.contents.name;
         const matchingTag = allTags.find((tag) => tag.includes(name));
@@ -73,10 +76,10 @@ const setLatestTagPerPackage = async (allTags, packagesJsons, fs) => {
         console.log(`Package ${name} has consistent version, no changes needed`);
     });
 
-    await Promise.all(packagesJsons.map((pkgJson) => overwritePackageJson(pkgJson, fs)));
+    await Promise.all(packagesJsons.map((pkgJson) => overwritePackageJson(pkgJson)));
 };
 
-module.exports.synchronizeVersions = async (updatedNames, git, fs) => {
+module.exports.synchronizeVersions = async (updatedNames, git) => {
 
     const allTags = (await git.tags()).all;
 
@@ -86,10 +89,10 @@ module.exports.synchronizeVersions = async (updatedNames, git, fs) => {
         return;
     }
 
-    const packagesJsons = await getAllPackageJsons(updatedNames, fs);
+    const packagesJsons = await getAllPackageJsons(updatedNames);
 
     // necessary because by default git tags all are arranged in ascending order
     const reversedTags = allTags.reverse();
 
-    await setLatestTagPerPackage(reversedTags, packagesJsons, fs);
+    await setLatestTagPerPackage(reversedTags, packagesJsons);
 };
