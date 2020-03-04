@@ -7,7 +7,6 @@ dist/
 build/
 .DS_Store
 
-docs/
 package-lock.json
 yarn.lock
 *.log
