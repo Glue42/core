@@ -17,5 +17,10 @@
       "tag: internal": ":house: Internal",
       "tag: underlying tools": ":hammer: Underlying Tools"
     }
+  },
+  "command": {
+    "version": {
+      "allowBranch": "release"
+    }
   }
 }

@@ -9,9 +9,13 @@
   ],
   "scripts": {
     "build": "lerna run build",
-    "test": "lerna run test"
+    "test": "lerna run test",
+    "version": "node ./scripts/preversion.js && lerna version",
+    "publish": "lerna publish from-git --yes"
   },
   "devDependencies": {
+    "@lerna/changed": "^3.20.0",
+    "@lerna/run": "^3.20.0",
     "lerna": "^3.20.2",
     "lerna-changelog": "^1.0.0",
     "simple-git": "^1.131.0"
