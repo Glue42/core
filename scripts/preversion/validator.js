@@ -6,21 +6,21 @@ const validate = async ({ getUpdatedPackagesNames, synchronizeVersions, buildPac
 
     const git = Git(rootDirectory);
 
-    console.log(`starting version validating`);
+    console.log('starting version validating');
     const updatedNames = await getUpdatedPackagesNames();
 
     if (!updatedNames || !updatedNames.length) {
-        console.log(`No updated packages found`);
+        console.log('No updated packages found');
         return;
     }
 
     console.log(`found updated packages: ${JSON.stringify(updatedNames)}, continuing with version synchronizing`);
-    await synchronizeVersions(updatedNames, git);
+    await synchronizeVersions(updatedNames, git, rootDirectory);
 
-    console.log(`all versions are synchronized, continuing with packages build`);
+    console.log('all versions are synchronized, continuing with packages build');
     await buildPackages(updatedNames);
 
-    console.log(`all packages are built, committing pre-version validation`);
+    console.log('all packages are built, committing pre-version validation');
     await git.add('.');
     await git.commit('Pre-version validation');
 };

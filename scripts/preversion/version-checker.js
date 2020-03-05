@@ -1,7 +1,7 @@
 const { join } = require('path');
 const fs = require('fs');
 
-const getPackagesAllPaths = () => {
+const getPackagesAllPaths = (packagesDirectory) => {
     return new Promise((resolve, reject) => {
         fs.readdir(packagesDirectory, (err, paths) => {
             if (err) {
@@ -19,7 +19,7 @@ const getPackagesAllPaths = () => {
 
 const getPackageJson = (packagePath) => {
     return new Promise((resolve, reject) => {
-        const packageJsonPath = join(packagePath, 'package.json')
+        const packageJsonPath = join(packagePath, 'package.json');
         fs.readFile(packageJsonPath, 'UTF-8', (err, data) => {
             if (err) {
                 return reject(err);
@@ -29,28 +29,28 @@ const getPackageJson = (packagePath) => {
                 path: packageJsonPath,
                 contents: JSON.parse(data)
             });
-        })
+        });
     });
 };
 
-const getAllPackageJsons = async (updatedNames) => {
+const getAllPackageJsons = async (updatedNames, rootDirectory) => {
     // we get all because the name of the package and the name of the package dir might be different
-    const paths = await getPackagesAllPaths();
+    const paths = await getPackagesAllPaths(join(rootDirectory, '/packages/'));
 
     const packages = await Promise.all(paths.map((p) => getPackageJson(p)));
 
     return packages.filter((pkg) => updatedNames.includes(pkg.contents.name));
-}
+};
 
-const overwritePackageJson = (package) => {
+const overwritePackageJson = (pkg) => {
     return new Promise((resolve, reject) => {
-        if (!package.changed) {
-            console.log(`Package ${package.contents.name} is not changed, skipping overwriting`);
+        if (!pkg.changed) {
+            console.log(`Package ${pkg.contents.name} is not changed, skipping overwriting`);
             return;
         }
 
-        console.log(`Overwriting ${package.contents.name} version to ${package.contents.version}`);
-        fs.writeFile(package.path, JSON.stringify(package.contents, null, 2), (err) => {
+        console.log(`Overwriting ${pkg.contents.name} version to ${pkg.contents.version}`);
+        fs.writeFile(pkg.path, JSON.stringify(pkg.contents, null, 2), (err) => {
             if (err) {
                 return reject(err);
             }
@@ -79,17 +79,17 @@ const setLatestTagPerPackage = async (allTags, packagesJsons) => {
     await Promise.all(packagesJsons.map((pkgJson) => overwritePackageJson(pkgJson)));
 };
 
-module.exports.synchronizeVersions = async (updatedNames, git) => {
+module.exports.synchronizeVersions = async (updatedNames, git, rootDirectory) => {
 
     const allTags = (await git.tags()).all;
 
     if (!allTags || !allTags.length) {
         // this is possible when only for the initial release
-        console.log(`No git tags were found, skipping version synchronizing`);
+        console.log('No git tags were found, skipping version synchronizing');
         return;
     }
 
-    const packagesJsons = await getAllPackageJsons(updatedNames);
+    const packagesJsons = await getAllPackageJsons(updatedNames, rootDirectory);
 
     // necessary because by default git tags all are arranged in ascending order
     const reversedTags = allTags.reverse();

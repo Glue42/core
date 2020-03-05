@@ -1,5 +1,5 @@
 const pathMock = {
-    join: () => console.log(`called join`)
+    join: () => console.log('called join')
 };
 
 const fsMock = {};
@@ -13,15 +13,15 @@ const lernaRunMock = {
 };
 
 const changeDetectorMock = {
-    getUpdatedPackagesNames: () => console.log(`called getUpdatedPackagesNames`)
+    getUpdatedPackagesNames: () => console.log('called getUpdatedPackagesNames')
 };
 
 const versionCheckerMock = {
-    synchronizeVersions: () => console.log(`called synchronizeVersions`)
+    synchronizeVersions: () => console.log('called synchronizeVersions')
 };
 
 const builderMock = {
-    buildPackages: () => console.log(`called buildPackages`)
+    buildPackages: () => console.log('called buildPackages')
 };
 
 const gitMock = () => {

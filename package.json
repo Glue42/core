@@ -12,16 +12,30 @@
     "test": "npm run test:scripts && lerna run test",
     "version:full": "node ./scripts/preversion/index.js && lerna version",
     "publish:full": "lerna publish from-git --yes",
-    "test:scripts": "mocha ./scripts/test/**/*spec.js"
+    "test:scripts": "mocha ./scripts/test/**/*spec.js",
+    "lint": "./node_modules/.bin/eslint --ignore-path .gitignore ."
   },
   "devDependencies": {
     "@lerna/changed": "^3.20.0",
     "@lerna/run": "^3.20.0",
     "chai": "^4.2.0",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.20.1",
+    "husky": "^4.2.3",
     "lerna": "^3.20.2",
     "lerna-changelog": "^1.0.0",
+    "lint-staged": "^10.0.8",
     "mocha": "^7.1.0",
     "mockery": "^2.1.0",
     "simple-git": "^1.131.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.js": ["./node_modules/.bin/eslint --ignore-path .gitignore .", "git add"]
   }
 }
