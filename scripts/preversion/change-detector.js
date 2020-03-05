@@ -1,4 +1,6 @@
-module.exports.getUpdatedPackagesNames = async (ChangedCommand) => {
+const { ChangedCommand } = require('@lerna/changed');
+
+module.exports.getUpdatedPackagesNames = async () => {
     const argv = {
         _: ["changed"],
         json: true
