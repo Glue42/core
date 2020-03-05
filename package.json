@@ -36,6 +36,6 @@
     }
   },
   "lint-staged": {
-    "*.js": ["./node_modules/.bin/eslint --ignore-path .gitignore .", "git add"]
+    "*.js": ["./node_modules/.bin/eslint --ignore-path .gitignore . --fix", "git add"]
   }
 }
