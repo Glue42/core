@@ -13,7 +13,7 @@
     "version:full": "node ./scripts/preversion/index.js && lerna version",
     "publish:full": "lerna publish from-git --yes",
     "test:scripts": "mocha ./scripts/test/**/*spec.js",
-    "lint": "./node_modules/.bin/eslint --ignore-path .gitignore ."
+    "lint:fix": "./node_modules/.bin/eslint --ignore-path .gitignore . --fix"
   },
   "devDependencies": {
     "@lerna/changed": "^3.20.0",
@@ -36,6 +36,6 @@
     }
   },
   "lint-staged": {
-    "*.js": ["./node_modules/.bin/eslint --ignore-path .gitignore . --fix", "git add"]
+    "*.js": ["./node_modules/.bin/eslint --ignore-path .gitignore ."]
   }
 }
