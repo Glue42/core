@@ -1,10 +1,9 @@
 const { join } = require('path');
-const Git = require('simple-git/promise');
+const { getUpdatedPackagesNames } = require('./change-detector.js');
+const { synchronizeVersions } = require('./version-checker.js');
 
-const validate = async ({ getUpdatedPackagesNames, synchronizeVersions, buildPackages }) => {
+const sync = async (git, doCommit) => {
     const rootDirectory = join(__dirname, '../..');
-
-    const git = Git(rootDirectory);
 
     console.log('starting version validating');
     const updatedNames = await getUpdatedPackagesNames();
@@ -17,12 +16,14 @@ const validate = async ({ getUpdatedPackagesNames, synchronizeVersions, buildPac
     console.log(`found updated packages: ${JSON.stringify(updatedNames)}, continuing with version synchronizing`);
     await synchronizeVersions(updatedNames, git, rootDirectory);
 
-    console.log('all versions are synchronized, continuing with packages build');
-    await buildPackages(updatedNames);
+    if (git && doCommit) {
+        console.log('all packages are synced, committing pre-version validation');
+        await git.add('.');
+        await git.commit('Pre-version validation');
+        return;
+    }
 
-    console.log('all packages are built, committing pre-version validation');
-    await git.add('.');
-    await git.commit('Pre-version validation');
+    console.log('Skipping git add/commit, packages are synced.');
 };
 
-module.exports.validate = validate;
+module.exports.sync = sync;

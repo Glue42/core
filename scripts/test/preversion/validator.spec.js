@@ -1,27 +1,19 @@
 // const expect = require('chai').expect;
-const validator = require('../../preversion/validator.js');
 const mockery = require('mockery');
 const {
     pathMock,
     changeDetectorMock,
     versionCheckerMock,
-    builderMock,
-    gitMock
 } = require('../mocks/index.js');
 
 describe('validate ', function () {
-    const baseMockedConfig = {
-        getUpdatedPackagesNames: changeDetectorMock.getUpdatedPackagesNames,
-        synchronizeVersions: versionCheckerMock.synchronizeVersions,
-        buildPackages: builderMock.buildPackages
-    };
-
+    let validator;
     before(() => {
         mockery.enable();
         mockery.registerMock('path', pathMock);
-        mockery.registerMock('simple-git/promise', () => {
-            return gitMock;
-        });
+        mockery.registerMock('./change-detector.js', changeDetectorMock);
+        mockery.registerMock('./version-checker.js', versionCheckerMock);
+        validator = require('../../preversion/validator.js');
     });
 
     after(() => {
@@ -31,7 +23,7 @@ describe('validate ', function () {
 
     it('should resolve when no updated packages are found', (done) => {
         validator
-            .validate(baseMockedConfig)
+            .validate({})
             .then(() => done())
             .catch(done);
     });

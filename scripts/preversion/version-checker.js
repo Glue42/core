@@ -46,7 +46,7 @@ const overwritePackageJson = (pkg) => {
     return new Promise((resolve, reject) => {
         if (!pkg.changed) {
             console.log(`Package ${pkg.contents.name} is not changed, skipping overwriting`);
-            return;
+            return resolve();
         }
 
         console.log(`Overwriting ${pkg.contents.name} version to ${pkg.contents.version}`);

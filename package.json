@@ -20,8 +20,7 @@
     "@lerna/run": "^3.20.0",
     "chai": "^4.2.0",
     "eslint": "^6.8.0",
-    "eslint-config-airbnb-base": "^14.0.0",
-    "eslint-plugin-import": "^2.20.1",
+    "gulp": "^4.0.2",
     "husky": "^4.2.3",
     "lerna": "^3.20.2",
     "lerna-changelog": "^1.0.0",
@@ -36,6 +35,8 @@
     }
   },
   "lint-staged": {
-    "*.js": ["./node_modules/.bin/eslint --ignore-path .gitignore ."]
+    "*.js": [
+      "./node_modules/.bin/eslint --ignore-path .gitignore ."
+    ]
   }
 }
