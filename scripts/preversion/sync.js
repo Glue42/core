@@ -26,4 +26,4 @@ const sync = async (git, doCommit) => {
     console.log('Skipping git add/commit, packages are synced.');
 };
 
-module.exports.sync = sync;
+module.exports = sync;

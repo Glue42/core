@@ -7,13 +7,13 @@ const {
 } = require('../mocks/index.js');
 
 describe('validate ', function () {
-    let validator;
+    let sync;
     before(() => {
         mockery.enable();
         mockery.registerMock('path', pathMock);
         mockery.registerMock('./change-detector.js', changeDetectorMock);
         mockery.registerMock('./version-checker.js', versionCheckerMock);
-        validator = require('../../preversion/validator.js');
+        sync = require('../../preversion/sync.js');
     });
 
     after(() => {
@@ -22,8 +22,7 @@ describe('validate ', function () {
     });
 
     it('should resolve when no updated packages are found', (done) => {
-        validator
-            .validate({})
+        sync()
             .then(() => done())
             .catch(done);
     });

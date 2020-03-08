@@ -6,7 +6,7 @@ const { exec } = require('child_process');
 const { RunCommand } = require('@lerna/run');
 const { PublishCommand } = require('@lerna/publish');
 const git = require('simple-git/promise')(__dirname);
-const { sync } = require('./scripts/preversion/validator.js');
+const sync = require('./scripts/preversion/sync.js');
 
 const stableBranch = 'master';
 const releaseBranch = 'release';
@@ -108,22 +108,15 @@ const conditionalLernaTest = async () => {
     await command.runner;
 };
 
-const syncVersions = async () => {
+const versionSync = async () => {
     await sync(git, false);
 };
 
-const buildPackages = async () => {
-    const script = 'build';
-    const scope = packagesNamesToRelease.length === 1 ?
-        packagesNamesToRelease[0] :
-        `{${packagesNamesToRelease.join(',')}}`;
-    const command = new RunCommand({ script, scope });
-    await command.runner;
-};
-
-const addCommit = async () => {
-    await git.add('.');
-    await git.commit('Pre-release sync and build');
+const addCommit = (message) => {
+    return async () => {
+        await git.add('.');
+        await git.commit(message);
+    };
 };
 
 const publish = async () => {
@@ -133,13 +126,8 @@ const publish = async () => {
 
 const stableSyncPush = async () => {
     await git.raw(['merge', '--strategy-option=theirs', releaseBranch]);
-    await git.add('.');
-    await git.commit('[post-release] Release and sync completed');
+    await addCommit('[post-release] Release and sync completed');
     await git.push();
-};
-
-const success = async () => {
-    console.log('[post-release] Release and sync completed');
 };
 
 exports.release = series(
@@ -149,11 +137,10 @@ exports.release = series(
     syncPackagesToRelease,
     yarnInstall,
     conditionalLernaTest,
-    syncVersions,
-    buildPackages,
-    addCommit,
+    addCommit('Pre-release sync and build'),
+    versionSync,
+    addCommit('Isolating package/s'),
     publish,
     switchStableBranch,
-    stableSyncPush,
-    success
+    stableSyncPush
 );

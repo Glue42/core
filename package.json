@@ -10,8 +10,7 @@
   "scripts": {
     "build": "lerna run build",
     "test": "npm run test:scripts && lerna run test",
-    "version:full": "node ./scripts/preversion/index.js && lerna version",
-    "publish:full": "lerna publish from-git --yes",
+    "release": "gulp release",
     "test:scripts": "mocha ./scripts/test/**/*spec.js",
     "lint:fix": "./node_modules/.bin/eslint --ignore-path .gitignore . --fix"
   },

@@ -1,5 +1,5 @@
-const sync = require('./validator.js').sync;
+const sync = require('./sync.js');
 
-sync({ gitAdd: true })
+sync()
     .then(() => console.log('Pre-version validation completed'))
     .catch(console.error);
