@@ -61,12 +61,10 @@ const validateReleasePackages = async () => {
     console.log('All packages are validated and existing');
 };
 
-const switchReleaseBranch = async () => {
-    await git.checkout(releaseBranch);
-};
-
-const switchStableBranch = async () => {
-    await git.checkout(stableBranch);
+const checkout = (branchName) => {
+    return async () => {
+        await git.checkout(branchName);
+    };
 };
 
 const syncAllContentsExceptPackages = async () => {
@@ -132,7 +130,7 @@ const stableSyncPush = async () => {
 
 exports.release = series(
     validateReleasePackages,
-    switchReleaseBranch,
+    checkout(releaseBranch),
     syncAllContentsExceptPackages,
     syncPackagesToRelease,
     yarnInstall,
@@ -141,6 +139,6 @@ exports.release = series(
     versionSync,
     addCommit('Isolating package/s'),
     publish,
-    switchStableBranch,
+    checkout(stableBranch),
     stableSyncPush
 );
