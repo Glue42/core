@@ -12,8 +12,7 @@
     "test": "npm run test:scripts && lerna run test",
     "release": "gulp release",
     "test:scripts": "mocha ./scripts/test/**/*spec.js",
-    "lint:fix": "./node_modules/.bin/eslint --ignore-path .gitignore . --fix",
-    "lint": "./node_modules/.bin/eslint --ignore-path .gitignore ."
+    "lint:fix": "./node_modules/.bin/eslint --ignore-path .gitignore . --fix"
   },
   "devDependencies": {
     "@lerna/changed": "^3.20.0",
@@ -38,7 +37,7 @@
     }
   },
   "lint-staged": {
-    "*.js": [
+    "*.{js,ts}": [
       "./node_modules/.bin/eslint --ignore-path .gitignore ."
     ]
   }
