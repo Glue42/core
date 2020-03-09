@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "module": "ESNext",
+        "moduleResolution": "Node",
+        "noImplicitAny": true,
+        "sourceMap": true,
+        "target": "ES6",
+        "pretty": true,
+        "declaration": false,
+        "removeComments": true,
+        "outDir": "./dist"
+    },
+    "include": [
+        "./src/**/*.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
+}

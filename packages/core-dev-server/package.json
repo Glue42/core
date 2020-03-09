@@ -1,0 +1,21 @@
+{
+  "name": "@glue42/core-dev-server",
+  "version": "0.0.0",
+  "description": "Server for the Glue42 Core development environment",
+  "main": "./dist/index.umd.js",
+  "files": ["dist"],
+  "license": "Apache-2.0",
+  "scripts": {
+    "start": "npm run build && node ./dist/index.umd.js",
+    "test": "echo testing dev server",
+    "build": "rollup -c"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "rollup": "^2.0.2",
+    "rollup-plugin-typescript2": "^0.26.0",
+    "typescript": "^3.8.3"
+  }
+}
