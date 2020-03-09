@@ -3,19 +3,27 @@
   "version": "0.0.0",
   "description": "Server for the Glue42 Core development environment",
   "main": "./dist/index.umd.js",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "license": "Apache-2.0",
   "scripts": {
-    "start": "npm run build && node ./dist/index.umd.js",
-    "test": "echo testing dev server",
+    "start": "npm run build && node ./dist/index.umd.js -c ./glue.config.dev.json",
+    "test": "cross-env TS_NODE_PROJECT=./tsconfig.test.json mocha -r ts-node/register test/**/*.spec.ts",
     "build": "rollup -c"
   },
   "publishConfig": {
     "access": "public"
   },
   "devDependencies": {
+    "@types/chai": "^4.2.10",
+    "@types/mocha": "^7.0.2",
+    "chai": "^4.2.0",
+    "cross-env": "^7.0.2",
+    "mocha": "^7.1.0",
     "rollup": "^2.0.2",
     "rollup-plugin-typescript2": "^0.26.0",
+    "ts-node": "^8.6.2",
     "typescript": "^3.8.3"
   }
 }
