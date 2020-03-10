@@ -1,0 +1,26 @@
+{
+    "serverSettings": {
+        "port": 5000,
+        "disableCache": true,
+        "verboseLogging": false
+    },
+    "glueAssets": {
+        "sharedWorker": "./package.json"
+    },
+    "sharedAssets": [],
+    "apps": [
+        {
+            "url": {
+                "base": "localhost:3000",
+                "path": "/"
+            },
+            "route": "/rc"
+        },
+        {
+            "file": {
+                "path": "./src"
+            },
+            "route": "/ng"
+        }
+    ]
+}

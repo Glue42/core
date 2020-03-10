@@ -1,4 +1,7 @@
 import typescript from 'rollup-plugin-typescript2';
+import resolve from 'rollup-plugin-node-resolve';
+import commonjs from 'rollup-plugin-commonjs';
+import json from 'rollup-plugin-json';
 import pkg from './package.json';
 
 export default {
@@ -6,16 +9,22 @@ export default {
     output: [
         {
             file: pkg.main,
-            format: 'umd',
+            format: 'cjs',
             sourcemap: true
         }
     ],
     external: [
         ...Object.keys(pkg.dependencies || {}),
         ...Object.keys(pkg.peerDependencies || {}),
+        'path',
+        'fs',
+        'http'
     ], plugins: [
         typescript({
             typescript: require('typescript'),
         }),
+        json(),
+        commonjs(),
+        resolve({ preferBuiltins: true })
     ],
 };
