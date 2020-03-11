@@ -1,12 +1,9 @@
-import { CoreDevServer } from "./server";
-import { ConfigParser } from "./config/config-parser";
-import { GlueBundler } from "./glue-bundler";
+import { commands } from "./commands";
 
-const parser = new ConfigParser();
-const bundler = new GlueBundler();
+const command = process.argv[2];
 
-(new CoreDevServer(bundler, parser, process))
-    .setup()
-    .then((server) => server.start())
-    .then(() => console.log("server started"))
-    .catch(console.error);
+if (command !== "serve" && command !== "build") {
+    throw new Error(`Unrecognized command: ${command}`);
+}
+
+commands[command]();

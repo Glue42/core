@@ -1,8 +1,8 @@
 import { expect } from "chai";
 import mockery from "mockery";
 import "mocha";
-import { CoreDevServer } from "../src/server";
-import { httpMock, expressMock, httpProxyMock, morganMock, requestMock, parserMock } from "./mocks";
+import { CoreDevServer } from "../src/server/server";
+import { httpMock, expressMock, httpProxyMock, morganMock, requestMock, parserMock, processMock } from "./mocks";
 
 describe("first test suite", function () {
     this.timeout(10000);
@@ -17,7 +17,7 @@ describe("first test suite", function () {
         mockery.registerMock("request", requestMock);
         mockery.registerMock("concat-stream", expressMock);
         mockery.registerMock("http-proxy", httpProxyMock);
-        Server = require("../src/server.ts").CoreDevServer;
+        Server = require("../src/server/server.ts").CoreDevServer;
     });
 
     after(() => {
@@ -26,7 +26,7 @@ describe("first test suite", function () {
     });
 
     it("first test", async () => {
-        const server: CoreDevServer = new Server(parserMock);
+        const server: CoreDevServer = new Server(parserMock, processMock);
 
         await server.setup();
         console.log(server);

@@ -5,7 +5,8 @@
         "verboseLogging": false
     },
     "glueAssets": {
-        "sharedWorker": "./package.json"
+        "sharedWorker": "./package.json",
+        "gateway": "./tsconfig.json"
     },
     "sharedAssets": [],
     "apps": [

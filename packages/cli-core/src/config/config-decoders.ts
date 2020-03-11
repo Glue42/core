@@ -28,7 +28,8 @@ const userServerAppDecoder: Decoder<UserServerApp> = object({
 
 export const serverConfigDecoder: Decoder<UserConfig> = object({
     glueAssets: optional(object({
-        sharedWorker: optional(nonEmptyStringDecoder)
+        sharedWorker: optional(nonEmptyStringDecoder),
+        gateway: optional(nonEmptyStringDecoder)
     })),
     apps: array(userServerAppDecoder),
     serverSettings: optional(userServerSettingsDecoder),

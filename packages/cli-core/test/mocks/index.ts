@@ -71,3 +71,10 @@ export const parserMock = {
         });
     }
 };
+
+export const processMock = {
+    cwd: () => {
+        console.log("calling process cwd");
+        return "C://Users/flash/Desktop/";
+    }
+};

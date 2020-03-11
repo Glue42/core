@@ -19,6 +19,7 @@ export interface UserConfig {
     apps: UserServerApp[];
     glueAssets?: {
         sharedWorker?: string;
+        gateway?: string;
     };
     serverSettings?: UserServerSettings;
     sharedAssets?: SharedAsset[];
@@ -39,6 +40,7 @@ export interface DevServerApp extends UserServerApp {
 
 export interface GlueAssets {
     sharedWorker: string;
+    gateway: string;
 }
 
 export interface ServerConfig {

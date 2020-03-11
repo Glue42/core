@@ -1,13 +1,21 @@
-import { GlueAssets } from "./config/config";
 import { join } from "path";
 import { mkdir } from "fs";
 import rimraf from "rimraf";
+import { ConfigParser } from "../config/config-parser";
 
 export class GlueBundler {
     private readonly glueBundleName = "glue";
+    private readonly rootDirectory: string;
 
-    public async createBundle(glueAssets: GlueAssets, rootDirectory: string): Promise<string> {
-        const bundlePath = join(rootDirectory, this.glueBundleName);
+    constructor(
+        private readonly parser: ConfigParser,
+        nodeProcess: NodeJS.Process
+    ) {
+        this.rootDirectory = nodeProcess.cwd();
+    }
+
+    public async createBundle(): Promise<string> {
+        const bundlePath = join(this.rootDirectory, this.glueBundleName);
 
         console.log("starting removal");
         await this.removeExistingBundle(`${bundlePath}`);
@@ -18,7 +26,7 @@ export class GlueBundler {
 
         // copy contents of the gateway to the 
 
-        console.log(JSON.stringify(glueAssets, null, 2));
+        console.log(JSON.stringify(this.parser, null, 2));
         // if existing -> remove
         // make a directory /glue
         // copy the assets there

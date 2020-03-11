@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { join, isAbsolute } from "path";
 import { readFile, existsSync } from "fs";
 import { generate } from "shortid";
 import { serverConfigDecoder } from "./config-decoders";
-import { ServerConfig, UserServerApp, DevServerApp } from "./config";
+import { ServerConfig, UserServerApp, DevServerApp, GlueAssets } from "./config";
 
 export class ConfigParser {
     private readonly defaultSettings = {
@@ -13,12 +12,16 @@ export class ConfigParser {
     };
 
     private readonly defaultGlueAssets = {
-        sharedWorker: "./node_modules/@glue42/gateway-core"
+        gateway: "./gateway-core",
+        sharedWorker: "./worker-core"
     };
 
-    public async parse(argv: string[], rootDirectory: string): Promise<any> {
+    public async parse(argv: string[], rootDirectory: string): Promise<ServerConfig> {
+
         const userInputConfigLocation = this.getUserConfigLocation(argv);
+        
         const configAbsLocation = join(rootDirectory, userInputConfigLocation);
+        console.log(`Fetching dev config from: ${configAbsLocation}`);
 
         const configAsString = await this.read(configAbsLocation);
         const userConfig = serverConfigDecoder.runWithException(JSON.parse(configAsString));
@@ -26,13 +29,15 @@ export class ConfigParser {
         this.validateApps(userConfig.apps);
 
         const config: ServerConfig = Object.assign(
-            { serverSettings: this.defaultSettings, glueAssets: this.defaultGlueAssets },
+            { serverSettings: this.defaultSettings, glueAssets: this.getFullDefaultGlueAssetsLocation(argv) },
             userConfig,
             { apps: this.addCookieIds(userConfig.apps) }
         );
 
         this.transformAllToAbsolute(config, rootDirectory);
 
+        console.log(`Merged and transformed config: ${JSON.stringify(config, null, 2)}`);
+        
         this.validateExistenceOfAssets(config);
 
         return config;
@@ -93,6 +98,7 @@ export class ConfigParser {
 
     private transformAllToAbsolute(config: ServerConfig, rootDirectory: string): void {
         config.glueAssets.sharedWorker = this.pathTransform(config.glueAssets.sharedWorker, rootDirectory);
+        config.glueAssets.gateway = this.pathTransform(config.glueAssets.gateway, rootDirectory);
         config.apps.forEach((app) => app.file ? app.file.path = this.pathTransform(app.file.path, rootDirectory) : null);
         config.sharedAssets?.forEach((asset) => asset.path = this.pathTransform(asset.path, rootDirectory));
     }
@@ -115,6 +121,13 @@ export class ConfigParser {
             return argv[argv.indexOf("-c") + 1];
         }
 
-        return "./glue.config.dev.js";
+        return "./glue.config.dev.json";
+    }
+
+    private getFullDefaultGlueAssetsLocation(argv: string[]): GlueAssets {
+        return {
+            sharedWorker: join(argv[1], "../../../", this.defaultGlueAssets.sharedWorker),
+            gateway: join(argv[1], "../../../", this.defaultGlueAssets.gateway)
+        };
     }
 }

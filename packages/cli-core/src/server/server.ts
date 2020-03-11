@@ -1,12 +1,11 @@
-import { ConfigParser } from "./config/config-parser";
-import { ServerConfig, SharedAsset, DevServerApp } from "./config/config";
+import { ConfigParser } from "../config/config-parser";
+import { ServerConfig, SharedAsset, DevServerApp } from "../config/config";
 import { createServer, ServerOptions, Server as HttpServer } from "http";
 import express, { Express } from "express";
 import morgan from "morgan";
 import request from "request";
 import concat from "concat-stream";
 import Server, { createProxyServer } from "http-proxy";
-import { GlueBundler } from "./glue-bundler";
 
 export class CoreDevServer {
 
@@ -16,7 +15,6 @@ export class CoreDevServer {
     private server: HttpServer;
 
     constructor(
-        private readonly glueBundler: GlueBundler,
         private readonly parser: ConfigParser,
         nodeProcess: NodeJS.Process
     ) { 
@@ -124,8 +122,8 @@ export class CoreDevServer {
     }
 
     private async setUpGlueAssets(app: Express): Promise<void> {
-        const bundlePath = await this.glueBundler.createBundle(this.config.glueAssets, this.rootDirectory);
-        app.use("/glue", express.static(bundlePath));
+        app.use("/glue/worker", express.static(this.config.glueAssets.sharedWorker));
+        app.use("/glue/gateway", express.static(this.config.glueAssets.gateway));
     }
 
     private disableCache(app: Express): void {
