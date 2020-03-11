@@ -17,7 +17,7 @@ export class ConfigParser {
     };
 
     public async parse(argv: string[], rootDirectory: string): Promise<any> {
-        const userInputConfigLocation = argv[argv.indexOf("-c") + 1];
+        const userInputConfigLocation = this.getUserConfigLocation(argv);
         const configAbsLocation = join(rootDirectory, userInputConfigLocation);
 
         const configAsString = await this.read(configAbsLocation);
@@ -46,7 +46,7 @@ export class ConfigParser {
             return appFilePaths;
         }, []);
 
-        const sharedAssetsPaths = config.sharedAssets?.map((asset) => asset.path);
+        const sharedAssetsPaths = config.sharedAssets?.map((asset) => asset.path) || [];
 
         const allFilePaths = [
             config.glueAssets.sharedWorker,
@@ -63,11 +63,11 @@ export class ConfigParser {
 
     private validateApps(apps: UserServerApp[]): void {
         apps.forEach((app) => {
-            if (!app.url && !app.file) {
+            if (!app.localhost && !app.file) {
                 throw new Error(`Invalid app definition: required either url or file properties, received: ${JSON.stringify(app)}`);
             }
 
-            if (app.url && app.file) {
+            if (app.localhost && app.file) {
                 throw new Error(`Over-specified app definition: required either url or file properties not both, received: ${JSON.stringify(app)}`);
             }
         });
@@ -107,5 +107,14 @@ export class ConfigParser {
         }
 
         return join(rootDirectory, filePath);
+    }
+
+    private getUserConfigLocation(argv: string[]): string {
+
+        if (argv.includes("-c")) {
+            return argv[argv.indexOf("-c") + 1];
+        }
+
+        return "./glue.config.dev.js";
     }
 }

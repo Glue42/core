@@ -11,15 +11,15 @@ const sharedAssetDecoder: Decoder<SharedAsset> = object({
 
 const userServerSettingsDecoder: Decoder<UserServerSettings> = object({
     port: optional(nonNegativeNumberDecoder),
-    disableCache: boolean(),
-    verboseLogging: boolean()
+    disableCache: optional(boolean()),
+    verboseLogging: optional(boolean())
 });
 
 const userServerAppDecoder: Decoder<UserServerApp> = object({
     route: nonEmptyStringDecoder,
-    url: optional(object({
-        base: nonEmptyStringDecoder,
-        path: nonEmptyStringDecoder
+    localhost: optional(object({
+        port: nonNegativeNumberDecoder,
+        path: optional(nonEmptyStringDecoder)
     })),
     file: optional(object({
         path: nonEmptyStringDecoder

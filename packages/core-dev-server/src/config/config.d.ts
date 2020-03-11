@@ -6,9 +6,9 @@ export interface UserServerSettings {
 
 export interface UserServerApp {
     route: string;
-    url?: {
-        base: string;
-        path: string;
+    localhost?: {
+        port: number;
+        path?: string;
     };
     file?: {
         path: string;
@@ -37,10 +37,12 @@ export interface DevServerApp extends UserServerApp {
     cookieID: string;
 }
 
+export interface GlueAssets {
+    sharedWorker: string;
+}
+
 export interface ServerConfig {
-    glueAssets: {
-        sharedWorker: string;
-    };
+    glueAssets: GlueAssets;
     apps: DevServerApp[];
     serverSettings: ServerSettings;
     sharedAssets?: SharedAsset[];

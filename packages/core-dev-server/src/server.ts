@@ -6,17 +6,23 @@ import morgan from "morgan";
 import request from "request";
 import concat from "concat-stream";
 import Server, { createProxyServer } from "http-proxy";
+import { GlueBundler } from "./glue-bundler";
 
 export class CoreDevServer {
 
+    private readonly argv: string[];
+    private readonly rootDirectory: string;
     private config: ServerConfig;
     private server: HttpServer;
 
     constructor(
+        private readonly glueBundler: GlueBundler,
         private readonly parser: ConfigParser,
-        private readonly argv: string[],
-        private readonly rootDirectory: string
-    ) { }
+        nodeProcess: NodeJS.Process
+    ) { 
+        this.argv = nodeProcess.argv;
+        this.rootDirectory = nodeProcess.cwd();
+    }
 
     public async start(): Promise<void> {
         return new Promise((resolve) => this.server.listen(this.config.serverSettings.port, resolve));
@@ -35,11 +41,10 @@ export class CoreDevServer {
             this.setUpLogging(app);
         }
 
-        this.setUpGlueAssets(app);
+        await this.setUpGlueAssets(app);
 
         this.config.sharedAssets?.forEach((asset) => this.setUpSharedAsset(asset, app));
 
-        // setup express apps
         this.config.apps
             .forEach((appDefinition) => appDefinition.file ?
                 this.setUpAppServe(app, appDefinition) :
@@ -47,8 +52,9 @@ export class CoreDevServer {
             );
 
         const proxy: Server = createProxyServer();
-        // setup all root intercepts
+
         this.setUpProxyInterception(app, proxy);
+        this.setup404(app);
 
         this.server = createServer({ insecureHTTPParser: true } as ServerOptions, app);
 
@@ -62,8 +68,15 @@ export class CoreDevServer {
             const gCoreCookie = this.getCookie("gcore", req.headers.cookie);
             const definition = this.config.apps.find((def) => def.cookieID === gCoreCookie);
             if (definition) {
-                proxy.ws(req, socket, head, { target: definition.url });
+                proxy.ws(req, socket, head, { target: this.getLocalhostTarget(definition.localhost.port) });
             }
+        });
+    }
+
+    private setup404(app: Express): void {
+        app.use((_req, res) => {
+            res.status(404);
+            res.send("404: File Not Found");
         });
     }
 
@@ -71,25 +84,26 @@ export class CoreDevServer {
         app.use("/", (req, res, next) => {
             const matchedDefinition = this.config.apps.find((appDefinition) => req.headers.referer && req.headers.referer.includes(appDefinition.route));
             if (req.headers.referer && matchedDefinition) {
-                proxy.web(req, res, { target: matchedDefinition.url, secure: false });
+                proxy.web(req, res, { target: this.getLocalhostTarget(matchedDefinition.localhost.port), secure: false });
                 return;
             }
-
-            // todo: setup 404
             next();
         });
 
-        proxy.on("error", function (err, req, res) {
+        proxy.on("error", function (err, _req, res) {
             res.statusCode = 500;
             console.log(err.message);
             res.end(err.message);
         });
     }
 
+    private getLocalhostTarget(port: number, urlPath?: string): string {
+        return `http://localhost:${port}${urlPath ? urlPath : ""}`;
+    }
+
     private setUpInitialAppProxy(app: Express, appDefinition: DevServerApp): void {
-        app.get(appDefinition.route, (req, res) => {
-            req.url = "/";
-            const target = appDefinition.url.base + appDefinition.url.path;
+        app.get(appDefinition.route, (_req, res) => {
+            const target = this.getLocalhostTarget(appDefinition.localhost.port, appDefinition.localhost.path);
             const write = concat((completeResp) => {
                 const injectedMessage = completeResp
                     .toString("utf8")
@@ -109,9 +123,9 @@ export class CoreDevServer {
         app.use(asset.route, express.static(asset.path));
     }
 
-    private setUpGlueAssets(app: Express): void {
-        app.use("/glue", express.static(this.config.glueAssets.sharedWorker));
-        // app.use("/glue", express.static(this.config.glueAssets.config));
+    private async setUpGlueAssets(app: Express): Promise<void> {
+        const bundlePath = await this.glueBundler.createBundle(this.config.glueAssets, this.rootDirectory);
+        app.use("/glue", express.static(bundlePath));
     }
 
     private disableCache(app: Express): void {

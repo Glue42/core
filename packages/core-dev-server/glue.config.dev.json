@@ -10,9 +10,8 @@
     "sharedAssets": [],
     "apps": [
         {
-            "url": {
-                "base": "localhost:3000",
-                "path": "/"
+            "localhost": {
+                "port": 3000
             },
             "route": "/rc"
         },
