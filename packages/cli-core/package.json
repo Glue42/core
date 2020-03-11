@@ -1,7 +1,7 @@
 {
-  "name": "@glue42/core-dev-server",
+  "name": "@glue42/cli-core",
   "version": "0.0.0",
-  "description": "Server for the Glue42 Core development environment",
+  "description": "Glue42 Core development environment CLI",
   "main": "./dist/index.umd.js",
   "license": "Apache-2.0",
   "scripts": {
@@ -10,7 +10,7 @@
     "build": "rollup -c"
   },
   "bin": {
-    "core-dev-server": "./cli/index.js"
+    "g42-core": "./cli/index.js"
   },
   "publishConfig": {
     "access": "public"
