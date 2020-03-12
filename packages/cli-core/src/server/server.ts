@@ -17,7 +17,7 @@ export class CoreDevServer {
     constructor(
         private readonly parser: ConfigParser,
         nodeProcess: NodeJS.Process
-    ) { 
+    ) {
         this.argv = nodeProcess.argv;
         this.rootDirectory = nodeProcess.cwd();
     }
@@ -42,16 +42,14 @@ export class CoreDevServer {
         await this.setUpGlueAssets(app);
 
         this.config.sharedAssets?.forEach((asset) => this.setUpSharedAsset(asset, app));
+        const proxy: Server = createProxyServer();
+        this.setUpProxyInterception(app, proxy);
 
         this.config.apps
             .forEach((appDefinition) => appDefinition.file ?
                 this.setUpAppServe(app, appDefinition) :
                 this.setUpInitialAppProxy(app, appDefinition)
             );
-
-        const proxy: Server = createProxyServer();
-
-        this.setUpProxyInterception(app, proxy);
         this.setup404(app);
 
         this.server = createServer({ insecureHTTPParser: true } as ServerOptions, app);
@@ -66,7 +64,8 @@ export class CoreDevServer {
             const gCoreCookie = this.getCookie("gcore", req.headers.cookie);
             const definition = this.config.apps.find((def) => def.cookieID === gCoreCookie);
             if (definition) {
-                proxy.ws(req, socket, head, { target: this.getLocalhostTarget(definition.localhost.port) });
+                const target = this.getLocalhostTarget(definition.localhost.port);
+                proxy.ws(req, socket, head, { target });
             }
         });
     }
@@ -81,11 +80,21 @@ export class CoreDevServer {
     private setUpProxyInterception(app: Express, proxy: Server): void {
         app.use("/", (req, res, next) => {
             const matchedDefinition = this.config.apps.find((appDefinition) => req.headers.referer && req.headers.referer.includes(appDefinition.route));
-            if (req.headers.referer && matchedDefinition) {
-                proxy.web(req, res, { target: this.getLocalhostTarget(matchedDefinition.localhost.port), secure: false });
+
+            if (!req.headers.referer || !matchedDefinition) {
+                return next();
+            }
+
+            if (matchedDefinition.localhost) {
+                proxy.web(req, res, { target: this.getLocalhostTarget(matchedDefinition.localhost.port), secure: false }, (err) => {
+                    res.status(500);
+                    res.send(`The app's original server responded with an error: ${JSON.stringify(err)}`);
+                });
                 return;
             }
-            next();
+
+            express.static(matchedDefinition.file.path)(req, res, next);
+
         });
 
         proxy.on("error", function (err, _req, res) {
@@ -100,8 +109,8 @@ export class CoreDevServer {
     }
 
     private setUpInitialAppProxy(app: Express, appDefinition: DevServerApp): void {
-        app.get(appDefinition.route, (_req, res) => {
-            const target = this.getLocalhostTarget(appDefinition.localhost.port, appDefinition.localhost.path);
+        app.use(appDefinition.route, (_req, res) => {
+            const target = this.getLocalhostTarget(appDefinition.localhost.port, appDefinition.localhost.base);
             const write = concat((completeResp) => {
                 const injectedMessage = completeResp
                     .toString("utf8")
@@ -109,7 +118,13 @@ export class CoreDevServer {
                 res.end(Buffer.from(injectedMessage));
             });
 
-            request.get(target).pipe(write);
+            request
+                .get(target)
+                .on("error", (err) => {
+                    res.status(404);
+                    res.send(`The app's original server responded with an error: ${JSON.stringify(err)}`);
+                })
+                .pipe(write);
         });
     }
 

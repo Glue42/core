@@ -8,7 +8,7 @@ export interface UserServerApp {
     route: string;
     localhost?: {
         port: number;
-        path?: string;
+        base: string;
     };
     file?: {
         path: string;

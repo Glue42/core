@@ -19,7 +19,7 @@ const userServerAppDecoder: Decoder<UserServerApp> = object({
     route: nonEmptyStringDecoder,
     localhost: optional(object({
         port: nonNegativeNumberDecoder,
-        path: optional(nonEmptyStringDecoder)
+        base: nonEmptyStringDecoder
     })),
     file: optional(object({
         path: nonEmptyStringDecoder
