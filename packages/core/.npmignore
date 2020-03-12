@@ -1,0 +1,6 @@
+*
+!dist/**/*.**
+!package.json
+!readme.md
+!license.md
+!glue.d.ts

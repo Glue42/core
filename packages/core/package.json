@@ -1,0 +1,71 @@
+{
+    "name": "@glue42/core",
+    "version": "5.0.0-beta.7",
+    "description": "Glue42 core library",
+    "main": "dist/core.umd.js",
+    "module": "dist/core.es.js",
+    "types": "./glue.d.ts",
+    "keywords": [
+        "glue",
+        "glue42",
+        "desktop",
+        "interop",
+        "context"
+    ],
+    "homepage": "https://glue42.com/",
+    "scripts": {
+        "tslint": "tslint -t codeFrame ./src/**/*.ts",
+        "validate-changelog": "node ./scripts/validate-config.js",
+        "docs": "typedoc --options typedoc.json ./src",
+        "auditPackage": "npm audit --registry=https://registry.npmjs.com",
+        "prepublishOnly": "npm run validate-changelog && npm run auditPackage  && npm run test  && npm run build",
+        "test": "npm run build:tests && mocha ./tests/ --recursive --exit",
+        "coverage": "nyc npm run test",
+        "publish:beta": "npm publish --tag beta",
+        "build": "npm run tslint && rollup -c",
+        "build:tests": "tsc -p ./tsconfig.test.json"
+    },
+    "author": {
+        "name": "Glue42",
+        "url": "https://www.glue42.com"
+    },
+    "license": "SEE LICENSE IN license.md",
+    "dependencies": {
+        "callback-registry": "^2.5.2",
+        "shortid": "2.2.6",
+        "ws": "7.1.2"
+    },
+    "devDependencies": {
+        "@types/chai": "^4.2.7",
+        "@types/lodash.isequal": "^4.5.5",
+        "@types/lodash.ismatch": "^4.4.6",
+        "@types/mocha": "^5.2.7",
+        "@types/node": "^12.11.1",
+        "@types/shortid": "0.0.29",
+        "chai": "4.0.2",
+        "chai-subset": "^1.6.0",
+        "deep-equal": "1.0.1",
+        "husky": "3.0.5",
+        "lodash.isequal": "^4.5.0",
+        "lodash.ismatch": "^4.4.0",
+        "mocha": "^6.2.1",
+        "nyc": "^15.0.0",
+        "rollup": "^1.27.14",
+        "rollup-plugin-commonjs": "^10.1.0",
+        "rollup-plugin-json": "^4.0.0",
+        "rollup-plugin-node-resolve": "^5.2.0",
+        "rollup-plugin-terser": "^5.1.3",
+        "rollup-plugin-typescript2": "^0.25.3",
+        "tick42-gateway": "^3.0.1-beta.5",
+        "tslint": "5.11.0",
+        "typescript": "^3.7.4"
+    },
+    "publishConfig": {
+        "registry": "https://registry.npmjs.org"
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "npm run build"
+        }
+    }
+}

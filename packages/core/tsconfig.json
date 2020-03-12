@@ -1,0 +1,36 @@
+{
+    "compilerOptions": {
+        "noImplicitAny": true,
+        "sourceMap": true,
+        "module": "ESNext",
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "declaration": false,
+        "target": "ES5",
+        "pretty": true,
+        "strict": true,
+        "noImplicitThis": true,
+        "strictNullChecks": true,
+        "strictPropertyInitialization": true,
+        "strictBindCallApply": true,
+        "strictFunctionTypes": true,
+        "removeComments": true,
+        "lib": [
+            "dom",
+            "es5",
+            "es6",
+            "scripthost",
+            "es2015.promise",
+            "es2015.symbol"
+        ]
+    },
+    "include": [
+        "./src/**/*",
+        "./tests/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
+}
