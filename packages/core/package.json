@@ -29,7 +29,7 @@
         "name": "Glue42",
         "url": "https://www.glue42.com"
     },
-    "license": "SEE LICENSE IN license.md",
+    "license": "MIT",
     "dependencies": {
         "callback-registry": "^2.5.2",
         "shortid": "2.2.6",
