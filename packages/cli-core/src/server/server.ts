@@ -68,13 +68,11 @@ export class CoreDevServer {
         console.log("Found root app definition, setting up");
         this.app.use((request, response, next) => {
 
-            console.log(`Handling root app interception for URL: ${request.url}`);
+            const appToRespond = this.findApp(request.url, request.headers.referer, true);
 
-            if (request.url !== "/" && this.routeMatchExists(request.url)) {
-                console.log("The url is either / or there is a matching route");
+            if (appToRespond) {
                 return next();
             }
-            console.log("If the url is .map or HTML, will be handled by root app, else forwarded down");
             this.handleInitialHtmlMap(request, next, definition, response);
         });
     }
@@ -90,19 +88,12 @@ export class CoreDevServer {
     }
 
     private handleInitialHtmlMap(request: express.Request, next: express.NextFunction, definition: DevServerApp, response: express.Response): void {
-        if (request.headers.accept.includes("html")) {
-            console.log(`Intercepted request identified as HTML from URL: ${request.url}`);
+        if (request.headers.accept?.includes("html")) {
             this.getAppHtml(definition, response);
             return;
         }
 
-        if (request.url.includes(".map")) {
-            console.log(`Intercepted request identified as MAP from URL: ${request.url}`);
-            this.proxyToApp(definition, request, response, next);
-            return;
-        }
-
-        next();
+        this.proxyToApp(definition, request, response, next);
     }
 
     private interceptReferrerRequests(allApps: DevServerApp[]): void {
@@ -119,23 +110,22 @@ export class CoreDevServer {
             if (!matchedDefinition) {
                 return next();
             }
-            console.log(`Intercepted referrer request from URL: ${request.url}`);
-            this.proxyToApp(matchedDefinition, request, response, next);
+
+            this.proxyToApp(matchedDefinition, request, response, next, true);
         });
     }
 
-    private proxyToApp(definition: DevServerApp, request: express.Request, response: express.Response, next: express.NextFunction): void {
+    private proxyToApp(definition: DevServerApp, request: express.Request, response: express.Response, next: express.NextFunction, ignoreRoute?: boolean): void {
 
         if (definition.file) {
-            console.log(`Proxying request URL: ${request.url} to local folder: ${definition.file.path}`);
-            // todo: think about this
             request.url = request.url.replace(definition.route, "/");
             express.static(definition.file.path)(request, response, next);
             return;
         }
 
-        const target = this.getLocalhostTarget(definition.localhost.port);
-        console.log(`Proxying request URL: ${request.url} to target: ${target}`);
+        const route = ignoreRoute ? "" : definition.route;
+
+        const target = this.getLocalhostTarget(definition.localhost.port, route);
         this.proxy.web(request, response, { target, secure: false }, (err) => {
             console.log(`Got proxy response error for request URL: ${request.url} to target: ${target}`);
             console.log(err);
@@ -148,7 +138,6 @@ export class CoreDevServer {
 
         if (definition.file) {
             const indexLocation = `${definition.file.path}/index.html`;
-            console.log(`Serving HTML locally from: ${indexLocation}`);
             response.sendFile(indexLocation, (err) => {
                 response.status(500);
                 response.send(err);
@@ -156,8 +145,7 @@ export class CoreDevServer {
             return;
         }
 
-        const target = this.getLocalhostTarget(definition.localhost.port, definition.localhost.base);
-        console.log(`Proxying html request to target: ${target}`);
+        const target = this.getLocalhostTarget(definition.localhost.port, definition.route);
         const write = concat((completeResp) => {
             const injectedMessage = completeResp
                 .toString("utf8")
@@ -209,8 +197,8 @@ export class CoreDevServer {
     }
 
     private async setUpGlueAssets(): Promise<void> {
-        this.app.get("/glue/worker", express.static(this.config.glueAssets.sharedWorker));
-        this.app.get("/glue/gateway", express.static(this.config.glueAssets.gateway));
+        this.app.use("/glue/worker", express.static(this.config.glueAssets.sharedWorker));
+        this.app.use("/glue/gateway", express.static(this.config.glueAssets.gateway));
     }
 
     private disableCache(): void {
@@ -250,6 +238,9 @@ export class CoreDevServer {
     }
 
     private sliceReferrer(referrer: string): string {
+        if (!referrer) {
+            return;
+        }
         const refStartIndex = referrer.indexOf(String(this.config.serverSettings.port)) + 4;
         const nextSlashIndex = referrer.indexOf("/", refStartIndex + 1);
         const refEndIndex = nextSlashIndex === -1 ? referrer.length : nextSlashIndex;
@@ -258,12 +249,16 @@ export class CoreDevServer {
         return ref || "/";
     }
 
-    private routeMatchExists(url: string): boolean {
+    private findApp(url: string, referrerUrl: string, excludeRoot?: boolean): DevServerApp {
         const urlPieces = this.slicePath(url);
+        const referrer = this.sliceReferrer(referrerUrl);
 
-        return this.config.apps.some((app) => {
+        return this.config.apps.find((app) => {
+            if (excludeRoot && app.route === "/") {
+                return false;
+            }
             const routePieces = this.slicePath(app.route);
-            return routePieces.every((piece, idx) => piece === urlPieces[idx]);
+            return routePieces.every((piece, idx) => piece === urlPieces[idx]) || (referrer && app.route === referrer);
         });
     }
 
