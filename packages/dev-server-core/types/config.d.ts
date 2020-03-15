@@ -1,8 +1,3 @@
-export interface DevServerCore {
-    start: () => Promise<void>;
-    setup: () => Promise<DevServerCore>;
-}
-
 export interface SharedAsset {
     path: string;
     route: string;
