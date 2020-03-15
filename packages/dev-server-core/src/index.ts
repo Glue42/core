@@ -1,5 +1,4 @@
-import { ConfigParser } from "../config/config-parser";
-import { ServerConfig, SharedAsset, DevServerApp } from "../config/config";
+import { DevServerCore, ServerConfig, SharedAsset, DevServerApp } from "./index.d";
 import { createServer, ServerOptions, Server as HttpServer } from "http";
 import express, { Express } from "express";
 import morgan from "morgan";
@@ -7,29 +6,21 @@ import request from "request";
 import concat from "concat-stream";
 import Server, { createProxyServer } from "http-proxy";
 
-export class CoreDevServer {
+export class CoreDevServer implements DevServerCore {
 
-    private readonly argv: string[];
-    private readonly rootDirectory: string;
-    private config: ServerConfig;
     private server: HttpServer;
     private proxy: Server;
     private app: Express;
 
     constructor(
-        private readonly parser: ConfigParser,
-        nodeProcess: NodeJS.Process
-    ) {
-        this.argv = nodeProcess.argv;
-        this.rootDirectory = nodeProcess.cwd();
-    }
+        private readonly config: ServerConfig
+    ) { }
 
     public async start(): Promise<void> {
         return new Promise((resolve) => this.server.listen(this.config.serverSettings.port, resolve));
     }
 
     public async setup(): Promise<CoreDevServer> {
-        this.config = await this.parser.parse(this.argv, this.rootDirectory);
 
         this.app = express();
 
