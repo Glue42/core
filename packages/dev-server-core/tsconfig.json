@@ -5,7 +5,7 @@
         "allowSyntheticDefaultImports": true
     },
     "include": [
-        "./src/**/*.ts"
+        "./src/**/*.ts", "types/config.d.ts", "types/index.d.ts"
     ],
     "exclude": [
         "node_modules",

@@ -1,8 +1,10 @@
 import { expect } from "chai";
 import mockery from "mockery";
-import { DevServerCore, ServerConfig } from "../src/index.d";
+import { ServerConfig } from "../types/config.d";
 import { httpMock, expressMock, httpProxyMock, morganMock, requestMock } from "./mocks";
 import "mocha";
+import { CoreDevServer } from "../types/index.d";
+
 
 describe("first test suite", function () {
     this.timeout(10000);
@@ -40,7 +42,7 @@ describe("first test suite", function () {
                 { route: "/", localhost: { port: 4200 }, cookieID: "TEMP" }
             ]
         };
-        const server: DevServerCore = new Server(config);
+        const server: CoreDevServer = new Server(config);
 
         await server.setup();
         console.log(server);

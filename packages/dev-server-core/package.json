@@ -2,9 +2,9 @@
   "name": "@glue42/dev-server-core",
   "version": "0.0.0",
   "description": "Glue42 Core development environment server",
-  "main": "./dist/server.js",
+  "main": "./dist/index.js",
   "module": "./dist/server.es.js",
-  "types": "./src/index.d.ts",
+  "types": "./types/index.d.ts",
   "license": "MIT",
   "scripts": {
     "start": "npm run build && node ./dist/index.js",
