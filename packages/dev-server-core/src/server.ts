@@ -46,7 +46,7 @@ export class CoreDevServer {
         this.config.apps.forEach((appDef) => this.interceptAppRequests(appDef));
         this.interceptReferrerRequests(this.config.apps);
 
-        this.setUpRootAppIntercept();
+        this.setUp404();
 
         this.server = createServer({ insecureHTTPParser: true } as ServerOptions, this.app);
 
@@ -56,7 +56,6 @@ export class CoreDevServer {
     }
 
     private interceptRootApp(definition: DevServerApp): void {
-        console.log("Found root app definition, setting up");
         this.app.use((request, response, next) => {
 
             const appToRespond = this.findApp(request.url, request.headers.referer, true);
@@ -118,8 +117,6 @@ export class CoreDevServer {
 
         const target = this.getLocalhostTarget(definition.localhost.port, route);
         this.proxy.web(request, response, { target, secure: false }, (err) => {
-            console.log(`Got proxy response error for request URL: ${request.url} to target: ${target}`);
-            console.log(err);
             response.status(500);
             response.send(`The app's original server responded with an error: ${JSON.stringify(err)}`);
         });
@@ -147,15 +144,13 @@ export class CoreDevServer {
         request
             .get(target)
             .on("error", (err) => {
-                console.log(`Got proxy HTML response error for target: ${target}`);
-                console.log(err);
                 response.status(404);
                 response.send(`The app's original server responded with an error: ${JSON.stringify(err)}`);
             })
             .pipe(write);
     }
 
-    private setUpRootAppIntercept(): void {
+    private setUp404(): void {
         this.app.use((request, response) => {
             response.status(404);
             response.send("404: File Not Found");
@@ -166,10 +161,8 @@ export class CoreDevServer {
         this.server.on("upgrade", (req, socket, head) => {
             const gCoreCookie = this.getCookie("gcore", req.headers.cookie);
             const definition = this.config.apps.find((def) => def.cookieID === gCoreCookie);
-            console.log(`Got an UPGRADE request from: ${req.url}, found cookie: ${gCoreCookie} and matched definition: ${JSON.stringify(definition)}`);
             if (definition) {
                 const target = this.getLocalhostTarget(definition.localhost.port);
-                console.log(`Definition is valid, proxying to target: ${target}`);
                 this.proxy.ws(req, socket, head, { target });
             }
         });
@@ -206,7 +199,6 @@ export class CoreDevServer {
     private getWsProxyScript(cookieID: string): string {
         return `<head><script>
         (() => {
-          console.log('injected');
           const setCookie = (name, value) => {
             document.cookie = name + "=" + value+ ";path=/;";
           }
