@@ -1,3 +1,10 @@
+export interface ServerConfig {
+    glueAssets: GlueAssets;
+    apps: DevServerApp[];
+    serverSettings: ServerSettings;
+    sharedAssets?: SharedAsset[];
+}
+
 export interface SharedAsset {
     path: string;
     route: string;
@@ -11,24 +18,17 @@ export interface DevServerApp {
     file?: {
         path: string;
     };
-    cookieID: string;
+    cookieID?: string;
 }
-
-export interface ServerConfig {
-    glueAssets: GlueAssets;
-    apps: DevServerApp[];
-    serverSettings: ServerSettings;
-    sharedAssets?: SharedAsset[];
-}
-
 
 export interface ServerSettings {
-    port?: number;
+    port: number;
     disableCache?: boolean;
-    verboseLogging?: boolean;
+    logging?: "full";
 }
 
 export interface GlueAssets {
     sharedWorker: string;
     gateway: string;
+    config: string;
 }

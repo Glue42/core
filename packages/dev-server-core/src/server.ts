@@ -1,26 +1,27 @@
 import { ServerConfig, SharedAsset, DevServerApp } from "../types/config";
 import { createServer, ServerOptions, Server as HttpServer } from "http";
+import { configure, getLogger, Logger, connectLogger } from "log4js";
 import express, { Express } from "express";
-import morgan from "morgan";
 import request from "request";
 import concat from "concat-stream";
 import Server, { createProxyServer } from "http-proxy";
+import { serverConfigDecoder } from "./decoders";
 
 export class CoreDevServer {
 
     private server: HttpServer;
     private proxy: Server;
     private app: Express;
-
-    constructor(
-        private readonly config: ServerConfig
-    ) { }
+    private config: ServerConfig;
+    private logger: Logger;
 
     public async start(): Promise<void> {
         return new Promise((resolve) => this.server.listen(this.config.serverSettings.port, resolve));
     }
 
-    public async setup(): Promise<CoreDevServer> {
+    public async setup(config: ServerConfig): Promise<CoreDevServer> {
+
+        this.config = serverConfigDecoder.runWithException(config);
 
         this.app = express();
 
@@ -28,11 +29,11 @@ export class CoreDevServer {
             this.disableCache();
         }
 
-        if (this.config.serverSettings.verboseLogging) {
+        if (this.config.serverSettings.logging) {
             this.setUpLogging();
         }
 
-        await this.setUpGlueAssets();
+        this.setUpGlueAssets();
 
         this.config.sharedAssets?.forEach((asset) => this.setUpSharedAsset(asset));
         this.proxy = createProxyServer();
@@ -180,9 +181,10 @@ export class CoreDevServer {
         this.app.use(asset.route, express.static(asset.path));
     }
 
-    private async setUpGlueAssets(): Promise<void> {
-        this.app.use("/glue/worker", express.static(this.config.glueAssets.sharedWorker));
-        this.app.use("/glue/gateway", express.static(this.config.glueAssets.gateway));
+    private setUpGlueAssets(): void {
+        this.app.use("/glue/worker.js", express.static(this.config.glueAssets.sharedWorker));
+        this.app.use("/glue/gateway.js", express.static(this.config.glueAssets.gateway));
+        this.app.use("/glue/config.json", express.static(this.config.glueAssets.config));
     }
 
     private disableCache(): void {
@@ -193,7 +195,21 @@ export class CoreDevServer {
     }
 
     private setUpLogging(): void {
-        this.app.use(morgan("dev"));
+        configure({
+            appenders: {
+                out: { type: "console" },
+                app: {
+                    type: "file",
+                    filename: "glue.core.cli.debug.log"
+                }
+            },
+            categories: {
+                "default": { appenders: ["out"], level: "trace" },
+                "full": { appenders: ["out", "app"], level: "trace" }
+            }
+        });
+        this.logger = getLogger(this.config.serverSettings.logging);
+        this.app.use(connectLogger(this.logger, { level: "trace" }));
     }
 
     private getWsProxyScript(cookieID: string): string {

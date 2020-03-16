@@ -1,12 +1,11 @@
 import { expect } from "chai";
 import mockery from "mockery";
 import { ServerConfig } from "../types/config.d";
-import { httpMock, expressMock, httpProxyMock, morganMock, requestMock } from "./mocks";
+import { httpMock, expressMock, httpProxyMock, requestMock } from "./mocks";
 import "mocha";
 import { CoreDevServer } from "../types/index.d";
 
-
-describe("first test suite", function () {
+describe("Dev Server ", function () {
     this.timeout(10000);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let Server: any;
@@ -15,7 +14,6 @@ describe("first test suite", function () {
         mockery.enable();
         mockery.registerMock("http", httpMock);
         mockery.registerMock("express", expressMock);
-        mockery.registerMock("morgan", morganMock);
         mockery.registerMock("request", requestMock);
         mockery.registerMock("concat-stream", expressMock);
         mockery.registerMock("http-proxy", httpProxyMock);
@@ -27,16 +25,16 @@ describe("first test suite", function () {
         mockery.disable();
     });
 
-    it("first test", async () => {
+    it("setup should resolve when all arguments are valid", async () => {
         const config: ServerConfig = {
             serverSettings: {
                 disableCache: false,
-                verboseLogging: false,
                 port: 5000
             },
             glueAssets: {
                 sharedWorker: "./",
-                gateway: "./"
+                gateway: "./",
+                config: "./"
             },
             apps: [
                 { route: "/", localhost: { port: 4200 }, cookieID: "TEMP" }
@@ -45,7 +43,6 @@ describe("first test suite", function () {
         const server: CoreDevServer = new Server(config);
 
         await server.setup();
-        console.log(server);
         expect(1).to.eql(1);
     });
 });
