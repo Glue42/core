@@ -31,7 +31,6 @@ expressMock.static = (): void => console.log("calling static");
 
 export { expressMock };
 
-export const morganMock = (): void => console.log("calling morgan");
 export const requestMock = {
     get: (): { pipe: () => void } => {
         console.log("calling request get");
@@ -73,7 +72,7 @@ export const parserMock = {
 };
 
 export const processMock = {
-    cwd: () => {
+    cwd: (): string => {
         console.log("calling process cwd");
         return "C://Users/flash/Desktop/";
     }

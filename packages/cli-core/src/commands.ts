@@ -1,4 +1,4 @@
-import { CoreDevServer } from "@glue42/dev-server-core";
+import { CoreDevServer } from "./server/server";
 import { ConfigParser } from "./config/config-parser";
 import { InitiationController } from "./initiate/controller";
 import { Npm } from "./initiate/npm";
@@ -11,8 +11,8 @@ export const commands: { [key in Command]: () => Promise<void> } = {
         const parser = new ConfigParser();
         const config = await parser.parse(process.argv, process.cwd());
 
-        const server = new CoreDevServer(config);
-        await server.setup();
+        const server = new CoreDevServer();
+        await server.setup(config);
         await server.start();
         console.log("server started");
     },

@@ -1,7 +1,7 @@
-import { ServerConfig, SharedAsset, DevServerApp } from "../types/config";
+import { ServerConfig, SharedAsset, DevServerApp } from "../config/config.d";
 import { createServer, ServerOptions, Server as HttpServer } from "http";
+import { configure, getLogger, Logger, connectLogger } from "log4js";
 import express, { Express } from "express";
-import morgan from "morgan";
 import request from "request";
 import concat from "concat-stream";
 import Server, { createProxyServer } from "http-proxy";
@@ -11,16 +11,16 @@ export class CoreDevServer {
     private server: HttpServer;
     private proxy: Server;
     private app: Express;
-
-    constructor(
-        private readonly config: ServerConfig
-    ) { }
+    private config: ServerConfig;
+    private logger: Logger;
 
     public async start(): Promise<void> {
         return new Promise((resolve) => this.server.listen(this.config.serverSettings.port, resolve));
     }
 
-    public async setup(): Promise<CoreDevServer> {
+    public async setup(config: ServerConfig): Promise<CoreDevServer> {
+
+        this.config = config;
 
         this.app = express();
 
@@ -28,11 +28,11 @@ export class CoreDevServer {
             this.disableCache();
         }
 
-        if (this.config.serverSettings.verboseLogging) {
+        if (this.config.serverSettings.logging) {
             this.setUpLogging();
         }
 
-        await this.setUpGlueAssets();
+        this.setUpGlueAssets();
 
         this.config.sharedAssets?.forEach((asset) => this.setUpSharedAsset(asset));
         this.proxy = createProxyServer();
@@ -46,7 +46,7 @@ export class CoreDevServer {
         this.config.apps.forEach((appDef) => this.interceptAppRequests(appDef));
         this.interceptReferrerRequests(this.config.apps);
 
-        this.setUpRootAppIntercept();
+        this.setUp404();
 
         this.server = createServer({ insecureHTTPParser: true } as ServerOptions, this.app);
 
@@ -56,7 +56,6 @@ export class CoreDevServer {
     }
 
     private interceptRootApp(definition: DevServerApp): void {
-        console.log("Found root app definition, setting up");
         this.app.use((request, response, next) => {
 
             const appToRespond = this.findApp(request.url, request.headers.referer, true);
@@ -118,8 +117,6 @@ export class CoreDevServer {
 
         const target = this.getLocalhostTarget(definition.localhost.port, route);
         this.proxy.web(request, response, { target, secure: false }, (err) => {
-            console.log(`Got proxy response error for request URL: ${request.url} to target: ${target}`);
-            console.log(err);
             response.status(500);
             response.send(`The app's original server responded with an error: ${JSON.stringify(err)}`);
         });
@@ -147,15 +144,13 @@ export class CoreDevServer {
         request
             .get(target)
             .on("error", (err) => {
-                console.log(`Got proxy HTML response error for target: ${target}`);
-                console.log(err);
                 response.status(404);
                 response.send(`The app's original server responded with an error: ${JSON.stringify(err)}`);
             })
             .pipe(write);
     }
 
-    private setUpRootAppIntercept(): void {
+    private setUp404(): void {
         this.app.use((request, response) => {
             response.status(404);
             response.send("404: File Not Found");
@@ -166,10 +161,8 @@ export class CoreDevServer {
         this.server.on("upgrade", (req, socket, head) => {
             const gCoreCookie = this.getCookie("gcore", req.headers.cookie);
             const definition = this.config.apps.find((def) => def.cookieID === gCoreCookie);
-            console.log(`Got an UPGRADE request from: ${req.url}, found cookie: ${gCoreCookie} and matched definition: ${JSON.stringify(definition)}`);
             if (definition) {
                 const target = this.getLocalhostTarget(definition.localhost.port);
-                console.log(`Definition is valid, proxying to target: ${target}`);
                 this.proxy.ws(req, socket, head, { target });
             }
         });
@@ -187,9 +180,10 @@ export class CoreDevServer {
         this.app.use(asset.route, express.static(asset.path));
     }
 
-    private async setUpGlueAssets(): Promise<void> {
-        this.app.use("/glue/worker", express.static(this.config.glueAssets.sharedWorker));
-        this.app.use("/glue/gateway", express.static(this.config.glueAssets.gateway));
+    private setUpGlueAssets(): void {
+        this.app.use("/glue/worker.js", express.static(this.config.glueAssets.sharedWorker));
+        this.app.use("/glue/gateway.js", express.static(this.config.glueAssets.gateway));
+        this.app.use("/glue/config.json", express.static(this.config.glueAssets.config));
     }
 
     private disableCache(): void {
@@ -200,13 +194,26 @@ export class CoreDevServer {
     }
 
     private setUpLogging(): void {
-        this.app.use(morgan("dev"));
+        configure({
+            appenders: {
+                out: { type: "console" },
+                app: {
+                    type: "file",
+                    filename: "glue.core.cli.debug.log"
+                }
+            },
+            categories: {
+                "default": { appenders: ["out"], level: "trace" },
+                "full": { appenders: ["out", "app"], level: "trace" }
+            }
+        });
+        this.logger = getLogger(this.config.serverSettings.logging);
+        this.app.use(connectLogger(this.logger, { level: "trace" }));
     }
 
     private getWsProxyScript(cookieID: string): string {
         return `<head><script>
         (() => {
-          console.log('injected');
           const setCookie = (name, value) => {
             document.cookie = name + "=" + value+ ";path=/;";
           }

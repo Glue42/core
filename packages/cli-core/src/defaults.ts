@@ -7,12 +7,12 @@ export const glueDevConfigDefaults: {name: string; data: UserConfig} = {
     data: {
         glueAssets: {
             gateway: "./node_modules/@glue42/gateway-core",
-            sharedWorker: "./node_modules/@glue42/worker-core"
+            sharedWorker: "./node_modules/@glue42/worker-core",
+            config: "./glue.config.json"
         },
         serverSettings: {
             port: 4242,
-            disableCache: true,
-            verboseLogging: false
+            disableCache: true
         },
         sharedAssets: [],
         apps: []

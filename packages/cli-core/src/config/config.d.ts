@@ -1,7 +1,7 @@
 export interface UserServerSettings {
     port?: number;
     disableCache?: boolean;
-    verboseLogging?: boolean;
+    logging?: "full";
 }
 
 export interface UserServerApp {
@@ -19,6 +19,7 @@ export interface UserConfig {
     glueAssets?: {
         sharedWorker?: string;
         gateway?: string;
+        config?: string;
     };
     serverSettings?: UserServerSettings;
     sharedAssets?: SharedAsset[];
@@ -40,6 +41,7 @@ export interface DevServerApp extends UserServerApp {
 export interface GlueAssets {
     sharedWorker: string;
     gateway: string;
+    config: string;
 }
 
 export interface ServerConfig {

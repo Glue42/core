@@ -20,8 +20,12 @@
     "access": "public"
   },
   "dependencies": {
-    "@glue42/dev-server-core": "^0.0.0",
     "@mojotech/json-type-validation": "^3.1.0",
+    "concat-stream": "^2.0.0",
+    "express": "^4.17.1",
+    "http-proxy": "^1.18.0",
+    "log4js": "^6.1.2",
+    "request": "^2.88.2",
     "rimraf": "^3.0.2",
     "rollup-plugin-json": "^4.0.0",
     "shortid": "^2.2.15"
