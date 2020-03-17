@@ -1,32 +1,20 @@
-import { CoreDevServer } from "./server/server";
-import { ConfigParser } from "./config/config-parser";
-import { InitiationController } from "./initiate/controller";
-import { Npm } from "./initiate/npm";
-import { BuildController } from "./builder/controller";
+import { Logger } from "log4js";
+import { CliConfig } from "./config/cli.config";
+import { coreDevServer } from "./server";
+import { buildController } from "./builder";
+import { initController } from "./initiate";
 
 export type Command = "serve" | "build" | "init";
 
-export const commands: { [key in Command]: () => Promise<void> } = {
-    serve: async (): Promise<void> => {
-        const parser = new ConfigParser();
-        const config = await parser.parse(process.argv, process.cwd());
-
-        const server = new CoreDevServer();
-        await server.setup(config);
-        await server.start();
-        console.log("server started");
+export const commands: { [key in Command]: (config: CliConfig, logger: Logger) => Promise<void> } = {
+    serve: async (config: CliConfig, logger: Logger): Promise<void> => {
+        await coreDevServer.setup(config, logger);
+        await coreDevServer.start();
     },
-    build: async (): Promise<void> => {
-        const parser = new ConfigParser();
-        const config = await parser.parse(process.argv, process.cwd());
-
-        const buildController = new BuildController();
-        await buildController.build(config, process.cwd());
+    build: async (config: CliConfig, logger: Logger): Promise<void> => {
+        await buildController.build(config, logger);
     },
-    init: async (): Promise<void> => {
-        const npm = new Npm();
-        const initController = new InitiationController(npm);
-
-        await initController.start(process.cwd());
+    init: async (config: CliConfig, logger: Logger): Promise<void> => {
+        await initController.start(config, logger);
     }
 };

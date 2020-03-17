@@ -1,5 +1,5 @@
-import { Decoder, object, string, number, boolean, optional, array } from "@mojotech/json-type-validation";
-import { SharedAsset, UserServerSettings, UserServerApp, UserConfig } from "./config";
+import { Decoder, object, string, number, boolean, optional, array, oneOf, constant } from "@mojotech/json-type-validation";
+import { SharedAsset, ServerSettings, ServerApp, GlueDevConfig } from "./user.config";
 
 const nonEmptyStringDecoder: Decoder<string> = string().where((s) => s.length > 0, "Expected a non-empty string");
 const nonNegativeNumberDecoder: Decoder<number> = number().where((num) => num >= 0, "Expected a non-negative number");
@@ -9,13 +9,12 @@ const sharedAssetDecoder: Decoder<SharedAsset> = object({
     route: nonEmptyStringDecoder
 });
 
-const userServerSettingsDecoder: Decoder<UserServerSettings> = object({
+const userServerSettingsDecoder: Decoder<ServerSettings> = object({
     port: optional(nonNegativeNumberDecoder),
-    disableCache: optional(boolean()),
-    verboseLogging: optional(boolean())
+    disableCache: optional(boolean())
 });
 
-const userServerAppDecoder: Decoder<UserServerApp> = object({
+const userServerAppDecoder: Decoder<ServerApp> = object({
     route: nonEmptyStringDecoder,
     localhost: optional(object({
         port: nonNegativeNumberDecoder
@@ -25,12 +24,17 @@ const userServerAppDecoder: Decoder<UserServerApp> = object({
     }))
 });
 
-export const serverConfigDecoder: Decoder<UserConfig> = object({
+export const serverConfigDecoder: Decoder<GlueDevConfig> = object({
     glueAssets: optional(object({
         sharedWorker: optional(nonEmptyStringDecoder),
-        gateway: optional(nonEmptyStringDecoder)
+        gateway: optional(nonEmptyStringDecoder),
+        config: optional(nonEmptyStringDecoder)
     })),
-    apps: array(userServerAppDecoder),
     serverSettings: optional(userServerSettingsDecoder),
-    sharedAssets: optional(array(sharedAssetDecoder))
+    apps: array(userServerAppDecoder),
+    sharedAssets: optional(array(sharedAssetDecoder)),
+    logging: optional(oneOf<"full" | "dev">(
+        constant("full"),
+        constant("dev")
+    ))
 });

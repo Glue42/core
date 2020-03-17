@@ -1,11 +1,13 @@
 import { mkdir, copyFile } from "fs";
 import { join } from "path";
-import { ServerConfig } from "../config/config";
+import { CliConfig } from "../config/cli.config";
 import rimraf from "rimraf";
+import { Logger } from "log4js";
 
 export class BuildController {
-    public async build(config: ServerConfig, rootDirectory: string): Promise<void> {
-        const targetDir = join(rootDirectory, "glue");
+    public async build(config: CliConfig, logger: Logger): Promise<void> {
+        logger.info("using");
+        const targetDir = join(config.rootDirectory, "glue");
         await this.deleteExistingGlueDir(targetDir);
         await this.createGlueDir(targetDir);
 

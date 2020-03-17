@@ -1,13 +1,13 @@
 import { commands, Command } from "./commands";
+import { configure, Logger, getLogger } from "log4js";
+import { loggerConfig } from "./defaults";
+import { configController } from "./config";
 
-export const initiate = (argv: string[]): Promise<void> => {
-    const command = argv[2];
+export const initiate = async (process: NodeJS.Process): Promise<void> => {
+    const cliConfig = await configController.composeCliConfig(process);
 
-    const allCommandNames = Object.keys(commands);
+    configure(loggerConfig);
+    const logger: Logger = getLogger(cliConfig.logging);
 
-    if (!allCommandNames.includes(command)) {
-        throw new Error(`Unrecognized command: ${command}`);
-    }
-
-    return commands[command as Command]();
+    return commands[cliConfig.command](cliConfig, logger);
 };

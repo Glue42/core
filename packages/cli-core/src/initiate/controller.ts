@@ -4,13 +4,16 @@ import { Npm } from "./npm";
 // todo: remove with disable when the deps are available
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { gCoreDeps, glueConfigDefaults, glueDevConfigDefaults } from "../defaults";
+import { CliConfig } from "../config/cli.config";
+import { Logger } from "log4js";
 
 export class InitiationController {
 
     constructor(private readonly npm: Npm) { }
 
-    public async start(rootDirectory: string): Promise<void> {
-        const pJsonExists = await this.checkPJsonExists(rootDirectory);
+    public async start(config: CliConfig, logger: Logger): Promise<void> {
+        logger.info("using");
+        const pJsonExists = await this.checkPJsonExists(config.rootDirectory);
 
         if (!pJsonExists) {
             await this.npm.init();
@@ -19,8 +22,8 @@ export class InitiationController {
         // todo: uncomment when the deps are available
         // await this.npm.installDeps(gCoreDeps);
         await Promise.all([
-            this.createFile(join(rootDirectory, glueDevConfigDefaults.name), JSON.stringify(glueDevConfigDefaults.data, null, 4)),
-            this.createFile(join(rootDirectory, glueConfigDefaults.name), JSON.stringify(glueConfigDefaults.data, null, 4))
+            this.createFile(join(config.rootDirectory, glueDevConfigDefaults.name), JSON.stringify(glueDevConfigDefaults.data, null, 4)),
+            this.createFile(join(config.rootDirectory, glueConfigDefaults.name), JSON.stringify(glueConfigDefaults.data, null, 4))
         ]);
     }
 

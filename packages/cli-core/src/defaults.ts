@@ -1,8 +1,24 @@
-import { UserConfig } from "./config/config";
+import { Configuration } from "log4js";
+import { GlueDevConfig } from "./config/user.config";
+
+export const loggerConfig: Configuration = {
+    appenders: {
+        out: { type: "console" },
+        app: {
+            type: "file",
+            filename: "glue.core.cli.log"
+        }
+    },
+    categories: {
+        "default": { appenders: ["out"], level: "warn" },
+        "dev": { appenders: ["out"], level: "trace" },
+        "full": { appenders: ["out", "app"], level: "trace" }
+    }
+};
 
 export const gCoreDeps = ["@glue42/gateway-core", "@glue42/worker-core"];
 
-export const glueDevConfigDefaults: {name: string; data: UserConfig} = {
+export const glueDevConfigDefaults: { name: string; data: GlueDevConfig } = {
     name: "glue.config.dev.json",
     data: {
         glueAssets: {
@@ -23,6 +39,6 @@ export const glueDevConfigDefaults: {name: string; data: UserConfig} = {
 export const glueConfigDefaults = {
     name: "glue.config.json",
     data: {
-        test:24
+        test: 24
     }
 };
