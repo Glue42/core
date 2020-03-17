@@ -89,7 +89,7 @@ describe("Client subscription", () => {
                 s.onData((streamData) => {
                     expect(streamData.data.publicData).to.deep.equal(publicData);
                     // tslint:disable-next-line:no-console
-                    console.log(streamData.data);
+                    // console.log(streamData.data);
                     done();
                 });
             })

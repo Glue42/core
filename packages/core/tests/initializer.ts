@@ -5,7 +5,7 @@ import { Glue42Core } from "../glue";
 let glues: Glue42Core.GlueCore[] = [];
 let id = 1;
 
-const logLevel = "info";
+const logLevel = "error";
 export const defaultWSPort = 8385;
 export const defaultWS = `ws://localhost:${defaultWSPort}/gw`;
 
@@ -25,19 +25,19 @@ export function startGW() {
             switch (ll) {
                 case "trace":
                     // tslint:disable-next-line:no-console
-                    console.info(message);
+                    // console.info(message);
                     break;
                 case "debug":
                     // tslint:disable-next-line:no-console
-                    console.info(message);
+                    // console.info(message);
                     break;
                 case "info":
                     // tslint:disable-next-line:no-console
-                    console.info(message);
+                    // console.info(message);
                     break;
                 case "warn":
                     // tslint:disable-next-line: no-console
-                    console.warn(message);
+                    // console.warn(message);
                     break;
                 case "error":
                     // tslint:disable-next-line:no-console
@@ -77,7 +77,7 @@ export const createGlue = async (appName?: string, bus?: boolean) => {
 
     glues.push(g);
     // tslint:disable-next-line:no-console
-    console.log(`created glue ${g.config.application} id:${g.interop.instance.peerId}`);
+    // console.log(`created glue ${g.config.application} id:${g.interop.instance.peerId}`);
     return g;
 };
 

@@ -19,7 +19,7 @@ export async function init(callback: cbk, custom?: Glue42Core.Config, ext?: Glue
             username: "t42",
             password: "test"
         },
-        logger: "trace",
+        logger: "error",
         application: "test-application"
     };
 

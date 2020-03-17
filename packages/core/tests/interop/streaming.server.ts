@@ -92,7 +92,7 @@ describe("Server stream", function () {
 
         Promise.all([p1, p2]).then(() => {
             stream.subscriptions().filter((s) => {
-                if (s.arguments) {
+                if (s.arguments?.second) {
                     s.push({ a: 3 });
                     s.push({ a: 5 });
                 }
