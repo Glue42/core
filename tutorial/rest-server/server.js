@@ -14,6 +14,18 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+app.use(function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    if (path.basename(req.path).length > 0 && fs.existsSync(path.join(TARGET_DIR, req.path))) {
+        res.sendFile(path.resolve(path.join(TARGET_DIR, req.path)));
+    } else if (req.path.startsWith(API_URL_PREFIX)) {
+        next();
+    } else {
+        res.sendFile(path.resolve(TARGET_DIR, 'index.html'));
+    }
+});
+
 app.get(`${API_URL_PREFIX}/clients`, (req, res) => {
     res.json(clients);
 });
@@ -32,21 +44,11 @@ app.get(`${API_URL_PREFIX}/portfolio/:userId`, (req, res) => {
     res.json([]);
 });
 
-app.use(function(req, res, next) {
-    if (path.basename(req.path).length > 0 && fs.existsSync(path.join(TARGET_DIR, req.path))) {
-        res.sendFile(path.resolve(path.join(TARGET_DIR, req.path)));
-    } else if (req.path.startsWith(API_URL_PREFIX)) {
-        next();
-    } else {
-        res.sendFile(path.resolve(TARGET_DIR, 'index.html'));
-    }
-});
-
 const port = process.env.PORT || 8080;
 
 app.listen(port, function(error) {
     if (error) {
         throw error;
     }
-    console.log(`Serving directory ${path.resolve(process.argv[2])} on port ${port}`);
+    console.log(`Serving directory ${path.resolve(TARGET_DIR)} on port ${port}`);
 });
