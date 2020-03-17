@@ -11,7 +11,7 @@ import {
 import { Logger } from "../logger/logger";
 
 import { Glue42Core } from "../../glue";
-import InProcTransport from "./transports/inproc";
+import InProcTransport from "./transports/inprocess";
 import SharedWorkerTransport from "./transports/worker";
 import WS from "./transports/ws";
 import GW3ProtocolImpl from "./protocols/gw3";
