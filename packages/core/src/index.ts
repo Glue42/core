@@ -40,20 +40,30 @@ const GlueCore = (userConfig?: Glue42Core.Config, ext?: Glue42Core.Extension): P
     let _metrics: Glue42Core.Metrics.API;
     let _contexts: Glue42Core.Contexts.API;
     let _bus: Glue42Core.Bus.API;
+    let _allowTrace: boolean; // true if trace logging is enabled
 
     const libs: { [key: string]: any } = {};
 
     function registerLib(name: string | string[], inner: any, t: Timer) {
 
+        _allowTrace = _logger.canPublish("trace");
+        if (_allowTrace) {
+            _logger.trace(`registering ${name}lib`);
+        }
+
+        const done = () => {
+            inner.initTime = t.stop();
+            inner.initEndTime = t.endTime;
+            _logger.trace(`${name} is ready`);
+        };
+
         inner.initStartTime = t.startTime;
         if (inner.ready) {
             inner.ready().then(() => {
-                inner.initTime = t.stop();
-                inner.initEndTime = t.endTime;
+                done();
             });
         } else {
-            inner.initTime = t.stop();
-            inner.initEndTime = t.endTime;
+            done();
         }
 
         if (!Array.isArray(name)) {
@@ -75,7 +85,9 @@ const GlueCore = (userConfig?: Glue42Core.Config, ext?: Glue42Core.Extension): P
         // no auth - what we do in different protocol versions
         if (internalConfig.connection && !internalConfig.auth) {
             if (glue42gd) {
+                _logger.trace(`trying to get gw token...`);
                 authPromise = glue42gd.getGWToken().then((token) => {
+                    _logger.trace(`got GW token`);
                     return {
                         gatewayToken: token
                     };

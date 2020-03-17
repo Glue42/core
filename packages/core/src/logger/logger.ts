@@ -14,7 +14,8 @@ export class Logger implements Glue42Core.Logger.API {
     private _publishLevel: Glue42Core.LogLevel | undefined;
     private loggerFullName: string;
     private includeTimeAndLevel: boolean;
-    private logFn: any;
+    private logFn: Glue42Core.CustomLogger = console;
+    private customLogFn: boolean = false;
 
     constructor(public readonly name: string, private parent?: Logger, logFn?: Glue42Core.CustomLogger) {
         this.name = name;
@@ -27,7 +28,10 @@ export class Logger implements Glue42Core.Logger.API {
 
         this.loggerFullName = `[${this.path}]`;
         this.includeTimeAndLevel = !logFn;
-        this.logFn = logFn ?? console;
+        if (logFn) {
+            this.logFn = logFn;
+            this.customLogFn = true;
+        }
     }
 
     public subLogger(name: string): Logger {
@@ -47,7 +51,7 @@ export class Logger implements Glue42Core.Logger.API {
             }
         });
 
-        const sub = new Logger(name, this, this.logFn);
+        const sub = new Logger(name, this, this.customLogFn ? this.logFn : undefined);
 
         // add sub-logger to sub-loggers array
         this.subLoggers.push(sub);
@@ -63,7 +67,7 @@ export class Logger implements Glue42Core.Logger.API {
         return this._publishLevel || this.parent?.publishLevel();
     }
 
-    public consoleLevel(level?: Glue42Core.LogLevel): Glue42Core.LogLevel | undefined  {
+    public consoleLevel(level?: Glue42Core.LogLevel): Glue42Core.LogLevel | undefined {
         if (level) {
             this._consoleLevel = level;
         }

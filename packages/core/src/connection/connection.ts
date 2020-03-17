@@ -49,7 +49,7 @@ export default class Connection implements Glue42Core.Connection.API {
     constructor(private settings: ConnectionSettings, private logger: Logger) {
         settings = settings || {};
         settings.reconnectAttempts = settings.reconnectAttempts || 10;
-        settings.reconnectInterval = settings.reconnectInterval || 500;
+        settings.reconnectInterval = settings.reconnectInterval || 1000;
 
         if (settings.inproc) {
             this.transport = new InProcTransport(settings.inproc, logger.subLogger("inMemory"));
@@ -133,10 +133,10 @@ export default class Connection implements Glue42Core.Connection.API {
         return this.registry.add("disconnected", callback);
     }
 
-    public async login(authRequest: Glue42Core.Auth): Promise<Identity> {
+    public async login(authRequest: Glue42Core.Auth, reconnect?: boolean): Promise<Identity> {
         // open the protocol in case it was closed by explicity logout
         await this.transport.open();
-        const identity = this.protocol.login(authRequest);
+        const identity = this.protocol.login(authRequest, reconnect);
         return identity;
     }
 

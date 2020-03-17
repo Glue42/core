@@ -106,7 +106,7 @@ export default class GW3ProtocolImpl implements GW3Protocol {
         return message;
     }
 
-    public async login(config: Glue42Core.Auth): Promise<Identity> {
+    public async login(config: Glue42Core.Auth, reconnect?: boolean): Promise<Identity> {
         this.logger.debug("logging in...");
         this.loginConfig = config;
 
@@ -129,6 +129,15 @@ export default class GW3ProtocolImpl implements GW3Protocol {
         if (this.connection.gatewayToken) {
             authentication.method = "gateway-token";
             authentication.token = this.connection.gatewayToken;
+            // in case of re-connect try to refresh the GW token
+            if (reconnect) {
+                try {
+                    const token = await this.getNewGWToken();
+                    config.gatewayToken = token;
+                } catch (e) {
+                    this.logger.warn(`failed to get GW token when reconnecting ${e?.message || e}`);
+                }
+            }
         } else if (config.flowName === "sspi") {
             authentication.provider = "win";
             authentication.method = "access-token";
@@ -274,27 +283,10 @@ export default class GW3ProtocolImpl implements GW3Protocol {
                 throw new Error("no login info");
             }
 
-            let tokenRefreshPromise = Promise.resolve();
-            if (typeof window !== undefined && this.loginConfig && this.loginConfig.gatewayToken) {
-                // pull up a new token from gd
-                const glue42gd = window.glue42gd;
-                if (glue42gd) {
-                    tokenRefreshPromise = glue42gd.getGWToken().then((token: string) => {
-                        if (this.loginConfig) {
-                            this.loginConfig.gatewayToken = token;
-                        }
-                    });
-                }
-            }
-
-            tokenRefreshPromise.then(() => {
-                if (this.loginConfig) {
-                    this.connection.login(this.loginConfig)
-                        .catch(() => {
-                            setTimeout(this.handleDisconnected, 1000);
-                        });
-                }
-            });
+            this.connection.login(this.loginConfig, true)
+                .catch(() => {
+                    setTimeout(this.handleDisconnected, 1000);
+                });
         }
     }
 
@@ -326,12 +318,23 @@ export default class GW3ProtocolImpl implements GW3Protocol {
         };
 
         if (!this.globalDomain) {
-            throw new Error("no global domain session");
+            return Promise.reject(new Error("no global domain session"));
         }
 
         return this.globalDomain.send<CreateTokenRes>(createTokenReq)
             .then((res: CreateTokenRes) => {
                 return res.token;
             });
+    }
+
+    private getNewGWToken(): Promise<string | undefined> {
+        if (typeof window !== undefined) {
+            // pull up a new token from gd
+            const glue42gd = window.glue42gd;
+            if (glue42gd) {
+                return glue42gd.getGWToken();
+            }
+        }
+        return Promise.reject(new Error("not running in GD"));
     }
 }

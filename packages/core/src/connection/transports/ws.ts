@@ -146,8 +146,8 @@ export default class WS implements Transport {
                 const retries =
                     retriesLeft === undefined ? undefined : retriesLeft - 1;
                 this.openSocket(
+                    retryInterval,
                     retries,
-                    retryInterval
                 );
             }, retryInterval); // wait X milliseconds for the connection...
         }

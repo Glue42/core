@@ -1,5 +1,3 @@
-const GW = require("tick42-gateway");
-
 import { ready, gwObject } from "../initializer";
 import CreateGlue from "../../src/index";
 import { Glue42Core } from "../../glue";

@@ -1,6 +1,6 @@
 {
     "name": "@glue42/core",
-    "version": "5.0.0-beta.7",
+    "version": "5.0.0-beta.8",
     "description": "Glue42 core library",
     "main": "dist/core.umd.js",
     "module": "dist/core.es.js",
@@ -22,7 +22,7 @@
         "test": "npm run build:tests && mocha ./tests/ --recursive --exit",
         "coverage": "nyc npm run test",
         "publish:beta": "npm publish --tag beta",
-        "build": "npm run tslint && rollup -c",
+        "build": "npm run tslint && tsc -p ./tsconfig.json && rollup -c",
         "build:tests": "tsc -p ./tsconfig.test.json"
     },
     "author": {
@@ -36,6 +36,7 @@
         "ws": "7.1.2"
     },
     "devDependencies": {
+        "@glue42/ws-gateway": "^3.0.8-beta.1",
         "@types/chai": "^4.2.7",
         "@types/lodash.isequal": "^4.5.5",
         "@types/lodash.ismatch": "^4.4.6",

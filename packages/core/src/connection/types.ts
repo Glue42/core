@@ -56,7 +56,7 @@ export interface GW3Protocol {
     processObjectMessage(message: object): { msg: object, msgType: string };
     createObjectMessage(message: object): object;
 
-    login(message: Glue42Core.Auth): Promise<Identity>;
+    login(message: Glue42Core.Auth, reconnect?: boolean): Promise<Identity>;
     logout(): Promise<void>;
     loggedIn(callback: (() => void)): () => void;
 }
