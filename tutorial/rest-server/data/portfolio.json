@@ -5,7 +5,9 @@
     "Bloomberg": "VOD LN Equity",
     "Description": "VODAFONE GROUP PLC",
     "Exchange": "XLON",
-    "Venues": "LSE(VOD.L), BTE(VODl.BS), CIX(VODl.CHI), TRQ(VODl.TQ)"
+    "Venues": "LSE(VOD.L), BTE(VODl.BS), CIX(VODl.CHI), TRQ(VODl.TQ)",
+    "Bid": 23.96,
+    "Ask": 26.03
   },
   {
     "RIC": "TSCO.L",
@@ -13,7 +15,9 @@
     "Bloomberg": "TSCO LN Equity",
     "Description": "TESCO PLC",
     "Exchange": "XLON",
-    "Venues": "LSE(TSCO.L), BTE(TSCOl.BS), CIX(TSCOl.CHI), TRQ(TSCOl.TQ)"
+    "Venues": "LSE(TSCO.L), BTE(TSCOl.BS), CIX(TSCOl.CHI), TRQ(TSCOl.TQ)",
+    "Bid": 9.96,
+    "Ask": 10.03
   },
   {
     "RIC": "BARC.L",
@@ -21,7 +25,9 @@
     "Bloomberg": "BARC LN Equity",
     "Description": "BARCLAYS PLC",
     "Exchange": "XLON",
-    "Venues": "LSE(BARC.L), BTE(BARCl.BS), CIX(BARCl.CHI), TRQ(BARCl.TQ)"
+    "Venues": "LSE(BARC.L), BTE(BARCl.BS), CIX(BARCl.CHI), TRQ(BARCl.TQ)",
+    "Bid": 8.90,
+    "Ask": 9.09
   },
   {
     "RIC": "BMWG.DE",
@@ -29,7 +35,9 @@
     "Bloomberg": "BMW GY Equity",
     "Description": "BAYERISCHE MOTOREN WERKE AG",
     "Exchange": "XETR",
-    "Venues": "GER(BMWG.DE), BTE(BMWd.BS), CIX(BMWd.CHI), TRQ(BMWd.TQ)"
+    "Venues": "GER(BMWG.DE), BTE(BMWd.BS), CIX(BMWd.CHI), TRQ(BMWd.TQ)",
+    "Bid": 7.86,
+    "Ask": 8.43
   },
   {
     "RIC": "AAL.L",
@@ -37,6 +45,8 @@
     "Bloomberg": "AAL LN Equity",
     "Description": "ANGLO AMERICAN PLC",
     "Exchange": "XLON",
-    "Venues": "LSE(AAL.L), BTE(AALl.BS), CIX(AALl.CHI), TRQ(AALl.TQ)"
+    "Venues": "LSE(AAL.L), BTE(AALl.BS), CIX(AALl.CHI), TRQ(AALl.TQ)",
+    "Bid": 6.66,
+    "Ask": 7.43
   }
 ]
