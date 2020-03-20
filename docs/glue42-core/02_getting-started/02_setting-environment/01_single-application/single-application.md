@@ -1,0 +1,1 @@
+## Setting up single application
