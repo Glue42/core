@@ -48,5 +48,75 @@
     "Venues": "LSE(AAL.L), BTE(AALl.BS), CIX(AALl.CHI), TRQ(AALl.TQ)",
     "Bid": 6.66,
     "Ask": 7.43
+  },
+  {
+    "RIC": "IBM.N",
+    "BPOD": "IBM:US",
+    "Bloomberg": "IBM:US Equity",
+    "Description": "International Business Machines Corp.",
+    "Exchange": "XLON",
+    "Venues": "LSE(IBM.L), BTE(IBM.BS), CIX(IBM.CHI), TRQ(IBM.TQ)",
+    "Bid": 4.66,
+    "Ask": 5.43
+  },
+  {
+    "RIC": "AAPL.OQ",
+    "BPOD": "AAPL:US",
+    "Bloomberg": "Apple Inc",
+    "Description": "Apple Inc",
+    "Exchange": "XLON",
+    "Venues": "LSE(AAPL.L), BTE(AAPL.BS), CIX(AAPL.CHI), TRQ(AAPL.TQ)",
+    "Bid": 44.66,
+    "Ask": 45.43
+  },
+  {
+    "RIC": "BA.N",
+    "BPOD": "BA:US",
+    "Bloomberg": "Boeing Co",
+    "Description": "Boeing Co",
+    "Exchange": "XLON",
+    "Venues": "LSE(BA.L), BTE(BA.BS), CIX(BA.CHI), TRQ(BA.TQ)",
+    "Bid": 34.66,
+    "Ask": 35.43
+  },
+  {
+    "RIC": "TSLA:OQ",
+    "BPOD": "TSLA:US",
+    "Bloomberg": "Tesla Inc",
+    "Description": "Tesla Inc",
+    "Exchange": "XLON",
+    "Venues": "LSE(TSLA.L), BTE(TSLA.BS), CIX(TSLA.CHI), TRQ(TSLA.TQ)",
+    "Bid": 24.66,
+    "Ask": 25.43
+  },
+  {
+    "RIC": "ENBD.DU",
+    "BPOD": "EMIRATES:UH",
+    "Bloomberg": "Emirates NBD Bank PJSC",
+    "Description": "Emirates NBD Bank PJSC",
+    "Exchange": "XLON",
+    "Venues": "LSE(ENBD.L), BTE(ENBD.BS), CIX(ENBD.CHI), TRQ(ENBD.TQ)",
+    "Bid": 14.66,
+    "Ask": 15.43
+  },
+  {
+    "RIC": "AMZN.OQ",
+    "BPOD": "AMZN:US",
+    "Bloomberg": "Amazon.com Inc",
+    "Description": "Amazon.com Inc",
+    "Exchange": "XLON",
+    "Venues": "LSE(AMZN.L), BTE(AMZN.BS), CIX(AMZN.CHI), TRQ(AMZN.TQ)",
+    "Bid": 5.66,
+    "Ask": 6.43
+  },
+  {
+    "RIC": "MSFT:OQ",
+    "BPOD": "MSFT:US",
+    "Bloomberg": "Microsoft Corp",
+    "Description": "Microsoft Corp",
+    "Exchange": "XLON",
+    "Venues": "LSE(MSFT.L), BTE(MSFT.BS), CIX(MSFT.CHI), TRQ(MSFT.TQ)",
+    "Bid": 4.66,
+    "Ask": 8.43
   }
 ]

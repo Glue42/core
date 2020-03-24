@@ -5,7 +5,6 @@ const bodyParser = require('body-parser');
 const clients = require('./data/clients');
 const portfolio = require('./data/portfolio');
 
-// const API_JSON_PATH = './data/';
 const API_URL_PREFIX = '/api';
 const TARGET_DIR = process.argv[2] || './';
 
@@ -16,8 +15,14 @@ app.use(bodyParser.json());
 
 app.use(function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-    if (path.basename(req.path).length > 0 && fs.existsSync(path.join(TARGET_DIR, req.path))) {
+    res.header(
+        'Access-Control-Allow-Headers',
+        'Origin, X-Requested-With, Content-Type, Accept'
+    );
+    if (
+        path.basename(req.path).length > 0 &&
+    fs.existsSync(path.join(TARGET_DIR, req.path))
+    ) {
         res.sendFile(path.resolve(path.join(TARGET_DIR, req.path)));
     } else if (req.path.startsWith(API_URL_PREFIX)) {
         next();
@@ -35,13 +40,18 @@ app.get(`${API_URL_PREFIX}/portfolio`, (req, res) => {
 });
 
 app.get(`${API_URL_PREFIX}/portfolio/:userId`, (req, res) => {
-    const client = clients.Clients.find(({eId, pId, id, gId}) => [eId, pId, id, gId].includes(req.params.userId));
+    const client = clients.find(({ eId, pId, id, gId }) =>
+        [eId, pId, id, gId].includes(req.params.userId)
+    );
     if (client) {
         const portfolioIds = client.portfolio.split(', ');
-        const clientPortfolio = portfolio.filter(({BPOD}) => portfolioIds.includes(BPOD));
+        const clientPortfolio = portfolio.filter(({ RIC }) =>
+            portfolioIds.includes(RIC)
+        );
         res.json(clientPortfolio);
+    } else {
+        res.json([]);
     }
-    res.json([]);
 });
 
 const port = process.env.PORT || 8080;
