@@ -1,0 +1,20 @@
+{
+  "name": "@glue42/worker-web",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {
+    "build": "parcel build ./src/index.ts --no-source-maps --no-cache --out-file worker.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "Glue42 Core shared worker",
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "@mojotech/json-type-validation": "^3.1.0",
+    "parcel-bundler": "^1.12.4",
+    "typescript": "^3.8.3"
+  }
+}
