@@ -3,18 +3,36 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "test": "cross-env TS_NODE_PROJECT=./tsconfig.test.json mocha -r ts-node/register test/**/*.spec.ts",
     "build": "parcel build ./src/index.ts --no-source-maps --no-cache --out-file worker.js"
   },
   "publishConfig": {
     "access": "public"
   },
   "description": "Glue42 Core shared worker",
+  "author": {
+    "name": "Glue42",
+    "url": "https://docs.glue42.com/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Glue42/core.git"
+  },
+  "homepage": "https://docs.glue42.com/",
   "files": [
     "dist"
   ],
   "devDependencies": {
     "@mojotech/json-type-validation": "^3.1.0",
+    "@types/chai": "^4.2.11",
+    "@types/mocha": "^7.0.2",
+    "@types/mockery": "^1.4.29",
+    "chai": "^4.2.0",
+    "cross-env": "^7.0.2",
+    "mocha": "^7.1.1",
+    "mockery": "^2.1.0",
     "parcel-bundler": "^1.12.4",
+    "ts-node": "^8.8.1",
     "typescript": "^3.8.3"
   }
 }

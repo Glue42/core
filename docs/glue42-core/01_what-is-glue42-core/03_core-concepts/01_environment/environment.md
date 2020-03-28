@@ -15,7 +15,7 @@ The Glue42 Core environment requirements are:
 
 Setting up is much easier than it seems. We have created a CLI tool **TODO: LINK** which makes the process of setting up your development environment and bundling the Glue42 Core environment for deployment easy and painless. We have prepared detailed guides for setting up the environment using the CLI for single application **TODO: LINK** and multiple application **TODO: LINK** projects.
 
-Those of you who need fine grain control over the development and deployment of their project, can head over to the Manual Setup **TODO: LINK** section. There we have prepared a detailed guide for manually setting up the environment.
+Those of you who need fine-grained control over the development and deployment of their project, can head over to the Manual Setup **TODO: LINK** section. There we have prepared a detailed guide for manually setting up the environment.
 
 ## Configuration File
 
@@ -31,8 +31,6 @@ interface Glue42CoreConfig {
     gateway?: GatewayConfig;
 }
 ```
-
-**Note!** When defining the location properties as relative, they will be treated as relative to `glue.config.json`. 
 
 ### Glue42WebConfig
 
@@ -52,6 +50,27 @@ This is an **optional** configuration object which defines settings used by the 
 |`logging.appender`|`object`|**Optional** Defines a custom log appender | By default the gateway will log to the shared worker's console |
 |`logging.appender.location`|`string`| The location of the appender script | no default |
 |`logging.appender.name`|`string`| The name of the appender function defined in the appender script | No default |
+
+
+#### Gateway log appender
+
+You can overwrite the default logging configuration of the gateway from `glue.config.json`. For most cases this is not needed, because the gateway logs internal messages sent back and forth from Glue42 Clients. However, if you really need to, you can define:
+- log level - accepts: `"trace" | "debug" | "info" | "warn" | "error"`, defaults to: `info`
+- appender - a function that receives a **LogInfo** object. By default logs to the shared worker console, but your custom function can send those logs to a remove server, for example. The **LogInfo** object has a structure like this:
+
+```javascript
+{
+    time: 2017-06-22T15:38:34.230Z,
+    file: 'C:\\Users\\dimd00d\\AppData\\Local\\Temp\\form-init8247674603237706851.clj',
+    output: 'DEBUG [gateway.local-node.core:55] - Sending message {:domain "global", :type :error, :request_id nil, :peer_id nil, :reason_uri "global.errors.authentication.failure", :reason "Unknown authentication method "} to local peer',
+    level: 'debug',
+    line: 55,
+    stacktrace: null,
+    namespace: 'gateway.local-node.core',
+    message: 'Sending message {:domain "global", :type :error, :request_id nil, :peer_id nil, :reason_uri "global.errors.authentication.failure", :reason "Unknown authentication method "} to local peer'
+}
+```
+The `output` key contains a processed message for direct output where the rest of the keys hold the details.
 
 Example:
 
@@ -88,20 +107,4 @@ The shared worker will use the `glue.config.json` to get user-defined settings f
 
 ## Gateway
 
-The gateway is the backbone of the Glue42 Core environment. It facilitates all communication between all Glue42 Clients and is initialized by the shared worker. You can overwrite the default logging configuration of the gateway from `glue.config.json`. For most cases this is not needed, because the gateway logs internal messages sent back and forth from Glue42 Clients. However, if you really need to, you can define:
-- log level - accepts: `"trace" | "debug" | "info" | "warn" | "error"`, defaults to: `info`
-- appender - a function that receives the log info. By default logs to the shared worker console, but your custom function can send those logs to a remove server, for example. The log info object has a structure like this:
-
-```javascript
-{
-    time: 2017-06-22T15:38:34.230Z,
-    file: 'C:\\Users\\dimd00d\\AppData\\Local\\Temp\\form-init8247674603237706851.clj',
-    output: 'DEBUG [gateway.local-node.core:55] - Sending message {:domain "global", :type :error, :request_id nil, :peer_id nil, :reason_uri "global.errors.authentication.failure", :reason "Unknown authentication method "} to local peer',
-    level: 'debug',
-    line: 55,
-    stacktrace: null,
-    namespace: 'gateway.local-node.core',
-    message: 'Sending message {:domain "global", :type :error, :request_id nil, :peer_id nil, :reason_uri "global.errors.authentication.failure", :reason "Unknown authentication method "} to local peer'
-}
-```
-The `output` key contains a processed message for direct output where the rest of the keys hold the details.
+The gateway is the backbone of the Glue42 Core environment. It facilitates all communication between all Glue42 Clients and is initialized by the shared worker. There are a few configuration options for the gateway, all exposed via the `glue.config.json` object.
