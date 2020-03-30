@@ -13,6 +13,37 @@ Install the Glue42 CLI using the npm package manager:
 npm install -g @glue42/cli-core
 ```
 
+## Commands
+
+The Glue42 Core CLI offers three simple commands with no additional parameters. All the necessary configuration options are take either from the `glue.config.dev.json` file in the current working directory or from the defaults.
+
+### Init
+
+```javascript
+gluec init
+```
+
+This command will set up Glue42 Core for the current directory. This means that the CLI will:
+- npm install (or npm init --yes beforehand, if no package.json was found) the Glue42 Core Environment **TODO: Link** files
+- create `glue.config.dev.json` with default settings and correct paths for all Glue42 Core assets
+- create `glue.config.json` with default settings for easy overwrite
+
+### Serve
+
+```javascript
+gluec serve
+```
+
+This command launches the dev server using the configuration provided in the `glue.config.dev.json` file.
+
+### Build
+
+```javascript
+gluec build
+```
+
+This command collects all the necessary Glue42 Core assets and bundles them in a `./glue` directory, ready for deployment.
+
 ## Configuration
 
 The Glue42 CLI requires a file named `glue.config.dev.json` to be available in the current working directory (the directory from which the CLI commands are called). This file contains tool settings and other configurations which allows it to correctly serve your applications and compose the final Glue42 Core bundle.
@@ -178,34 +209,3 @@ Example:
     "logging": "dev"
 }
 ```
-
-## Commands
-
-The Glue42 Core CLI offers three simple commands with no additional parameters. All the necessary configuration options are take either from the `glue.config.dev.json` file in the current working directory or from the defaults.
-
-### Init
-
-```javascript
-gluec init
-```
-
-This command will set up Glue42 Core for the current directory. This means that the CLI will:
-- npm install (or npm init --yes beforehand, if no package.json was found) the Glue42 Core Environment **TODO: Link** files
-- create `glue.config.dev.json` with default settings and correct paths for all Glue42 Core assets
-- create `glue.config.json` with default settings for easy overwrite
-
-### Serve
-
-```javascript
-gluec serve
-```
-
-This command launches the dev server using the configuration provided in the `glue.config.dev.json` file.
-
-### Build
-
-```javascript
-gluec build
-```
-
-This command collects all the necessary Glue42 Core assets and bundles them in a `./glue` directory, ready for deployment.
