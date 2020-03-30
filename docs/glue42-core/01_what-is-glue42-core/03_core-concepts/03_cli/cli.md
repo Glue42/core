@@ -13,6 +13,8 @@ Install the Glue42 CLI using the npm package manager:
 npm install -g @glue42/cli-core
 ```
 
+Next we will take a look at how to use the CLI, by going on the available commands.
+
 ## Commands
 
 The Glue42 Core CLI offers three simple commands with no additional parameters. All the necessary configuration options are take either from the `glue.config.dev.json` file in the current working directory or from the defaults.
