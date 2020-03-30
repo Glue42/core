@@ -46,8 +46,11 @@ export const glueConfigDefaults = {
     name: "glue.config.json",
     data: {
         glue: {
-            windows: true,
-            interop: true
+            worker: "./worker.js",
+            layouts: {
+                autoRestore: false,
+                autoSaveWindowContext: false
+            }
         },
         gateway: {
             location: "./gateway.js"
