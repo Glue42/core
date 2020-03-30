@@ -1,0 +1,49 @@
+{
+    "glueAssets": {
+        "gateway": {
+            "location": "./node_modules/@glue42/gateway-web/web/gateway-web.js"
+        },
+        "worker": "./node_modules/@glue42/worker-web/dist/worker.js",
+        "config": "./glue.config.json",
+        "route": "/glue"
+    },
+    "server": {
+        "settings": {
+            "port": 4242,
+            "disableCache": true
+        },
+        "apps": [
+            {
+                "route": "/clients",
+                "file": {
+                    "path": "./clients/"
+                }
+            },
+            {
+                "route": "/stocks",
+                "file": {
+                    "path": "./stocks/"
+                }
+            }
+        ],
+        "sharedAssets": [
+            {
+                "route": "/assets",
+                "path": "./assets/"
+            },
+            {
+                "route": "/lib",
+                "path": "./lib/"
+            },
+            {
+                "route": "/favicon.ico",
+                "path": "./favicon.ico"
+            },
+            {
+                "route": "/service-worker.js",
+                "path": "./service-worker.js"
+            }
+        ]
+    },
+    "logging": "dev"
+}

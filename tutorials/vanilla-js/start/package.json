@@ -1,0 +1,14 @@
+{
+  "name": "js-tutorial",
+  "version": "1.0.0",
+  "description": "Glue42 Core Vanilla JS Tutorial",
+  "scripts": {
+    "start": "http-server . --port=4000"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "http-server": "^0.12.1"
+  }
+}
