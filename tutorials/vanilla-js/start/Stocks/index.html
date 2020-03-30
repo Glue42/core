@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Stocks</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="stylesheet" href="/assets/bootstrap.min.css">
+    <script src="/lib/jquery.min.js"></script>
+    <script src="/lib/bootstrap.min.js"></script>
+    <script src="./index.js"></script>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-2">
+                <span id="glueSpan" class="label label-warning">Glue is disconnected</span>
+            </div>
+            <div class="col-md-10">
+                <h1 class="text-center">Stocks</h1>
+            </div>
+        </div>
+        <div class="row">
+            <table id="stocksTable" class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Description</th>
+                        <th className="text-right">Bid</th>
+                        <th className="text-right">Ask</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>
