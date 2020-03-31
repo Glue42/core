@@ -68,7 +68,7 @@ Next head over to `/tutorials/vanilla-js/start`. There are the start files for y
 
 Let's go through the resources we have there:
 - `/assets` - holds shared assets for both applications like icons and `.css`.
-- `lib` - hold common libraries used by both applications. There you will find the built Glue42 Web script, bootstrap and jquery for a little bit of styling.
+- `lib` - hold common libraries used by both applications. Actually there you will find only one library - the built Glue42 Web script.
 - `/clients` - this is our clients app, which consists of only an `index.html`, one script file and one `manifest.json`.
 - `/stocks` - this is our stocks app, it has the same elements as `clients`, with the addition of `/stocks/details`, which holds the `.html` and `.js` file for the stock details view.
 - `favicon.ico` - this is a standard favicon.
@@ -92,7 +92,7 @@ Great! So far we have gotten ourselves acquainted with the start files, we launc
 
 ### 1.2. Getting Started with the Glue42 Core CLI
 
-Now we are going to use the Glue42 Core CLI to initiate our environment. To do that you need to:
+Now we are going to use the Glue42 Core CLI to initiate our environment. For that you will need to install the Glue42 Core CLI first and then call the `init` command, which will set up your dev environment.
 
 ```javascript
 npm install --global @glue42/cli-core
@@ -156,6 +156,18 @@ This command will launch a dev server at port **:4242** and will serve everythin
 Now you can once again open your apps, but this time at `localhost:4242` and see that nothing really changed, at least that's how it seems. Do **note** that you will need to install the apps again and preferably remove the old onces, because the old once will route to port **:4000**.
 
 So far, so good, we have a Glue42 Core project up and running, now let's transform our two apps into Glue42 Clients, by initializing the Glue42 Web library in each of them.
+
+### 1.3. Getting Started with the Solution files
+
+Before we start coding, let's take a moment to talk about running the **solution**. You are free to use it as you like - you can check after each section to see what we have done to solve the problem, or you can use it as an example in case you get stuck somewhere.
+
+First, launch the `/rest-server` (if you have stopped it), then go to the `/vanilla-js/solution` directory, open a terminal and launch your project with the CLI:
+
+```javascript
+gluec serve
+```
+
+The fully completed project is available at `localhost:4242`.
 
 ## 2. Initializing Glue Web
 
