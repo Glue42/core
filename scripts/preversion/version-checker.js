@@ -61,9 +61,17 @@ const overwritePackageJson = (pkg) => {
 };
 
 const setLatestTagPerPackage = async (allTags, packagesJsons) => {
+
+
+
     packagesJsons.forEach((pkgJson) => {
         const name = pkgJson.contents.name;
-        const matchingTag = allTags.find((tag) => tag.includes(name));
+        // const matchingTag = allTags.find((tag) => tag.includes(name));
+
+        const matchingTag = allTags.find((tag) => {
+            const tagPackageName = tag.slice(0, tag.lastIndexOf('@') );
+            return tagPackageName === name;
+        });
 
         if (!matchingTag) {
             console.log(`No tag found for package ${name}, skipping version syncing.`);

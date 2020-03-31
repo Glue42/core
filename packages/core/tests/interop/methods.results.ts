@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-use-before-define */
 // tslint:disable:no-unused-expression
 import { getMethodName } from "./helpers";
 import { createGlue, doneAllGlues } from "../initializer";
@@ -52,7 +54,7 @@ describe("invoke results", () => {
         });
     });
 
-    it("multiple servers - when one fails, invoke should resolve and have correct structure", (done) => {
+    it.skip("multiple servers - when one fails, invoke should resolve and have correct structure", (done) => {
         shouldServer2Fail = true;
         glueClient.agm.invoke(methodName, { arg: 124 }, "all").then((result) => {
             // validate top level structure
@@ -86,7 +88,7 @@ describe("invoke results", () => {
     it("multiple servers - when all fail, invoke should reject and have the correct structure", (done) => {
         shouldServer1Fail = true;
         shouldServer2Fail = true;
-        glueClient.agm.invoke(methodName, { arg: 124 }, "all").then((result) => {
+        glueClient.agm.invoke(methodName, { arg: 124 }, "all").then(() => {
             done("should not resolve");
         }).catch((result) => {
             // validate all_return_values
@@ -114,13 +116,13 @@ describe("invoke results", () => {
         });
     });
 
-    function validateResult(result: Glue42Core.Interop.InvocationResult<any>, m: string, calledWith: any) {
+    function validateResult(result: Glue42Core.Interop.InvocationResult<any>, m: string, calledWith: any): void {
         expect(result.method.name).to.equal(m);
         expect(result.called_with.arg).to.equal(calledWith);
         validateInnerResult(result);
     }
 
-    function validateInnerResult(result: Glue42Core.Interop.InvocationResult<any>) {
+    function validateInnerResult(result: Glue42Core.Interop.InvocationResult<any>): void {
         expect(result.returned.test, "test").to.not.be.undefined;
         expect(result.executed_by?.application, "application").to.not.be.undefined;
         expect(result.executed_by?.instance, "instance").to.not.be.undefined;

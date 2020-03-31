@@ -13,5 +13,3 @@ if (version.indexOf('-') === -1) {
         process.exit(1);
     }
 }
-
-
