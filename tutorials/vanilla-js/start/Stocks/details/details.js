@@ -32,8 +32,15 @@ const updateStockPrices = (bid, ask) => {
     elementAsk.innerText = ask;
 };
 
-// const updateClientStatus = () => {
+// TODO: Chapter 5
+// const updateClientStatus = (client, stock) => {
 
+//     const message = client.portfolio.includes(stock.RIC) ?
+//         `${client.name} has this stock in the portfolio` :
+//         `${client.name} does NOT have this stock in the portfolio`;
+
+//     const elementTitle = document.getElementById('clientStatus');
+//     elementTitle.innerText = message;
 // };
 
 const start = async () => {
@@ -41,6 +48,8 @@ const start = async () => {
     const stock = JSON.parse(sessionStorage.getItem('stock')) || {};
 
     setFields(stock);
+
+    // TODO: Chapter 2
 };
 
 start().catch(console.error);

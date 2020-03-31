@@ -31,6 +31,7 @@ const setupClients = (clients) => {
     });
 };
 
+// TODO: Chapter 2
 // const toggleGlueAvailable = () => {
 //     const span = document.getElementById('glueSpan');
 //     span.classList.remove('label-warning');
@@ -53,6 +54,8 @@ const start = async () => {
     const clients = await clientsResponse.json();
 
     setupClients(clients);
+
+    // TODO: Chapter 2
 };
 
 start().catch(console.error);

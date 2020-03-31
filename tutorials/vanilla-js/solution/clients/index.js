@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const setupClients = (clients) => {
     const table = document.getElementById('clientsTable').getElementsByTagName('tbody')[0];
 
@@ -31,15 +32,21 @@ const setupClients = (clients) => {
     });
 };
 
-// const toggleGlueAvailable = () => {
-//     const span = document.getElementById('glueSpan');
-//     span.classList.remove('label-warning');
-//     span.classList.add('label-success');
-//     span.textContent = 'Glue is available';
-// };
+const toggleGlueAvailable = () => {
+    const span = document.getElementById('glueSpan');
+    span.classList.remove('label-warning');
+    span.classList.add('label-success');
+    span.textContent = 'Glue is available';
+};
 
 const clientClickedHandler = (client) => {
-    console.log(client);
+    // const selectClientStocks = window.glue.interop.methods().find((method) => method.name === 'SelectClient');
+
+    // if (selectClientStocks) {
+    //     window.glue.interop.invoke(selectClientStocks, { client });
+    // }
+
+    window.glue.contexts.update('SelectedClient', client).catch(console.error);
 };
 
 const start = async () => {
@@ -53,6 +60,10 @@ const start = async () => {
     const clients = await clientsResponse.json();
 
     setupClients(clients);
+
+    window.glue = await GlueWeb();
+
+    toggleGlueAvailable();
 };
 
 start().catch(console.error);

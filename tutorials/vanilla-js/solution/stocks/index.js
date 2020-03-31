@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const generateStockPrices = (handleNewPrices) => {
     setInterval(() => {
 
@@ -106,12 +107,12 @@ const setupStocks = (stocks) => {
     });
 };
 
-// const toggleGlueAvailable = () => {
-//     const span = document.getElementById('glueSpan');
-//     span.classList.remove('label-warning');
-//     span.classList.add('label-success');
-//     span.textContent = 'Glue is available';
-// };
+const toggleGlueAvailable = () => {
+    const span = document.getElementById('glueSpan');
+    span.classList.remove('label-warning');
+    span.classList.add('label-success');
+    span.textContent = 'Glue is available';
+};
 
 const newPricesHandler = (priceUpdate) => {
     priceUpdate.stocks.forEach((stock) => {
@@ -127,12 +128,21 @@ const newPricesHandler = (priceUpdate) => {
         const askElement = row.children[3];
         askElement.innerText = stock.Ask;
     });
+    if (window.priceStream) {
+        window.priceStream.push(priceUpdate);
+    }
 };
 
 const stockClickedHandler = (stock) => {
-    console.log(stock);
-    window.location.href = `http://${window.location.host}/stocks/details/index.html`;
-    sessionStorage.setItem('stock', JSON.stringify(stock));
+    const openConfig = {
+        left: 100,
+        top: 100,
+        width: 400,
+        height: 400,
+        context: stock
+    };
+
+    window.glue.windows.open(`${stock.BPOD} Details`, 'http://localhost:4242/stocks/details/', openConfig).catch(console.error);
 };
 
 const start = async () => {
@@ -148,6 +158,24 @@ const start = async () => {
     setupStocks(stocks);
 
     generateStockPrices(newPricesHandler);
+
+    window.glue = await GlueWeb();
+
+    toggleGlueAvailable();
+
+    window.glue.interop.register('SelectClient', (args) => {
+        const clientPortfolio = args.client.portfolio;
+        const stockToShow = stocks.filter((stock) => clientPortfolio.includes(stock.RIC));
+        setupStocks(stockToShow);
+    });
+
+    window.glue.contexts.subscribe('SelectedClient', (client) => {
+        const clientPortfolio = client.portfolio;
+        const stockToShow = stocks.filter((stock) => clientPortfolio.includes(stock.RIC));
+        setupStocks(stockToShow);
+    });
+
+    window.priceStream = await glue.interop.createStream('LivePrices');
 };
 
 start().catch(console.error);

@@ -106,6 +106,7 @@ const setupStocks = (stocks) => {
     });
 };
 
+// TODO: Chapter 2
 // const toggleGlueAvailable = () => {
 //     const span = document.getElementById('glueSpan');
 //     span.classList.remove('label-warning');
@@ -148,6 +149,8 @@ const start = async () => {
     setupStocks(stocks);
 
     generateStockPrices(newPricesHandler);
+
+    // TODO: Chapter 2
 };
 
 start().catch(console.error);

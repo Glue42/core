@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const setFields = (stock) => {
 
     const elementTitle = document.querySelector('.text-center');
@@ -32,15 +33,35 @@ const updateStockPrices = (bid, ask) => {
     elementAsk.innerText = ask;
 };
 
-// const updateClientStatus = () => {
+const updateClientStatus = (client, stock) => {
 
-// };
+    const message = client.portfolio.includes(stock.RIC) ?
+        `${client.name} has this stock in the portfolio` :
+        `${client.name} does NOT have this stock in the portfolio`;
+
+    const elementTitle = document.getElementById('clientStatus');
+    elementTitle.innerText = message;
+};
 
 const start = async () => {
 
-    const stock = JSON.parse(sessionStorage.getItem('stock')) || {};
+    window.glue = await GlueWeb();
+
+    const stock = window.glue.windows.my().context;
 
     setFields(stock);
+
+    const subscription = await window.glue.interop.subscribe('LivePrices');
+
+    subscription.onData((streamData) => {
+        const newPrices = streamData.data.stocks;
+        const selectedStockPrice = newPrices.find((prices) => prices.RIC === stock.RIC);
+        updateStockPrices(selectedStockPrice.Bid, selectedStockPrice.Ask);
+    });
+
+    window.glue.contexts.subscribe('SelectedClient', (client) => {
+        updateClientStatus(client, stock);
+    });
 };
 
 start().catch(console.error);
