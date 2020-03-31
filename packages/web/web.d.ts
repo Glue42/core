@@ -1,25 +1,64 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { UnsubscribeFunction } from "callback-registry";
 import { Glue42Core } from "@glue42/core";
 import { Glue42 } from "@glue42/desktop";
 
 /**
- * Factory function that creates a new Glue42Web API.
+ * Factory method that creates a new glue instance.
  * If your application is running in Glue42 Enterprise this will return a Glue42.Glue API, which is a super-set of the Glue42Web API.
  */
 export type GlueWebFactoryFunction = (config?: Glue42Web.Config) => Promise<Glue42Web.API | Glue42.Glue>;
 declare const GlueWebFactory: GlueWebFactoryFunction;
 export default GlueWebFactory;
 
-// tslint:disable-next-line:no-namespace
+/**
+ * @docmenuorder 1
+ * @docname Glue42 Web
+ * @intro
+ * Glue42 Web allows JavasScript applications to integrate with other applications, part of the same Glue42 Core project via a set of API. With Glue42 Web you can share data with other applications, expose functionality, manage windows and notifications.
+ * ## Referencing
+ * Glue42 Web is available both as a single JavaScript file which you can include into your web applications using a `<script>` tag, and as a node.js module.
+ * You can use Glue42 Web in a `script` tag include, e.g.:
+ *
+ * ```html
+ * <script type="text/javascript" src="web.umd.js"></script>
+ * ```
+ * ...or as a node.js module.
+ *
+ * ``` javascript
+ * const Glue = require("@glue42/web");
+ * ```
+ * When deploying your application in production, we recommend that you always reference a specific **minified** version, e.g.:
+ *
+ * ```html
+ * <script type="text/javascript" src="web.umd.min.js"></script>
+ * ```
+ *
+ * ## Initialization
+ * When Glue42 Web is executed, it will attach a factory function to the global (window) object at runtime called **GlueWeb**. This factory function should be invoked with an optional configuration object to init the library and connect to the Glue42 Core Environment The factory function returns a Promise object.
+ * Example
+ *
+ * ```javascript
+ *   GlueWeb()
+ *     .then((glue) => {
+ *       window.glue = glue;
+ *     })
+ *     .catch(console.log);
+ * ```
+ */
 export namespace Glue42Web {
 
     export import Interop = Glue42Core.Interop;
     export import Contexts = Glue42Core.Contexts;
     export import Logger = Glue42Core.Logger;
 
+    /**
+     * @docmenuorder 2
+     */
     export interface Config {
         /**
-         * By default @glue42/web will try to connect to a shared worker located in "/shared/worker.js". Use this ot override the shared worker location.
+         * By default @glue42/web will try to connect to a shared worker located in "/glue/worker.js". Use this ot override the shared worker location.
+         * It is recommended to use `worker` to define a custom location for the worker script, if extends has been set to `false`.
          * @default "/glue/worker.js"
          */
         worker?: string;
@@ -32,31 +71,20 @@ export namespace Glue42Web {
         logger?: Glue42Core.LogLevel;
 
         /**
-         * Options around layout save/restore
+         * Object used to turn on or off the applications auto-save and auto-restore functionality 
          */
-        layouts?: {
-            /**
-             * If true the set of windows opened by the application will be saved (in local storage) when the window is closed and restored
-             * when the window is started again. The data saved about each window includes URL, bounds and custom window context.
-             * It will also save and restore the window context of the current window.
-             * @default false
-             */
-            autoRestore?: boolean;
-
-            /**
-             * If set will return glue.windows.my().context automatically when asked for layout state
-             * @default false
-             */
-            autoSaveWindowContext?: boolean;
-        };
+        layouts?: LayoutConfig;
 
         /**
-         * Use this to fetch a configuration file from some URL. The user passed object will extend
-         * If false will not try to fetch and proceed with local config only
+         * Defines a URL to a hosted `glue.config.json` file which the library will fetch and use to extend the built-in config defaults. We recommend setting thi to `false`, if you do not have said configuration file. Also keep in mind that if you define a custom URL, then the library will expect to find a `worker.js` file next to the config.
+         * @default "/glue/glue.config.json"
          */
         extends?: string | false;
     }
 
+    /**
+     * @docmenuorder 3
+     */
     export interface API extends Glue42Core.GlueCore {
         windows: Glue42Web.Windows.API;
         /**
@@ -68,14 +96,59 @@ export namespace Glue42Web {
 
     /**
      * @docmenuorder 4
+     */
+    export interface LayoutConfig {
+        /**
+         * If true, the set of windows opened by the application will be saved (in local storage) when the window is closed and restored
+         * when the window is started again. The data saved about each window includes URL, bounds and custom window context.
+         * It will also save and restore the window context of the current window.
+         * @default false
+         */
+        autoRestore?: boolean;
+
+        /**
+         * If set to `true`, will return glue.windows.my().context automatically when asked for layout state.
+         * @default false
+         */
+        autoSaveWindowContext?: boolean;
+    }
+
+    /**
+     * @docmenuorder 5
      * @intro
      */
     export namespace Windows {
-        export interface Bounds {
-            top: number;
-            left: number;
-            width: number;
-            height: number;
+        export interface API {
+            list(): WebWindow[];
+
+            /** Returns the current window. */
+            my(): WebWindow;
+
+            /**
+             * Finds a window by ID.
+             * @param id Window ID.
+             */
+            findById(id: string): WebWindow | undefined;
+
+            /**
+             * Opens a new Glue42 Web Window.
+             * @param name The name for the window
+             * @param url The window URL.
+             * @param options Options for creating a window.
+             */
+            open(name: string, url: string, options?: CreateOptions): Promise<WebWindow>;
+
+            /**
+             * Notifies when a new window is opened.
+             * @param callback Callback function to handle the event. Receives the added window as a parameter. Returns an unsubscribe function.
+             */
+            onWindowAdded(callback: (window: WebWindow) => void): UnsubscribeFunction;
+
+            /**
+             * Notifies when a window is closed. For backwards compatibility, you can also use `windowRemoved`.
+             * @param callback Callback function to handle the event. Receives the removed window as a parameter. Returns an unsubscribe function.
+             */
+            onWindowRemoved(callback: (window: WebWindow) => void): UnsubscribeFunction;
         }
 
         export interface WebWindow {
@@ -83,28 +156,75 @@ export namespace Glue42Web {
 
             name: string;
 
+            /**
+             * Gets the current URL of the window.
+             */
             getURL(): Promise<string>;
 
+            /**
+             * Sets new location and size for the window. The accepted settings are absolute.
+             * @param dimension The object containing the desired absolute size and location.
+             */
             moveResize(dimension: Partial<Bounds>): Promise<WebWindow>;
 
+            /**
+             * Sets a new size of the window. The accepted settings are relative.
+             * @param width Relative width of the window.
+             * @param height Relative height of the window.
+             */
             resizeTo(width?: number, height?: number): Promise<WebWindow>;
 
+            /**
+             * Sets a new location of the window. The accepted settings are relative.
+             * @param top Relative distance top coordinates.
+             * @param left Relative distance left coordinates.
+             */
             moveTo(top?: number, left?: number): Promise<WebWindow>;
 
+            /**
+             * Closes the window
+             * @default 0
+             */
             close(): Promise<WebWindow>;
 
+            /**
+             * Returns the title of the window.
+             * @default 0
+             */
             getTitle(): Promise<string>;
 
+            /**
+             * Sets a new title for the window
+             * @param title The new title value.
+             */
             setTitle(title: string): Promise<WebWindow>;
 
+            /**
+             * Returns the current location and size of the window.
+             */
             getBounds(): Promise<Bounds>;
 
+            /**
+             * Gets the current context object of the window.
+             */
             getContext(): Promise<any>;
 
+            /**
+             * Updates the context object of the window
+             * @param context The new context object for the window.
+             */
             updateContext(context: any): Promise<WebWindow>;
 
+            /**
+             * Sets new context for the window.
+             * @param context The new context object for the window.
+             */
             setContext(context: any): Promise<WebWindow>;
 
+            /**
+             * Notifies when a change to the window's context has been made. 
+             * @param callback The function which will be invoked when a change to the window's context happens. The function will be called with the new context and window as arguments.
+             */
             onContextUpdated(callback: (context: any, window: WebWindow) => void): UnsubscribeFunction;
         }
 
@@ -156,51 +276,16 @@ export namespace Glue42Web {
 
         export type RelativeDirection = "top" | "left" | "right" | "bottom";
 
-        export interface API {
-            list(): WebWindow[];
-
-            /** Returns the current window. */
-            my(): WebWindow;
-
-            /**
-             * Finds a window by ID.
-             * @param id Window ID.
-             */
-            findById(id: string): WebWindow | undefined;
-
-            /**
-             * Opens a new Glue42 Window.
-             * @param url The window URL.
-             * @param options Options for creating a window.
-             */
-            open(name: string, url: string, options?: CreateOptions): Promise<WebWindow>;
-
-            /**
-             * Notifies when a new window is opened.
-             * @param callback Callback function to handle the event. Receives the added window as a parameter. Returns an unsubscribe function.
-             */
-            onWindowAdded(callback: (window: WebWindow) => void): UnsubscribeFunction;
-
-            /**
-             * Notifies when a window is closed. For backwards compatibility, you can also use `windowRemoved`.
-             * @param callback Callback function to handle the event. Receives the removed window as a parameter. Returns an unsubscribe function.
-             */
-            onWindowRemoved(callback: (window: WebWindow) => void): UnsubscribeFunction;
+        export interface Bounds {
+            top: number;
+            left: number;
+            width: number;
+            height: number;
         }
     }
 
     /**
-     * @docmenuorder 6
-     * @intro
      * @ignore
-     * **Layouts** allows you to save the arrangement of any set of applications running in Glue42 Desktop and later restore it. The **Layouts** API can be accessed using `glue.layouts`.
-     *
-     * The **Layouts** library supports different types of layouts:
-     *
-     * - [Global layouts](../../../../glue42-concepts/windows/layouts/javascript/index.html#global_layouts)
-     * - [Activity layouts](../../../../glue42-concepts/windows/layouts/javascript/index.html#activity_layouts)
-     *
-     * See also the [**Layouts**](../../../../glue42-concepts/windows/layouts/javascript/index.html) documentation for more details.
      */
     namespace Layouts {
 
@@ -359,7 +444,7 @@ export namespace Glue42Web {
     }
 
     /**
-     * @docmenuorder 5
+     * @docmenuorder 6
      * @intro
      */
     export namespace Notifications {
