@@ -22,7 +22,8 @@
         "auditPackage": "npm audit --registry=https://registry.npmjs.com",
         "coverage": "nyc npm run test",
         "publish:beta": "npm publish --tag beta",
-        "build": "npm run tslint && tsc -p ./tsconfig.json && rollup -c"       
+        "build": "npm run tslint && tsc -p ./tsconfig.json && rollup -c",
+        "generate-docs-new-structure": "glue-js-documentation-builder build-reference --project g4e -q reference --modules ./web.d.ts,./node_modules/@glue42/core/glue.d.ts --newStructure"
     },
     "author": {
         "name": "Glue42",
