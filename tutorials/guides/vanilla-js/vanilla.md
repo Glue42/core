@@ -161,9 +161,10 @@ So far, so good, we have a Glue42 Core project up and running, now let's transfo
 
 Before we start coding, let's take a moment to talk about running the **solution**. You are free to use it as you like - you can check after each section to see what we have done to solve the problem, or you can use it as an example in case you get stuck somewhere.
 
-First, launch the `/rest-server` (if you have stopped it), then go to the `/vanilla-js/solution` directory, open a terminal and launch your project with the CLI:
+First, launch the `/rest-server` (if you have stopped it), then go to the `/vanilla-js/solution` directory, open a terminal, install the node dependencies and launch your project with the CLI:
 
 ```javascript
+npm i
 gluec serve
 ```
 
