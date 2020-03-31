@@ -1,0 +1,16 @@
+.editorconfig
+.vscode
+.swp
+.idea
+
+node_modules/
+coverage
+*.tgz
+
+npm-debug.log
+metrics.log
+package-lock.json
+
+junit.xml
+
+/.nyc_output/**/*

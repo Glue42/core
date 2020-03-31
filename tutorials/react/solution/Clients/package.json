@@ -1,0 +1,39 @@
+{
+  "name": "Clients",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@glue42/web": "^1.0.0",
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.3.2",
+    "@testing-library/user-event": "^7.1.2",
+    "bootstrap": "^4.4.1",
+    "http-proxy-middleware": "^1.0.3",
+    "react": "^16.13.0",
+    "react-app-rewired": "^2.1.5",
+    "react-dom": "^16.13.0",
+    "react-scripts": "3.4.0"
+  },
+  "scripts": {
+    "start": "react-app-rewired start --scripts-version react-scripts",
+    "build": "react-app-rewired start --scripts-version build react-scripts",
+    "test": "react-app-rewired start --scripts-version test react-scripts",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "homepage": "/clients/",
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

@@ -2,7 +2,7 @@
   "name": "glue42core",
   "version": "0.0.0",
   "description": "Web interoperability framework",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "private": true,
   "workspaces": [
     "packages/*"

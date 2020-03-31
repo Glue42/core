@@ -235,7 +235,7 @@ const Application = () => {
 export default Application;
 ```
 
-### Get glue by **GlueContext**
+### Get Glue by **GlueContext**
 
 Using the built in React hook **useContext** you can get directly the global **glue** object and do whatever you want:
 

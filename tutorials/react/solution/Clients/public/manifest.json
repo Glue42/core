@@ -1,0 +1,26 @@
+{
+    "short_name": "Clients Tutorial",
+    "name": "Glue Web Clients Tutorial",
+    "icons": [
+        {
+            "src": "favicon.ico",
+            "sizes": "64x64",
+            "type": "image/x-icon"
+        },
+        {
+            "src": "logo192.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "logo512.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }
+    ],
+    "start_url": "./clients/",
+    "scope": "./clients/",
+    "display": "standalone",
+    "theme_color": "#000000",
+    "background_color": "#ffffff"
+}

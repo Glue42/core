@@ -1,0 +1,75 @@
+{
+  "name": "@glue42/react-hooks",
+  "version": "1.0.1",
+  "description": "React Hooks for Glue Web",
+  "main": "./dist/npm/index.js",
+  "module": "./dist/es/index.js",
+  "typings": "./react-hooks.d.ts",
+  "jsnext:main": "dist/es/index.js",
+  "keywords": [
+    "glue",
+    "glue42",
+    "web",
+    "desktop",
+    "interop",
+    "context",
+    "react",
+    "windows",
+    "hooks"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "test": "jest --coverage --runInBand",
+    "test:watch": "jest --watchAll",
+    "build": "rollup -c",
+    "lint": "eslint . --ext .js,.ts,.tsx --max-warnings 0",
+    "lint:fix": "eslint --fix . --ext .js,.ts,.tsx"
+  },
+  "author": {
+    "name": "Glue42",
+    "url": "https://www.glue42.com"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
+  },
+  "devDependencies": {
+    "@glue42/web": "^1.0.0",
+    "@testing-library/react-hooks": "^3.2.1",
+    "@types/enzyme": "^3.10.5",
+    "@types/enzyme-adapter-react-16": "^1.0.6",
+    "@types/react": "^16.9.23",
+    "@types/react-dom": "^16.9.5",
+    "@typescript-eslint/eslint-plugin": "^1.0.0",
+    "@typescript-eslint/parser": "^1.0.0",
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.2",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.0",
+    "eslint-plugin-jest": "^23.8.2",
+    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-react": "^7.19.0",
+    "jest": "^25.1.0",
+    "prettier": "^1.19.1",
+    "prop-types": "^15.7.2",
+    "react": "^16.13.0",
+    "react-dom": "^16.13.0",
+    "rollup": "^2.0.2",
+    "rollup-plugin-cleaner": "^1.0.0",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-terser": "^5.2.0",
+    "rollup-plugin-typescript2": "^0.26.0",
+    "ts-jest": "^25.2.1",
+    "ts-loader": "^6.2.1",
+    "typescript": "^3.8.3"
+  },
+  "dependencies": {
+    "prop-types": "^15.7.2"
+  }
+}
