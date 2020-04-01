@@ -8,6 +8,8 @@
     "packages/*"
   ],
   "scripts": {
+    "clean": "lerna clean",
+    "bootstrap": "lerna bootstrap",
     "build": "lerna run build",
     "test": "npm run test:scripts && lerna run test",
     "release": "gulp release",
