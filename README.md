@@ -52,11 +52,11 @@ Glue42 Core uses [GitHub releases](https://github.com/Glue42/core/releases) for 
 
 ## Contributing
 
-Glue42 Core employs the Developer Certificate of Origin (DCO) process to manage its contributions. Please review the [contributing guidelines](https://github.com/glue42/core/CONTRIBUTING.md/master/LICENSE) for more details.
+Glue42 Core employs the Developer Certificate of Origin (DCO) process to manage its contributions. Please review the [contributing guidelines](https://github.com/Glue42/core/blob/master/CONTRIBUTING.md) for more details.
 
 ### Setup
 
-Do you want to contribute to Glue42 Core? We welcome that, check out the [CONTRIBUTING](https://github.com/Glue42/core/blob/master/CONTRIBUTING.md) page for more info on how to get set up with the repo.
+Do you want to check out the codebase? We welcome that, check out the [CONTRIBUTING](https://github.com/Glue42/core/blob/master/CONTRIBUTING.md) page for more info on how to get set up with the repo.
 
 ## Code of Conduct
 

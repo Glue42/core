@@ -35,4 +35,6 @@ The npm modules of Glue42 Core are organized as packages inside `/packages`. Eac
 
 If you would like to submit a change, new feature, bugfix or any other improvement, you should open a Pull Request to `master` branch. As soon as you open your PR, the CI build will trigger multiple checks, basically it will build and test all packages against a combination of OSs and Node.js versions. Make sure to also include the appropriate label to your pull request.
 
+Keep in mind that we employ the Developer Certificate of Origin (DCO), so make sure to sign all of your commits.
+
 After your pull request was approved, you will need to squash all of your commits into one for clean merge into `master`. Note, that you can squash your commits before the PR also.
