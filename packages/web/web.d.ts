@@ -30,7 +30,7 @@ export default GlueWebFactory;
  * ...or as a module:
  *
  * ``` javascript
- * import GlueWeb from "@glue42/web"
+ * import GlueWeb from `@glue42/web`
  * ```
  *
  * When deploying your application in production, we recommend that you always reference a specific **minified** version, e.g.:

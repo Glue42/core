@@ -1,6 +1,6 @@
 ## Introduction
 
-This tutorial is designed to walk you through every aspect of Glue42 Core. Starting from a project setup with the CLI, initiating Glue42 Clients, extending the applications with Interop capabilities, window management functionality and shared contexts integration.
+This tutorial is designed to walk you through every aspect of Glue42 Core. Starting from a project setup with the [**Glue42 Core CLI**](../../glue42-core/what-is-glue42-core/core-concepts/cli/index.html), initiating [**Glue42 Clients**](../../glue42-core/what-is-glue42-core/core-concepts/glue42-client/index.html), extending the applications with Interop capabilities, window management functionality and shared contexts integration.
 
 The following guide is going to use Vanilla JS and keep everything as simple as possible. The goal here is not to make perfect production-ready applications, but to get a feel for Glue42 Core and how you can use the platform to make awesome applications.
 
@@ -23,11 +23,11 @@ Before we continue there are few things that you need to be comfortable with
 - JS array methods
 - Asynchronous programming with Promises
 
-It is also a good idea to keep our CLI **TODO: Link** and Glue42 Client **TODO: Link** sections close by for reference.
+It is also a good idea to keep our [**Glue42 Core CLI**](../../glue42-core/what-is-glue42-core/core-concepts/cli/index.html), [**Glue42 Client**](../../glue42-core/what-is-glue42-core/core-concepts/glue42-client/index.html) and [**Glue42 Web Reference API**](../../reference/core/latest/glue42%20web/index.html) sections close by for reference.
 
 ## Tutorial Structure
 
-The tutorial code is located in our **github** repo at `https://github.com/Glue42/core`. Inside the repo you wil find a directory `/tutorials` with the following structure:
+The tutorial code is located in our [**github repo**](https://github.com/Glue42/core). Inside the repo you wil find a directory `/tutorials` with the following structure:
 
 ```text
 /tutorials
@@ -92,16 +92,16 @@ Great! So far we have gotten ourselves acquainted with the start files, we launc
 
 ### 1.2. Getting Started with the Glue42 Core CLI
 
-Now we are going to use the Glue42 Core CLI to initiate our environment. For that you will need to install the Glue42 Core CLI first and then call the `init` command, which will set up your dev environment.
+Now we are going to use the [**Glue42 Core CLI**](../../glue42-core/what-is-glue42-core/core-concepts/cli/index.html) to initiate our environment. For that you will need to install the Glue42 Core CLI first and then call the `init` command, which will set up your dev environment.
 
 ```javascript
 npm install --global @glue42/cli-core
 gluec init
 ```
 
-This command will get the necessary dependencies and scaffold the necessary config files for us. Next, we are going to stop using the simple http server that comes with the start files and utilize the CLI's serve functionality. This is very useful, as it allows us to serve or proxy to our apps, define shared resources and serve the Glue42 Core Environment correctly.
+This command will get the necessary dependencies and scaffold the necessary config files for us. Next, we are going to stop using the simple http server that comes with the start files and utilize the CLI's serve functionality. This is very useful, as it allows us to serve or proxy to our apps, define shared resources and serve the [**Glue42 Core Environment**](../../glue42-core/what-is-glue42-core/core-concepts/environment/index.html) correctly.
 
-To do all of that open the `glue.config.dev.json` file. Then add the shared resources, the clients and stocks apps. You can check out how to do that in the Getting Started **TODO: Link** section Your file should look something like this:
+To do all of that open the `glue.config.dev.json` file. Then add the shared resources, the clients and stocks apps. You can check out how to do that in the Getting Started **TODO: Link** section. Your file should look something like this:
 
 ```json
 {
@@ -151,11 +151,11 @@ Next we open a terminal and:
 gluec serve
 ```
 
-This command will launch a dev server at port **:4242** and will serve everything we defined, together with the Glue42 Core Environment.
+This command will launch a dev server at port **:4242** and will serve everything we defined, together with the [**Glue42 Core Environment**](../../glue42-core/what-is-glue42-core/core-concepts/environment/index.html).
 
 Now you can once again open your apps, but this time at `localhost:4242` and see that nothing really changed, at least that's how it seems. Do **note** that you will need to install the apps again and preferably remove the old onces, because the old once will route to port **:4000**.
 
-So far, so good, we have a Glue42 Core project up and running, now let's transform our two apps into Glue42 Clients, by initializing the Glue42 Web library in each of them.
+So far, so good, we have a Glue42 Core project up and running, now let's transform our two apps into [**Glue42 Clients**](../../glue42-core/what-is-glue42-core/core-concepts/glue42-client/index.html), by initializing the Glue42 Web library in each of them.
 
 ### 1.3. Getting Started with the Solution files
 
@@ -183,14 +183,14 @@ Next go to each one of the scripts at:
 - `/stocks/index.js`
 - `/stocks/details/details.js`
 
-Look for the **TODO: Chapter 2** comment. There you should initialize Glue42 Web, without any configs. Once the factory function resolves, uncomment the `toggleGlueAvailable` function from `/clients/index.js` and `/stocks/index.js` and call it.
+Look for the **TODO: Chapter 2** comment. There you should initialize [**Glue42 Web**](../../reference/core/latest/glue42%20web/index.html), without any configs. Once the factory function resolves, uncomment the `toggleGlueAvailable` function from `/clients/index.js` and `/stocks/index.js` and call it.
 
 ```javascript
 window.glue = await GlueWeb();
 toggleGlueAvailable()
 ```
 
-Let's just assign the `glue` object to the global `window` object for easy use. Now when you restart the dev server and refresh the browser pages, you should see in the top left corners of the **stocks** and **clients** apps text indicating that Glue is available. This means that you can successfully connected to the Glue42 Core Environment.
+Let's just assign the `glue` object to the global `window` object for easy use. Now when you restart the dev server and refresh the browser pages, you should see in the top left corners of the **stocks** and **clients** apps text indicating that Glue is available. This means that you can successfully connected to the [**Glue42 Core Environment**](../../glue42-core/what-is-glue42-core/core-concepts/environment/index.html).
 
 Good job, we have everything we need to start adding more functionality.
 
@@ -198,7 +198,7 @@ Good job, we have everything we need to start adding more functionality.
 
 ### 3.1. Overview
 
-In this section we will take a look at some functionality provided by our **Interop API**.
+In this section we will take a look at some functionality provided by our [**Interop API**](../../reference/core/latest/interop/index.html).
 
 ### 3.2. Methods and Streams registration
 
@@ -274,7 +274,7 @@ Awesome work! Now, let's see how we can extend the client details functionality.
 
 ### 4.1. Overview
 
-Currently when you click on a stock, you are redirected to a new view. This works fine, but our users use multiple monitors and want to take advantage of that. To do that, they wish that on stock click we do **not** redirect, but open a new window with the stock details. They also want to have the new window opened with specific dimensions and position. To do all of that we will utilize the **Window Management API**.
+Currently when you click on a stock, you are redirected to a new view. This works fine, but our users use multiple monitors and want to take advantage of that. To do that, they wish that on stock click we do **not** redirect, but open a new window with the stock details. They also want to have the new window opened with specific dimensions and position. To do all of that we will utilize the [**Window Management API**](../../reference/core/latest/windows/index.html).
 
 ### 4.2. Opening windows at runtime
 
@@ -337,7 +337,7 @@ const start = async () => {
 };
 ```
 
-Now, that looks much better. Let's wrap this section up, by subscribing to our price stream we created previously, so that both our `/stocks` and `/stocks/details` can display live price data. Right below `setFields` in `/stocks/details` use the **Interop API** to subscribe to stream `LivePrices`. When the subscription resolves, set the `onData` callback to receive the stream data, find the correct price of our selected stock and pass the **Ask** and **Bid** prices to the `updateStockPrices` function. The end result, should look like this:
+Now, that looks much better. Let's wrap this section up, by subscribing to our price stream we created previously, so that both our `/stocks` and `/stocks/details` can display live price data. Right below `setFields` in `/stocks/details` use the [**Interop API**](../../reference/core/latest/interop/index.html) to subscribe to stream `LivePrices`. When the subscription resolves, set the `onData` callback to receive the stream data, find the correct price of our selected stock and pass the **Ask** and **Bid** prices to the `updateStockPrices` function. The end result, should look like this:
 
 ```javascript
 setFields(stock);
@@ -354,11 +354,11 @@ If you have made it so far without checking out the solution, then awesome work!
 
 ## 5. Shared Contexts
 
-Our clients love the project so far. They going wild taking full advantage of their multiple monitors thanks to our work with the **Interop API** and the **Windows API**. The users' final request is to be able to see in the `stock details` window if the selected client has the stock in their portfolio. So far `clients` and `stock details` had no interaction between each other, so let's change that. 
+Our clients love the project so far. They going wild taking full advantage of their multiple monitors thanks to our work with the [**Interop API**](../../reference/core/latest/interop/index.html) and the [**Window Management API**](../../reference/core/latest/windows/index.html). The users' final request is to be able to see in the `stock details` window if the selected client has the stock in their portfolio. So far `clients` and `stock details` had no interaction between each other, so let's change that. 
 
-We could do the same like we did in `stocks` and register a method, but we have a feeling that once the clients start using our app, they will require more integrations with more apps. So, let's complete their request by also allowing us to easily hook more apps to this logic in the future, using the **Shared Contexts API**.
+We could do the same like we did in `stocks` and register a method, but we have a feeling that once the clients start using our app, they will require more integrations with more apps. So, let's complete their request by also allowing us to easily hook more apps to this logic in the future, using the [**Shared Contexts API**](../../reference/core/latest/shared%20contexts/index.html).
 
-We begin by going back to the `clients` script file and inside the `clientClickedHandler` function. We will comment the current code and will use the **Shared Contexts API** to update the shared context with the selected client. This will allow other applications to simple subscribe to changes to the shared context and get notified on client select.
+We begin by going back to the `clients` script file and inside the `clientClickedHandler` function. We will comment the current code and will use the [**Shared Contexts API**](../../reference/core/latest/shared%20contexts/index.html) to update the shared context with the selected client. This will allow other applications to simple subscribe to changes to the shared context and get notified on client select.
 
 ```javascript
 const clientClickedHandler = (client) => {

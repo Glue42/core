@@ -14,9 +14,9 @@ As an end result our users want to be able to run two apps as Progressive Web Ap
 
 ## Prerequisites
 
-[Glue42 Core Documentation](https://docs.glue42.com/glue42-core)
+[Glue42 Core](glue42-core/what-is-glue42-core/introduction/index.html)
 
-[Glue42 Core](https://github.com/Glue42/core)
+[Glue42 Web API](../../reference/core/latest/glue42%20web/index.html)
 
 Javascript programming language(ECMAScript 6 or later)
 
@@ -89,12 +89,12 @@ You will also see any lint errors in the console.
 
 ### 1.2. Getting Started with the Glue42 Core CLI
 
-Now we are going to use the Glue42 Core CLI to initiate our environment. To do that you need to:
+Now we are going to use the [**Glue42 Core CLI**](../../glue42-core/what-is-glue42-core/core-concepts/cli/index.html) to initiate our environment. To do that you need to:
 
 `npm install --global @glue42/cli-core`
 `gluec init`
 
-This command will get the necessary dependencies and scaffold the necessary config files for us. Next, we are going to stop using the simple http server that comes with the start files and utilize the CLI's serve functionality. This is very useful, as it allows us to serve or proxy to our apps, define shared resources and serve the Glue42 Core Environment correctly.
+This command will get the necessary dependencies and scaffold the necessary config files for us. Next, we are going to stop using the simple http server that comes with the start files and utilize the CLI's serve functionality. This is very useful, as it allows us to serve or proxy to our apps, define shared resources and serve the [**Glue42 Core Environment**](../../glue42-core/what-is-glue42-core/core-concepts/environment/index.html) correctly.
 
 To do all of that open the `glue.config.dev.json` file. Then add the shared resources, the clients and stocks apps. You can check out how to do that in the [Getting Started](https://github.com/Glue42/core/blob/master/docs/glue42-core/02_getting-started/02_setting-environment/01_single-application/single-application.md) section Your file should look something like this:
 
@@ -126,7 +126,7 @@ Next we open a terminal and:
 
 `gluec serve`
 
-This command will launch a dev server at port **:4242** and will serve everything we defined, together with the Glue42 Core Environment.
+This command will launch a dev server at port **:4242** and will serve everything we defined, together with the [**Glue42 Core Environment**](../../glue42-core/what-is-glue42-core/core-concepts/environment/index.html).
 
 Now you can once again open your apps, but this time at `localhost:4242` and see that nothing really changed, at least that's how it seems. Do **note** that you will need to install the apps again and preferably remove the old onces, because the old once will route to port **:4000**.
 
@@ -201,7 +201,7 @@ If everything is ok, reload your applications and you should see a small green l
 
 ### Overview
 
-At the end of this Clients application should set the context of the Stocks application via `glue.interop` method invocation. In result the stocks app will fetch the stocks inside this client's portfolio and display them.
+At the end of this Clients application should set the context of the Stocks application via `glue.interop` method invocation. In result the stocks app will fetch the stocks inside this client's portfolio and display them. Keep the [**Interop API**](../../reference/core/latest/interop/index.html) close by for reference.
 
 ### 2.1. Methods registration
 
@@ -322,7 +322,7 @@ Observe the stocks table displays only the stocks for latest client clicked.
 
 ### Overview
 
-In this example you will extend the applications so that: - On stock row click from Stocks app, a new window will open showing the StockDetails. You will open this window with following bounds `top: 100, left: 100, height: 660, width: 660` - You will create a `glue.interop` stream in Stocks which will publish prices for instruments. Both Stocks and StockDetails will subscribe for that stream to display most current price.
+In this example you will extend the applications so that: - On stock row click from Stocks app, a new window will open showing the StockDetails. You will open this window with following bounds `top: 100, left: 100, height: 660, width: 660` - You will create a `glue.interop` stream in Stocks which will publish prices for instruments. Both Stocks and StockDetails will subscribe for that stream to display most current price. Keep the [**Window Management API**](../../reference/core/latest/windows/index.html) close by for reference.
 
 ### 3.1. Opening windows at runtime
 
@@ -751,6 +751,8 @@ Last example will demonstrate the use of glue shared contexts(different from win
     - Stocks and StockDetails applications will subscribe for this shared context and connect existing functionality related to the client.
     - Stock details application upon receiving a new client will check and notify user if the current instrument is not part of the current client stocks/portfolio
     - Stocks application will display a `Show All` button. Upon click, Stocks app will clear the data in the shared context. In result all stocks will be shown in the application instead only the client ones.
+
+Keep the [**Shared Contexts API**](../../reference/core/latest/shared%20contexts/index.html) close by for reference.
 
 ### 4.1. Context Updating and Subscribing
 

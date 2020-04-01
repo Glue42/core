@@ -28,6 +28,8 @@ In addition to the standard JavaScript API, the interop methods are exposed thro
 
 ## Roadmap
 
+To see and help us shape the direction of Glue42 Core, review the [new feature tag](https://github.com/Glue42/core/issues?q=is%3Aissue+is%3Aopen+label%3A%22tag%3A+new+feature%22) in the issues section - we would love to hear more from you!
+
 ## Getting Started
 
 Our documentation features [getting started](https://staging-docs.glue42.com/glue42-core/getting-started/quick-start/index.html) sections with detailed explanations on how to set up and configure all Glue42 elements. We also have full Vanilla JS and React [tutorials](https://docs.glue42.com/glue42-core/tutorials/index.html), complete with start and solution files.

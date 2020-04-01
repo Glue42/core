@@ -23,7 +23,7 @@
         "coverage": "nyc npm run test",
         "publish:beta": "npm publish --tag beta",
         "build": "npm run tslint && tsc -p ./tsconfig.json && rollup -c",
-        "generate-docs-new-structure": "glue-js-documentation-builder build-reference --project g4e -q reference --modules ./web.d.ts,./node_modules/@glue42/core/glue.d.ts --newStructure"
+        "generate-docs-new-structure": "glue-js-documentation-builder build-reference --project g4e -q reference --modules ./web.d.ts,./node_modules/@glue42/core/glue.d.ts --newStructure --ignoreModules Connection,Bus,Metrics,Logger"
     },
     "author": {
         "name": "Glue42",
