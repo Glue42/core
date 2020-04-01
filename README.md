@@ -8,7 +8,7 @@ Glue42 Core works in all modern browsers, and focuses on Progressive Web Applica
 
 ### Interop Services
 
-[Glue42 Core](https://docs.glue42.com/glue42-core/what-is-glue42-core/capabilities/index.html)Glue42 Core exposes a rich set of interoperability methods which allow web applications to seamlessly communicate and interact with each other. The message exchange happens on the client, through a shared web worker process.
+[Glue42 Core](https://docs.glue42.com/glue42-core/what-is-glue42-core/capabilities/index.html) exposes a rich set of interoperability methods which allow web applications to seamlessly communicate and interact with each other. The message exchange happens on the client, through a shared web worker process.
 
 ### Window Management
 
@@ -34,9 +34,7 @@ Our documentation features [getting started](https://staging-docs.glue42.com/glu
 
 ## Documentation
 
-The Glue42 Core [documentation](https://docs.glue42.com/glue42-core/what-is-glue42-core/introduction/index.html) contains detailed information about the platform's [capabilities](https://docs.glue42.com/glue42-core/what-is-glue42-core/capabilities/index.html), [getting started](https://staging-docs.glue42.com/glue42-core/getting-started/quick-start/index.html) started guides, API reference section and full Vanilla JS and React tutorials. 
-
-TODO: LINK TO REFERENCE
+The Glue42 Core [documentation](https://docs.glue42.com/glue42-core/what-is-glue42-core/introduction/index.html) contains detailed information about the platform's [capabilities](https://docs.glue42.com/glue42-core/what-is-glue42-core/capabilities/index.html), [getting started](https://staging-docs.glue42.com/glue42-core/getting-started/quick-start/index.html) started guides, [API reference](https://docs.glue42.com/reference/core/latest/glue42%20web/index.html) section and full Vanilla JS and React tutorials. 
 
 ## Demos
 
