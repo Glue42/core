@@ -56,7 +56,7 @@ This is an **optional** configuration object which defines settings used by the 
 
 You can overwrite the default logging configuration of the gateway from `glue.config.json`. For most cases this is not needed, because the gateway logs internal messages sent back and forth from [**Glue42 Clients**](../glue42-client/index.html). However, if you really need to, you can define:
 - log level - accepts: `"trace" | "debug" | "info" | "warn" | "error"`, defaults to: `info`
-- appender - a function that receives a **LogInfo** object. By default logs to the shared worker console, but your custom function can send those logs to a remove server, for example. The **LogInfo** object has a structure like this:
+- appender - a function that receives a **LogInfo** object. By default logs to the shared worker console, but your custom function can send those logs to a remote server, for example. The **LogInfo** object has a structure like this:
 
 ```javascript
 {

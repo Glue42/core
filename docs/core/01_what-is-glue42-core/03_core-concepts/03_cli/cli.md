@@ -17,7 +17,7 @@ Next we will take a look at how to use the CLI, by going on the available comman
 
 ## Commands
 
-The Glue42 Core CLI offers three simple commands with no additional parameters. All the necessary configuration options are take either from the `glue.config.dev.json` file in the current working directory or from the defaults.
+The Glue42 Core CLI offers three simple commands with no additional parameters. All the necessary configuration options are taken either from the `glue.config.dev.json` file in the current working directory or from the defaults.
 
 ### Init
 
