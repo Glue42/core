@@ -16,12 +16,20 @@ Organization:
 
 Requirements:
 - Node.JS version 10.14.X or higher
-- Globally installed `yarn` - the repo is set up using Lerna and Yarn workspaces
+- NPM version 6.X.X or higher
 
-The first time you close the repo, you will need to execute `yarn` to fetch all the dependencies. Every other time, you can use:
-- `npm run clean` - to delete `node_modules` from all packages
-- `npm run bootstrap` - to set up the dependencies in all packages
-- `npm run build` and `npm run test` will execute the `build` and `test` commands in all packages
+The first time you close the repo, you will need to execute `npm install` at root to fetch all the root dependencies. Next you need to setup all the packages. You do that by
+```javascript
+npm run bootstrap
+npm run build
+```
+
+Some other helpful root-level commands:
+- `npm run clean` - removes all **node_modules** from all packages. Leaving only the root node_modules, which you can manually delete or keep.
+- `npm run test` - executes all tests - project-level and per-package
+- `npm run lint:fix` - lints the entire project and fixes easy errors like quotes or semicolons
+- `npm run bootstrap` - installs the dependencies for each package and symlinks the internal dependencies
+
 
 Now you are ready to play round with the code.
 
