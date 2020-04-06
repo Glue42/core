@@ -11,7 +11,6 @@ const globals = {
     'react-dom': 'ReactDOM',
     'prop-types': 'PropTypes',
     '@glue42/web': 'GlueWeb',
-    '@glue42/core': 'GlueCore',
 };
 
 export default {
@@ -19,14 +18,14 @@ export default {
     output: [
         {
             file: pkg.main,
-            name: 'core',
+            name: 'glue-hooks',
             format: 'umd',
             sourcemap: true,
             globals,
         },
         {
-            file: './dist/react-glue-zero.umd.min.js',
-            name: 'core.min',
+            file: './dist/glue-hooks.umd.min.js',
+            name: 'glue-hooks.min',
             format: 'umd',
             sourcemap: true,
             globals,
@@ -38,12 +37,7 @@ export default {
             globals,
         },
     ],
-    external: [
-        ...Object.keys(pkg.peerDependencies || {}),
-        '@glue42/web',
-        '@glue42/core',
-        'prop-types',
-    ],
+    external: [...Object.keys(pkg.peerDependencies || {}), '@glue42/web', 'prop-types'],
     plugins: [
         cleaner({
             targets: ['./dist/'],

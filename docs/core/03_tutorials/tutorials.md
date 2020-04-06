@@ -12,6 +12,6 @@ You can find the tutorial [here](../../tutorials/vanilla-js/index.html).
 
 ## React
 
-Apart from the main tools, which comprise Glue42 Core, we also have a library based on **Reack hooks**. This library make using Glue42 Core in a React app easy and intuitive. Our React tutorial follows the same basic idea of the Vanilla JS version, meaning that we start from the same place and end roughly at the same place. However, everything in between is completely different.
+Apart from the main tools, which comprise Glue42 Core, we also have a library based on **Reack Hooks**. This library make using Glue42 Core in a React app easy and intuitive. Our React tutorial follows the same basic idea of the Vanilla JS version, meaning that we start from the same place and end roughly at the same place. However, everything in between is completely different.
 
-You cn check it out [here](../../tutorials/react/index.html).
+You cаn check it out [here](../../tutorials/react/index.html).

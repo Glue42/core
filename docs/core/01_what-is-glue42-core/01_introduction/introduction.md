@@ -10,7 +10,7 @@ A Glue42 Core project consists of [**Environment**](../core-concepts/environment
 
 ### Environment
 
-This is the engine behind Glue42 Core - a collection of resources, which once hosted the browser will execute on a separate thread, allowing the [**Environment**](../core-concepts/environment/index.html) to be accessible by all applications on the same host and port, even if they run in different windows. Once connected, the inter-app communication is conducted via the [**Environment**](../core-concepts/environment/index.html). To achieve that we utilized the Shared Web Worker Interface, which is widely adopted by all major browsers. This is means no additional software is required to run your Glue42 Core project.
+This is the engine behind Glue42 Core - a collection of resources, which once hosted the browser will execute on a separate thread, allowing the [**Environment**](../core-concepts/environment/index.html) to be accessible by all applications on the same host and port, even if they run in different windows. Once connected, the inter-app communication is conducted via the [**Environment**](../core-concepts/environment/index.html). To achieve that we utilized the Shared Web Worker Interface, which is widely adopted by all major browsers. This means no additional software is required to run your Glue42 Core project.
 
 ### Glue42 Client
 

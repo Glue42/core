@@ -2,7 +2,7 @@
 
 There are situations where your project is not a single app with multiple modules or components, but instead it is composed of multiple applications. Some created using Vanilla JS, others with React maybe Angular, etc. This is exactly the case where Glue42 Core and it's [**CLI**](../../../what-is-glue42-core/core-concepts/cli/index.html) really expands your dev toolkit.
 
-Setting up a multi-app [**Glue42 Core environment**](../../../what-is-glue42-core/core-concepts/environment/index.html) is easy and almost identical to single-app environment, discussed in the [**Single Application**](../single-application/index.html) Set Up. That's why we are not going go in details, rather we will go over each step and expand on the information from the [**Single Application**](../single-application/index.html) page.
+Setting up a multi-app [**Glue42 Core environment**](../../../what-is-glue42-core/core-concepts/environment/index.html) is easy and almost identical to single-app environment, discussed in the [**Single Application**](../single-application/index.html) Set Up. That's why we are not going into details, rather we will go over each step and expand on the information from the [**Single Application**](../single-application/index.html) page.
 
 If you a working on a multi-app project, then your file structure looks something like this
 
