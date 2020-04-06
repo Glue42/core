@@ -11,7 +11,6 @@ const globals = {
     'react-dom': 'ReactDOM',
     'prop-types': 'PropTypes',
     '@glue42/web': 'GlueWeb',
-    '@glue42/core': 'GlueCore',
 };
 
 export default {
@@ -38,12 +37,7 @@ export default {
             globals,
         },
     ],
-    external: [
-        ...Object.keys(pkg.peerDependencies || {}),
-        '@glue42/web',
-        '@glue42/core',
-        'prop-types',
-    ],
+    external: [...Object.keys(pkg.peerDependencies || {}), '@glue42/web', 'prop-types'],
     plugins: [
         cleaner({
             targets: ['./dist/'],

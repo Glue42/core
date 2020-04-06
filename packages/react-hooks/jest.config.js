@@ -20,7 +20,14 @@ module.exports = {
         '\\.(css|less)$': '<rootDir>/tests/__mocks__/styleMock.js',
     },
     setupFilesAfterEnv: ['<rootDir>/tests/_jest/setupEnzyme.ts'],
-    coveragePathIgnorePatterns: ['/tests/', '/node_modules/', '/docs/', '/dist/', '/coverage/', '/overrides/'],
+    coveragePathIgnorePatterns: [
+        '/tests/',
+        '/node_modules/',
+        '/docs/',
+        '/dist/',
+        '/coverage/',
+        '/overrides/',
+    ],
     coverageThreshold: {
         global: {
             branches: COVERAGE_THRESHOLD,

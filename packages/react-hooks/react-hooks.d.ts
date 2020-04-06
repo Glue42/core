@@ -1,6 +1,5 @@
 import { ReactNode, Context, FC } from "react";
 import { Glue42Web, GlueWebFactoryFunction } from "@glue42/web";
-import { Glue42Core } from "@glue42/core";
 
 export interface GlueProviderProps {
     children: ReactNode;
@@ -12,12 +11,12 @@ export interface GlueProviderProps {
 export type useGlueInitProps = (
     config: Glue42Web.Config,
     glueFactory: GlueProviderProps["glueFactory"]
-) => Glue42Core.GlueCore;
+) => Glue42Web.API;
 
-export declare const GlueContext: Context<Glue42Core.GlueCore>;
+export declare const GlueContext: Context<Glue42Web.API>;
 export declare const GlueProvider: FC<GlueProviderProps>;
 export declare const useGlue: <T = undefined>(
-    cb: (glue: Glue42Core.GlueCore, ...dependencies: any[]) => void | T | Promise<T>,
+    cb: (glue: Glue42Web.API, ...dependencies: any[]) => void | T | Promise<T>,
     dependencies?: any[]
 ) => T;
 export declare const useGlueInit: useGlueInitProps;
