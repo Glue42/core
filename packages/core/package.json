@@ -17,7 +17,7 @@
         "tslint": "tslint -t codeFrame ./src/**/*.ts",
         "validate-changelog": "node ./scripts/validate-config.js",
         "docs": "typedoc --options typedoc.json ./src",
-        "preversion": "npm run validate-changelog && npm run build && npm tun test && npm run audit",
+        "preversion": "npm run validate-changelog && npm run build && npm run test && npm run audit",
         "test": "npm run build:tests && mocha ./tests/ --recursive --exit",
         "coverage": "nyc npm run test",
         "publish:beta": "npm publish --tag beta",

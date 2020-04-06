@@ -23,7 +23,7 @@
         "build": "npm run tslint && tsc -p ./tsconfig.json && rollup -c",
         "generate-docs-new-structure": "glue-js-documentation-builder build-reference --project g4e -q reference --modules ./web.d.ts,./node_modules/@glue42/core/glue.d.ts --newStructure --ignoreModules Connection,Bus,Metrics,Logger",
         "audit": "node ../../scripts/audit/index.js",
-        "preversion": "npm run build && npm tun test && npm run audit"
+        "preversion": "npm run build && npm run test && npm run audit"
     },
     "author": {
         "name": "Glue42",

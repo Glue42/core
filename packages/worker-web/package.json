@@ -6,7 +6,7 @@
         "test": "cross-env TS_NODE_PROJECT=./tsconfig.test.json mocha -r ts-node/register test/**/*.spec.ts",
         "build": "parcel build ./src/index.ts --no-source-maps --no-cache --out-file worker.js",
         "audit": "node ../../scripts/audit/index.js",
-        "preversion": "npm run build && npm tun test && npm run audit"
+        "preversion": "npm run build && npm run test && npm run audit"
     },
     "publishConfig": {
         "access": "public"
