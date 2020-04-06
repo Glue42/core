@@ -25,7 +25,7 @@
         "lint": "eslint . --ext .js,.ts,.tsx --max-warnings 0",
         "lint:fix": "eslint --fix . --ext .js,.ts,.tsx",
         "audit": "node ../../scripts/audit/index.js",
-        "preversion": "npm tun test && npm run audit && npm run build"
+        "preversion": "npm run build && npm tun test && npm run audit"
     },
     "author": {
         "name": "Glue42",
