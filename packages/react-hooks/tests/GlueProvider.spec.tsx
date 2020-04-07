@@ -38,7 +38,9 @@ describe("<GlueProvider/>", () => {
             );
         });
         await expect(mockedGlueFactory).toHaveBeenCalled();
-        wrapper.update();
+        act(() => {
+            wrapper.update();
+        });
         expect(wrapper.find("div").prop("data-value")).toEqual(mockedGlue);
     });
     it("should call glueFactory fn with config", async () => {
@@ -54,10 +56,10 @@ describe("<GlueProvider/>", () => {
         });
         await expect(mockedGlueFactory).toHaveBeenLastCalledWith(config);
     });
-    it("should render fallback component initially", () => {
-        const Fallback = () => <div id="fallback" />;
+    it("should render fallback component initially", async () => {
         let wrapper: ReactWrapper;
-        act(() => {
+        await act(async () => {
+            const Fallback = () => <div id="fallback" />;
             wrapper = mount(
                 <GlueProvider fallback={<Fallback />}>
                     <div />
@@ -67,9 +69,9 @@ describe("<GlueProvider/>", () => {
 
         expect(wrapper.find("#fallback")).toHaveLength(1);
     });
-    it("should render no fallback component initially by default", () => {
+    it("should render no fallback component initially by default", async () => {
         let wrapper: ReactWrapper;
-        act(() => {
+        await act(async () => {
             wrapper = mount(
                 <GlueProvider>
                     <div />

@@ -26,7 +26,6 @@ module.exports = {
         '/docs/',
         '/dist/',
         '/coverage/',
-        '/overrides/',
     ],
     coverageThreshold: {
         global: {

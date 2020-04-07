@@ -5,8 +5,7 @@
         "module": "commonjs",
         "allowSyntheticDefaultImports": true,
         "jsx": "react",
-        "allowJs": true,
-        "typeRoots": ["../overrides", "../../../node_modules/@types"]
+        "allowJs": true
     },
     "include": [
         "../src/**/*.(ts|tsx)",

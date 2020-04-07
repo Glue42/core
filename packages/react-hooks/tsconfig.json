@@ -3,8 +3,7 @@
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
     "outDir": "./dist",
-    "jsx": "react",
-    "typeRoots": ["./overrides", "../../node_modules/@types"]
+    "jsx": "react"
   },
   "include": [
     "./src/**/*"

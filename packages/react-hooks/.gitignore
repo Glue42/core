@@ -13,3 +13,4 @@ metrics.log
 junit.xml
 
 /.nyc_output/**/*
+package-lock.json
