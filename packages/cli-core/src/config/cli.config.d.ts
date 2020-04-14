@@ -1,6 +1,6 @@
 import { ServerApp, ServerSettings, SharedAsset } from "./user.config";
 
-export type CliCommand = "serve" | "build" | "init";
+export type CliCommand = "serve" | "build" | "init" | "version";
 
 export interface CliConfig extends FullDevConfig {
     rootDirectory: string;
