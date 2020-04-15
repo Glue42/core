@@ -18,8 +18,8 @@
             "sizes": "512x512"
         }
     ],
-    "start_url": "./clients/",
-    "scope": "./clients/",
+    "start_url": "/clients/",
+    "scope": "/clients/",
     "display": "standalone",
     "theme_color": "#000000",
     "background_color": "#ffffff"

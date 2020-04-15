@@ -6,9 +6,10 @@ function Stocks() {
     useEffect(() => {
         const fetchPortfolio = async () => {
             try {
-                const url = '/api/portfolio';
-                const response = await fetch(url, REQUEST_OPTIONS).then(r => r.json());
-                setPortfolio(response);
+                const url = 'http://localhost:8080/api/portfolio';
+                const response = await fetch(url, REQUEST_OPTIONS);
+                const portfolio = await response.json();
+                setPortfolio(portfolio);
             } catch (e) {
                 console.log(e);
             }

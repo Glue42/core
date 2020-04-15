@@ -1,6 +1,5 @@
 export const REQUEST_OPTIONS = {
-    headers: { accept: 'application/json' },
-    mode: 'no-cors'
+    headers: { accept: 'application/json' }
 };
 
 export const SET_CLIENT_METHOD = {

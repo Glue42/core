@@ -9,7 +9,6 @@
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
     "bootstrap": "^4.4.1",
-    "http-proxy-middleware": "^1.0.3",
     "react": "^16.13.0",
     "react-app-rewired": "^2.1.5",
     "react-dom": "^16.13.0",
@@ -17,8 +16,8 @@
   },
   "scripts": {
     "start": "react-app-rewired start --scripts-version react-scripts",
-    "build": "react-app-rewired start --scripts-version build react-scripts",
-    "test": "react-app-rewired start --scripts-version test react-scripts",
+    "build": "react-app-rewired build --scripts-version react-scripts",
+    "test": "react-app-rewired test --scripts-version react-scripts",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

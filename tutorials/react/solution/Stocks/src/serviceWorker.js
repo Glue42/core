@@ -31,8 +31,8 @@ export function register(config) {
 function registerValidSW(swUrl, config) {
     navigator.serviceWorker
         .register(swUrl, {
-            scope: './stocks/',
-            start_url: './stocks/'
+            scope: '/stocks/',
+            start_url: '/stocks/'
         })
         .then(registration => {
             registration.onupdatefound = () => {
@@ -48,7 +48,7 @@ function registerValidSW(swUrl, config) {
                             // content until all client tabs are closed.
                             console.log(
                                 'New content is available and will be used when all ' +
-                                    'tabs for this page are closed. See https://bit.ly/CRA-PWA.'
+                                'tabs for this page are closed. See https://bit.ly/CRA-PWA.'
                             );
 
                             // Execute callback
@@ -87,4 +87,3 @@ export function unregister() {
             });
     }
 }
-

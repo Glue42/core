@@ -31,9 +31,10 @@ function Stocks() {
         const fetchPortfolio = async () => {
             try {
                 subscription && typeof subscription.close === 'function' && subscription.close();
-                const url = clientId ? `/api/portfolio/${clientId}` : '/api/portfolio';
-                const response = await fetch(url, REQUEST_OPTIONS).then(r => r.json());
-                setPortfolio(response);
+                const url = 'http://localhost:8080' + (clientId ? `/api/portfolio/${clientId}` : '/api/portfolio');
+                const response = await fetch(url, REQUEST_OPTIONS);
+                const portfolio = await response.json();
+                setPortfolio(portfolio);
             } catch (e) {
                 console.log(e);
             }

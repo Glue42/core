@@ -18,8 +18,8 @@
             "sizes": "512x512"
         }
     ],
-    "start_url": "./stocks/",
-    "scope": "./stocks/",
+    "start_url": "/stocks/",
+    "scope": "/stocks/",
     "display": "standalone",
     "theme_color": "#000000",
     "background_color": "#ffffff"

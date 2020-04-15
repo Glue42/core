@@ -9,8 +9,9 @@ function Clients() {
     useEffect(() => {
         const fetchClients = async () => {
             try {
-                const response = await fetch('/api/clients', REQUEST_OPTIONS).then(r => r.json());
-                setClients(response);
+                const response = await fetch('http://localhost:8080/api/clients', REQUEST_OPTIONS);
+                const clients = await response.json();
+                setClients(clients);
             } catch (e) {
                 console.log(e);
             }
