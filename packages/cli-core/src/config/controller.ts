@@ -19,7 +19,7 @@ export class ConfigController {
 
         this.transFormAllToAbsolute(cliConfig, process.cwd());
 
-        if (command.name !== "init") {
+        if (command.requiredConfig) {
             await this.validateExistence(cliConfig);
         }
         
