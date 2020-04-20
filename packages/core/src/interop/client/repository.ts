@@ -97,7 +97,7 @@ export default class ClientRepository {
         (methodDefinition as any).version = methodDefinition.version;
         const that = this;
         methodDefinition.getServers = () => {
-            return that.getServersByMethod(method.id);
+            return that.getServersByMethod(identifier);
         };
 
         server.methods[method.id] = methodDefinition;
@@ -249,12 +249,13 @@ export default class ClientRepository {
         return (methodInfo.name + accepts + returns).toLowerCase();
     }
 
-    private getServersByMethod(id: string): Glue42Core.AGM.Instance[] {
+    private getServersByMethod(identifier: string): Glue42Core.AGM.Instance[] {
         const allServers: Glue42Core.AGM.Instance[] = [];
         Object.keys(this.servers).forEach((serverId) => {
             const server = this.servers[serverId];
             Object.keys(server.methods).forEach((methodId) => {
-                if (methodId === id) {
+                const methodInfo = server.methods[methodId];
+                if (methodInfo.identifier === identifier) {
                     allServers.push(server.instance);
                 }
             });
@@ -262,7 +263,7 @@ export default class ClientRepository {
         return allServers;
     }
 
-    // collectionToReplay: because we need a shapshot before we exist this stack
+    // collectionToReplay: because we need a snapshot before we exist this stack
     private returnUnsubWithDelayedReplay(unsubscribeFunc: UnsubscribeFunction, collectionToReplay: any[], callback: any) {
 
         // because we want to interrupt the loop with the existing methods

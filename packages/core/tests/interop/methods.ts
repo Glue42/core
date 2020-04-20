@@ -168,4 +168,23 @@ describe("methods", () => {
             success({});
         }).catch(() => { done(); });
     });
+
+    it("getServers returns only the servers that have registered the method", async () => {
+        const glue2 = await createGlue();
+        const methodName = getMethodName();
+        await glue.interop.register(methodName, () => { /** DO NOTHING */ });
+        await glue2.interop.register(methodName + "_2", () => { /** DO NOTHING */ });
+
+        // local check
+        const method = glue.interop.methods({ name: methodName })[0];
+        const servers = method.getServers?.() || [];
+        expect(servers.length, "local check").to.be.eq(1);
+
+        // remote check
+        const method2 = glue2.interop.methods({ name: methodName })[0];
+        const servers2 = method2.getServers?.() || [];
+        expect(servers2.length, "remote check").to.be.eq(1);
+
+        return Promise.resolve();
+    });
 });
