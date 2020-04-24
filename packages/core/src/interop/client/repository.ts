@@ -78,6 +78,7 @@ export default class ClientRepository {
         }
 
         const identifier = this.createMethodIdentifier(method);
+        const that = this;
         const methodDefinition: ClientMethodInfo = {
             identifier,
             gatewayId: method.id,
@@ -89,16 +90,14 @@ export default class ClientRepository {
             accepts: method.input_signature,
             returns: method.result_signature,
             supportsStreaming: typeof method.flags !== "undefined" ? method.flags.streaming : false,
-
+            getServers: () => {
+                return that.getServersByMethod(identifier);
+            }
         };
         // now add some legacy stuff
         (methodDefinition as any).object_types = methodDefinition.objectTypes;
         (methodDefinition as any).display_name = methodDefinition.displayName;
         (methodDefinition as any).version = methodDefinition.version;
-        const that = this;
-        methodDefinition.getServers = () => {
-            return that.getServersByMethod(identifier);
-        };
 
         server.methods[method.id] = methodDefinition;
 
@@ -178,7 +177,7 @@ export default class ClientRepository {
     public onMethodAdded(callback: (method: ClientMethodInfo) => void): UnsubscribeFunction {
         const unsubscribeFunc = this.callbacks.add("onMethodAdded", callback);
 
-        // because we need the servers shapshot before we return to the application code
+        // because we need the servers snapshot before we return to the application code
         const methodsToReplay = this.getMethods();
 
         return this.returnUnsubWithDelayedReplay(unsubscribeFunc, methodsToReplay, callback);

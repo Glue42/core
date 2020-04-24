@@ -11,6 +11,7 @@ import random from "shortid";
 import { rejectAfter } from "../helpers/promiseHelpers";
 import InvocationResult = Glue42Core.AGM.InvocationResult;
 import MethodDefinition = Glue42Core.AGM.MethodDefinition;
+import Method = Glue42Core.Interop.Method;
 
 export enum InvokeStatus {
     Success = 0,
@@ -158,24 +159,28 @@ export default class Client {
     /**
      * Returns all methods that match the given filter. If no filter specified returns all methods.
      */
-    public methods(methodFilter: Glue42Core.AGM.MethodDefinition): Glue42Core.AGM.MethodDefinition[] {
-        // Must not be mutated
-        const filterCopy = { ...methodFilter };
+    public methods(methodFilter: Glue42Core.AGM.MethodDefinition | string): Glue42Core.AGM.Method[] {
+        if (typeof methodFilter === "string") {
+            methodFilter = { name: methodFilter };
+        } else {
+            // Must not be mutated
+            methodFilter = { ...methodFilter };
+        }
 
-        return this.getMethods(filterCopy);
+        return this.getMethods(methodFilter);
     }
 
     /**
      * Returns all agm method registered by some server
      */
-    public methodsForInstance(instance: Glue42Core.AGM.Instance): Glue42Core.AGM.MethodDefinition[] {
+    public methodsForInstance(instance: Glue42Core.AGM.Instance): Glue42Core.AGM.Method[] {
         return this.getMethodsForInstance(instance);
     }
 
     /**
      * Called when a method is added for the first time by any application
      */
-    public methodAdded(callback: (def: Glue42Core.AGM.MethodDefinition) => void): UnsubscribeFunction {
+    public methodAdded(callback: (def: Glue42Core.AGM.Method) => void): UnsubscribeFunction {
         return this.repo.onMethodAdded(callback);
     }
 
@@ -184,7 +189,7 @@ export default class Client {
      * @function methodRemoved
      * @param {MethodCallback} callback
      */
-    public methodRemoved(callback: (def: Glue42Core.AGM.MethodDefinition) => void): UnsubscribeFunction {
+    public methodRemoved(callback: (def: Glue42Core.AGM.Method) => void): UnsubscribeFunction {
         return this.repo.onMethodRemoved(callback);
     }
 
@@ -212,7 +217,7 @@ export default class Client {
      *
      * @param {ServerMethodCallback} callback
      */
-    public serverMethodAdded(callback: (info: { server: Glue42Core.AGM.Instance, method: Glue42Core.AGM.MethodDefinition }) => void): UnsubscribeFunction {
+    public serverMethodAdded(callback: (info: { server: Glue42Core.AGM.Instance, method: Glue42Core.AGM.Method }) => void): UnsubscribeFunction {
         return this.repo.onServerMethodAdded((server: Glue42Core.AGM.Instance, method: ClientMethodInfo) => {
             callback({ server, method });
         });
@@ -222,7 +227,7 @@ export default class Client {
      * Called when a server stops offering a method
      * @param {ServerMethodCallback} callback
      */
-    public serverMethodRemoved(callback: (info: { server: Glue42Core.AGM.Instance, method: Glue42Core.AGM.MethodDefinition }) => void): UnsubscribeFunction {
+    public serverMethodRemoved(callback: (info: { server: Glue42Core.AGM.Instance, method: Glue42Core.AGM.Method }) => void): UnsubscribeFunction {
         return this.repo.onServerMethodRemoved((server: Glue42Core.AGM.Instance, method: ClientMethodInfo) => {
             callback({ server, method });
         });
@@ -311,10 +316,16 @@ export default class Client {
                     // because of the additionalOptions
                     serversMethodMap = await this.tryToAwaitForMethods(methodDefinition, target, additionalOptions);
                 } catch (err) {
+                    const method: Glue42Core.Interop.Method = {
+                        ...methodDefinition,
+                        getServers: () => [],
+                        supportsStreaming: false,
+                        objectTypes: methodDefinition.objectTypes ?? [],
+                    };
                     const errorObj: InvocationResult = {
-                        method: methodDefinition,
+                        method,
                         called_with: argumentObj,
-                        message: "Can not find a method matching " + JSON.stringify(methodFilter) + " with server filter " + JSON.stringify(target) + ". Is the object a valid instance ?",
+                        message: `Can not find a method matching ${JSON.stringify(methodFilter)} with server filter ${JSON.stringify(target)}`,
                         executed_by: undefined,
                         returned: undefined,
                         status: undefined,
@@ -564,10 +575,6 @@ export default class Client {
     private getMethods(methodFilter: Glue42Core.AGM.MethodDefinition): ClientMethodInfo[] {
         if (methodFilter === undefined) {
             return this.repo.getMethods();
-        }
-
-        if (typeof methodFilter === "string") {
-            methodFilter = { name: methodFilter };
         }
 
         const methods = this.repo.getMethods().filter((method) => {

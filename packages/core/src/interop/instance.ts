@@ -53,10 +53,10 @@ export class InstanceWrapper {
     }
 }
 
-function getMethods(this: any): Glue42Core.Interop.MethodDefinition[] {
+function getMethods(this: any): Glue42Core.Interop.Method[] {
     return InstanceWrapper.API?.methodsForInstance(this);
 }
 
-function getStreams(this: any): Glue42Core.Interop.MethodDefinition[] {
+function getStreams(this: any): Glue42Core.Interop.Method[] {
     return InstanceWrapper.API?.methodsForInstance(this).filter((m) => m.supportsStreaming);
 }

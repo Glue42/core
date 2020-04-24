@@ -471,20 +471,20 @@ export namespace Glue42Core {
             /**
              * Returns all methods that match the passed filter.
              * If no filter is specified, returns all methods.
-             * @param filter An object describing a filter matching one or more Interop methods.
+             * @param filter An object describing a filter matching one or more Interop methods. If string will match the method by name
              */
-            methods(filter?: MethodFilter): MethodDefinition[];
+            methods(filter?: MethodFilter | string): Method[];
 
             /**
              * Subscribes to the event which fires when a method is added for the first time by any application.
              * @param callback A handler to be called when the event fires.
              */
-            methodAdded(callback: (method: MethodDefinition) => void): UnsubscribeFunction;
+            methodAdded(callback: (method: Method) => void): UnsubscribeFunction;
 
             /** Subscribes to the event which fires when a method is removed from the last application offering it.
              * @param callback A handler to be called when the event fires.
              */
-            methodRemoved(callback: (method: MethodDefinition) => void): UnsubscribeFunction;
+            methodRemoved(callback: (method: Method) => void): UnsubscribeFunction;
 
             /** Subscribes to the event which fires when an application offering methods is discovered.
              * @param callback A handler to be called when the event fires.
@@ -502,7 +502,7 @@ export namespace Glue42Core {
              */
             serverMethodAdded(callback: (info: {
                 server: Instance;
-                method: MethodDefinition;
+                method: Method;
             }) => void): UnsubscribeFunction;
 
             /**
@@ -514,14 +514,14 @@ export namespace Glue42Core {
                 callback: (
                     info: {
                         server: Instance;
-                        method: MethodDefinition;
+                        method: Method;
                     }
                 ) => void): UnsubscribeFunction;
 
             /** Returns all Interop methods registered by a server.
              * @param server An Interop [`Instance`](#!Instance) identifying an application.
              */
-            methodsForInstance(server: Instance): MethodDefinition[];
+            methodsForInstance(server: Instance): Method[];
         }
 
         /** Optional object with parameters passed to [`subscribe()`](#!API-subscribe) when subscribing to a stream. */
@@ -767,7 +767,7 @@ export namespace Glue42Core {
             supportsStreaming?: boolean;
 
             /** Returns all servers that provide the method. */
-            getServers?: () => Instance[];
+            getServers?(): Instance[];
         }
 
         /** An object describing a filter matching one or more Interop methods. */
@@ -790,6 +790,18 @@ export namespace Glue42Core {
 
             /** Description of what the method does. Useful for documentation purposes and for UI clients. */
             description?: string;
+        }
+
+        /** An interop method */
+        export interface Method extends MethodDefinition {
+            /** The entities this method is meant to work with. */
+            objectTypes: string[];
+
+            /** If `true`, the method is a stream. */
+            supportsStreaming: boolean;
+
+            /** Returns all servers that provide the method. */
+            getServers(): Instance[];
         }
 
         /** Each Interop application is identified by its Interop instance, which is a set of known key/value pairs. */
@@ -835,10 +847,10 @@ export namespace Glue42Core {
             api?: string;
 
             /** Returns all methods registered by that instance. */
-            getMethods?(): MethodDefinition[];
+            getMethods?(): Method[];
 
             /** Returns all streams registered by that instance. */
-            getStreams?(): MethodDefinition[];
+            getStreams?(): Method[];
         }
 
         /** Method invocation options. */

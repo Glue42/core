@@ -70,27 +70,27 @@ export default class Interop implements Glue42Core.AGM.API {
         return this.client.serverAdded(callback);
     }
 
-    public serverMethodRemoved(callback: (info: { server: Glue42Core.AGM.Instance; method: Glue42Core.AGM.MethodDefinition; }) => void): UnsubscribeFunction {
+    public serverMethodRemoved(callback: (info: { server: Glue42Core.AGM.Instance; method: Glue42Core.AGM.Method; }) => void): UnsubscribeFunction {
         return this.client.serverMethodRemoved(callback);
     }
 
-    public serverMethodAdded(callback: (info: { server: Glue42Core.AGM.Instance; method: Glue42Core.AGM.MethodDefinition; }) => void): UnsubscribeFunction {
+    public serverMethodAdded(callback: (info: { server: Glue42Core.AGM.Instance; method: Glue42Core.AGM.Method; }) => void): UnsubscribeFunction {
         return this.client.serverMethodAdded(callback);
     }
 
-    public methodRemoved(callback: (def: Glue42Core.AGM.MethodDefinition) => void): UnsubscribeFunction {
+    public methodRemoved(callback: (def: Glue42Core.AGM.Method) => void): UnsubscribeFunction {
         return this.client.methodRemoved(callback);
     }
 
-    public methodAdded(callback: (def: Glue42Core.AGM.MethodDefinition) => void): UnsubscribeFunction {
+    public methodAdded(callback: (def: Glue42Core.AGM.Method) => void): UnsubscribeFunction {
         return this.client.methodAdded(callback);
     }
 
-    public methodsForInstance(instance: Glue42Core.AGM.Instance): Glue42Core.AGM.MethodDefinition[] {
+    public methodsForInstance(instance: Glue42Core.AGM.Instance): Glue42Core.Interop.Method[] {
         return this.client.methodsForInstance(instance);
     }
 
-    public methods(methodFilter: Glue42Core.AGM.MethodDefinition): Glue42Core.AGM.MethodDefinition[] {
+    public methods(methodFilter: Glue42Core.AGM.MethodDefinition): Glue42Core.Interop.Method[] {
         return this.client.methods(methodFilter);
     }
 

@@ -187,4 +187,60 @@ describe("methods", () => {
 
         return Promise.resolve();
     });
+
+    it ("methods filter check", async () => {
+        const glue2 = await createGlue();
+        const name = getMethodName();
+        const objectTypes = ["1", "2"];
+        const accepts = "int a";
+        const returns = "int b";
+        const version = 1;
+        const description = "description";
+        const displayName = "displayName";
+        const method = {
+            name,
+            objectTypes,
+            accepts,
+            returns,
+            version,
+            description,
+            displayName,
+        };
+        await glue.interop.register(method, () => {/** DO NOTHING */ });
+
+        const checkMethod = (filter: any, msg: string) => {
+            // tslint:disable-next-line:no-console
+            console.log(msg);
+            const m1 = glue2.interop.methods(filter);
+            expect(m1.length, `len - ${msg}`).to.be.eq(1);
+            expect(m1[0].name, `name - ${msg}`).to.be.eq(name);
+        };
+
+        checkMethod(method, "full");
+        checkMethod({ name }, "name");
+        checkMethod({ displayName }, "displayName");
+        checkMethod({ accepts }, "accepts");
+        checkMethod({ returns }, "returns");
+        checkMethod({ description }, "description");
+        checkMethod({ displayName }, "displayName");
+        checkMethod({ objectTypes }, "objectTypes");
+        checkMethod({ name, version }, "name + version");
+        checkMethod({ name, objectTypes }, "name + objectTypes");
+    });
+
+    it("methods filter should work with string", async () => {
+        const glue2 = await createGlue();
+        const method1Name = getMethodName();
+        const method2Name = getMethodName();
+        await glue.interop.register(method1Name, () => {/** DO NOTHING */ });
+        await glue.interop.register({ name: method2Name }, () => {/** DO NOTHING */ });
+
+        const m1 = glue2.interop.methods(method1Name);
+        expect(m1.length).to.be.eq(1);
+        expect(m1[0].name).to.be.eq(method1Name);
+
+        const m2 = glue2.interop.methods(method2Name);
+        expect(m2.length).to.be.eq(1);
+        expect(m2[0].name).to.be.eq(method2Name);
+    });
 });

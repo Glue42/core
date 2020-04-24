@@ -10,7 +10,7 @@ export interface ServerInfo {
 }
 
 /** Method info used on client side */
-export interface ClientMethodInfo extends Glue42Core.AGM.MethodDefinition {
+export interface ClientMethodInfo extends Glue42Core.Interop.Method {
     identifier: string;
     gatewayId: string;
 }
