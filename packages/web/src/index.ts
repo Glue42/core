@@ -6,7 +6,9 @@ const glueWebFactory = createFactoryFunction(createGlueCore);
 
 // attach to window object
 if (typeof window !== "undefined") {
-    (window as any).GlueWeb = glueWebFactory;
+    const windowAny = window as any;
+    windowAny.GlueWeb = glueWebFactory;
+    delete windowAny.GlueCore;
 }
 
 // add default library for ES6 modules
