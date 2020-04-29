@@ -15,7 +15,7 @@ export class Glue42ProviderService {
     // }
 
     public async initialize(): Promise<void> {
-        console.log("0.1.2");
+        console.log("0.1.5");
     }
 }
 
