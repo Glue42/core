@@ -10,6 +10,7 @@
         "pretty": true,
         "declaration": false,
         "removeComments": true,
+        "experimentalDecorators": true,
     },
     "include": [
         "**/*.ts"
