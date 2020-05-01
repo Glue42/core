@@ -1,70 +1,37 @@
-// import { NgModule, APP_INITIALIZER, InjectionToken } from "@angular/core";
-// import { ModuleWithProviders } from "@angular/compiler/src/core";
-// import { Glue42ProviderService } from "./glue-provider.service";
-// import { Glue42Web } from "@glue42/web";
-
-// // import Glue, { Glue42 } from "@glue42/desktop";
-// // import GlueWeb, { Glue42Web } from "@glue42/web";
-
-// export function glueFactory(glueProvider: Glue42ProviderService, config: Glue42Web.Config, factory: any) {
-//     return () => glueProvider.initialize(config, factory);
-// }
-
-// const GLUE_CONFIG = new InjectionToken<string>('GLUE_CONFIG');
-// const GLUE_FACTORY = new InjectionToken<string>('GLUE_FACTORY');
-
-// // @dynamic
-// @NgModule()
-// export class Glue42Ng {
-
-//     public static with(settings: { config?: any, factory?: any } = { config: {} }): ModuleWithProviders {
-
-//         return {
-//             ngModule: Glue42Ng,
-//             providers: [
-//                 {
-//                     provide: APP_INITIALIZER,
-//                     useFactory: glueFactory,
-//                     multi: true,
-//                     deps: [Glue42ProviderService, GLUE_CONFIG, GLUE_FACTORY]
-//                 },
-//                 {
-//                     provide: GLUE_CONFIG,
-//                     useValue: settings.config
-//                 },
-//                 {
-//                     provide: GLUE_FACTORY,
-//                     useValue: settings.factory
-//                 },
-//                 Glue42ProviderService
-//             ]
-//         }
-//     }
-// }
-
-import { NgModule, APP_INITIALIZER, ModuleWithProviders } from "@angular/core";
-import { Glue42ProviderService } from "./glue-provider.service";
-
-export function glueFactory(glueProvider: Glue42ProviderService): () => Promise<void> {
-    return (): Promise<void> => glueProvider.initialize();
-}
+import { NgModule, APP_INITIALIZER, ModuleWithProviders, Optional, SkipSelf } from "@angular/core";
+import { Glue42Store } from "./glue-store.service";
+import { Glue42NgSettings } from "./types";
+import { Glue42Initializer } from "./glue-initializer.service";
 
 // @dynamic
 @NgModule()
 export class Glue42Ng {
 
-    public static with(): ModuleWithProviders<Glue42Ng> {
+    constructor(@Optional() @SkipSelf() parentModule?: Glue42Ng) {
+        if (parentModule) {
+            throw new Error("Glue42Ng Module is already loaded. Import it in the AppModule only");
+        }
+    }
+
+    public static forRoot(settings?: Glue42NgSettings): ModuleWithProviders<Glue42Ng> {
+
+        settings = Object.assign({ holdInit: true }, settings);
+
+        const initializerFactory = settings.holdInit ?
+            (initializer: Glue42Initializer) => (): Promise<void> => initializer.start(settings.config, settings.factory) :
+            (initializer: Glue42Initializer) => (): void => { initializer.start(settings.config, settings.factory); };
 
         return {
             ngModule: Glue42Ng,
             providers: [
                 {
                     provide: APP_INITIALIZER,
-                    useFactory: glueFactory,
+                    useFactory: initializerFactory,
                     multi: true,
-                    deps: [Glue42ProviderService]
+                    deps: [Glue42Initializer, Glue42Store]
                 },
-                Glue42ProviderService
+                Glue42Store,
+                Glue42Initializer
             ]
         };
     }

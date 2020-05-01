@@ -1,6 +1,6 @@
 {
     "name": "@mypr/ng",
-    "version": "0.1.5",
+    "version": "0.3.1",
     "description": "Testing Angular lib",
     "license": "MIT",
     "publishConfig": {
@@ -49,6 +49,8 @@
         "typescript": "~3.8.3"
     },
     "peerDependencies": {
+        "@glue42/desktop": "^5.0.1",
+        "@glue42/web": "^1.0.1",
         "@angular/common": "^9.1.3",
         "@angular/core": "^9.1.3",
         "tslib": "^1.10.0"
