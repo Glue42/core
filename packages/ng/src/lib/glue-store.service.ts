@@ -5,9 +5,7 @@ import { Observable, ReplaySubject } from "rxjs";
 import { Injectable } from "@angular/core";
 import { Glue42Initializer } from "./glue-initializer.service";
 
-@Injectable({
-    providedIn: "root"
-})
+@Injectable()
 export class Glue42Store {
     private readonly readySource: ReplaySubject<{ error?: any }>;
     private glueInstance: Glue42.Glue | Glue42Web.API;

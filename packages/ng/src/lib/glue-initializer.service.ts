@@ -5,9 +5,7 @@ import { Glue42 } from "@glue42/desktop";
 import { Glue42Web } from "@glue42/web";
 import { Subject, Observable } from "rxjs";
 
-@Injectable({
-    providedIn: "root"
-})
+@Injectable()
 export class Glue42Initializer {
     private readonly defaultInitTimeoutMilliseconds = 3000;
     private initializationSource = new Subject<{ glueInstance?: Glue42Web.API | Glue42.Glue; error?: any }>();
