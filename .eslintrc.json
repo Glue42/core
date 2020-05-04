@@ -12,10 +12,11 @@
         "sourceType": "module"
     },
     "ignorePatterns": [
-		"tutorials/*", 
-		"packages/web/**/*.js", 
-		"packages/core/**/*.js"
-	],
+        "live-examples/*",
+        "tutorials/*",
+        "packages/web/**/*.js",
+        "packages/core/**/*.js"
+    ],
     "rules": {
         "indent": [
             "error",
@@ -65,8 +66,12 @@
                     "error",
                     "double"
                 ],
-                "@typescript-eslint/no-explicit-any": ["error"],
-                "@typescript-eslint/no-unused-vars": ["error"]
+                "@typescript-eslint/no-explicit-any": [
+                    "error"
+                ],
+                "@typescript-eslint/no-unused-vars": [
+                    "error"
+                ]
             }
         }
     ]
