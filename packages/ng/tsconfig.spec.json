@@ -3,7 +3,7 @@
   "compilerOptions": {
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "outDir": "./dist",
+    "outDir": "./dist-test",
     "types": [
       "jasmine",
       "node"

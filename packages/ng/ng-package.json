@@ -6,5 +6,8 @@
     "umdModuleIds": {
       "@glue42/web": "@glue42/web"
     }
-  }
+  },
+  "whitelistedNonPeerDependencies": [
+    "glue42"
+  ]
 }
