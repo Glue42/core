@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>
+    <!-- Dynamically set  -->
+  </title>
+  <meta name="description" content="" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="manifest" href="/app-c/manifest.json" />
+  <link rel="stylesheet" href="/assets/bootstrap.min.css" />
+  <script src="/lib/web.umd.min.js"></script>
+</head>
+
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12 text-center">
+        <h5 id="appNameHeading" style="display: inline;">
+          <!-- App name is displayed here -->
+        </h5>
+        <span id="glueSpan" class="badge badge-warning">Disconnected</span>
+      </div>
+    </div>
+    <div class="row mt-2">
+      <div class="col-12">
+        <div class="input-group input-group-sm mb-3">
+          <input autocomplete="off" type="text" class="form-control" placeholder="Method Name" id="methodNameInput">
+          <div class="input-group-append">
+            <button class="btn btn-primary" type="button" id="registerGlueMethodBtn">Register</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row mt-2">
+      <div class="col-12">
+        <ul class="list-group" id="logs-list">
+          <!-- Logs when method is invoked attached here -->
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="/scripts/utils.js"></script>
+  <script src="/scripts/glue-utils.js"></script>
+  <script src="/app-c/index.js"></script>
+</body>
+
+</html>
