@@ -75,8 +75,8 @@ Importing the **Glue42Ng** module must be done **once** for the entire applicati
 
 |Property|Type|Description|Default|
 |--------|----|-----------|-------|
-|`config`|`Glue42Web.Config | Glue42.Config`|**Optional** The config object, which is optionally accepted by the Glue42 Web and Enterprise factory functions | - |
-|`factory`|`Glue42 factory function`|**Optional** The Glue42 Web or Enterprise factory function | `window.Glue | window.GlueWeb` |
+|`config`|`Glue42Web.Config or Glue42.Config`|**Optional** The config object, which is optionally accepted by the Glue42 Web and Enterprise factory functions | - |
+|`factory`|`Glue42 factory function`|**Optional** The Glue42 Web or Enterprise factory function | `window.Glue or window.GlueWeb` |
 |`holdInit`|`boolean`|**Optional** Toggles whether or not your app initialization should wait for the glue factory | `true` |
 
 Example:
