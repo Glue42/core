@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
-const APP_NAME = 'App-A';
+const APP_NAME = 'App A';
 
-// Entry point. Initializes GlueWeb. GlueWeb instance will be attached to the window.
+// Entry point. Initializes Glue42 Web. A Glue42 Web instance will be attached to the window.
 window.startApp({ appName: APP_NAME })
   .then(() => {
     const form = document.getElementById('openWindowForm');
@@ -59,7 +59,7 @@ async function searchWindowHandler() {
     });
 
   if (discoveredWindows.length === 0) {
-    logger.info(`Windows with name "${windowName}" were not discovered`);
+    logger.info(`Windows with name "${windowName}" were not discovered.`);
     return;
   }
 
@@ -67,7 +67,7 @@ async function searchWindowHandler() {
     const ctx = await webWindow.getContext()
     const ctxData = Object.keys(ctx).map((key) => ctx[key]).join(', ');
 
-    logger.info(`Window ID: ${webWindow.id}. Window context: ${ctxData}`);
+    logger.info(`Window ID: "${webWindow.id}". Window context: "${ctxData}".`);
   }
 }
 

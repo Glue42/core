@@ -1,4 +1,4 @@
-// Entry point. Initializes GlueWeb. GlueWeb instance will be attached to the global window.
+// Entry point. Initializes Glue42 Web. A Glue42 Web instance will be attached to the global window.
 window.startApp()
   .then(async () => {
     const windowName = await glue.windows.my().name;

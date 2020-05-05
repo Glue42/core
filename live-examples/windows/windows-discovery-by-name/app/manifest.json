@@ -1,6 +1,6 @@
 {
-  "short_name": "Window Discovery By Name (App-A)",
-  "name": "Glue Web Window Discovery By Name (App-A)",
+  "short_name": "Window Discovery By Name (App A)",
+  "name": "Glue42 Web Window Discovery By Name (App A)",
   "description": "Opening a window with context, size and position. Discover opened windows by the given name.",
   "icons": [
     {

@@ -1,5 +1,5 @@
 {
-  "name": "glue42-core-window-opening",
+  "name": "glue42-core-window-manipulation",
   "version": "0.1.0",
   "main": "index.html",
   "scripts": {

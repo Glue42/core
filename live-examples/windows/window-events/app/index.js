@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
-const APP_NAME = 'App-A';
+const APP_NAME = 'App A';
 
-// Entry point. Initializes GlueWeb. GlueWeb instance will be attached to the global window.
+// Entry point. Initializes Glue42 Web. A Glue42 Web instance will be attached to the global window.
 window.startApp({ appName: APP_NAME })
   .then(subscribeToWindowEvents)
   .then(() => {
@@ -12,11 +12,11 @@ window.startApp({ appName: APP_NAME })
 
 function subscribeToWindowEvents() {
   glue.windows.onWindowAdded((webWindow) => {
-    logger.info(`Window with an ID "${webWindow.id}" opened`);
+    logger.info(`Window with ID "${webWindow.id}" opened.`);
   });
 
   glue.windows.onWindowRemoved((webWindow) => {
-    logger.info(`Window with an ID "${webWindow.id}" closed`);
+    logger.info(`Window with ID "${webWindow.id}" closed.`);
   });
 }
 

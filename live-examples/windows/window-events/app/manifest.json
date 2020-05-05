@@ -1,6 +1,6 @@
 {
-  "short_name": "Window Events (App-A)",
-  "name": "Glue Web Window Events (App-A)",
+  "short_name": "Window Events (App A)",
+  "name": "Glue42 Web Window Events (App A)",
   "description": "Subscribing to window events.",
   "icons": [
     {

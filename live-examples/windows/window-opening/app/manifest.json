@@ -1,6 +1,6 @@
 {
-  "short_name": "Window Opening (App-A)",
-  "name": "Window Opening (App-A)",
+  "short_name": "Window Opening (App A)",
+  "name": "Window Opening (App A)",
   "description": "Opening a window with context, size and position.",
   "icons": [
     {
