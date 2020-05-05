@@ -20,7 +20,7 @@ async function updateContext(ctxName, ctxData) {
   try {
     await glue.contexts.update(ctxName, { value: ctxData })
 
-    logger.info(`[${formatTime(new Date())}] Context ${ctxName} updated to "${ctxData}".`);
+    logger.info(`Context ${ctxName} updated to "${ctxData}".`);
   } catch (error) {
     logger.error(error.message || `Failed to update context.`);
   }

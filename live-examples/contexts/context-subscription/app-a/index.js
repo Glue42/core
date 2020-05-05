@@ -29,7 +29,7 @@ function toggleContextSubscribeHandler() {
 async function subscribeForContextUpdates(ctxName) {
   const contextUpdatedHandler = (ctxData) => {
     const data = Object.keys(ctxData).map((key) => ctxData[key]).join(', ');
-    logger.info(`[${formatTime(new Date())}] Context "${ctxName}" updated to: "${data}".`);
+    logger.info(`Context "${ctxName}" updated to: "${data}".`);
   }
 
   try {
