@@ -3,7 +3,6 @@ const APP_NAME = 'App-B';
 
 // Entry point. Initializes GlueWeb. GlueWeb instance will be attached to the global window.
 window.startApp({ appName: APP_NAME })
-  .then(() => registerGlueMethod('one'))
   .then(() => {
     document.getElementById("registerGlueMethodBtn")
       .addEventListener('click', registerGlueMethodHandler);
