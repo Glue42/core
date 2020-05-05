@@ -32,22 +32,6 @@ export class Glue42Store {
         return this.glueInstance;
     }
 
-    public get glueWeb(): Glue42Web.API {
-        return this.glue as Glue42Web.API;
-    }
-
-    public get glueDesktop(): Glue42.Glue {
-        if (!this.glueInstance) {
-            throw new Error("Accessing uninitialized glue. This might happen, because Glue is not initialized yet or because there was an error during Glue initialization. Please check the initError object or subscribe to the ready observable.");
-        }
-
-        if ("activities" in this.glueInstance) {
-            return this.glueInstance as Glue42.Glue;
-        }
-
-        throw new Error("Cannot get GLUE_DESKTOP instance, because the initialized Glue is not from the @glue42/desktop package");
-    }
-
     private handleState(result: { glueInstance?: Glue42Web.API | Glue42.Glue; error?: any }): void {
         if (result.glueInstance) {
             this.glueInstance = result.glueInstance;

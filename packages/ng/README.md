@@ -19,10 +19,10 @@ This package should be used only in Angular applications. If your app was create
 We will assume your app was created with the Angular CLI, if not then make sure you have the above packages installed. Install `@glue42/ng` and the Glue Js library you need:
 
 ```cmd
-npm install --save @glue42/ng @glue42/web
+npm install --save @glue42/ng
 ```
 
-Next, import the **Glue42Ng** module in your app's **root module only** and pass in the factory function from `@glue42/web`:
+Next, import the **Glue42Ng** module in your app's **root module only** and pass in the factory function from `@glue42/web` (or `@glue42/desktop`, if you are building a Glue42 Enterprise application):
 
 ```javascript
 import { BrowserModule } from '@angular/platform-browser';
@@ -31,6 +31,7 @@ import { NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
 import { Glue42Ng } from "@glue42/ng";
 import GlueWeb from "@glue42/web";
+// import Glue from "@glue42/desktop" -> use this for Glue42 Enterprise
 
 @NgModule({
   declarations: [
@@ -50,7 +51,7 @@ Now when your app starts, it will initiate the Glue Web JS library. Finally you 
 
 ```javascript
 import { Component } from '@angular/core';
-import { Glue42Store } from '@mypr/ng';
+import { Glue42Store } from '@glue42/ng';
 
 @Component({
   selector: 'app-root',
@@ -65,7 +66,7 @@ export class AppComponent {
 
 ```
 
-You can now access the Glue42 Web JS API from `this.glueStore.glueWeb`. Next we will take a deep look into the `Glue42Ng` module, `Glue42Store` service and the respective configuration options.
+You can now access the Glue42 Web JS API from `this.glueStore.glue`. Next we will take a deep look into the `Glue42Ng` module, `Glue42Store` service and the respective configuration options.
 
 ## Glue42Ng
 
@@ -105,7 +106,7 @@ It is important to note that if the Glue initialization fails for whatever reaso
 
 ## Glue42Store
 
-The **Glue42Store** service is used to obtain the respective `glue` object which exposes the Glue42 Web API or Glue42 Enterprise API (depending on which factory function have been provided to the `forRoot()` method). This service is also useful in order to get notified when Glue was initialized and to check for any initiation errors.
+The **Glue42Store** service is used to obtain the `glue` object which exposes the Glue42 Web API or Glue42 Enterprise API (depending on environment in which your application is running: either Glue42 Enterprise or the browser in the case of Glue42 Core). This service is also useful in order to get notified when Glue was initialized and to check for any initiation errors.
 
 ```javascript
 constructor(private glueStore: Glue42Store) { }
@@ -114,9 +115,7 @@ constructor(private glueStore: Glue42Store) { }
 The service has the following methods:
 - `this.glueStore.ready()` - returns an observable. If you subscribe, you will be notified when Glue initializes. If the initialization fails, you will get an object with an `error` property, otherwise the object will be empty. This is particularly useful, if you set `.forRoot({ holdInit: false })`, because you need to make sure glue is ready to be used, before accessing any of the APIs.
 - `this.glueStore.initError` - returns an error object of `undefined`. This will hold the glue factory initiation error object, if any.
-- `this.glueStore.glueWeb` - returns a **Glue42 Web API** object. If you are building a **Glue42 Core** application, you should use this object. What's more, even if you run your application in Glue42 Enterprise, it will function as expected without code change and without rebuild.
-- `this.glueStore.glue` - return either a **Glue42 Web API** or **Glue42 Enterprise API** object, depending on the provided factory function and execution environment (Glue Desktop or a browser). If you are building an app, which supports two operational modes - Glue42 Enterprise and Glue42 Core, then you should use this object, check in which environment you are running and cast it to the appropriate type.  
-- `this.glueStore.glueDesktop` - returns a **Glue42 Enterprise API** object. You should use this object, if you are building a **Glue42 Enterprise** application. If your app was initialized with the Glue42 Web factory, then this will throw an error alerting you that you have initialized Glue42 Web instead.
+- `this.glueStore.glue` - returns either a **Glue42 Web API** or **Glue42 Enterprise API** object, depending on the execution environment (Glue Desktop or a browser). If needed, it is up to the developer to cast the returned object to either `Glue42.Glue` or `Glue42Web.API`.
 
 ## Recommended usage
 
@@ -172,7 +171,7 @@ export class Glue42Service {
         if (!this.glueAvailable) {
             return Promise.reject("Glue was not initialized");
         }
-        return this.glueStore.glueWeb.interop.register(name, callback);
+        return this.glueStore.glue.interop.register(name, callback);
     }
 
 }
@@ -192,9 +191,11 @@ export class AppComponent implements OnInit {
     constructor(private glueService: Glue42Service) { }
 
     public ngOnInit(): void {
-        if (this.glueService.glueAvailable) {
-            // glue initialized without errors and is ready to be used
+        if (!this.glueService.glueAvailable) {
+          // there was an error during the Glue initialization
+          return;
         }
+        // glue initialized without errors and is ready to be used
     }
 
 }
@@ -220,7 +221,7 @@ export class Glue42Service {
     }
 
     public registerMethod(name: string, callback: () => void): Promise<void> {
-        return this.glueStore.glueWeb.interop.register(name, callback);
+        return this.glueStore.glue.interop.register(name, callback);
     }
 
 }

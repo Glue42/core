@@ -150,42 +150,5 @@ describe("Glue42Store ", () => {
 
             expect(service.glue).toEqual({ test: 42 } as unknown as Glue42.Glue);
         });
-
-        it("accessing glueWeb should throw when no glueInstance was set", () => {
-            expect(() => service.glueWeb).toThrow();
-        });
-
-        it("accessing glueWeb should return the glueInstance when the initializer emitted success", () => {
-            initObs.next({ glueInstance: { test: 42 } });
-
-            expect(service.glueWeb).toEqual((service as any).glueInstance);
-        });
-
-        it("accessing glueWeb should return the same object emitted from the initializer", () => {
-            initObs.next({ glueInstance: { test: 42 } });
-
-            expect(service.glueWeb).toEqual({ test: 42 } as unknown as Glue42.Glue);
-        });
-
-        it("accessing glueDesktop should throw when no glueInstance was set", () => {
-            expect(() => service.glueDesktop).toThrow();
-        });
-
-        it("accessing glueDesktop should throw when the internal glue instance is of type glueWeb (has no activities)", () => {
-            initObs.next({ glueInstance: { test: 42 } });
-            expect(() => service.glueDesktop).toThrow();
-        });
-
-        it("accessing glueDesktop should return the glueInstance when the initializer emitted success", () => {
-            initObs.next({ glueInstance: { activities: 42 } });
-
-            expect(service.glueDesktop).toEqual((service as any).glueInstance);
-        });
-
-        it("accessing glueDesktop should return the same object emitted from the initializer", () => {
-            initObs.next({ glueInstance: { activities: 42 } });
-
-            expect(service.glueDesktop).toEqual({ activities: 42 } as unknown as Glue42.Glue);
-        });
     });
 });
