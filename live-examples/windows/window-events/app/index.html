@@ -11,7 +11,7 @@
   </title>
   <meta name="description" content="" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="manifest" href="/manifest.json" />
+  <link rel="manifest" href="/app/manifest.json" />
   <link rel="stylesheet" href="/assets/bootstrap.min.css" />
   <script src="/lib/web.umd.min.js"></script>
 </head>
@@ -26,42 +26,23 @@
         <span id="glueSpan" class="badge badge-warning">Disconnected</span>
       </div>
     </div>
-    <div class="row mt-2">
-      <div class="col-sm-12">
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="windowAction" id="openWindowAction" checked="checked"
-            value="open" onclick="actionChangedHandler('open');">
-          <label class="form-check-label" for="openWindowAction">Window Open</label>
-        </div>
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="windowAction" id="updateWindowAction" value="update"
-            onclick="actionChangedHandler('update');">
-          <label class="form-check-label" for="updateWindowAction">Window Update</label>
-        </div>
-      </div>
-    </div>
     <div class="row mt-1">
       <div class="col-12">
-        <form id="openOrUpdateWindowForm" autocomplete="off" novalidate>
+        <form id="openWindowForm" autocomplete="off" novalidate>
           <div class="form-row">
             <div class="form-group col-6">
               <input required type="text" class="form-control required" id="windowNameInput" placeholder="Name">
-
-              <select required class="form-control" id="windowNameSelect" style="display: none;"
-                onchange="selectedWindowChanged()">
-                <option>Select Window</option>
-              </select>
             </div>
             <div class="form-group col-6">
-              <input novalidate type="text" class="form-control" id="contextInput" placeholder="Context">
+              <input type="text" class="form-control" id="contextInput" placeholder="Context">
             </div>
           </div>
           <div class="form-row">
             <div class="form-group col-6">
-              <input type="number" class="form-control" id="topPositionInput" placeholder="Top">
+              <input min="0" type="number" class="form-control" id="topPositionInput" placeholder="Top">
             </div>
             <div class="form-group col-6">
-              <input type="number" class="form-control" id="leftPositionInput" placeholder="Left">
+              <input min="0" type="number" class="form-control" id="leftPositionInput" placeholder="Left">
             </div>
             <div class="form-group col-6">
               <input min="100" type="number" class="form-control" id="widthInput" placeholder="Width">
@@ -70,16 +51,22 @@
               <input min="100" type="number" class="form-control" id="heightInput" placeholder="Height">
             </div>
           </div>
-          <button type="submit" class="btn btn-primary" id="openWindowBtn">Open</button>
+          <button type="submit" class="btn btn-primary">Open</button>
         </form>
       </div>
     </div>
-
+    <div class="row mt-2">
+      <div class="col-12">
+        <ul class="list-group" id="logs-list">
+          <!-- Window events displayed here -->
+        </ul>
+      </div>
+    </div>
   </div>
 
   <script src="/scripts/utils.js"></script>
   <script src="/scripts/glue-utils.js"></script>
-  <script src="/index.js"></script>
+  <script src="/app/index.js"></script>
 </body>
 
 </html>

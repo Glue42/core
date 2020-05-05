@@ -11,7 +11,7 @@
   </title>
   <meta name="description" content="" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="manifest" href="/manifest.json" />
+  <link rel="manifest" href="/app/manifest.json" />
   <link rel="stylesheet" href="/assets/bootstrap.min.css" />
   <script src="/lib/web.umd.min.js"></script>
 </head>
@@ -24,6 +24,16 @@
           <!-- App name is displayed here -->
         </h5>
         <span id="glueSpan" class="badge badge-warning">Disconnected</span>
+      </div>
+    </div>
+    <div class="row mt-1">
+      <div class="col-12">
+        <div class="input-group mb-3">
+          <input id="searchWindowInput" type="text" class="form-control" placeholder="Search window by name">
+          <div class="input-group-append">
+            <button id="searchWindowsBtn" class="btn btn-primary" type="button">Search</button>
+          </div>
+        </div>
       </div>
     </div>
     <div class="row mt-1">
@@ -58,7 +68,7 @@
     <div class="row mt-2">
       <div class="col-12">
         <ul class="list-group" id="logs-list">
-          <!-- Window events displayed here -->
+          <!-- Discovered windows displayed here -->
         </ul>
       </div>
     </div>
@@ -66,7 +76,7 @@
 
   <script src="/scripts/utils.js"></script>
   <script src="/scripts/glue-utils.js"></script>
-  <script src="/index.js"></script>
+  <script src="/app/index.js"></script>
 </body>
 
 </html>
