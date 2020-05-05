@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
-const APP_NAME = 'App-B';
+const APP_NAME = 'App B';
 
-// Entry point. Initializes GlueWeb. GlueWeb instance will be attached to the window.
+// Entry point. Initializes Glue42 Web. A Glue42 Web instance will be attached to the global window.
 window.startApp({ appName: APP_NAME })
   .then(() => {
     document.getElementById('updateContextBtn')
@@ -18,10 +18,10 @@ function updateContextHandler() {
 
 async function updateContext(ctxName, ctxData) {
   try {
-    await glue.contexts.set(ctxName, { value: ctxData })
+    await glue.contexts.update(ctxName, { value: ctxData })
 
-    logger.info(`[${formatTime(new Date())}] Context ${ctxName} updated to "${ctxData}"`);
+    logger.info(`[${formatTime(new Date())}] Context ${ctxName} updated to "${ctxData}".`);
   } catch (error) {
-    logger.error(error.message || `Failed to update context`);
+    logger.error(error.message || `Failed to update context.`);
   }
 }

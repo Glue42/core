@@ -1,6 +1,6 @@
 {
-  "short_name": "Basic Interop (App-A)",
-  "name": "Glue Web Basic Interop Example (App-A)",
+  "short_name": "Basic Interop (App A)",
+  "name": "Glue42 Web Basic Interop (App A)",
   "description": "Basic interop between two applications - method registration and method invocation.",
   "icons": [
     {

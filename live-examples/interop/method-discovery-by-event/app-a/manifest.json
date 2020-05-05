@@ -1,6 +1,6 @@
 {
-  "short_name": "Method Discovery By Event (App-A)",
-  "name": "Glue Web Method Discovery By Event Example (App-A)",
+  "short_name": "Method Discovery By Event (App A)",
+  "name": "Glue42 Web Method Discovery By Event (App A)",
   "description": "Discovering a method by subscribing to an event.",
   "icons": [
     {

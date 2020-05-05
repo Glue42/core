@@ -1,7 +1,7 @@
 {
-  "short_name": "Method Discovery By Name (App-C)",
-  "name": "Glue Web Method Discovery By Name (App-C)",
-  "description": "Discovering a method by a name and then invoking it.",
+  "short_name": "Method Discovery By Name (App C)",
+  "name": "Glue42 Web Method Discovery By Name (App C)",
+  "description": "Discovering a method by name and invoking it.",
   "icons": [
     {
       "src": "/favicon.ico",

@@ -1,8 +1,8 @@
 /* eslint-disable no-undef */
-const APP_NAME = 'App-A';
+const APP_NAME = 'App A';
 const methodDefinition = { name: 'G42Core.Basic' };
 
-// Entry point. Initializes GlueWeb. GlueWeb instance will be attached to the global window.
+// Entry point. Initializes Glue42 Web. А Glue42 Web instance will be attached to the global window.
 window.startApp({ appName: APP_NAME })
   .then(() => {
     document.getElementById("defaultInvokeBtn")
@@ -12,10 +12,10 @@ window.startApp({ appName: APP_NAME })
       .addEventListener('click', invokeGlueMethodWithTargetAll);
 
     document.getElementById("appBInvokeBtn")
-      .addEventListener('click', () => invokeGlueMethodWithTargetInstance('App-B'));
+      .addEventListener('click', () => invokeGlueMethodWithTargetInstance('App B'));
 
     document.getElementById("appCInvokeBtn")
-      .addEventListener('click', () => invokeGlueMethodWithTargetInstance('App-C'));
+      .addEventListener('click', () => invokeGlueMethodWithTargetInstance('App C'));
   })
   .catch(console.error);
 
@@ -36,8 +36,8 @@ async function invokeGlueMethodWithTargetAll() {
 
     (all_return_values || []).forEach(({ returned: { result } }) => logger.info(result));
   } catch (error) {
-    console.error(`Failed to invoke "${methodDefinition.name}" with target - all. Error: `, error);
-    logger.error(error.message || `Failed to invoke "${methodDefinition.name}" with target - all`);
+    console.error(`Failed to invoke "${methodDefinition.name}" with target "all". Error: `, error);
+    logger.error(error.message || `Failed to invoke "${methodDefinition.name}" with target "all".`);
   }
 }
 
@@ -46,7 +46,7 @@ async function invokeGlueMethodWithTargetInstance(serverName) {
     .find(({ application }) => application.startsWith(serverName));
 
   if (targetServer == null) {
-    logger.error(`Server with name ${serverName} has not been found.`);
+    logger.error(`Server with name "${serverName}" has not been found.`);
     return;
   }
 
@@ -58,6 +58,6 @@ async function invokeGlueMethodWithTargetInstance(serverName) {
     logger.info(returned.result);
   } catch (error) {
     console.error(`Failed to invoke "${methodDefinition.name}" on server "${targetServer.application}". Error: `, error);
-    logger.error(error.message || `Failed to invoke method "${methodDefinition.name}" on server "${targetServer.application}"`);
+    logger.error(error.message || `Failed to invoke method "${methodDefinition.name}" on server "${targetServer.application}".`);
   }
 }

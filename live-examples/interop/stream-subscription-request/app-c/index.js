@@ -1,8 +1,8 @@
 /* eslint-disable no-undef */
-const APP_NAME = 'App-C';
-const PRIVATE_BRANCH = 'PRIVATE_BRANCH';
+const APP_NAME = 'App C';
+const PRIVATE_BRANCH = 'Private';
 
-// Entry point. Initializes GlueWeb. GlueWeb instance will be attached to the global window.
+// Entry point. Initializes Glue42 Web. А Glue42 Web instance will be attached to the global window.
 window.startApp({ appName: APP_NAME })
   .then(createStream)
   .then(() => {
@@ -25,21 +25,21 @@ function subscriptionRequestHandler(request) {
     // Request is accepted.
     request.accept()
 
-    li.innerHTML = `${infoText} - Accepted on Default.`;
+    li.innerHTML = `${infoText} - accepted on the default branch.`;
   });
 
-  const privateAcceptBtn = createRequestSubscriberButton('Accept Private', () => {
+  const privateAcceptBtn = createRequestSubscriberButton('Accept on Private', () => {
     // Request is accepted on a branch.
     request.acceptOnBranch(PRIVATE_BRANCH);
 
-    li.innerHTML = `${infoText} - Accepted on Private.`;
+    li.innerHTML = `${infoText} - accepted on branch "Private".`;
   });
 
   const rejectBtn = createRequestSubscriberButton('Reject', () => {
     // Request is rejected.
     request.reject();
 
-    li.innerHTML = `${infoText} - Rejected from server.`;
+    li.innerHTML = `${infoText} - rejected from server.`;
   });
 
   const infoSpan = document.createElement('span');
@@ -63,16 +63,16 @@ async function createStream() {
   try {
     stream = await glue.interop.createStream(methodDefinition, streamOptions)
 
-    logger.info(`Stream "${methodDefinition.name}" created`);
+    logger.info(`Stream "${methodDefinition.name}" created.`);
   } catch (error) {
     console.error(`Failed to create stream "${methodDefinition.name}". Error: `, error);
-    logger.error(error.message || `Failed to create stream "${methodDefinition.name}"`);
+    logger.error(error.message || `Failed to create stream "${methodDefinition.name}".`);
   }
 }
 
 function pushHandler() {
   const data = {
-    message: "Hello from publisher",
+    message: "Hello from the stream publisher!",
     timeStamp: Date.now(),
     counter: nextMessageId
   };
@@ -85,12 +85,12 @@ function pushHandler() {
 
 function pushPrivateHandler() {
   const data = {
-    message: "Hello from publisher",
+    message: "Hello from the stream publisher!",
     timeStamp: Date.now(),
     counter: nextMessageId
   };
 
-  // Pushes the data only to subscribers on branch PRIVATE_BRANCH.
+  // Pushes the data only to subscribers on branch "Private".
   stream.push(data, [PRIVATE_BRANCH]);
 
   nextMessageId++;

@@ -15,11 +15,11 @@
       window.glue = glue;
       window.toggleGlueAvailable();
 
-      console.log(`GlueWeb version ${glue.info.version} initialized`);
+      console.log(`Glue42 Web version ${glue.info.version} initialized.`);
 
       return glue;
     } catch (error) {
-      console.error('Failed to initialize GlueWeb. Error: ', error);
+      console.error('Failed to initialize Glue42 Web. Error: ', error);
       throw error;
     }
   };

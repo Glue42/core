@@ -27,12 +27,12 @@
       });
 
       subscription.onClosed(() => {
-        logger.info(`Subscription to "${methodDefinition.name}" closed`);
+        logger.info(`Subscription to "${methodDefinition.name}" closed.`);
         subscription = null;
         changeToggleButtonText('Subscribe');
       });
 
-      logger.info(`Subscribed to "${methodDefinition.name}" successfully`);
+      logger.info(`Subscribed to "${methodDefinition.name}" successfully.`);
       changeToggleButtonText('Unsubscribe');
     } catch (error) {
       console.error(`Failed to subscribe to "${methodDefinition.name}". Error: `, error);

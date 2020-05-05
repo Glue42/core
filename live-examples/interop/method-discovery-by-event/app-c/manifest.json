@@ -1,6 +1,6 @@
 {
-  "short_name": "Method Discovery By Event (App-C)",
-  "name": "GlueWeb Method Discovery By Event (App-C)",
+  "short_name": "Method Discovery By Event (App C)",
+  "name": "Glue42 Web Method Discovery By Event (App C)",
   "description": "Discovering a method by subscribing to an event.",
   "icons": [
     {

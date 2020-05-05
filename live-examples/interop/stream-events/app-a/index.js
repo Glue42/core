@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
-const APP_NAME = 'App-A';
+const APP_NAME = 'App A';
 
-// Entry point. Initializes GlueWeb. GlueWeb instance will be attached to the global window.
+// Entry point. Initializes Glue42 Web. А Glue42 Web instance will be attached to the global window.
 window.startApp({ appName: APP_NAME })
   .then(() => {
     document.getElementById("toggleStreamSubscriptionBtn")
@@ -32,12 +32,12 @@ async function subscribeToStream() {
     });
 
     subscription.onClosed(() => {
-      logger.info(`Subscription to "${methodDefinition.name}" closed`);
+      logger.info(`Subscription to "${methodDefinition.name}" closed.`);
       subscription = null;
       changeToggleButtonText('Subscribe');
     });
 
-    logger.info(`Subscribed to "${methodDefinition.name}" successfully`);
+    logger.info(`Subscribed to "${methodDefinition.name}" successfully.`);
     changeToggleButtonText('Unsubscribe');
   } catch (error) {
     console.error(`Failed to subscribe to "${methodDefinition.name}". Error: `, error);

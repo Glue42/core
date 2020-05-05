@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
-const APP_NAME = 'App-A';
+const APP_NAME = 'App A';
 
-// Entry point. Initializes GlueWeb. GlueWeb instance will be attached to the global window.
+// Entry point. Initializes Glue42 Web. А Glue42 Web instance will be attached to the global window.
 window.startApp({ appName: APP_NAME })
   .then(subscribeToMethodEvents)
   .then(() => {
@@ -13,11 +13,11 @@ window.startApp({ appName: APP_NAME })
 
 function subscribeToMethodEvents() {
   glue.interop.serverMethodAdded(({ server, method }) => {
-    logger.info(`"${method.name}" registered by "${server.application}"`);
+    logger.info(`Method "${method.name}" registered by "${server.application}".`);
   });
 
   glue.interop.serverMethodRemoved(({ server, method }) => {
-    logger.info(`"${method.name}" unregistered by "${server.application}"`);
+    logger.info(`Method "${method.name}" unregistered by "${server.application}".`);
   });
 }
 
@@ -36,6 +36,6 @@ async function invokeGlueMethod(methodName) {
     (all_return_values || []).forEach(({ returned }) => logger.info(returned.result));
   } catch (error) {
     console.error(`Failed to invoke "${methodName}". Error: `, error);
-    logger.error(error.message || `Failed to invoke "${methodName}"`);
+    logger.error(error.message || `Failed to invoke "${methodName}".`);
   }
 }

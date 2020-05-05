@@ -1,6 +1,6 @@
 {
-  "short_name": "Context Subscription (App-A)",
-  "name": "Glue Web Context Subscription Example (App-A)",
+  "short_name": "Context Subscription (App A)",
+  "name": "Glue42 Web Context Subscription (App A)",
   "description": "Subscribing for context updates.",
   "icons": [
     {

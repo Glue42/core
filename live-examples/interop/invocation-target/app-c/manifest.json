@@ -1,6 +1,6 @@
 {
-  "short_name": "Invocation Target (App-C)",
-  "name": "Glue Web Invocation Target Example (App-C)",
+  "short_name": "Invocation Target (App C)",
+  "name": "Glue42 Web Invocation Target (App C)",
   "description": "Showcase specific instance targeting when a method has been registered by multiple servers.",
   "icons": [
     {

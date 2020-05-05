@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
-const APP_NAME = 'App-A';
+const APP_NAME = 'App A';
 
-// Entry point. Initializes GlueWeb. GlueWeb instance will be attached to the global window.
+// Entry point. Initializes Glue42 Web. А Glue42 Web instance will be attached to the global window.
 window.startApp({ appName: APP_NAME })
   .then(() => {
     document.getElementById("invokeGlueMethodBtn")
@@ -19,7 +19,7 @@ async function invokeGlueMethod(methodName) {
 
   const discoveredMethods = interop.methods({ name: methodName });
   if (discoveredMethods.length === 0) {
-    logger.error(`Method with name "${methodName}" has not been registered`)
+    logger.error(`Method with name "${methodName}" has not been registered.`)
     return;
   }
 
@@ -32,6 +32,6 @@ async function invokeGlueMethod(methodName) {
     (all_return_values || []).forEach(({ returned }) => logger.info(returned.result));
   } catch (error) {
     console.error(`Failed to invoke "${methodName}". Error: `, error);
-    logger.error(error.message || `Failed to invoke "${methodName}"`);
+    logger.error(error.message || `Failed to invoke "${methodName}".`);
   }
 }

@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
-const APP_NAME = 'App-A';
+const APP_NAME = 'App A';
 
-// Entry point. Initializes GlueWeb. GlueWeb instance will be attached to the global window.
+// Entry point. Initializes Glue42 Web. А Glue42 Web instance will be attached to the global window.
 window.startApp({ appName: APP_NAME })
   .then(() => {
     document.getElementById("discoverServersBtn")
@@ -19,10 +19,10 @@ async function discoverServers(methodName) {
   const servers = glue.interop.servers(filter);
 
   if (servers.length === 0) {
-    logger.info(`"${methodName}" has not been registered by any application`);
+    logger.info(`Method "${methodName}" has not been registered by any application.`);
   } else {
     servers.forEach(({ application }) => {
-      logger.info(`"${methodName}" registered by "${application}"`);
+      logger.info(`Method "${methodName}" registered by "${application}".`);
     });
   }
 }

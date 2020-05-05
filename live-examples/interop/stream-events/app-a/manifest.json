@@ -1,6 +1,6 @@
 {
-  "short_name": "Stream Events (App-A)",
-  "name": "Glue Web Stream Events (App-A)",
+  "short_name": "Stream Events (App A)",
+  "name": "Glue42 Web Stream Events (App A)",
   "description": "Handling stream events - subscriber added, subscriber removed, stream closed.",
   "icons": [
     {

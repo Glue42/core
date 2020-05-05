@@ -1,6 +1,6 @@
 {
-  "short_name": "Stream Pub Sub (App-A)",
-  "name": "Glue Web Stream Pub Sub (App-A)",
+  "short_name": "Stream Pub Sub (App A)",
+  "name": "Glue42 Web Stream Publish and Subscribe (App A)",
   "description": "Basic stream creation, publishing data and stream subscription.",
   "icons": [
     {

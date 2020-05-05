@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
-const APP_NAME = 'App-C';
+const APP_NAME = 'App C';
 
-// Entry point. Initializes GlueWeb. GlueWeb instance will be attached to the global window.
+// Entry point. Initializes Glue42 Web. А Glue42 Web instance will be attached to the global window.
 window.startApp({ appName: APP_NAME })
   .then(() => {
     document.getElementById("registerGlueMethodBtn")
@@ -16,17 +16,17 @@ async function registerGlueMethod(methodName) {
     logger.info(`${methodDefinition.name} invoked`);
 
     return {
-      result: `Hello from "${methodDefinition.name}" in application "${APP_NAME}"`
+      result: `Hello from "${methodDefinition.name}" in application "${APP_NAME}"!`
     };
   };
 
   try {
     await glue.interop.register(methodDefinition, invocationHandler)
 
-    logger.info(`"${methodDefinition.name}" registered`);
+    logger.info(`Method "${methodDefinition.name}" registered.`);
   } catch (error) {
     console.error(`Failed to register "${methodDefinition.name}". Error: `, error);
-    logger.error(`Failed to register "${methodDefinition.name}"`);
+    logger.error(`Failed to register "${methodDefinition.name}".`);
   }
 }
 

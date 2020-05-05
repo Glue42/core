@@ -1,6 +1,6 @@
 {
-  "short_name": "Server Discovery (App-B)",
-  "name": "Glue Web Server Discovery (App-B)",
+  "short_name": "Server Discovery (App B)",
+  "name": "Glue42 Web Server Discovery (App B)",
   "description": "Discovering the servers which register a given method.",
   "icons": [
     {

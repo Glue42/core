@@ -1,6 +1,6 @@
 {
-  "short_name": "Context Discovery (App-B)",
-  "name": "Glue Web Context Discovery (App-B)",
+  "short_name": "Context Discovery (App B)",
+  "name": "Glue42 Web Context Discovery (App B)",
   "description": "Discovering context and getting latest data.",
   "icons": [
     {

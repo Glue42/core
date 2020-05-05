@@ -1,9 +1,9 @@
 /* eslint-disable no-undef */
-const APP_NAME = 'App-B';
+const APP_NAME = 'App B';
 
-// Entry point. Initializes GlueWeb. GlueWeb instance will be attached to the window.
+// Entry point. Initializes Glue42 Web. A Glue42 Web instance will be attached to the global window.
 window.startApp({ appName: APP_NAME })
-  .then(() => setContext('G42CoreContext', 'Glue42 Core'))
+  .then(() => setContext('G42Core', { value: 'Glue42 Core' }))
   .then(() => {
     document.getElementById('setContextBtn')
       .addEventListener('click', setContextHandler, false);
@@ -21,8 +21,8 @@ async function setContext(ctxName, ctxData) {
   try {
     await glue.contexts.set(ctxName, { value: ctxData })
 
-    logger.info(`Context "${ctxName}" set to "${ctxData}"`);
+    logger.info(`Context "${ctxName}" set to "${ctxData}".`);
   } catch (error) {
-    logger.error(error.message || `Failed to set new context data`);
+    logger.error(error.message || `Failed to set new context data.`);
   }
 }
