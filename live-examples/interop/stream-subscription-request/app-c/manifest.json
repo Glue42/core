@@ -1,6 +1,6 @@
 {
-  "short_name": "Stream Subscription Request (App B)",
-  "name": "Glue42 Web Stream Subscription Request (App B)",
+  "short_name": "Stream Subscription Request (App C)",
+  "name": "Glue42 Web Stream Subscription Request (App C)",
   "description": "Handling stream subscription request - accept, accept on branch or reject.",
   "icons": [
     {
@@ -19,7 +19,7 @@
       "sizes": "512x512"
     }
   ],
-  "start_url": "/app-b/index.html",
+  "start_url": "/app-c/index.html",
   "scope": "/",
   "display": "standalone",
   "theme_color": "#000000",
