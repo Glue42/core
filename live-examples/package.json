@@ -1,0 +1,9 @@
+{
+  "name": "glue42-core-live-examples",
+  "version": "0.0.0",
+  "scripts": {
+    "install:all": "node install-all.js"
+  },
+  "author": "Tick42",
+  "license": "MIT"
+}
