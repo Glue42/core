@@ -4,7 +4,7 @@
   "description": "Showcase specific instance targeting when a method has been registered by multiple servers.",
   "icons": [
     {
-      "src": "/favicon.ico",
+      "src": "/assets/favicon.ico",
       "sizes": "64x64",
       "type": "image/x-icon"
     },

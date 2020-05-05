@@ -4,7 +4,7 @@
   "description": "Discovering a method by subscribing to an event.",
   "icons": [
     {
-      "src": "/favicon.ico",
+      "src": "/assets/favicon.ico",
       "sizes": "64x64",
       "type": "image/x-icon"
     },
