@@ -101,6 +101,7 @@ function createRequestSubscriberButton(label, handler) {
   btn.innerHTML = label;
   btn.classList.add('btn');
   btn.classList.add(`btn-link`);
+  btn.classList.add(`btn-sm`);
   btn.addEventListener('click', handler);
 
   return btn;
