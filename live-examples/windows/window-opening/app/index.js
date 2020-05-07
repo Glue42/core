@@ -34,7 +34,7 @@ function openWindowHandler(event) {
 
   const createWindowOptions = {
     name: windowNameValue,
-    context: { message: contextValue },
+    context: { value: contextValue },
     top: (isNaN(topValue) || topValue < 0) ? 50 : topValue,
     left: (isNaN(leftValue) || leftValue < 0) ? 50 : leftValue,
     width: (isNaN(widthValue) || widthValue <= 0) ? 350 : widthValue,
