@@ -3,7 +3,7 @@ const APP_NAME = 'App B';
 
 // Entry point. Initializes Glue42 Web. A Glue42 Web instance will be attached to the global window.
 window.startApp({ appName: APP_NAME })
-  .then(() => setContext('G42Core', { value: 'Glue42 Core' }))
+  .then(() => setContext('G42Core', 'Glue42 Core'))
   .then(() => {
     document.getElementById('setContextBtn')
       .addEventListener('click', setContextHandler, false);
