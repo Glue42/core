@@ -9,12 +9,12 @@ window.startApp()
     document.getElementById('urlText').textContent = url;
 
     const context = await glue.windows.my().getContext();
-    document.getElementById('contextText').textContent = context.message;
+    document.getElementById('contextText').textContent = context.value;
   })
   .catch(console.error);
 
 function subscribeForContextUpdates() {
   glue.windows.my().onContextUpdated((context) => {
-    document.getElementById('contextText').textContent = context.message;
+    document.getElementById('contextText').textContent = context.value;
   });
 }

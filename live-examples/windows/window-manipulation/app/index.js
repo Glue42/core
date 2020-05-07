@@ -30,7 +30,7 @@ function openOrUpdateWindowHandler(event) {
   // Convert form data to web window options.
   const windowOptions = {
     name: windowName,
-    context: { message: context },
+    context: { value: context },
     top: (isNaN(top) || top < 0) ? 50 : top,
     left: (isNaN(left) || left < 0) ? 50 : left,
     width: (isNaN(width) || width <= 0) ? 350 : width,
@@ -79,7 +79,7 @@ async function selectedWindowChanged() {
 
     setFormData({
       windowName,
-      context: contextData.message,
+      context: contextData.value,
       top: bounds.top,
       left: bounds.left,
       width: bounds.width,
