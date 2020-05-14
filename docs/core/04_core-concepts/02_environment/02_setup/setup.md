@@ -22,7 +22,7 @@ gluec init
 
 The `init` command will set up **Glue42 Core** for the current directory. This means that the Glue42 CLI will:
 
-- install with `npm` (and perform `npm init --yes` beforehand if no `package.json` file is found) all necessary dependencies that provide the [**Glue42 Environment**](../environment/overview/index.html) files;
+- install with `npm` (and perform `npm init --yes` beforehand if no `package.json` file is found) all necessary dependencies that provide the [**Glue42 Environment**](../overview/index.html) files;
 - create a `glue.config.dev.json` file with default settings and correct paths for all **Glue42 Core** assets;
 - create a `glue.config.json` file with default settings so that you can easily customize (if you need to) the settings in it. The Glue42 CLI will copy this file to the output directory when bundling your **Glue42 Core** files for deployment.
 - create a `glue.core.cli.log` file which will contain the log output of the [**Glue42 CLI**](../../cli/index.html) if you set the `logging` setting in the `glue.config.dev.json` to `"full"`.
@@ -241,13 +241,13 @@ gluec serve
 
 This command launches a light-weight dev server at `localhost` with the settings specified in the `glue.config.dev.json` file.
 
-At first glance, the end result is pretty much the same as the one from `ng serve` or `npm start`. The difference is that apart from serving your app, we are also serving the [**Glue42 Environment**](../overview/index.html) files and your app is ready to initiate the [Glue42 Web](../../../../reference/core/latest/glue42%20web/index.html) library and access all Glue42 Core capabilities.
+At first glance, the end result is pretty much the same as the one from `ng serve` or `npm start`. The difference is that apart from serving your app, we are also serving the [**Glue42 Environment**](../overview/index.html) files and your app is ready to initiate the [**Glue42 Web**](../../../../reference/core/latest/glue42%20web/index.html) library and access all Glue42 Core capabilities.
 
 *Note that any client-side routing you may have will still be working as expected.*
 
 ## Manual
 
-You can also manually set up your [**Glue42 Environment**](../overview/index.html) if non of the built-in solutions suits your needs. The steps you need to take are the same for both single and multi application projects - simply remember to install the dependencies at the root directory of your project, which in a single app project is the application root directory, and in a multi app project is the root directory containing all applications and shared assets.
+You can also manually set up your [**Glue42 Environment**](../overview/index.html) if nonе of the built-in solutions suits your needs. The steps you need to take are the same for both single and multi application projects - simply remember to install the dependencies at the root directory of your project, which in a single app project is the application root directory, and in a multi app project is the root directory containing all applications and shared assets.
 
 *Before you begin, remember that you can also use partially the Glue42 CLI to install the necessary dependencies and create a basic configuration file through the `gluec init` command. After that, you can edit and serve the files with your own dev server and custom settings.*
 
@@ -263,7 +263,7 @@ npm install --save @glue42/gateway-web @glue42/worker-web
 
 Now, you have to create a `glue.config.json` configuration file and define the properties you need. For detailed information on the available properties in the configuration file, see the [**Glue42 Environment: Overview**](../overview/index.html#configuration_file) section.
 
-Keep in mind that the configuration file is *optional*, so if you don't want to use such, skip this step and Glue42 Core will continue with the built-in defaults when initializing the [Glue42 Web](../../../../reference/core/latest/glue42%20web/index.html) library. You can specify that you will not use a configuration file and/or you can override the built-in default library settings when initializing a [**Glue42 Client**](../../glue42-client/overview/index.html).
+Keep in mind that the configuration file is *optional*, so if you don't want to use such, skip this step and Glue42 Core will continue with the built-in defaults when initializing the [**Glue42 Web**](../../../../reference/core/latest/glue42%20web/index.html) library. You can specify that you will not use a configuration file and/or you can override the built-in default library settings when initializing a [**Glue42 Client**](../../glue42-client/overview/index.html).
 
 ### Serving Your Project
 
@@ -277,7 +277,7 @@ Remember that by default:
 - Glue42 Clients will expect a `worker.js` file located at `./glue`;
 - the Shared Worker will expect a `gateway.js` (and an *optional* `glue.config.json`, if you have provided one) file located at `./glue`;
 
-To change these defaults, see [**Glue42 Client: Initializing a Glue42 Client**](../../core-concepts/glue42-client/overview/#initializing_a_glue42_client).
+To change these defaults, see [**Glue42 Client: Initializing a Glue42 Client**](../../glue42-client/overview/#initializing_a_glue42_client).
 
 You should serve:
 

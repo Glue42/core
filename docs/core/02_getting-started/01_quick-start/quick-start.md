@@ -86,7 +86,7 @@ Congratulations, you now have your very first **Glue42 Core** app!
 
 *For deploying your project, see the [Project Deployment](../project-deployment/index.html) section.*
 
-*For more information on setting up the [Glue42 Environment](../../core-concepts/environment/overview/index.html), see the [**Glue42 Environment: Setup**](../../core-concepts/environment/setup/index.html) section.*
+*For more information on setting up the [**Glue42 Environment**](../../core-concepts/environment/overview/index.html), see the [**Glue42 Environment: Setup**](../../core-concepts/environment/setup/index.html) section.*
 
 *For a more detailed instructions on how to set up your JavaScript or React app, see the [**JavaScript**](../../core-concepts/glue42-client/javascript/index.html) and [**React**](../../core-concepts/glue42-client/react/index.html) guides on setting up a [**Glue42 Client**](../../core-concepts/glue42-client/overview/index.html).*
 

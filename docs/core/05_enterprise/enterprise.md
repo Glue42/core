@@ -22,7 +22,7 @@ Your Glue42 Core application can run in [**Glue42 Enterprise**](https://glue42.c
 }
 ```
 
-*For more details on configuring **Glue42 Enterprise**, see the [Glue42 Enterprise: System Configuration](../../developers/configuration/system/index.html) section.*
+*For more details on configuring **Glue42 Enterprise**, see the [**Glue42 Enterprise: System Configuration**](../../developers/configuration/system/index.html) section.*
 
 3. Create a definition file for your application. Use the template attached below and change the `name`, `title` and `url` properties with the details of your app.
 
@@ -46,7 +46,7 @@ Your Glue42 Core application can run in [**Glue42 Enterprise**](https://glue42.c
 
 Save the configuration file as a `.json` file and place it in the application definitions folder. Usually, this is the `%LocalAppData%\Tick42\UserData\<ENV-REG>\apps` folder where `<ENV-REG>` should be replaced with the region and environment folder name used for the deployment of your **Glue42 Enterprise** - e.g., `T42-DEMO`.
 
-*For more details on configuring a Glue42 enabled applications, see the [Glue42 Enterprise: Application Configuration](../../developers/configuration/application/index.html) section.*
+*For more details on configuring a Glue42 enabled applications, see the [**Glue42 Enterprise: Application Configuration**](../../developers/configuration/application/index.html) section.*
 
 4. Start **Glue42 Enterprise** and open your app from the Glue42 Toolbar.
 
@@ -54,7 +54,7 @@ Save the configuration file as a `.json` file and place it in the application de
 
 If you want to keep your app running in both environments (**Glue42 Core** and **Glue42 Enterprise**) and also use features that are specific to **Glue42 Enterprise**, you need to make checks in your code to determine in which environment your app is running.
 
-For example, you may want to register a global hotkey shortcut using the [Hotkeys API](../../glue42-concepts/glue42-platform-features/index.html#hotkeys) that is only available in **Glue42 Enterprise**. You can use the `glue42gd` object that is attached to the global `window` object on startup of **Glue42 Enterprise**:
+For example, you may want to register a global hotkey shortcut using the [Hotkeys API](../../reference/glue/latest/hotkeys/index.html) that is only available in **Glue42 Enterprise**. You can use the `glue42gd` object that is attached to the global `window` object on startup of **Glue42 Enterprise**:
 
 ```javascript
 // Check whether the app is running in Glue42 Enterprise in order to use the Hotkeys API.

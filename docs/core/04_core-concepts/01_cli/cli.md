@@ -32,7 +32,7 @@ The `init` command will set up **Glue42 Core** for the current directory. This m
 - install with `npm` (and perform `npm init --yes` beforehand if no `package.json` file is found) all necessary dependencies that provide the [**Glue42 Environment**](../environment/overview/index.html) files;
 - create a `glue.config.dev.json` file with default settings and correct paths for all **Glue42 Core** assets;
 - create a `glue.config.json` file with default settings so that you can easily customize (if you need to) the settings in it. The Glue42 CLI will copy this file to the output directory when bundling your **Glue42 Core** files for deployment.
-- create a `glue.core.cli.log` file which will contain the log output of the [**Glue42 CLI**](../../cli/index.html) if you set the `logging` setting in the `glue.config.dev.json` to `"full"`.
+- create a `glue.core.cli.log` file which will contain the log output of the Glue42 CLI if you set the `logging` setting in the `glue.config.dev.json` to `"full"`.
 
 - #### serve
 
@@ -100,7 +100,7 @@ Below are described all available properties and settings in the `glue.config.de
 |----------|------|-------------|----------|---------|
 | `worker` | `string` | The location of the Shared Worker script file. | No | `"./node_modules/@glue42/worker-web/dist/worker.js"` |
 | `gateway.location` | `string`| The location of the Glue42 Gateway script file. | No | `"./node_modules/@glue42/gateway-web/web/gateway-web.js"` |
-| `gateway.gwLogAppender` | `string` | The location of a [custom log appender file](../environment/overview/index.html#advanced-extending_the_gateway_logging) for the Glue42 Gateway. | No | `-` |
+| `gateway.gwLogAppender` | `string` | The location of a [custom log appender file](../environment/setup/index.html#advanced-extending_the_gateway_logging) for the Glue42 Gateway. | No | `-` |
 | `config` | `string`| The location of the `glue.config.json` file. | No | `"./glue.config.json"` |
 | `route` | `string` | The base route where the [**Glue42 Environment**](../environment/overview/index.html) files will be served by the dev server. | No | `"/glue"` |
 

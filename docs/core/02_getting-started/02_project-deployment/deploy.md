@@ -2,7 +2,7 @@
 
 In the [Quick Start](../quick-start/index.html) section you learned how to quickly set up the [**Glue42 Environment**](../../core-concepts/environment/overview/index.html) files and create a basic [**Glue42 Client**](../../core-concepts/glue42-client/overview/index.html) app using the [**Glue42 CLI**](../../core-concepts/cli/index.html). Here, you can see how to easily bundle all necessary Glue42 Core files ready for deployment using the Glue42 CLI. 
 
-*If you have decided to set up your project manually, you should already be familiar with the locations of the files you need (see [Glue42 Environment: Manual Setup](../../core-concepts/environment/setup/index.html#manual)).*
+*If you have decided to set up your project manually, you should already be familiar with the locations of the files you need (see [**Glue42 Environment: Manual Setup**](../../core-concepts/environment/setup/index.html#manual)).*
 
 ## Deployment
 

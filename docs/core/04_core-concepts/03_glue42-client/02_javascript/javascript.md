@@ -1,6 +1,6 @@
 ## Overview
 
-This guide will show you how to initialize the [Glue42 Web](../../../../reference/core/latest/glue42%20web/index.html) library in a simple JavaScript app in order to make it a Glue42 Client.
+This guide will show you how to initialize the [**Glue42 Web**](../../../../reference/core/latest/glue42%20web/index.html) library in a simple JavaScript app in order to make it a Glue42 Client.
 
 ## Referencing Glue42 Web
 
@@ -67,4 +67,4 @@ const initializeGlue42 = async () => {
 initializeGlue42().catch(console.error);
 ```
 
-Your application is now configured as a Glue42 Client and can connect to the [Glue42 Environment](../../core-concepts/environment/overview/index.html). You can serve your app with your own server or you can use the Glue42 Core dev server via the [Glue42 Core CLI](../../core-concepts/cli/index.html).
+Your application is now configured as a Glue42 Client and can connect to the [**Glue42 Environment**](../../environment/overview/index.html). You can serve your app with your own server or you can use the Glue42 Core dev server via the [**Glue42 Core CLI**](../../cli/index.html).

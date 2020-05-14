@@ -1,6 +1,6 @@
 ## Overview 
 
-The **Glue42 Angular** wrapper, [`@glue42/ng`](https://www.npmjs.com/package/@glue42/ng), aims to facilitate Angular developers in initializing the Glue42 JavaScript libraries and using Glue42 functionalities in their projects. The Glue42 Angular wrapper works both with the [@glue42/web](../../../../reference/core/latest/glue42%20web/index.html) library, if you are working on a **Glue42 Core** project, and with the [@glue42/desktop](../../../../reference/glue/latest/glue/index.html) library, if you are working on a **Glue42 Enterprise** project. The `@glue42/ng` package is a simple lightweight wrapper which makes initializing a [Glue42 Client](../overview/index.html) and consuming the Glue42 Web APIs easy and convenient. The examples below use the [Glue42 Web](../../../../reference/core/latest/glue42%20web/index.html) library.
+The **Glue42 Angular** wrapper, [`@glue42/ng`](https://www.npmjs.com/package/@glue42/ng), aims to facilitate Angular developers in initializing the Glue42 JavaScript libraries and using Glue42 functionalities in their projects. The Glue42 Angular wrapper works both with the [@glue42/web](../../../../reference/core/latest/glue42%20web/index.html) library, if you are working on a **Glue42 Core** project, and with the [@glue42/desktop](../../../../reference/glue/latest/glue/index.html) library, if you are working on a **Glue42 Enterprise** project. The `@glue42/ng` package is a simple lightweight wrapper which makes initializing a [**Glue42 Client**](../overview/index.html) and consuming the Glue42 Web APIs easy and convenient. The examples below use the [**Glue42 Web**](../../../../reference/core/latest/glue42%20web/index.html) library.
 
 ## Prerequisites
 
@@ -15,7 +15,7 @@ This package should be used only in Angular applications. If your app was create
 }
 ```
 
-The example below assumes that your app was created with the Angular CLI. Install `@glue42/ng` and the [Glue42 Web](../../../../reference/core/latest/glue42%20web/index.html) library:
+The example below assumes that your app was created with the Angular CLI. Install `@glue42/ng` and the [**Glue42 Web**](../../../../reference/core/latest/glue42%20web/index.html) library:
 
 ```cmd
 npm install --save @glue42/ng @glue42/web
@@ -24,12 +24,12 @@ npm install --save @glue42/ng @glue42/web
 ## Library Features
 
 The Glue42 Angular library exposes two important elements:
-- `Glue42Ng` - an Angular module that initializes the [Glue42 Web](../../../../reference/core/latest/glue42%20web/index.html) library;
+- `Glue42Ng` - an Angular module that initializes the [**Glue42 Web**](../../../../reference/core/latest/glue42%20web/index.html) library;
 - `Glue42Store` - an Angular service that gives access to the Glue42 Web API;
 
 ### Glue42Ng Module
 
-The `Glue42Ng` module is responsible for initializing the [Glue42 Web](../../../../reference/core/latest/glue42%20web/index.html) library. You must import the `Glue42Ng` module **once** for the entire application - in the **root module** by using the `forRoot()` method. This methods accepts a settings object which has the following signature:
+The `Glue42Ng` module is responsible for initializing the [**Glue42 Web**](../../../../reference/core/latest/glue42%20web/index.html) library. You must import the `Glue42Ng` module **once** for the entire application - in the **root module** by using the `forRoot()` method. This methods accepts a settings object which has the following signature:
 
 ```typescript
 Glue42NgSettings = {
@@ -39,8 +39,8 @@ Glue42NgSettings = {
 };
 ```
 
-- `config` - *Optional*. A configuration object for the Glue42 factory function (for detailed configuration options, see the [Glue42 Client: Overview](../overview/index.html#initializing_a_glue42_client) section);
-- `factory` - *Optional*. A Glue42 factory function. If you do not pass a factory function, the Glue42 Angular library will search for a factory function attached to the global `window` object (e.g., `window.GlueWeb` when using the [Glue42 Web](../../../../reference/core/latest/glue42%20web/index.html) library);
+- `config` - *Optional*. A configuration object for the Glue42 factory function (for detailed configuration options, see the [**Glue42 Client: Overview**](../overview/index.html#initializing_a_glue42_client) section);
+- `factory` - *Optional*. A Glue42 factory function. If you do not pass a factory function, the Glue42 Angular library will search for a factory function attached to the global `window` object (e.g., `window.GlueWeb` when using the [**Glue42 Web**](../../../../reference/core/latest/glue42%20web/index.html) library);
 - `holdInit` - *Optional*. Toggles whether or not your app initialization should wait for the Glue42 factory function to resolve. Defaults to `true`;
 
 The initialization of the Glue42 Web library is asynchronous and therefore can take anywhere between a few milliseconds and a couple of seconds. There are two main situations in which setting `holdInit` to `true` (default) or `false` will benefit your project: 
@@ -73,7 +73,7 @@ export class AppModule { }
 
 ### Glue42Store Service
 
-The `Glue42Store` service is used to obtain the `glue` object which exposes the [Glue42 Web](../../../../reference/core/latest/glue42%20web/index.html) API. This service can also notify you when the Glue42 Web library has been initialized and enables you to check for any initialization errors.
+The `Glue42Store` service is used to obtain the `glue` object which exposes the [**Glue42 Web**](../../../../reference/core/latest/glue42%20web/index.html) API. This service can also notify you when the Glue42 Web library has been initialized and enables you to check for any initialization errors.
 
 Example of creating a `Glue42Store` service:
 
@@ -93,7 +93,7 @@ The `Glue42Store` service offers the following methods:
 - `this.glueStore.initError` - returns an initialization error object returned from the Glue42 factory function or `undefined`;
 - `this.glueStore.glue` - returns the Glue42 Web API object. If needed, it is up to the developer to cast the returned object to the respective type (either `Glue42.Glue` or `Glue42Web.API` depending on the used Glue42 JavaScript library);
 
-You can now inject the service in the components that need it and access the [Glue42 Web](../../../../reference/core/latest/glue42%20web/index.html) API from the `this.glueStore.glue` object. This gives you a decent level of encapsulation and control. If you prefer handling async actions with `Observables`, then this service is the perfect place to wrap the methods you want to use in `Observables`.
+You can now inject the service in the components that need it and access the [**Glue42 Web**](../../../../reference/core/latest/glue42%20web/index.html) API from the `this.glueStore.glue` object. This gives you a decent level of encapsulation and control. If you prefer handling async actions with `Observables`, then this service is the perfect place to wrap the methods you want to use in `Observables`.
 
 ## Usage
 
@@ -127,9 +127,9 @@ export class AppModule { }
 
 ### Consuming Glue42 Web APIs
 
-Inject the `Glue42Store` service in your component/service of choice in order to use the [Glue42 Web](../../../../reference/core/latest/glue42%20web/index.html) API. It is recommended that you create your own Angular service that injects the `Glue42Store` and exposes only the functionality your app needs.
+Inject the `Glue42Store` service in your component/service of choice in order to use the [**Glue42 Web**](../../../../reference/core/latest/glue42%20web/index.html) API. It is recommended that you create your own Angular service that injects the `Glue42Store` and exposes only the functionality your app needs.
 
-When initializing the Glue42 Web library with the `Glue42Ng` module, you can use the `holdInit` property (see [Glue42Ng Module](#library_features-glue42ng_module)) to configure the Angular framework to wait or not for the Glue42 factory function to resolve before bootstrapping your first component. Depending on this setting, you can use the `Glue42Store` service in different ways. Below are given examples and short explanations for both cases:
+When initializing the Glue42 Web library with the `Glue42Ng` module, you can use the `holdInit` property (see [**Glue42Ng Module**](#library_features-glue42ng_module)) to configure the Angular framework to wait or not for the Glue42 factory function to resolve before bootstrapping your first component. Depending on this setting, you can use the `Glue42Store` service in different ways. Below are given examples and short explanations for both cases:
 
 - #### holdInit: true
 

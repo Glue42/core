@@ -15,8 +15,9 @@ In the next sections, you can see examples of using the Shared Contexts API. You
 
 The applications below demonstrate how to set and get context using the [`get()`](../../../reference/core/latest/shared%20contexts/index.html#!API-get) and [`set()`](../../../reference/core/latest/shared%20contexts/index.html#!API-set) methods of the Shared Contexts API. 
 
-Create a value in App B (any string) that will be assigned to a pre-defined property in the context object and set the "G42Core" context by clicking the "Set Context" button. Click "Get Context" in App A to print the current value of the shared context object.
+Create a value in App B (any string) that will be assigned to a pre-defined property of the context object and set the "G42Core" context by clicking the "Set Context" button. Click "Get Context" in App A to print the current value of the shared context object.
 
+<a href="https://codesandbox.io/s/github/Glue42/core/tree/master/live-examples/contexts/context-get-set" target="_blank">Open in CodeSandbox</a>
 <div style="display: flex;border: 1px solid #ccc;border-radius: 4px;">
     <iframe src="https://k6fn5.csb.app/app-a/index.html" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"></iframe>
     <iframe src="https://k6fn5.csb.app/app-b/index.html" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"></iframe>
@@ -28,6 +29,7 @@ The applications below demonstrate how to update a shared context object and how
 
 Click the "Subscribe" button in App A to subscribe for updates of the "G42Core" context. Every time the "G42Core" context changes, the context value will be printed. Create a context value and click the "Update Context" button to update the "G42Core" context.
 
+<a href="https://codesandbox.io/s/github/Glue42/core/tree/master/live-examples/contexts/context-subscription" target="_blank">Open in CodeSandbox</a>
 <div style="display: flex;border: 1px solid #ccc;border-radius: 4px;">
     <iframe src="https://8df8e.csb.app/app-a/index.html" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"></iframe>
     <iframe src="https://8df8e.csb.app/app-b/index.html" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"></iframe>
@@ -39,6 +41,7 @@ The applications below demonstrate how to get a list of all contexts and find a 
 
 Create several contexts with different names from App B. Input the name of the context you want to find in App A and click the "Find Context" button to print the context.
 
+<a href="https://codesandbox.io/s/github/Glue42/core/tree/master/live-examples/contexts/context-discovery" target="_blank">Open in CodeSandbox</a>
 <div style="display: flex;border: 1px solid #ccc;border-radius: 4px;">
     <iframe src="https://wpdr7.csb.app/app-a/index.html" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"></iframe>
     <iframe src="https://wpdr7.csb.app/app-b/index.html" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"></iframe>

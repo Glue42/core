@@ -14,10 +14,11 @@ In the next sections, you can see examples of using the Interop API. You can ope
 
 ## Opening Windows
 
-The application below demonstrates opening a new window with basic configuration (context, size, position) by using the [`open()`](../../../reference/core/latest/windows/index.html#!API-open) method of the Window Management API.
+The application below demonstrates opening a new window with basic configuration (context and size) by using the [`open()`](../../../reference/core/latest/windows/index.html#!API-open) method of the Window Management API.
 
-Use the input fields in App A to assign a name (required) to the new window and set the window context, size and position. Click the "Open Window" button to open a new window.
+Use the input fields in App A to assign a name (required) to the new window and set the window context and size. Click the "Open Window" button to open a new window.
 
+<a href="https://codesandbox.io/s/github/Glue42/core/tree/master/live-examples/windows/window-opening" target="_blank">Open in CodeSandbox</a>
 <div style="display: flex;border: 1px solid #ccc;border-radius: 4px;">
     <iframe src="https://jp8hk.csb.app/app-a/index.html" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"></iframe>
 </div>
@@ -38,8 +39,9 @@ The application below demonstrates handling window events - opening/closing wind
 
 On load, App A subscribes for the [`onWindowAdded()`](../../../reference/core/latest/windows/index.html#!API-onWindowAdded) and the [`onWindowRemoved()`](../../../reference/core/latest/windows/index.html#!API-onWindowRemoved) events of the Window Management API and will print to the page every time a new window is opened or an existing window is closed. 
 
-Open several new windows by using the input fields in App A to assign a name (required) to the new window and set the window context, size and position. Click the "Open Window" button to open a new window.
+Open several new windows by using the input fields in App A to assign a name (required) to the new window and set the window context and size. Click the "Open Window" button to open a new window.
 
+<a href="https://codesandbox.io/s/github/Glue42/core/tree/master/live-examples/windows/window-events" target="_blank">Open in CodeSandbox</a>
 <div style="display: flex;border: 1px solid #ccc;border-radius: 4px;">
     <iframe src="https://jwc9w.csb.app/app-a/index.html" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"></iframe>
     <iframe src="https://jwc9w.csb.app/app-b/index.html" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"></iframe>
