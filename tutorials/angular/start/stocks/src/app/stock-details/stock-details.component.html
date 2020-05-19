@@ -1,0 +1,55 @@
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-2">
+                <span id="glueSpan" class="label label-warning">Glue is {{glueStatus}}</span>
+            </div>
+            <div class="col-md-10">
+                <h1 class="text-center">Stocks</h1>
+            </div>
+        </div>
+        <div *ngIf=clientMessage class="row">
+            <div class="col-md-12">
+                <h3>{{clientMessage}}</h3>
+            </div>
+        </div>
+        <div class="row">
+            <table id="clientsTable" class="table table-hover">
+                <tbody>
+                    <tr>
+                        <th>RIC</th>
+                        <td>{{stock?.RIC}}</td>
+                    </tr>
+                    <tr>
+                        <th>BPOD</th>
+                        <td>{{stock?.BPOD}}</td>
+                    </tr>
+                    <tr>
+                        <th>Bloomberg</th>
+                        <td>{{stock?.Bloomberg}}</td>
+                    </tr>
+                    <tr>
+                        <th>Description</th>
+                        <td>{{stock?.Description}}</td>
+                    </tr>
+                    <tr>
+                        <th>Exchange</th>
+                        <td>{{stock?.Exchange}}</td>
+                    </tr>
+                    <tr>
+                        <th>Venues</th>
+                        <td>{{stock?.Venues}}</td>
+                    </tr>
+                    <tr>
+                        <th>Bid</th>
+                        <td>{{stock?.Bid}}</td>
+                    </tr>
+                    <tr>
+                        <th>Ask</th>
+                        <td>{{stock?.Ask}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>

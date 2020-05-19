@@ -4,29 +4,49 @@ const APP_NAME = 'App A';
 // Entry point. Initializes Glue42 Web. А Glue42 Web instance will be attached to the global window.
 window.startApp({ appName: APP_NAME })
   .then(() => {
-    document.getElementById("subscribeStreamBtn")
-      .addEventListener('click', subscribeToStreamHandler);
+    document.getElementById("toggleStreamSubscriptionBtn")
+      .addEventListener('click', toggleStreamSubscriptionHandler);
   })
   .then(clearLogsHandler)
   .catch(console.error);
 
-async function subscribeToStreamHandler() {
+let subscription;
+
+function toggleStreamSubscriptionHandler() {
+  if (subscription == null) {
+    subscribeToStream();
+  } else {
+    subscription.close();
+    subscription = null;
+  }
+}
+
+async function subscribeToStream() {
   const methodDefinition = { name: 'G42Core.Stream.Basic' };
+  const subscribeOptions = { waitTimeoutMs: 3000 };
 
   try {
-    const subscription = await glue.interop.subscribe(methodDefinition, { waitTimeoutMs: 3000 });
+    subscription = await glue.interop.subscribe(methodDefinition, subscribeOptions);
 
     subscription.onData(({ data }) => {
       logger.info(data.message);
     });
 
-    logger.info(`Subscribed to ${methodDefinition.name} successfully.`);
+    subscription.onClosed(() => {
+      logger.info(`Subscription to "${methodDefinition.name}" closed.`);
+      subscription = null;
+      changeToggleButtonText('Subscribe');
+    });
 
-    const subscribeBtn = document.getElementById('subscribeStreamBtn');
-    subscribeBtn.setAttribute('disabled', true);
-    subscribeBtn.innerText = 'Subscribed';
+    logger.info(`Subscribed to ${methodDefinition.name} successfully.`);
+    changeToggleButtonText('Unsubscribe');
   } catch (error) {
     console.error(`Failed to subscribe to "${methodDefinition.name}". Error: `, error);
     logger.error(error.message || `Failed to subscribe to "${methodDefinition.name}".`);
   }
+}
+
+function changeToggleButtonText(text) {
+  const btn = document.getElementById("toggleStreamSubscriptionBtn");
+  btn.textContent = text;
 }

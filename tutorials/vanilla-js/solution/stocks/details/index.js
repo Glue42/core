@@ -33,6 +33,13 @@ const updateStockPrices = (bid, ask) => {
     elementAsk.innerText = ask;
 };
 
+const toggleGlueAvailable = () => {
+    const span = document.getElementById('glueSpan');
+    span.classList.remove('label-warning');
+    span.classList.add('label-success');
+    span.textContent = 'Glue is available';
+};
+
 const updateClientStatus = (client, stock) => {
 
     const message = client.portfolio.includes(stock.RIC) ?
@@ -46,7 +53,8 @@ const updateClientStatus = (client, stock) => {
 const start = async () => {
 
     window.glue = await window.GlueWeb();
-
+    toggleGlueAvailable();
+    
     const stock = window.glue.windows.my().context;
 
     setFields(stock);

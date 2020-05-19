@@ -13,6 +13,7 @@ window.startApp({ appName: APP_NAME })
 function discoverServersHandler() {
   const methodNameInput = document.getElementById('methodNameInput');
   discoverServers(methodNameInput.value);
+  methodNameInput.value = '';
 }
 
 async function discoverServers(methodName) {
@@ -20,7 +21,7 @@ async function discoverServers(methodName) {
   const servers = glue.interop.servers(filter);
 
   if (servers.length === 0) {
-    logger.info(`Method "${methodName}" has not been registered by any application.`);
+    logger.error(`Method "${methodName}" has not been registered by any application.`);
   } else {
     servers.forEach(({ application }) => {
       logger.info(`Method "${methodName}" registered by "${application}".`);

@@ -40,6 +40,8 @@ export interface GDObject {
         gwToken: string,
         isOwner: boolean
     };
+
+    getMetricsPublishingEnabled: () => boolean;
     updatePerfData: (perf: object) => void;
     getGWToken(): Promise<string>;
     getWindowInfo(id: string): {

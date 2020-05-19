@@ -12,6 +12,7 @@ import { InteropSettings } from "./interop/types";
 import Interop from "./interop/interop";
 import { MessageBus } from "./bus/main";
 import { version } from "../package.json";
+import shortid from "shortid";
 
 const GlueCore = (userConfig?: Glue42Core.Config, ext?: Glue42Core.Extension): Promise<Glue42Core.GlueCore> => {
     const gdVersion: number | undefined = Utils.getGDMajorVersion();
@@ -138,9 +139,17 @@ const GlueCore = (userConfig?: Glue42Core.Config, ext?: Glue42Core.Extension): P
         const initTimer = timer();
         const config = internalConfig.metrics;
 
+        const metricsPublishingEnabledFunc = glue42gd?.getMetricsPublishingEnabled;
+        const identity = internalConfig.connection.identity;
+        const canUpdateMetric = metricsPublishingEnabledFunc ? metricsPublishingEnabledFunc : () => true;
+
         const rootMetrics = metrics({
             connection: config ? _connection : undefined,
-            logger: _logger.subLogger("metrics")
+            logger: _logger.subLogger("metrics"),
+            canUpdateMetric,
+            system: identity?.application ?? "metrics-system",
+            service: identity?.service ?? "metrics-service",
+            instance: identity?.instance ?? identity?.windowId ?? shortid(),
         });
 
         let rootSystem = rootMetrics;

@@ -34,9 +34,9 @@ async function subscribeForContextUpdates(ctxName) {
   }
 
   try {
-    unsubscribeFn = await glue.contexts.subscribe(ctxName, contextUpdatedHandler);
+    logger.info(`Subscribe to context "${ctxName}".`);
 
-    logger.info(`Subscribed to context "${ctxName}".`);
+    unsubscribeFn = await glue.contexts.subscribe(ctxName, contextUpdatedHandler);
   } catch (error) {
     logger.error(error.message || `Failed to subscribe to context "${ctxName}".`);
   }

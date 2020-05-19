@@ -1,0 +1,32 @@
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-2">
+                <span id="glueSpan" class="label label-warning">Glue is {{glueStatus}}</span>
+            </div>
+            <div class="col-md-10">
+                <h1 class="text-center">Stocks</h1>
+            </div>
+        </div>
+        <div class="row">
+            <table id="stocksTable" class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Description</th>
+                        <th className="text-right">Bid</th>
+                        <th className="text-right">Ask</th>
+                    </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let stock of stocks" (click)="handleStockClick(stock)">
+                    <td>{{stock.RIC}}</td>
+                    <td>{{stock.Description}}</td>
+                    <td>{{stock.Bid}}</td>
+                    <td>{{stock.Ask}}</td>
+                  </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+  </body>

@@ -1612,6 +1612,7 @@ export namespace Glue42Core {
             activityId?: string;
             activityWindowId?: string;
         };
+        getMetricsPublishingEnabled: () => boolean;
     }
 
     export interface LoggerConfig {

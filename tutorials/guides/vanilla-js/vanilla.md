@@ -95,11 +95,19 @@ Great! So far we have gotten ourselves acquainted with the start files, we launc
 ### 1.2. Getting Started with the Glue42 Core CLI
 
 Now we are going to use the [**Glue42 Core CLI**](../../glue42-core/what-is-glue42-core/core-concepts/cli/index.html) to initiate our environment. For that you will need to install the Glue42 Core CLI first and then call the `init` command, which will set up your dev environment.
+Make sure you run the `init` command in `/tutorials/vanilla-js/start`
 
 ```cmd
 npm install --global @glue42/cli-core
 
 gluec init
+```
+or it can be done this way:
+
+```cmd
+npm install --save-dev @glue42/cli-core
+
+npx gluec init
 ```
 
 This command will get the necessary dependencies and scaffold the necessary config files for us. Next, we are going to stop using the simple http server that comes with the start files and utilize the CLI's serve functionality. This is very useful, as it allows us to serve or proxy to our apps, define shared resources and serve the [**Glue42 Core Environment**](../../glue42-core/what-is-glue42-core/core-concepts/environment/index.html) correctly.
@@ -112,6 +120,12 @@ To do all of that open the `glue.config.dev.json` file. Then add the shared reso
     "server": {
         "settings": ...,
         "apps": [
+            {
+                "route": "/",
+                "file": {
+                    "path": "./"
+                }
+            },
             {
                 "route": "/clients",
                 "file": {
@@ -176,25 +190,31 @@ You can now access the clients app at `localhost:4242/clients` and the stocks ap
 
 ## 2. Initializing Glue Web
 
-Go over to each one of the three `.html` pages - clients, stocks and details and include a new `<script>` which references the Glue42 Web script in the lib directory:
+Go over to each one of the `Clients/index.html`, `Stocks/index.html`, and `Stocks/details/index.html` pages, and include a new `<script>` after the **<!--TODO: Chapter 2-->** and before `<script src="./index.js">`, if it is present, which references the Glue42 Web script in the lib directory:
 
 ```html
 <script src="/lib/web.umd.min.js"></script>
 ```
 
 Next go to each one of the scripts at:
-- `/clients/index.js`
-- `/stocks/index.js`
-- `/stocks/details/details.js`
+- `/Clients/index.js`
+- `/Stocks/index.js`
+- `/Stocks/details/index.js`
 
-Look for the **TODO: Chapter 2** comment. There you should initialize [**Glue42 Web**](../../reference/core/latest/glue42%20web/index.html), without any configs. Once the factory function resolves, uncomment the `toggleGlueAvailable` function from `/clients/index.js` and `/stocks/index.js` and call it.
+Look for the **TODO: Chapter 2** comment inside the `start` functions
+in `/Clients/index.js`, `/Stocks/index.js`, and `/Stocks/details/index.js`. You should initialize [**Glue42 Web**](../../reference/core/latest/glue42%20web/index.html). Assign the `glue` object to the global `window` object for easy use.
 
 ```javascript
+// in start()
 window.glue = await window.GlueWeb();
+```
+Uncomment the `toggleGlueAvailable` function from `/Clients/index.js` and `/Stocks/index.js` and call it once the `window.GlueWeb` factory function resolves.
+
+```javascript
 toggleGlueAvailable();
 ```
 
-Let's just assign the `glue` object to the global `window` object for easy use. After refreshing the apps, you should see in the top left corners of the **stocks** and **clients** apps text that indicates that Glue is available. This means that you are successfully connected to the [**Glue42 Core Environment**](../../glue42-core/what-is-glue42-core/core-concepts/environment/index.html).
+After refreshing the apps, you should see in the top left corners of the **stocks**, **clients**, and **details** apps text that indicates that Glue is available. This means that you are successfully connected to the [**Glue42 Core Environment**](../../glue42-core/what-is-glue42-core/core-concepts/environment/index.html).
 
 Good job, we now have everything we need to start adding more functionality.
 
@@ -208,9 +228,22 @@ In this section we will take a look at some functionality provided by our [**Int
 
 Whenever a user clicks on a client, we would like the **stocks** app to show only stocks owned by this client. We will achieve this by registering an interop method inside the `stocks` app, which whenever invoked will receive the selected client's portfolio and re-render the stocks table. We also want the **stocks** app to create a stream into which we will push the new stock prices and thereby the stream's subscribers will get notified, whenever new prices are generated.
 
-Head over to `/stocks/index.js`.  Right below where you invoked `toggleGlueAvailable`, we will register a method called `SelectClient`. This method will expect as an argument an object with property `client` that has a `portfolio` property. Next we need to filter all the stocks and pass only the correct ones to the function `setupStocks`, which will re-build our stocks table. After that we will create a stream called `LivePrices`, which once created we will assign to the global `window` object for easy access. Finally we will go over to the `newPricesHandler` function which is invoked every time new prices are generated and push the `priceUpdate` object to the stream. When you are done, your code should look something like this:
+Head over to `/Stocks/index.js`.  Right below where you invoked `toggleGlueAvailable`, we will register a method called `SelectClient`. This method will expect as an argument an object with property `client` that has a `portfolio` property. Next we need to filter all the stocks and pass only the correct ones to the function `setupStocks`, which will re-build our stocks table. After that we will create a stream called `LivePrices`, which once created we will assign to the global `window` object for easy access:
 
 ```javascript
+// place code in start()
+window.glue.interop.register('SelectClient', (args) => {
+    const clientPortfolio = args.client.portfolio;
+    const stockToShow = stocks.filter((stock) => clientPortfolio.includes(stock.RIC));
+    setupStocks(stockToShow);
+});
+
+window.priceStream = await glue.interop.createStream('LivePrices');
+```
+Finally we will go over to the `newPricesHandler` function which is invoked every time new prices are generated and push the `priceUpdate` object to the stream. We will use it in the Window Context section. When you are done, your code should look something like this:
+
+```javascript
+// updated newPricesHandler
 const newPricesHandler = (priceUpdate) => {
     priceUpdate.stocks.forEach((stock) => {
         const row = document.querySelectorAll(`[data-ric='${stock.RIC}']`)[0];
@@ -229,21 +262,6 @@ const newPricesHandler = (priceUpdate) => {
         window.priceStream.push(priceUpdate);
     }
 };
-
-// previous code in start()
-generateStockPrices(newPricesHandler);
-
-window.glue = await window.GlueWeb();
-
-toggleGlueAvailable();
-
-window.glue.interop.register('SelectClient', (args) => {
-    const clientPortfolio = args.client.portfolio;
-    const stockToShow = stocks.filter((stock) => clientPortfolio.includes(stock.RIC));
-    setupStocks(stockToShow);
-});
-
-window.priceStream = await glue.interop.createStream('LivePrices');
 ```
 
 Right now we can't see anything different in the browser, but have done a lot. Next we will find and use the method from within the `clients` app.
@@ -342,7 +360,7 @@ const start = async () => {
 Now, that looks much better. Let's wrap this section up, by subscribing to the price stream we created previously, so that both our `/stocks` and `/stocks/details` can display live price data. Right below `setFields` in `/stocks/details` use the [**Interop API**](../../reference/core/latest/interop/index.html) to subscribe to the `LivePrices` stream. When the subscription resolves, set the `onData` callback to receive the stream data, find the correct price of our selected stock and pass the **Ask** and **Bid** prices to the `updateStockPrices` function. The end result, should look like this:
 
 ```javascript
-setFields(stock);
+// in start()
 
 const subscription = await window.glue.interop.subscribe('LivePrices');
 subscription.onData((streamData) => {

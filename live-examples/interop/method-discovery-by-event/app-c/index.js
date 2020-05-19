@@ -13,6 +13,7 @@ window.startApp({ appName: APP_NAME })
 function registerGlueMethodHandler() {
   const methodNameInput = document.getElementById('methodNameInput');
   registerGlueMethod(methodNameInput.value);
+  methodNameInput.value = '';
 }
 
 async function registerGlueMethod(methodName) {

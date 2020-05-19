@@ -34,4 +34,5 @@ async function registerGlueMethod(methodName) {
 function registerGlueMethodHandler() {
   const methodNameInput = document.getElementById('methodNameInput');
   registerGlueMethod(methodNameInput.value);
+  methodNameInput.value = '';
 }

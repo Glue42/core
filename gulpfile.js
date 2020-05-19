@@ -58,6 +58,7 @@ const checkoutRelease = async () => {
 
 const checkoutMaster = async () => {
     await checkout(stableBranch);
+    process.exitCode = 0;
 };
 
 const syncAllContentsExceptPackages = async () => {

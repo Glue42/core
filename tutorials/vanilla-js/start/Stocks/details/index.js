@@ -32,6 +32,14 @@ const updateStockPrices = (bid, ask) => {
     elementAsk.innerText = ask;
 };
 
+// TODO: Chapter 2
+// const toggleGlueAvailable = () => {
+//     const span = document.getElementById('glueSpan');
+//     span.classList.remove('label-warning');
+//     span.classList.add('label-success');
+//     span.textContent = 'Glue is available';
+// };
+
 // TODO: Chapter 5
 // const updateClientStatus = (client, stock) => {
 

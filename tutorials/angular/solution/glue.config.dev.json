@@ -1,0 +1,32 @@
+{
+    "glueAssets": {
+        "gateway": {
+            "location": "./node_modules/@glue42/gateway-web/web/gateway-web.js"
+        },
+        "worker": "./node_modules/@glue42/worker-web/dist/worker.js",
+        "config": "./glue.config.json",
+        "route": "/glue"
+    },
+    "server": {
+        "settings": {
+            "port": 4242,
+            "disableCache": true
+        },
+        "apps": [
+            {
+                "route": "/clients/",
+                "localhost": {
+                    "port": 4200
+                }
+            },
+            {
+                "route": "/stocks/",
+                "localhost": {
+                    "port": 4100
+                }
+            }
+        ],
+        "sharedAssets": []
+    },
+    "logging": "default"
+}

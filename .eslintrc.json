@@ -15,7 +15,8 @@
         "live-examples/*",
         "tutorials/*",
         "packages/web/**/*.js",
-        "packages/core/**/*.js"
+        "packages/core/**/*.js",
+        "docs/*"
     ],
     "rules": {
         "indent": [
