@@ -13,3 +13,9 @@ You can find the tutorial [here](../../tutorials/vanilla-js/index.html).
 Apart from the main tools that comprise **Glue42 Core**, you can also use the [**Glue42 React Hooks**](../glue42-client/react/index.html) library which is based on React Hooks. This library makes using **Glue42 Core** in a React app easy and intuitive.
 
 You can find the tutorial [here](../../tutorials/react/index.html).
+
+## Angular
+
+Using **Glue42 Core** in an Angular application is easy thanks to the [`@glue42/ng`](https://www.npmjs.com/package/@glue42/ng) library. It is a thin wrapper that facilitates initializing the [**Glue42 Web**](../../reference/core/latest/glue42%20web/index.html) library and accessing its APIs.
+
+You can find the tutorial [here](../../tutorials/angular/index.html).
