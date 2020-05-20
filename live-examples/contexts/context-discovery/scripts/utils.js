@@ -1,10 +1,8 @@
 /* eslint-disable no-undef */
 (function (window) {
   const toggleGlueAvailable = () => {
-    const span = document.getElementById("glueSpan");
-    span.classList.remove("badge-warning");
-    span.classList.add("badge-success");
-    span.textContent = "Connected";
+    document.getElementById("glueImg").src =  "/assets/connected.svg";
+    document.getElementById("glueSpan").textContent = "Connected";
   };
 
   const logger = (function logger() {
@@ -14,15 +12,16 @@
 
       const item = document.createElement('li');
 
-      if (logTime) {
-        const timeSpan = document.createElement('span');
-        timeSpan.textContent = `[${formatTime(new Date())}] `;
-        item.append(timeSpan);
-      }
-
-      item.classList.add(`list-group-item`);
+      item.classList ='list-group-item d-flex justify-content-between align-items-center';
       item.classList.add(`list-group-item-${type}`);
       item.append(message);
+
+      if (logTime) {``
+        const timeSpan = document.createElement('span');
+        timeSpan.textContent = `${formatTime(new Date())} `;
+        timeSpan.classList = "badge badge-pill"
+        item.append(timeSpan);
+      }
 
       document.getElementById('logs-list').prepend(item);
     }

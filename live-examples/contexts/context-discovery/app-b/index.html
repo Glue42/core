@@ -17,22 +17,23 @@
 </head>
 
 <body>
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-12 text-center">
-        <h5 id="appNameHeading" style="display: inline;">
-          <!-- App name is displayed here -->
-        </h5>
-        <span id="glueSpan" class="badge badge-warning">Disconnected</span>
-      </div>
+  <nav class="navbar navbar-light bg-light py-3">
+    <h5 id="appNameHeading" class="mb-0">
+      <!-- App name is displayed here -->
+    </h5>
+    <div>
+      <span id="glueSpan">Disconnected</span>
+      <img id="glueImg" src="./../assets/disconnected.svg" width="30" height="30">
     </div>
+  </nav>
+  <div class="container-fluid">
     <div class="row mt-2">
       <div class="col-12">
-        <form autocomplete="off" class="form-inline">
-          <input type="text" class="form-control mb-2 mr-sm-2" id="ctxNameInput" placeholder="Context Name">
-          <input type="text" class="form-control mb-2 mr-sm-2" id="ctxDataInput" placeholder="Context Data">
-          <button id="setContextBtn" type="button" class="btn btn-primary mb-2">Set Context</button>
-          <button id="clearLogsBtn" type="button" class="btn btn-link mb-2">Clear Logs</button>
+        <form autocomplete="off" class="form-inline input-group-sm justify-content-between">
+          <input type="text" class="form-control" id="ctxNameInput" placeholder="Context Name">
+          <input type="text" class="form-control" id="ctxDataInput" placeholder="Context Data">
+          <button id="setContextBtn" type="button" class="btn btn-outline-primary btn-sm">Set Context</button>
+          <button id="clearLogsBtn" type="button" class="btn btn-outline-primary btn-sm">Clear Logs</button>
         </form>
       </div>
     </div>
