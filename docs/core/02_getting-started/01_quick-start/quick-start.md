@@ -1,64 +1,56 @@
-## Overview
+## Guide
 
-The idea here is to get you up and running as fast as possible with a new simple application.
+This guide will show you how to easily create, setup and run a simple **Glue42 Core** project.
 
-## Step One
-
-Install the [**Glue42 Core CLI**](../../what-is-glue42-core/core-concepts/cli/index.html) globally.
+1. Install the [**Glue42 CLI**](../../core-concepts/cli/index.html) globally with `npm`:
 
 ```javascript
 npm install --global @glue42/cli-core
 ```
 
-## Step Two
+2. Create a root project directory with basic `index.html` and `index.js` files in it and reference the `index.js` file in the `index.html` file with a `<script>` tag.
 
-Create a new app directory with a basic html and a basic JS file.
-
-Your directory should look like this:
+Your project directory should look like something this:
 
 ```cmd
 /myApp
     /index.html
-    /script.js
+    /index.js
 ```
 
-Reference the JS file with a `<script>` tag.
+Your `index.html` should contain this:
 
-## Step Three
+```html
+<script src="index.js"></script>
+```
 
-Open a terminal inside the directory and initiate Glue42 Core:
+3. Open a terminal inside the root directory and initiate **Glue42 Core**:
 
 ```javascript
 gluec init
 ```
 
-## Step Four
+This will install the project dependencies and setup the necessary configuration files. 
 
-Go to the `index.html` and reference the `@glue42/web` dist file from unpkg. Your html should look like this
+4. In your `index.html` file, reference the latest [**Glue42 Web**](../../../reference/core/latest/glue42%20web/index.html) library module from `UNPKG`:
 
 ```html
 <script src="https://unpkg.com/@glue42/web@latest/dist/web.umd.js"></script>
-<script src="./script.js">
+<script src="./index.js"></script>
 ```
 
-## Step Five
-
-Go to `./script.js`, declare a simple `init` function like this:
+5. Go to your `index.js` file and declare a simple initialization function like the one below:
 
 ```javascript
-
 const init = async () => {
     const glue = await window.GlueWeb();
-    console.log(`Glue initialized with version: ${glue.version}`);
+    console.log(`Glue42 initialized successfully! Glue42 version: ${glue.version}`);
 };
 
 init().catch(console.error);
-
 ```
 
-## Step Six
-
-Configure the CLI to serve your app and the Glue42 Web script. To do that go over to `glue.config.dev.json` and modify it to look like this:
+6. Configure the Glue42 CLI to serve your application. Open the `glue.config.dev.json` file, located in the root project directory, and modify its `server.apps` property to look like this:
 
 ```json
 {
@@ -78,14 +70,24 @@ Configure the CLI to serve your app and the Glue42 Web script. To do that go ove
 }
 ```
 
-## Step Seven
+7. Launch your app:
 
-Launch your app:
+From the opened terminal in the root project directory, run:
 
 ```javascript
 gluec serve
 ```
 
-Now when you head over to `localhost:4242` your app will be served and if you open the console you will see the printed message that Glue is initialized.
+Now your app will be served at `http://localhost:4242` and if you open its console, you will see the printed message for successful initialization of Glue42.
 
-This is how you get from 0 to Glue42 Core App as quickly as possible. For more information on setting up your [**Glue42 Core Environment**](../../what-is-glue42-core/core-concepts/environment/index.html), head over to Setting Up [**Single Application**](../setting-environment/single-application/index.html). Or if you wish to launch a React app, you can check out our [**React library**](../setting-application/react/index.html).
+## Next Steps
+
+Congratulations, you now have your very first **Glue42 Core** app! 
+
+*For deploying your project, see the [Project Deployment](../project-deployment/index.html) section.*
+
+*For more information on setting up the [**Glue42 Environment**](../../core-concepts/environment/overview/index.html), see the [**Glue42 Environment: Setup**](../../core-concepts/environment/setup/index.html) section.*
+
+*For a more detailed instructions on how to set up your JavaScript or React app, see the [**JavaScript**](../../core-concepts/glue42-client/javascript/index.html) and [**React**](../../core-concepts/glue42-client/react/index.html) guides on setting up a [**Glue42 Client**](../../core-concepts/glue42-client/overview/index.html).*
+
+*For more information on the **Glue42 Web** library, see the [**Reference**](../../../reference/core/latest/glue42%20web/index.html) section.*

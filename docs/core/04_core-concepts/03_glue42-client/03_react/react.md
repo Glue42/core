@@ -1,6 +1,6 @@
 ## Overview
 
-The [**Glue42 React Hooks**](https://www.npmjs.com/package/@glue42/react-hooks) package is a library providing custom React hooks for the Glue42 Javascript libraries - [@glue42/web](../../../../reference/core/latest/glue42%20web/index.html), if you are working on a **Glue42 Core** project, or [@glue42/desktop](../../../../reference/glue/latest/glue/index.html), if you are working on a **Glue42 Enterprise** project. The examples below use the [Glue42 Web](../../../../reference/core/latest/glue42%20web/index.html) library. The Glue42 React Hooks library allows you to start using Glue42 features in your React apps idiomatically in the context of the React framework.
+The [**Glue42 React Hooks**](https://www.npmjs.com/package/@glue42/react-hooks) package is a library providing custom React hooks for the Glue42 Javascript libraries - [@glue42/web](../../../../reference/core/latest/glue42%20web/index.html), if you are working on a **Glue42 Core** project, or [@glue42/desktop](../../../../reference/glue/latest/glue/index.html), if you are working on a **Glue42 Enterprise** project. The examples below use the [**Glue42 Web**](../../../../reference/core/latest/glue42%20web/index.html) library. The Glue42 React Hooks library allows you to start using Glue42 features in your React apps idiomatically in the context of the React framework.
 
 ## Prerequisites
 
@@ -27,7 +27,7 @@ Your `package.json` file should now have the following dependencies:
 
 ## Library Features
 
-The Glue42 React Hooks library offers a way to consume the APIs of the [Glue42 Web](../../../../reference/core/latest/glue42%20web/index.html) library in your web applications via [React Hooks](https://reactjs.org/docs/hooks-intro.html) and [React Context](https://reactjs.org/docs/context.html). The Glue42 React Hooks library provides the following features described below.
+The Glue42 React Hooks library offers a way to consume the APIs of the [**Glue42 Web**](../../../../reference/core/latest/glue42%20web/index.html) library in your web applications via [React Hooks](https://reactjs.org/docs/hooks-intro.html) and [React Context](https://reactjs.org/docs/context.html). The Glue42 React Hooks library provides the following features described below.
 
 ### Context
 
@@ -50,7 +50,7 @@ GlueProvider: FC<GlueProviderProps>;
 
 - `children` - React components which may contain Glue42 related logic;
 - `fallback` - *Optional*. A React component to display while initializing Glue42;
-- `config` - *Optional*. A [Config](../../../../reference/core/latest/glue42%20web/index.html#!Config) object for the `GlueWeb()` factory function (for detailed configuration options, see the [Glue42 Client: Overview](../overview/index.html#initializing_a_glue42_client) section);
+- `config` - *Optional*. A [Config](../../../../reference/core/latest/glue42%20web/index.html#!Config) object for the `GlueWeb()` factory function (for detailed configuration options, see the [**Glue42 Client: Overview**](../overview/index.html#initializing_a_glue42_client) section);
 - `glueFactory` - *Optional*. Factory function used to initialize the Glue42 Web library. Defaults to `window.GlueWeb`.
 
 - #### GlueContext
@@ -77,13 +77,13 @@ Below is the signature of `useGlue()`:
 ```
 
 - `cb` - **Required**. A sync/async callback function that will be invoked with the `glue` object and an array of user-defined `dependencies`. The callback may or may not include any Glue42-related code;
-    - `glue` - the object returned from the initialization of the [Glue42Web](../../../../reference/core/latest/glue42%20web/index.html) library;
+    - `glue` - the object returned from the initialization of the [**Glue42 Web**](../../../../reference/core/latest/glue42%20web/index.html) library;
     - `dependencies` -  additional user-defined arguments for the callback;
 - `dependencies` - *Optional*. An array of user-defined variables that will trigger the invocation of the provided callback based on whether the value of any of the specified variables has changed (same functionality as the [`useEffect()`](https://reactjs.org/docs/hooks-effect.html#tip-optimizing-performance-by-skipping-effects) React hook).
 
 - #### useGlueInit()
 
-The `useGlueInit()` hook is a React hook which initializes the [Glue42Web](../../../../reference/core/latest/glue42%20web/index.html) library. It accepts an *optional* [Config](../../../../reference/core/latest/glue42%20web/index.html#!Config) object and an *optional* Glue42 factory function as arguments.
+The `useGlueInit()` hook is a React hook which initializes the [**Glue42 Web**](../../../../reference/core/latest/glue42%20web/index.html) library. It accepts an *optional* [Config](../../../../reference/core/latest/glue42%20web/index.html#!Config) object and an *optional* Glue42 factory function as arguments.
 
 ```typescript
 useGlueInitProps = (
@@ -94,7 +94,7 @@ useGlueInitProps = (
 useGlueInit: useGlueInitProps;
 ```
 
-- `config` - *Optional*. A [Config](../../../../reference/core/latest/glue42%20web/index.html#!Config) object for the `GlueWeb()` factory function (for detailed configuration options, see the [Glue42 Client: Overview](../overview/index.html#initializing_a_glue42_client) section);
+- `config` - *Optional*. A [Config](../../../../reference/core/latest/glue42%20web/index.html#!Config) object for the `GlueWeb()` factory function (for detailed configuration options, see the [**Glue42 Client: Overview**](../overview/index.html#initializing_a_glue42_client) section);
 - `glueFactory` - *Optional*. Factory function used to initialize the Glue42 Web library. Defaults to `window.GlueWeb`.
 
 ## Usage
@@ -103,11 +103,11 @@ Below you can see some examples of using the Glue42 React Hooks library.
 
 ### Initialization
 
-To access the Glue42 Web APIs, you need to initialize and (optionally) configure the [Glue42Web](../../../../reference/core/latest/glue42%20web/index.html) library (for detailed configuration options, see the [Glue42 Client: Overview](../overview/index.html#initializing_a_glue42_client) section). You can do this in two ways - by using the `GlueProvider` component or the `useGlueInit()` hook. The difference is that the `GlueProvider` initializes the Glue42 Web library and makes the returned API object (`glue`) globally available by automatically assigning it as a value to `GlueContext`, while the `useGlueInit()` hook initializes the library and returns an API object (`glue`) which you then have to make available to your other components by passing it as a prop, by creating a context or by attaching it to the global `window` object.
+To access the Glue42 Web APIs, you need to initialize and (optionally) configure the [**Glue42 Web**](../../../../reference/core/latest/glue42%20web/index.html) library (for detailed configuration options, see the [**Glue42 Client: Overview**](../overview/index.html#initializing_a_glue42_client) section). You can do this in two ways - by using the `GlueProvider` component or the `useGlueInit()` hook. The difference is that the `GlueProvider` initializes the Glue42 Web library and makes the returned API object (`glue`) globally available by automatically assigning it as a value to `GlueContext`, while the `useGlueInit()` hook initializes the library and returns an API object (`glue`) which you then have to make available to your other components by passing it as a prop, by creating a context or by attaching it to the global `window` object.
 
 - #### GlueProvider
 
-Add the `GlueProvider` component by wrapping your other components inside it (preferably the root one). `GlueProvider` will initialize the [Glue42Web](../../../../reference/core/latest/glue42%20web/index.html) library and make the Glue42 Web APIs available in your application by setting a `glue` object (returned from the initialization) as the value of `GlueContext`:
+Add the `GlueProvider` component by wrapping your other components inside it (preferably the root one). `GlueProvider` will initialize the [**Glue42 Web**](../../../../reference/core/latest/glue42%20web/index.html) library and make the Glue42 Web APIs available in your application by setting a `glue` object (returned from the initialization) as the value of `GlueContext`:
 
 ```javascript
 //index.js
@@ -126,7 +126,7 @@ ReactDOM.render(
 
 - #### useGlueInit()
 
-You can also initialize the [Glue42Web](../../../../reference/core/latest/glue42%20web/index.html) library with the `useGlueInit()` hook. Below is an example of conditional rendering of a component based on whether the Glue42 Web API is available or not. 
+You can also initialize the [**Glue42 Web**](../../../../reference/core/latest/glue42%20web/index.html) library with the `useGlueInit()` hook. Below is an example of conditional rendering of a component based on whether the Glue42 Web API is available or not. 
 
 ```javascript
 import "glue42/web";
@@ -150,7 +150,7 @@ Remember that when you initialize the Glue42 Web library with the `useGlueInit()
 
 ### Consuming Glue42 Web APIs
 
-After the [Glue42Web](../../../../reference/core/latest/glue42%20web/index.html) library has been successfully initialized, you can access the Glue42 Web APIs with the built-in React hook `useContext()` and passing `GlueContext` as its argument, or with the `useGlue()` hook.
+After the [**Glue42 Web**](../../../../reference/core/latest/glue42%20web/index.html) library has been successfully initialized, you can access the Glue42 Web APIs with the built-in React hook `useContext()` and passing `GlueContext` as its argument, or with the `useGlue()` hook.
 
 - #### GlueContext
 
@@ -244,7 +244,7 @@ export default App;
 
 ### Testing
 
-You can use your own factory function for initializing the [Glue42Web](../../../../reference/core/latest/glue42%20web/index.html) library. This is useful in Jest/Enzyme tests when you want to mock the Glue42 library: 
+You can use your own factory function for initializing the [**Glue42 Web**](../../../../reference/core/latest/glue42%20web/index.html) library. This is useful in Jest/Enzyme tests when you want to mock the Glue42 library: 
 
 ```javascript
 //index.js
