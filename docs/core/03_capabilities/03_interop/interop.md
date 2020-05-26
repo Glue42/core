@@ -19,10 +19,12 @@ The applications below demonstrate how to register and invoke Interop methods us
 
 On load, App B registers a method called "G42Core.Basic". Click the "Invoke" button in App A to invoke this method and print the result from the method invocation.
 
-<a href="https://codesandbox.io/s/github/Glue42/core/tree/master/live-examples/interop/basic-interop" target="_blank">Open in CodeSandbox</a>
-<div style="display: flex;border: 1px solid #ccc;border-radius: 4px;">
-    <iframe src="https://fmzr7.csb.app/app-a/index.html" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"></iframe>
-    <iframe src="https://fmzr7.csb.app/app-b/index.html" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"></iframe>
+<a href="https://codesandbox.io/s/github/Glue42/core/tree/master/live-examples/interop/basic-interop" target="_blank" class="btn btn-primary"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 296" preserveAspectRatio="xMidYMid meet" width="24" height="24" version="1.1" style="pointer-events: auto;">
+        <path fill="#000000" d="M 115.498 261.088 L 115.498 154.479 L 23.814 101.729 L 23.814 162.502 L 65.8105 186.849 L 65.8105 232.549 L 115.498 261.088 Z M 139.312 261.715 L 189.917 232.564 L 189.917 185.78 L 232.186 161.285 L 232.186 101.274 L 139.312 154.895 L 139.312 261.715 Z M 219.972 80.8277 L 171.155 52.5391 L 128.292 77.4107 L 85.104 52.5141 L 35.8521 81.1812 L 127.766 134.063 L 219.972 80.8277 Z M 0 222.212 L 0 74.4949 L 127.987 0 L 256 74.182 L 256 221.979 L 127.984 295.723 L 0 222.212 Z" style="pointer-events: auto;"></path>
+</svg> Open in CodeSandbox</a>
+<div class="d-flex">
+    <iframe src="https://fmzr7.csb.app/app-a/index.html"></iframe>
+    <iframe src="https://fmzr7.csb.app/app-b/index.html"></iframe>
 </div>
 
 ## Targeting
@@ -31,11 +33,13 @@ The applications below demonstrate targeting Interop servers when invoking Inter
 
 On load, Apps B and C register a method with the same name. Click one of the buttons in App A to invoke this method and print the result from the method invocation. There are four buttons - "Invoke Default" (invokes the method by targeting the server that has registered it first), "Invoke All" (invokes the method by targeting all servers offering it), "Invoke App B" (invokes the method by targeting App B) and "Invoke App C" (invokes the method by targeting App C). 
 
-<a href="https://codesandbox.io/s/github/Glue42/core/tree/master/live-examples/interop/invocation-target" target="_blank">Open in CodeSandbox</a>
-<div style="display: flex;border: 1px solid #ccc;border-radius: 4px;">
-    <iframe src="https://nsjxl.csb.app/app-a/index.html" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"></iframe>
-    <iframe src="https://nsjxl.csb.app/app-b/index.html" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"></iframe>
-    <iframe src="https://nsjxl.csb.app/app-c/index.html" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"></iframe>
+<a href="https://codesandbox.io/s/github/Glue42/core/tree/master/live-examples/interop/invocation-target" target="_blank" class="btn btn-primary"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 296" preserveAspectRatio="xMidYMid meet" width="24" height="24" version="1.1" style="pointer-events: auto;">
+        <path fill="#000000" d="M 115.498 261.088 L 115.498 154.479 L 23.814 101.729 L 23.814 162.502 L 65.8105 186.849 L 65.8105 232.549 L 115.498 261.088 Z M 139.312 261.715 L 189.917 232.564 L 189.917 185.78 L 232.186 161.285 L 232.186 101.274 L 139.312 154.895 L 139.312 261.715 Z M 219.972 80.8277 L 171.155 52.5391 L 128.292 77.4107 L 85.104 52.5141 L 35.8521 81.1812 L 127.766 134.063 L 219.972 80.8277 Z M 0 222.212 L 0 74.4949 L 127.987 0 L 256 74.182 L 256 221.979 L 127.984 295.723 L 0 222.212 Z" style="pointer-events: auto;"></path>
+</svg> Open in CodeSandbox</a>
+<div class="d-flex">
+    <iframe src="https://nsjxl.csb.app/app-a/index.html"></iframe>
+    <iframe src="https://nsjxl.csb.app/app-b/index.html"></iframe>
+    <iframe src="https://nsjxl.csb.app/app-c/index.html"></iframe>
 </div>
 
 ## Discovery
@@ -48,11 +52,13 @@ The applications below demonstrate discovering Interop methods by a method name.
 
 Use App B and App C to register Interop methods by providing a method name. Input a method name in App A and click the "Invoke" button to invoke the method and print the result from the method invocation.
 
-<a href="https://codesandbox.io/s/github/Glue42/core/tree/master/live-examples/interop/method-discovery-by-name" target="_blank">Open in CodeSandbox</a>
-<div style="display: flex;border: 1px solid #ccc;border-radius: 4px;">
-    <iframe src="https://whkfw.csb.app/app-a/index.html" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"></iframe>
-    <iframe src="https://whkfw.csb.app/app-b/index.html" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"></iframe>
-    <iframe src="https://whkfw.csb.app/app-c/index.html" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"></iframe>
+<a href="https://codesandbox.io/s/github/Glue42/core/tree/master/live-examples/interop/method-discovery-by-name" target="_blank" class="btn btn-primary"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 296" preserveAspectRatio="xMidYMid meet" width="24" height="24" version="1.1" style="pointer-events: auto;">
+        <path fill="#000000" d="M 115.498 261.088 L 115.498 154.479 L 23.814 101.729 L 23.814 162.502 L 65.8105 186.849 L 65.8105 232.549 L 115.498 261.088 Z M 139.312 261.715 L 189.917 232.564 L 189.917 185.78 L 232.186 161.285 L 232.186 101.274 L 139.312 154.895 L 139.312 261.715 Z M 219.972 80.8277 L 171.155 52.5391 L 128.292 77.4107 L 85.104 52.5141 L 35.8521 81.1812 L 127.766 134.063 L 219.972 80.8277 Z M 0 222.212 L 0 74.4949 L 127.987 0 L 256 74.182 L 256 221.979 L 127.984 295.723 L 0 222.212 Z" style="pointer-events: auto;"></path>
+</svg> Open in CodeSandbox</a>
+<div class="d-flex">
+    <iframe src="https://whkfw.csb.app/app-a/index.html"></iframe>
+    <iframe src="https://whkfw.csb.app/app-b/index.html"></iframe>
+    <iframe src="https://whkfw.csb.app/app-c/index.html"></iframe>
 </div>
 
 - #### Method Events
@@ -61,11 +67,13 @@ The applications below demonstrate discovering Interop methods by subscribing to
 
 On load, App A subscribes to the `serverMethodAdded()` and `serverMethodRemoved()` events and will print the names of the newly registered method and the server offering it. Use App B and App C to register Interop methods by providing a method name.
 
-<a href="https://codesandbox.io/s/github/Glue42/core/tree/master/live-examples/interop/method-discovery-by-event" target="_blank">Open in CodeSandbox</a>
-<div style="display: flex;border: 1px solid #ccc;border-radius: 4px;">
-    <iframe src="https://b6t8l.csb.app/app-a/index.html" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"></iframe>
-    <iframe src="https://b6t8l.csb.app/app-b/index.html" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"></iframe>
-    <iframe src="https://b6t8l.csb.app/app-c/index.html" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"></iframe>
+<a href="https://codesandbox.io/s/github/Glue42/core/tree/master/live-examples/interop/method-discovery-by-event" target="_blank" class="btn btn-primary"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 296" preserveAspectRatio="xMidYMid meet" width="24" height="24" version="1.1" style="pointer-events: auto;">
+        <path fill="#000000" d="M 115.498 261.088 L 115.498 154.479 L 23.814 101.729 L 23.814 162.502 L 65.8105 186.849 L 65.8105 232.549 L 115.498 261.088 Z M 139.312 261.715 L 189.917 232.564 L 189.917 185.78 L 232.186 161.285 L 232.186 101.274 L 139.312 154.895 L 139.312 261.715 Z M 219.972 80.8277 L 171.155 52.5391 L 128.292 77.4107 L 85.104 52.5141 L 35.8521 81.1812 L 127.766 134.063 L 219.972 80.8277 Z M 0 222.212 L 0 74.4949 L 127.987 0 L 256 74.182 L 256 221.979 L 127.984 295.723 L 0 222.212 Z" style="pointer-events: auto;"></path>
+</svg> Open in CodeSandbox</a>
+<div class="d-flex">
+    <iframe src="https://b6t8l.csb.app/app-a/index.html"></iframe>
+    <iframe src="https://b6t8l.csb.app/app-b/index.html"></iframe>
+    <iframe src="https://b6t8l.csb.app/app-c/index.html"></iframe>
 </div>
 
 ### Servers
@@ -74,11 +82,13 @@ The applications below demonstrate discovering Interop servers by a method name.
 
 Use App B and App C to register Interop methods by providing a method name. Input a method name in App A and click the "Find Servers" button to print the Interop servers that provide the method. 
 
-<a href="https://codesandbox.io/s/github/Glue42/core/tree/master/live-examples/interop/server-discovery" target="_blank">Open in CodeSandbox</a>
-<div style="display: flex;border: 1px solid #ccc;border-radius: 4px;">
-    <iframe src="https://p9lot.csb.app/app-a/index.html" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"></iframe>
-    <iframe src="https://p9lot.csb.app/app-b/index.html" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"></iframe>
-    <iframe src="https://p9lot.csb.app/app-c/index.html" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"></iframe>
+<a href="https://codesandbox.io/s/github/Glue42/core/tree/master/live-examples/interop/server-discovery" target="_blank" class="btn btn-primary"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 296" preserveAspectRatio="xMidYMid meet" width="24" height="24" version="1.1" style="pointer-events: auto;">
+        <path fill="#000000" d="M 115.498 261.088 L 115.498 154.479 L 23.814 101.729 L 23.814 162.502 L 65.8105 186.849 L 65.8105 232.549 L 115.498 261.088 Z M 139.312 261.715 L 189.917 232.564 L 189.917 185.78 L 232.186 161.285 L 232.186 101.274 L 139.312 154.895 L 139.312 261.715 Z M 219.972 80.8277 L 171.155 52.5391 L 128.292 77.4107 L 85.104 52.5141 L 35.8521 81.1812 L 127.766 134.063 L 219.972 80.8277 Z M 0 222.212 L 0 74.4949 L 127.987 0 L 256 74.182 L 256 221.979 L 127.984 295.723 L 0 222.212 Z" style="pointer-events: auto;"></path>
+</svg> Open in CodeSandbox</a>
+<div class="d-flex">
+    <iframe src="https://p9lot.csb.app/app-a/index.html"></iframe>
+    <iframe src="https://p9lot.csb.app/app-b/index.html"></iframe>
+    <iframe src="https://p9lot.csb.app/app-c/index.html"></iframe>
 </div>
 
 ## Streaming
@@ -89,10 +99,12 @@ The applications below demonstrate publishing and subscribing for Interop stream
 
 On load, App B registers an Interop stream called "G42Core.Stream.Basic". Click the "Subscribe" button in App A to subscribe to the registered stream. Each time App A receives data, it will be printed on the page (time stamp and a message). Click the "Start Publishing" button in App B to start publishing data to the stream every 3 seconds.
 
-<a href="https://codesandbox.io/s/github/Glue42/core/tree/master/live-examples/interop/stream-pub-sub" target="_blank">Open in CodeSandbox</a>
-<div style="display: flex;border: 1px solid #ccc;border-radius: 4px;">
-    <iframe src="https://6zwf8.csb.app/app-a/index.html" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"></iframe>
-    <iframe src="https://6zwf8.csb.app/app-b/index.html" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"></iframe>
+<a href="https://codesandbox.io/s/github/Glue42/core/tree/master/live-examples/interop/stream-pub-sub" target="_blank" class="btn btn-primary"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 296" preserveAspectRatio="xMidYMid meet" width="24" height="24" version="1.1" style="pointer-events: auto;">
+        <path fill="#000000" d="M 115.498 261.088 L 115.498 154.479 L 23.814 101.729 L 23.814 162.502 L 65.8105 186.849 L 65.8105 232.549 L 115.498 261.088 Z M 139.312 261.715 L 189.917 232.564 L 189.917 185.78 L 232.186 161.285 L 232.186 101.274 L 139.312 154.895 L 139.312 261.715 Z M 219.972 80.8277 L 171.155 52.5391 L 128.292 77.4107 L 85.104 52.5141 L 35.8521 81.1812 L 127.766 134.063 L 219.972 80.8277 Z M 0 222.212 L 0 74.4949 L 127.987 0 L 256 74.182 L 256 221.979 L 127.984 295.723 L 0 222.212 Z" style="pointer-events: auto;"></path>
+</svg> Open in CodeSandbox</a>
+<div class="d-flex">
+    <iframe src="https://6zwf8.csb.app/app-a/index.html"></iframe>
+    <iframe src="https://6zwf8.csb.app/app-b/index.html"></iframe>
 </div>
 
 ### Events
@@ -103,10 +115,12 @@ Click the "Create Stream" button in App B to register an Interop stream called "
 
 Click the "Unsubscribe" button in App A to close the subscription to the stream - App B will print to the page when a subscriber is removed. Click the "Close Stream" button in App B to close the stream - App A will print to the page when the stream is closed.
 
-<a href="https://codesandbox.io/s/github/Glue42/core/tree/master/live-examples/interop/stream-events" target="_blank">Open in CodeSandbox</a>
-<div style="display: flex;border: 1px solid #ccc;border-radius: 4px;">
-    <iframe src="https://fv3wc.csb.app/app-a/index.html" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"></iframe>
-    <iframe src="https://fv3wc.csb.app/app-b/index.html" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"></iframe>
+<a href="https://codesandbox.io/s/github/Glue42/core/tree/master/live-examples/interop/stream-events" target="_blank" class="btn btn-primary"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 296" preserveAspectRatio="xMidYMid meet" width="24" height="24" version="1.1" style="pointer-events: auto;">
+        <path fill="#000000" d="M 115.498 261.088 L 115.498 154.479 L 23.814 101.729 L 23.814 162.502 L 65.8105 186.849 L 65.8105 232.549 L 115.498 261.088 Z M 139.312 261.715 L 189.917 232.564 L 189.917 185.78 L 232.186 161.285 L 232.186 101.274 L 139.312 154.895 L 139.312 261.715 Z M 219.972 80.8277 L 171.155 52.5391 L 128.292 77.4107 L 85.104 52.5141 L 35.8521 81.1812 L 127.766 134.063 L 219.972 80.8277 Z M 0 222.212 L 0 74.4949 L 127.987 0 L 256 74.182 L 256 221.979 L 127.984 295.723 L 0 222.212 Z" style="pointer-events: auto;"></path>
+</svg> Open in CodeSandbox</a>
+<div class="d-flex">
+    <iframe src="https://fv3wc.csb.app/app-a/index.html"></iframe>
+    <iframe src="https://fv3wc.csb.app/app-b/index.html"></iframe>
 </div>
 
 ### Managing Subscriptions
@@ -123,9 +137,11 @@ When App C receives a new subscription request, it will print the subscription i
 
 Use the "Push" and "Push to Private" buttons to push stream data to the default streaming branch (to all subscriptions) or to the "Private" branch.
 
-<a href="https://codesandbox.io/s/github/Glue42/core/tree/master/live-examples/interop/stream-subscription-request" target="_blank">Open in CodeSandbox</a>
-<div style="display: flex;border: 1px solid #ccc;border-radius: 4px;">
-    <iframe src="https://t88ys.csb.app/app-a/index.html" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"></iframe>
-    <iframe src="https://t88ys.csb.app/app-b/index.html" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"></iframe>
-    <iframe src="https://t88ys.csb.app/app-c/index.html" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"></iframe>
+<a href="https://codesandbox.io/s/github/Glue42/core/tree/master/live-examples/interop/stream-subscription-request" target="_blank" class="btn btn-primary"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 296" preserveAspectRatio="xMidYMid meet" width="24" height="24" version="1.1" style="pointer-events: auto;">
+        <path fill="#000000" d="M 115.498 261.088 L 115.498 154.479 L 23.814 101.729 L 23.814 162.502 L 65.8105 186.849 L 65.8105 232.549 L 115.498 261.088 Z M 139.312 261.715 L 189.917 232.564 L 189.917 185.78 L 232.186 161.285 L 232.186 101.274 L 139.312 154.895 L 139.312 261.715 Z M 219.972 80.8277 L 171.155 52.5391 L 128.292 77.4107 L 85.104 52.5141 L 35.8521 81.1812 L 127.766 134.063 L 219.972 80.8277 Z M 0 222.212 L 0 74.4949 L 127.987 0 L 256 74.182 L 256 221.979 L 127.984 295.723 L 0 222.212 Z" style="pointer-events: auto;"></path>
+</svg> Open in CodeSandbox</a>
+<div class="d-flex">
+    <iframe src="https://t88ys.csb.app/app-a/index.html"></iframe>
+    <iframe src="https://t88ys.csb.app/app-b/index.html"></iframe>
+    <iframe src="https://t88ys.csb.app/app-c/index.html"></iframe>
 </div>
