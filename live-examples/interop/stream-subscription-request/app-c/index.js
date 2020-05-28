@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-const APP_NAME = 'App C';
+const APP_NAME = 'Application C';
 const PRIVATE_BRANCH = 'Private';
 
 // Entry point. Initializes Glue42 Web. А Glue42 Web instance will be attached to the global window.
@@ -46,9 +46,15 @@ function subscriptionRequestHandler(request) {
   const infoSpan = document.createElement('span');
   infoSpan.textContent = infoText;
 
+  const btnDiv = document.createElement('div');
+  btnDiv.append(defaultAcceptBtn, privateAcceptBtn, rejectBtn);
+  btnDiv.classList.add('d-flex', 'justify-content-around', 'w-100');
+
   // Display a message on the UI that a new subscription is requested.
-  li.classList.add(`list-group-item`);
-  li.append(infoSpan, defaultAcceptBtn, privateAcceptBtn, rejectBtn);
+  li.classList.add('d-flex', 'justify-content-between',  'border-top', 'py-1', 'flex-column');
+  li.append(infoSpan,btnDiv);
+
+
   document.getElementById('logs-list').prepend(li);
 }
 
@@ -107,7 +113,16 @@ function createRequestSubscriberButton(label, handler) {
   const btn = document.createElement('button');
   btn.innerHTML = label;
   btn.classList.add('btn');
-  btn.classList.add(`btn-link`);
+  console.log(label);
+  if (label === "Accept on Private") {
+    btn.classList.add(`btn-success`);
+  }
+  else if (label === "Reject") {
+    btn.classList.add(`btn-danger`);
+  }
+  else {
+    btn.classList.add(`btn-primary`);
+  }
   btn.classList.add(`btn-sm`);
   btn.addEventListener('click', handler);
 

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html>
+<html class="light">
 
 <head>
   <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico" />
@@ -8,37 +8,39 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="description" content="" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="/assets/bootstrap.min.css" />
+  <link rel="stylesheet" href="/assets/style.css" />
   <script src="/lib/web.umd.min.js"></script>
 </head>
 
-<body>
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-12 text-center">
-        <span id="glueSpan" class="badge badge-warning">Disconnected</span>
+<body class="d-flex flex-column h-100">
+  <nav class="navbar navbar-light bg-light py-3">
+    <h5 class="mb-0">New window</h5>
+  </nav>
+  <div class="container-fluid d-flex flex-column flex-grow-1 overflow-auto">
+    <div class="row flex-grow-1 py-2 py-sm-3" style="overflow-y: scroll;">
+      <div class="col-12 col-sm-6 col-md-2">
+        <h5 class="mb-0">ID</h5>
+        <div id="windowIdText" class="text-monospace"></div>
+      </div>
+      <div class="col-12 col-sm-6 col-md-2">
+        <h5 class="mb-0">Name</h5>
+        <div id="windowNameText" class="text-monospace"></div>
+      </div>
+      <div class="col-12 col-sm-6 col-md-4">
+        <h5 class="mb-0">URL</h5>
+        <div id="urlText" class="text-monospace"></div>
+      </div>
+      <div class="col-12 col-sm-6 col-md-4">
+        <h5 class="mb-0">Context</h5>
+        <div id="contextText" class="text-monospace"></div>
       </div>
     </div>
-    <div class="row">
-      <div class="col-12">
-        ID: <span id="windowIdText"></span>
+    <footer class="row">
+      <div class="align-items-center bg-light col d-flex py-2">
+        <img id="glueImg" src="/assets/connected.svg" width="16" height="16">
+        <span id="glueSpan" class="ml-1 small">Connected</span>
       </div>
-    </div>
-    <div class="row">
-      <div class="col-12">
-        Name: <span id="windowNameText"></span>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-12">
-        URL: <span id="urlText"></span>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-12">
-        Context: <span id="contextText"></span>
-      </div>
-    </div>
+    </footer>
   </div>
 
   <script src="/scripts/utils.js"></script>

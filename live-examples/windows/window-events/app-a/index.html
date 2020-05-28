@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html>
+<html class="light">
 
 <head>
   <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico" />
@@ -12,51 +12,46 @@
   <meta name="description" content="" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="manifest" href="/app-a/manifest.json" />
-  <link rel="stylesheet" href="/assets/bootstrap.min.css" />
+  <link rel="stylesheet" href="/assets/style.css" />
   <script src="/lib/web.umd.min.js"></script>
 </head>
 
-<body>
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-12 text-center">
-        <h5 id="appNameHeading" style="display: inline;">
-          <!-- App name is displayed here -->
-        </h5>
-        <span id="glueSpan" class="badge badge-warning">Disconnected</span>
+<body class="d-flex flex-column h-100">
+  <nav class="navbar navbar-light bg-light py-3">
+    <h5 id="appNameHeading" class="mb-0">
+      <!-- App name is displayed here -->
+    </h5>
+    <button id="clearLogsBtn" type="button" class="btn btn-outline-primary btn-sm text-nowrap">Clear Logs</button>
+  </nav>
+  <div class="container-fluid d-flex flex-column flex-grow-1 overflow-auto">
+    <form id="openWindowForm" autocomplete="off" novalidate class="row mt-1">
+      <div class="col-12 col-sm d-flex pr-sm-0 mb-2 mb-sm-0">
+        <input required type="text" class="form-control required mr-2 form-control-sm" id="windowNameInput" placeholder="Name">
+        <input type="text" class="form-control form-control-sm" id="contextInput" placeholder="Context">
       </div>
-    </div>
-    <div class="row mt-1">
-      <div class="col-12">
-        <form id="openWindowForm" autocomplete="off" novalidate>
-          <div class="form-row">
-            <div class="form-group col-6">
-              <input required type="text" class="form-control required" id="windowNameInput" placeholder="Name">
-            </div>
-            <div class="form-group col-6">
-              <input type="text" class="form-control" id="contextInput" placeholder="Context">
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group col-6">
-              <input min="100" type="number" class="form-control" id="widthInput" placeholder="Width">
-            </div>
-            <div class="form-group col-6">
-              <input min="100" type="number" class="form-control" id="heightInput" placeholder="Height">
-            </div>
-          </div>
-          <button type="submit" class="btn btn-primary">Open</button>
-          <button id="clearLogsBtn" type="button" class="btn btn-link">Clear Logs</button>
-        </form>
+      <div class="col-12 col-sm d-flex pl-sm-2 pr-sm-0 mb-2 mb-sm-0">
+        <input min="100" type="number" class="form-control form-control-sm mr-2" id="widthInput" placeholder="Width">
+        <input min="100" type="number" class="form-control form-control-sm" id="heightInput" placeholder="Height">
       </div>
-    </div>
-    <div class="row mt-2">
-      <div class="col-12">
-        <ul class="list-group" id="logs-list">
+      <div class="col-12 col-sm-auto pl-sm-2">
+        <button type="submit" class="btn btn-primary btn-sm text-nowrap w-100">Open</button>
+      </div>
+    </form>
+
+    <div class="flex-column flex-grow-1 mt-2 overflow-auto row">
+      <div class="col-12 d-flex pr-0" style="overflow-y: scroll;">
+        <ul class="flex-grow-1 list-group" id="logs-list">
           <!-- Window events displayed here -->
         </ul>
       </div>
     </div>
+
+    <footer class="row">
+      <div class="align-items-center bg-light col d-flex py-2">
+        <img id="glueImg" src="/assets/connected.svg" width="16" height="16">
+        <span id="glueSpan" class="ml-1 small">Connected</span>
+      </div>
+    </footer>
   </div>
 
   <script src="/scripts/utils.js"></script>

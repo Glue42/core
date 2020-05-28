@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-const APP_NAME = 'App A';
+const APP_NAME = 'Application A';
 
 const systemMethods = ['GC.Control', 'T42.HC.GetSaveContext'];
 

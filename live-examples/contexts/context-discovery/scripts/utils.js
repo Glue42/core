@@ -11,10 +11,24 @@
       const logTime = options != null && options.logTime === false ? false : true;
 
       const item = document.createElement('li');
+      const itemDot = document.createElement('span');
+      const div = document.createElement('div');
+      
+      div.classList = "align-items-center d-flex flex-grow-1"
+      itemDot.style.width = "10px";
+      itemDot.style.height = "10px";
+      itemDot.style.minWidth = "10px";
+      itemDot.style.minHeight = "10px";
+      itemDot.classList = "bg-success d-inline-block mr-2 rounded-circle";
+      itemDot.classList.add(`bg-${type}`);
 
-      item.classList ='list-group-item d-flex justify-content-between align-items-center';
-      item.classList.add(`list-group-item-${type}`);
-      item.append(message);
+      div.append(itemDot);  
+      div.append(message);
+    
+      item.classList ='d-flex justify-content-between align-items-center border-top py-1';
+      
+      
+      item.append(div); 
 
       if (logTime) {``
         const timeSpan = document.createElement('span');

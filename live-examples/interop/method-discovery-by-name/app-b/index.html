@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html>
+<html class="light">
 
 <head>
   <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico" />
@@ -12,42 +12,41 @@
   <meta name="description" content="" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="manifest" href="/app-b/manifest.json" />
-  <link rel="stylesheet" href="/assets/bootstrap.min.css" />
+  <link rel="stylesheet" href="/assets/style.css" />
   <script src="/lib/web.umd.min.js"></script>
 </head>
 
-<body>
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-12 text-center">
-        <h5 id="appNameHeading" style="display: inline;">
-          <!-- App name is displayed here -->
-        </h5>
-        <span id="glueSpan" class="badge badge-warning">Disconnected</span>
-      </div>
-    </div>
+<body class="d-flex flex-column h-100">
+  <nav class="navbar navbar-light bg-light py-3">
+    <h5 id="appNameHeading" class="mb-0">
+      <!-- App name is displayed here -->
+    </h5>
+    <button id="clearLogsBtn" type="button" class="btn btn-outline-primary btn-sm text-nowrap">Clear Logs</button>
+  </nav>
+  <div class="container-fluid d-flex flex-column flex-grow-1 overflow-auto">
     <div class="row mt-2">
-      <div class="col-12">
-        <div class="input-group input-group-sm mb-3">
+      <div class="col d-flex">
+        <div class="input-group input-group-sm">
           <input autocomplete="off" type="text" class="form-control" placeholder="Method Name" id="methodNameInput">
-          <div class="input-group-append">
-            <button class="btn btn-primary" type="button" id="registerGlueMethodBtn">Register</button>
-          </div>
+        </div>
+        <button class="btn btn-primary btn-sm flex-shrink-0 ml-2" type="button" id="registerGlueMethodBtn">Register</button>
         </div>
       </div>
-    </div>
-    <div class="row">
-      <div class="col">
-        <button id="clearLogsBtn" type="button" class="btn btn-link">Clear Logs</button>
-      </div>
-    </div>
-    <div class="row mt-2">
-      <div class="col-12">
-        <ul class="list-group" id="logs-list">
+    
+    <div class="flex-column flex-grow-1 mt-2 overflow-auto row">
+      <div class="col-12 d-flex pr-0" style="overflow-y: scroll;">
+        <ul class="flex-grow-1 list-group" id="logs-list">
           <!-- Logs when method is invoked attached here -->
         </ul>
       </div>
     </div>
+
+    <footer class="row">
+      <div class="align-items-center bg-light col d-flex py-2">
+        <img id="glueImg" src="/assets/connected.svg" width="16" height="16">  
+        <span id="glueSpan" class="ml-1 small">Connected</span>
+      </div>
+    </footer>
   </div>
 
   <script src="/scripts/utils.js"></script>
