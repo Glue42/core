@@ -10,7 +10,7 @@ A **Glue42 Core** project consists of a [**Glue42 Environment**](../core-concept
 
 ### Glue42 Environment
 
-The **Glue42 Core** [Environment](../core-concepts/environment/overview/index.html) is a collection of resources which, once hosted, the browser will execute on a separate thread.  The resources are accessible to all applications on the same host and port even if the applications run in different windows. The communication between the applications is handled by the environment. To achieve that, **Glue42 Core** uses the [**Shared Web Worker**](https://developer.mozilla.org/en-US/docs/Web/API/SharedWorker) interface which is widely adopted by all major browsers. This means that you do not need any additional software to run your **Glue42 Core** project.
+The [**Glue42 Environment**](../core-concepts/environment/overview/index.html) is a collection of resources which, once hosted, the browser will execute on a separate thread.  The resources are accessible to all applications on the same host and port even if the applications run in different windows. The communication between the applications is handled by the environment. To achieve that, **Glue42 Core** uses the [**Shared Web Worker**](https://developer.mozilla.org/en-US/docs/Web/API/SharedWorker) interface which is widely adopted by all major browsers. This means that you do not need any additional software to run your **Glue42 Core** project.
 
 ### Glue42 Client
 

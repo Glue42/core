@@ -1,8 +1,9 @@
 import { SET_CLIENT_METHOD, SET_PRICES_STREAM, SHARED_CONTEXT_NAME } from './constants';
 
+let windowId = 0;
 export const openStockDetails = glue => symbol => {
     glue.windows.open(
-        `StockDetailsReact${Math.random().toFixed(2) * 100}`,
+        `StockDetailsReact${++windowId}`,
         `http://${window.location.host}/details`,
         { top: 100, left: 100, height: 660, width: 660, context: { symbol } }
     );

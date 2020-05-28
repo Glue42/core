@@ -14,6 +14,12 @@
         },
         "apps": [
             {
+                "route": "/",
+                "file": {
+                    "path": "./"
+                }
+            },
+            {
                 "route": "/clients",
                 "localhost": {
                     "port": 3000
