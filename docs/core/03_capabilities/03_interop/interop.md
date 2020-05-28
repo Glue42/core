@@ -106,6 +106,11 @@ On load, App B registers an Interop stream called "G42Core.Stream.Basic". Click 
     <iframe src="https://6zwf8.csb.app/app-b/index.html"></iframe>
 </div>
 
+### Events
+
+The applications below demonstrate handling streaming events - adding/removing subscribers and closing the stream. 	
+Click the "Create Stream" button in App B to register an Interop stream called "G42Core.Stream.Basic". Click the "Subscribe" button in App A to subscribe to the registered stream - App B will print to the page when a new subscriber is added. Each time App A receives data, it will be printed on the page (time stamp and a message). Click the "Start Publishing" button in App B to start publishing data to the stream every 3 seconds. 	
+
 Click the "Unsubscribe" button in App A to close the subscription to the stream - App B will print to the page when a subscriber is removed. Click the "Close Stream" button in App B to close the stream - App A will print to the page when the stream is closed.
 
 <a href="https://codesandbox.io/s/github/Glue42/core/tree/master/live-examples/interop/stream-events" target="_blank" class="btn btn-primary"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 296" preserveAspectRatio="xMidYMid meet" width="24" height="24" version="1.1" style="pointer-events: auto;">
