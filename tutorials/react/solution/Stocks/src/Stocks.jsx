@@ -8,14 +8,20 @@ import {
     subscribeForSharedContext,
     subscribeForInstrumentStream,
     setClientPortfolioSharedContext,
+    getChannelNamesAndColors,
+    joinChannel,
+    subscribeForChannels
 } from './glue';
+import ChannelSelectorWidget from './ChannelSelectorWidget';
 
 function Stocks() {
     const [portfolio, setPortfolio] = useState([]);
     const [prices, setPrices] = useState({});
     const [{ clientId, clientName }, setClient] = useState({});
-    useGlue(registerSetClientMethod(setClient));
-    useGlue(subscribeForSharedContext(setClient));
+    const [channelWidgetState, setChannelWidgetState] = useState(false);
+    // useGlue(registerSetClientMethod(setClient));
+    // useGlue(subscribeForSharedContext(setClient));
+    useGlue(subscribeForChannels(setClient));
     useGlue(createInstrumentStream);
     const subscription = useGlue(
         (glue, portfolio) => {
@@ -26,7 +32,7 @@ function Stocks() {
         [portfolio]
     );
     const onClick = useGlue(openStockDetails);
-    const updateClientContext = useGlue(setClientPortfolioSharedContext);
+    // const updateClientContext = useGlue(setClientPortfolioSharedContext);
     useEffect(() => {
         const fetchPortfolio = async () => {
             try {
@@ -44,6 +50,10 @@ function Stocks() {
 
     const glue = useContext(GlueContext);
 
+    // Get the channel names and colors and pass them as props to the ChannelSelectorWidget component.
+    const channelNamesAndColors = useGlue(getChannelNamesAndColors);
+    // The callback that will join the newly selected channel. Pass it as props to the ChannelSelectorWidget component to be called whenever a channel is selected.
+    const onChannelSelected = useGlue(joinChannel);
     return (
         <div className="container-fluid">
             <div className="row">
@@ -64,11 +74,21 @@ function Stocks() {
                         Stocks
                     </h1>
                 </div>
+                <div className="col-md-2 align-self-center">
+                    <ChannelSelectorWidget
+                        key={channelWidgetState}
+                        channelNamesAndColors={channelNamesAndColors}
+                        onChannelSelected={onChannelSelected}
+                    />
+                </div>
             </div>
             <button
                 type="button"
                 className="mb-3 btn btn-primary"
-                onClick={() => updateClientContext({})}
+                onClick={() => {
+                    setChannelWidgetState(!channelWidgetState);
+                    setClient({ clientId: '', clientName: '' });
+                }}
             >
                 Show All
             </button>

@@ -102,7 +102,7 @@ npx gluec init
 
 This command will get the necessary dependencies and scaffold the necessary config files for us. Next, we will use the CLI's serve functionality to proxy to the CRAs' webpack servers. This is very useful, as it allows us to serve or proxy to our apps, define shared resources and serve the [**Glue42 Core Environment**](../../glue42-core/what-is-glue42-core/core-concepts/environment/index.html) correctly.
 
-To do all of that open the `glue.config.dev.json` file. Then add the shared resources, the clients and stocks apps. You can check out how to do that in the [Getting Started](https://github.com/Glue42/core/blob/master/docs/glue42-core/02_getting-started/02_setting-environment/01_single-application/single-application.md) section Your file should look something like this:
+To do all of that open the `glue.config.json` file. Then add the shared resources, the clients and stocks apps. You can check out how to do that in the [Getting Started](https://github.com/Glue42/core/blob/master/docs/glue42-core/02_getting-started/02_setting-environment/01_single-application/single-application.md) section Your file should look something like this:
 
 ```json
 {
@@ -274,13 +274,13 @@ function StockDetails() {
 
 If everything is ok, you should see a small green label at the top left corner of your application saying `Glue is available`.
 
-## 2. Interop
+## 3. Interop
 
-### Overview
+### 3.1. Overview
 
 At the end of this chapter the Clients application should set the context of the Stocks application via a `glue.interop` method invocation. In result the stocks app will fetch and display the stocks from the selected client's portfolio. Keep the [**Interop API**](../../reference/core/latest/interop/index.html) close by for reference.
 
-### 2.1. Methods registration
+### 3.2. Methods registration
 
 The Stocks application needs to register a `glue.interop` method, which will be invoked by the Client. Whenever the method is invoked the Stocks app will execute a method handler that will set the client inside the state and fetch the client portfolio's stocks.
 Register an interop method inside `glue.js` file where all the glue related code will remain. Internally the `useGlue` hook will invoke the callback and will pass `glue` as first argument.
@@ -339,7 +339,7 @@ Add an element to show `clientId` and `clientName` above `<div className="col-md
 }
 ```
 
-### 2.2. Methods discovery and invocation
+### 3.3. Methods discovery and invocation
 
 Now we need to invoke the interop method in `Clients.jsx` upon clicking on a client row from the table.
 Again we will use the `useGlue` hook method to compose a handler which will invoke the interop method registered by Stocks upon clicking on client row.
@@ -393,15 +393,15 @@ Add the onClick property for every client row
 Everything should be ok now to test the logic. First open both Clients and Stocks application and click on a client.
 Observe that the stocks table changes.
 
-## 3. Window Management and Stream Registration
+## 4. Window Management and Stream Registration
 
-### Overview
+### 4.1. Overview
 
 In this example you will extend the applications so that:
 - Whenever a row is clicked inside the Stocks app a new window will open showing the StockDetails. You will open this window with following the bounds `top: 100, left: 100, height: 660, width: 660`.
 - You will create a `glue.interop` stream in Stocks which will publish the prices for instruments. Both Stocks and StockDetails will subscribe to that stream to display the latest price. Keep the [**Window Management API**](../../reference/core/latest/windows/index.html) close by for reference.
 
-### 3.1. Opening windows at runtime
+### 4.2. Opening windows at runtime
 
 First create the function which will open a new window upon clicking on an instrument row inside the Stocks app. We will use the `glue.windows.open` function which does that.
 The 1st argument (Window Name) must be unique, because we may open several StockDetails windows and glue will fail if we provide one and the same name.
@@ -416,7 +416,7 @@ export const openStockDetails = glue => symbol => {
 };
 ```
 
-### 3.2. Window Settings
+### 4.3. Window Settings
 
 Additionally we will pass the 2nd argument to define the window bounds.
 
@@ -431,7 +431,7 @@ export const openStockDetails = glue => symbol => {
 };
 ```
 
-### 3.3. Window Context
+### 4.4. Window Context
 
 Every glue window has it's own context which can be defined at start or updated later. You will pass the symbol as window context:
 
@@ -500,7 +500,7 @@ function StockDetails() {
 
 Now you can try and click on a Stock row. Observe a new window opens every time you clicked.
 
-### 3.4. Stream Registration and Publishing
+### 4.5. Stream Registration and Publishing
 
 Next you will write the function which will create a glue stream and publish instrument prices.
 You want this stream to regularly push new price updates so we will use the `setInterval` method.
@@ -815,11 +815,11 @@ export default StockDetails;
 
 You can now observe each StockDetails window also displays a new value for Bid and Ask price columns every 1.5 seconds.
 
-## 4. Shared Contexts
+## 5. Shared Contexts
 
-### Overview
+### 5.1. Overview
 
-The last example will demonstrate the use of the glue shared contexts (different from the window context). These contexts can be accessed by any application, so they are used as a central place for state management:
+The next example will demonstrate the use of the glue shared contexts (different from the window context). These contexts can be accessed by any application, so they are used as a central place for state management:
     - Client app instead of invoking a `glue.interop` method to set the client, will update a shared context with the client data.
     - Stocks and StockDetails applications will subscribe for this shared context and connect existing functionality related to the client.
     - Stock details application upon receiving a new client will check and notify user if the current instrument is not part of the current client stocks/portfolio
@@ -827,7 +827,7 @@ The last example will demonstrate the use of the glue shared contexts (different
 
 Keep the [**Shared Contexts API**](../../reference/core/latest/shared%20contexts/index.html) close by for reference.
 
-### 4.1. Context Updating and Subscribing
+### 5.2. Context Updating and Subscribing
 
 First you will create one function for updating the glue shared context and another for subscribing for that context changes in both applications.
 
@@ -1097,6 +1097,262 @@ export default StockDetails;
 ```
 
 Now you can go and test the functionality that you've added.
+
+## 6. Channels
+
+### 6.1. Overview
+
+Our users loved the beta and their feedback was overwhelmingly positive. However as with every project there has been a change in the requirements. Because of the astonishing productivity boost, our users can now serve multiple clients at the same time. However, we impose a limitation to them as even if they have multiple instances of the stocks and details applications open they all are subscribed and listen for changes to the same shared context. This way our users can only work with one client at a time. In this chapter we will take advantage of the [Channels API](../../reference/core/latest/channels/index.html). It will allow us to have instances of the same application subscribed to different color channel contexts. The clients application will serve as an orchestrator to multiple stocks and details applications.
+
+### 6.2. Configuring channels
+
+To take advantage of the Channels API we first need to add the channels to our Glue42 Core environment. We do this by adding the following configuration to the `glue.config.json`. After adding it restart the `gluec` by quitting it and running `gluec serve` again for the changes to take effect:
+
+```json
+    "glue": {...},
+    "gateway": {...},
+    "channels": [
+        {
+            "name": "Red",
+            "meta": {
+                "color": "red"
+            }
+        },
+        {
+            "name": "Green",
+            "meta": {
+                "color": "green"
+            }
+        },
+        {
+            "name": "Blue",
+            "meta": {
+                "color": "#66ABFF"
+            }
+        },
+        {
+            "name": "Pink",
+            "meta": {
+                "color": "#F328BB"
+            }
+        },
+        {
+            "name": "Yellow",
+            "meta": {
+                "color": "#FFE733"
+            }
+        },
+        {
+            "name": "DarkYellow",
+            "meta": {
+                "color": "#b09b00"
+            }
+        },
+        {
+            "name": "Orange",
+            "meta": {
+                "color": "#fa5a28"
+            }
+        },
+        {
+            "name": "Purple",
+            "meta": {
+                "color": "#c873ff"
+            }
+        },
+        {
+            "name": "Lime",
+            "meta": {
+                "color": "#8af59e"
+            }
+        },
+        {
+            "name": "Cyan",
+            "meta": {
+                "color": "#80f3ff"
+            }
+        }
+    ]
+```
+
+Well done. Тhe glue factory function will now initialize the channels internally.
+
+### 6.3. Channel Selector Widget UI
+
+We want our users to be able to navigate through the channels. For this they will need some sort of user interface. You can create your own channel selector widget by using the Channels API, but for the tutorial we included a `react-select` component wrapped in our own `ChannelSelectorWidget` component that we created. To add it to the stocks and clients do the following:
+
+```javascript
+// Stocks\src\Stocks.jsx and Clients\src\Clients.jsx
+import ChannelSelectorWidget from './ChannelSelectorWidget';
+```
+
+To use the new component we have to pass two props to it - `channelNamesAndColors` and a `onChannelSelected` handler that will be called whenever the channel changes. Go to `glue.js` in `Stocks\src\` and `Clients\src\` and add the following functions:
+
+1. Go to the top of both files and add the following import:
+
+```javascript
+// Stocks\src\glue.js and Clients\src\glue.js
+import { NO_CHANNEL_VALUE } from './constants';
+```
+
+2. The constant is used to signify that we are not subscribed to any channel. The next function will return all the channel names and colors from the channels api:
+
+```javascript
+// Stocks\src\glue.js and Clients\src\glue.js
+export const getChannelNamesAndColors = async glue => {
+    const channelContexts = await glue.channels.list();
+    const channelNamesAndColors = channelContexts.map(channelContext => ({
+        name: channelContext.name,
+        color: channelContext.meta.color
+    }));
+    return channelNamesAndColors;
+};
+```
+
+3. This function will join a given channel:
+
+```javascript
+// Stocks\src\glue.js and Clients\src\glue.js
+export const joinChannel = glue => ({ value: channelName }) => {
+    if (channelName === NO_CHANNEL_VALUE) {
+        if (glue.channels.my()) {
+            glue.channels.leave();
+        }
+    } else {
+        glue.channels.join(channelName);
+    }
+};
+```
+
+4. `Stocks.jsx` will use a function for subscribing to changes. Stocks do not need to publish changes, because they only react to selectsion:
+
+```javascript
+// Stocks\src\glue.js
+export const subscribeForChannels = handler => glue => {
+    glue.channels.subscribe(handler);
+};
+```
+
+5. `Clients.jsx` will use another function to publish information about the currently selected client. Clients do not need to  subscribe to channly changes, they only need to publish new information. Add this function only to `Clinets\src\glue.js`:
+
+```javascript
+// Clients\src\glue.js
+export const setClientPortfolioChannels = glue => ({
+    clientId = '',
+    clientName = '',
+    portfolio = '',
+}) => {
+    if (glue.channels.my()) {
+        glue.channels.publish({ clientId, clientName, portfolio });
+    }
+};
+```
+
+6. Import the defined functions in `Stocks.jsx` from it's `glue.js` file:
+
+```javascript
+// Stocks\src\Stocks.jsx 
+import { 
+  subscribeForChannels,
+  getChannelNamesAndColors,
+  joinChannel
+} from './glue';
+```
+
+7. Import the defined functions in `Clients.jsx` from it's `glue.js` file:
+
+```javascript
+// Clients\src\Clients.jsx
+import { 
+  setClientPortfolioChannels,
+  getChannelNamesAndColors,
+  joinChannel
+} from './glue';
+```
+
+8. We have created all the required functionality. Now we need to setup the `ChannelSelectorWidget` in both `Stocks.jsx` and `Clients.jsx`. Let's start with `Stocks.jsx`. We have to comment out the `subscribeForSharedContext` code and setup the newly imported functions:
+
+```javascript
+// Stocks\src\Stocks.jsx
+function Stocks() {
+    // useGlue(subscribeForSharedContext(setClient));
+    useGlue(subscribeForChannels(setClient));
+    const channelNamesAndColors = useGlue(getChannelNamesAndColors);
+    const onChannelSelected = useGlue(joinChannel);
+}
+```
+
+9. Create the `ChannelSelectorWidget` component in the `render` method of `Stocks.jsx` and pass the `channelNamesAndColors`, and `onChannelSelected` props. Also, we need add a `key` prop, which we will use to clear the state of the `ChannelSelectorWidget` whenever we click the Show All button to clear the currently selected client. We will define a `channelWidgetState` variable using react hooks:
+
+```javascript
+// Stocks\src\Stocks.jsx
+function Stocks() {
+    const [channelWidgetState, setChannelWidgetState] = useState(false);
+}
+```
+
+10. Let's now create the `ChannelSelectorWidget` in the `render` method of `Stocks.jsx`. Place the code below the `<div>` element containing the `<h1>` tag with the text of Stocks:
+
+```javascript
+{/* Stocks\src\Stocks.jsx */}
+{/* in the render() method*/}
+<div className="col-md-2 align-self-center">
+    <ChannelSelectorWidget
+        key={channelWidgetState}
+        channelNamesAndColors={channelNamesAndColors}
+        onChannelSelected={onChannelSelected}
+    />
+</div>
+```
+
+11. The only thing that is left in `Stocks.jsx` is to clear the currently selected client when the user clicks on the Show All buttom. Go to the `<button>` element in `Stocks.jsx` and change the code of the `onClick` handler to:
+
+```javascript
+{/* Stocks\src\Stocks.jsx */}
+{/* in the render() method*/}
+<button
+    type="button"
+    className="mb-3 btn btn-primary"
+    onClick={() => {
+        setChannelWidgetState(!channelWidgetState);
+        setClient({ clientId: '', clientName: '' });
+    }}
+>
+    Show All
+</button>
+```
+
+12. Now we need to setup channels in `Clients.jsx`. Pass the newly imported functions from `glue.js`, namely `getChannelNamesAndColors`, `joinChannel`, and `setClientPortfolioChannels` to `useGlue`.
+
+**Remark**: Do not comment out `setClientPortfolioSharedContext` code. `StockDetails.jsx` uses that in order to get client infromation. Just rename the variable holding the click handler from `onClick` to `onClickContext`:
+
+```javascript
+// Clients\src\Clients.jsx
+function Clients() {
+    // const onClick = useGlue(setClientPortfolioInterop);
+  const onClickContext = useGlue(setClientPortfolioSharedContext); // rename from onClick
+  const channelNamesAndColors = useGlue(getChannelNamesAndColors);
+  const onChannelSelected = useGlue(joinChannel);
+  const onClick = useGlue(setClientPortfolioChannels);
+}
+```
+
+13. We can now create the `ChannelWidgetSelector` component in the `render` function. We must pass the `channelNamesAndColors` and `onChannelSelected` as props. Note that we do not need a `key` prop here, because the users will choose to stop publishing to all chanels using the widget that we will create now. Add the `ChannelWidgetSelector` component right below the `<div>` containing the `<h1>` with the text Clients:
+
+```javascript
+{/* Clients\src\Clients.jsx */}
+{/* in the render() method*/}
+<div className="col-md-2 align-self-center">
+    <ChannelSelectorWidget
+        channelNamesAndColors={channelNamesAndColors}
+        onChannelSelected={onChannelSelected}
+    />
+</div>
+```
+
+A quick reminder. Currently the clients and stocks applications communicate using the Shared Context API (see Chapter 5.). When a client is selected inside of the clients application the stocks application gets notified and it displays the portfolio of the selected client. However when more than one instances of the stocks applications are open they all get notified about the newly selected client. We don't allow our users to have multiple instances of the stocks application working with different data. This is where channels step in.
+
+With this we are ready to release v1 of our applications. We are sure that our users will love them as their productivity will be off the charts.
 
 ## Congratulations
 

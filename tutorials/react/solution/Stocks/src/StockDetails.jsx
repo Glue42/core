@@ -15,7 +15,7 @@ function StockDetails() {
         windowContext || {};
     useGlue(subscribeForInstrumentStream(setPrices), [RIC]);
     useGlue(subscribeForSharedContext(setClient));
-
+    // useGlue(subscribeForChannels(setClient));
     return (
         <div className="container-fluid">
             <div className="row">

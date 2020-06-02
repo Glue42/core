@@ -1,4 +1,6 @@
-import { SET_CLIENT_METHOD, SET_PRICES_STREAM, SHARED_CONTEXT_NAME } from './constants';
+import {
+    SET_CLIENT_METHOD, SET_PRICES_STREAM, SHARED_CONTEXT_NAME, NO_CHANNEL_VALUE
+} from './constants';
 
 let windowId = 0;
 export const openStockDetails = glue => symbol => {
@@ -100,4 +102,30 @@ export const setClientPortfolioSharedContext = glue => ({
 
 export const subscribeForSharedContext = handler => glue => {
     glue.contexts.subscribe(SHARED_CONTEXT_NAME, handler);
+};
+
+// Get the channel names and colors using the Channels API.
+export const getChannelNamesAndColors = async glue => {
+    const channelContexts = await glue.channels.list();
+    const channelNamesAndColors = channelContexts.map(channelContext => ({
+        name: channelContext.name,
+        color: channelContext.meta.color
+    }));
+    return channelNamesAndColors;
+};
+
+// Join the given channel (or leave the current channel if NO_CHANNEL_VALUE is selected).
+export const joinChannel = glue => ({ value: channelName }) => {
+    if (channelName === NO_CHANNEL_VALUE) {
+        if (glue.channels.my()) {
+            glue.channels.leave();
+        }
+    } else {
+        glue.channels.join(channelName);
+    }
+};
+
+// Subscribe for the current channel with the provided callback.
+export const subscribeForChannels = handler => glue => {
+    glue.channels.subscribe(handler);
 };
