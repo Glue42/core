@@ -424,7 +424,7 @@ Our users loved the beta and their feedback was overwhelmingly positive. However
 
 ### 6.2. Configuring channels
 
-To take advantage of the Channels API we first need to initialize the API by passing `{ channels: true }` to the GlueProvider (@glue42/react-hooks) like this:
+To take advantage of the Channels API we first need to initialize the API by passing `{ channels: true }` to the GlueWeb (@glue42/web) factory function like this:
 
 ```javascript
 await window.GlueWeb({ channels: true });
