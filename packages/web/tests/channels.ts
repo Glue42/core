@@ -23,6 +23,48 @@ describe("channels", function () {
         stopGateway();
     });
 
+    const channelAPIMethods = [
+        "subscribe",
+        "subscribeFor",
+        "publish",
+        "all",
+        "list",
+        "get",
+        "join",
+        "leave",
+        "current",
+        "my",
+        "changed",
+        "onChanged",
+        "add"
+    ];
+
+    describe("Channels API Initialization", () => {
+        it("Should not be initialized when Glue42Web is called with an object that doesn't have a channels property.", async () => {
+            const glue = await createGlue();
+            expect(glue.channels).to.be.undefined;
+        });
+
+        it("Should not be initialized when Glue42Web is called with an object that has a channels: false property.", async () => {
+            const glue = await createGlue(false);
+            expect(glue.channels).to.be.undefined;
+        });
+
+        it("Should be initialized when Glue42Web is called with an object that has a channels: true property.", async () => {
+            const glue = await createGlue(true);
+            expect(glue.channels).to.not.be.undefined;
+
+            const registeredChannelAPIProperties: string[] = [];
+            for (const property in glue.channels) {
+                registeredChannelAPIProperties.push(property);
+            }
+
+            for (const channelAPIMethod of channelAPIMethods) {
+                expect(registeredChannelAPIProperties).to.include(channelAPIMethod);
+            }
+        });
+    });
+
     describe("subscribe()", () => {
         it("Should throw an error when callback isn't of type function.", () => {
             try {
