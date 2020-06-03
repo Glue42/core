@@ -93,6 +93,12 @@ export namespace Glue42Web {
          * @ignore
          */
         inproc?: Glue42Core.InprocGWSettings;
+
+        /**
+         * Whether to initialize the Channels API or not.
+         * @default false
+         */
+        channels?: boolean;
     }
 
     /**

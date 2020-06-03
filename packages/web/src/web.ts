@@ -63,13 +63,17 @@ export const createFactoryFunction = (coreFactoryFunction: GlueCoreFactoryFuncti
         // Used for testing in node environment.
         const isWebEnvironment = typeof window !== "undefined";
 
+        // Whether to initialize the Channels API or not.
+        const shouldInitializeChannels = builtCoreConfig.glue?.channels || false;
+
         // check if we're running in Glue42 Enterprise, if so return @glue42/desktop API
         if (isWebEnvironment) {
             const gdWindowContext = window as unknown as Glue42DesktopWindowContext;
             if (gdWindowContext?.glue42gd && gdWindowContext?.Glue) {
                 return gdWindowContext.Glue({
                     windows: true,
-                    logger: builtCoreConfig.glue?.logger
+                    logger: builtCoreConfig.glue?.logger,
+                    channels: shouldInitializeChannels
                 });
             }
         }
@@ -83,14 +87,18 @@ export const createFactoryFunction = (coreFactoryFunction: GlueCoreFactoryFuncti
                 {
                     name: "notifications",
                     create: (coreLib): Notifications => new Notifications(coreLib.interop)
-                },
-                {
-                    name: "channels",
-                    create: (coreLib): Channels => new Channels(coreLib.contexts, builtCoreConfig.channels)
                 }
             ],
             version
         };
+
+        if (shouldInitializeChannels) {
+            const channelsLib: Glue42Core.ExternalLib = {
+                name: "channels",
+                create: (coreLib): Channels => new Channels(coreLib.contexts, builtCoreConfig.channels)
+            };
+            ext.libs?.push(channelsLib);
+        }
 
         if (isWebEnvironment) {
             ext.libs?.push(

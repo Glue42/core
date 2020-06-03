@@ -12,7 +12,7 @@ describe("channels", function () {
     beforeEach(async () => {
         await startGateway();
         try {
-            myGlue = await createGlue();
+            myGlue = await createGlue(true);
         } catch (error) {
             console.log(error);
         }
@@ -36,7 +36,7 @@ describe("channels", function () {
 
         it("Should invoke the callback with the correct data, context (name, meta and data) and updaterId whenever data is published to the current channel by another party.", async () => {
             // Create a new Glue for the other party.
-            const otherGlue = await createGlue();
+            const otherGlue = await createGlue(true);
 
             // The name of the channel to be added.
             const channelName = "red";
@@ -123,7 +123,7 @@ describe("channels", function () {
 
         it("Should invoke the callback with the correct data, context (name, meta and data) and updaterId whenever a new channel is joined and data is published to that channel by another party.", async () => {
             // Create a new Glue for the other party.
-            const otherGlue = await createGlue();
+            const otherGlue = await createGlue(true);
 
             // The names of the channels to be added.
             const firstChannelName = "red";
@@ -417,7 +417,7 @@ describe("channels", function () {
 
         it("Should invoke the callback with the correct data, context (name, meta and data) and updaterId whenever data is published to the current channel by another party.", async () => {
             // Create a new Glue for the other party.
-            const otherGlue = await createGlue();
+            const otherGlue = await createGlue(true);
 
             // The name of the channel to be added.
             const channelName = "red";
@@ -526,7 +526,7 @@ describe("channels", function () {
 
         it("Should invoke the callback with the correct data, context (name, meta and data) and updaterId whenever data is published to another channel by another party.", async () => {
             // Create a new Glue for the other party.
-            const otherGlue = await createGlue();
+            const otherGlue = await createGlue(true);
 
 
             // The names of the channels to be added.
@@ -811,7 +811,7 @@ describe("channels", function () {
     describe("all()", () => {
         it("Should return an array with the correct channel names added by us and by another party.", async () => {
             // Create a new Glue for the other party.
-            const otherGlue = await createGlue();
+            const otherGlue = await createGlue(true);
 
             // The names of the channels to be added by us.
             const channelNamesToBeAddedByUs = ["red", "yellow", "blue"];
@@ -844,7 +844,7 @@ describe("channels", function () {
     describe("list()", () => {
         it("Should return an array with the correct channel contexts added by us and by another party.", async () => {
             // Create a new Glue for the other party.
-            const otherGlue = await createGlue();
+            const otherGlue = await createGlue(true);
 
             // The names of the channels to be added by us.
             const channelNamesToBeAddedByUs = ["red", "yellow", "blue"];

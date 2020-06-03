@@ -20,11 +20,12 @@ export function stopGateway(): Promise<any> {
     return facade.stop();
 }
 
-export function createGlue(): Promise<Glue42Web.API> {
+export function createGlue(channels?: boolean): Promise<Glue42Web.API> {
     return glueWebFactory({
         inproc: {
             facade
-        }
+        },
+        channels: channels
     }).then((glue: Glue42Web.API) => {
         glues.push(glue);
         return glue;
