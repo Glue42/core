@@ -66,7 +66,7 @@ const start = async () => {
 
     setupClients(clients);
 
-    window.glue = await window.GlueWeb();
+    window.glue = await window.GlueWeb({ channels: true });
 
     toggleGlueAvailable();
 

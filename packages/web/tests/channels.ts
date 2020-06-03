@@ -23,7 +23,7 @@ describe("channels", function () {
         stopGateway();
     });
 
-    const channelAPIMethods = [
+    const channelsAPIMethods = [
         "subscribe",
         "subscribeFor",
         "publish",
@@ -54,13 +54,13 @@ describe("channels", function () {
             const glue = await createGlue(true);
             expect(glue.channels).to.not.be.undefined;
 
-            const registeredChannelAPIProperties: string[] = [];
+            const registeredChannelsAPIProperties: string[] = [];
             for (const property in glue.channels) {
-                registeredChannelAPIProperties.push(property);
+                registeredChannelsAPIProperties.push(property);
             }
 
-            for (const channelAPIMethod of channelAPIMethods) {
-                expect(registeredChannelAPIProperties).to.include(channelAPIMethod);
+            for (const channelsAPIMethod of channelsAPIMethods) {
+                expect(registeredChannelsAPIProperties).to.include(channelsAPIMethod);
             }
         });
     });

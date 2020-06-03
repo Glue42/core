@@ -9,7 +9,7 @@ import Clients from './Clients';
 import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(
-    <GlueProvider>
+    <GlueProvider config={{ channels: true }}>
         <Clients />
     </GlueProvider>,
     document.getElementById('root')

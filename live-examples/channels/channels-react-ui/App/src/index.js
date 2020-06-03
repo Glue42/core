@@ -9,7 +9,7 @@ import { GlueProvider } from '@glue42/react-hooks';
 import * as serviceWorker from "./serviceWorker";
 
 ReactDOM.render(
-  <GlueProvider>
+  <GlueProvider config={{ channels: true }}>
     <App />
   </GlueProvider>,
   document.getElementById("root")

@@ -14,7 +14,7 @@ import { MatSelectModule } from '@angular/material/select';
   ],
   imports: [
     BrowserModule,
-    Glue42Ng.forRoot({ factory: GlueWeb }),
+    Glue42Ng.forRoot({ factory: GlueWeb, config: { channels: true } }),
     BrowserAnimationsModule,
     MatSelectModule
   ],

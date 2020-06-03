@@ -11,7 +11,7 @@
     }
 
     try {
-      const glue = await window.GlueWeb();
+      const glue = await window.GlueWeb({ channels: true });
       window.glue = glue;
       window.toggleGlueAvailable();
 

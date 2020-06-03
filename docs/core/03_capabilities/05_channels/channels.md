@@ -39,6 +39,62 @@ Different applications on the same channel can use different or the same parts o
 A "Client List" app, for example, can update the context object with data for the selected user (ids, displayName, etc.).
 A "Portfolio" app can use the ids to load the portfolio of the client, selected in the "Client List" app by the user. It also can update the shared context object with new values when the user selects different instruments (e.g., the RIC field is updated).
 
+## Initialization
+
+To channel enable your application you need to:
+
+1. Pass `{ channels: true }` on initialization:
+
+    - Vanilla JS (*@glue42/web*):
+
+```javascript
+await window.GlueWeb({ channels: true });
+```
+
+    - React (*@glue42/react-hooks*):
+
+```javascript
+<GlueProvider config={{ channels: true }}>
+    ...
+</GlueProvider>
+```
+
+    - Angular (*@glue42/ng*)
+
+```javascript
+Glue42Ng.forRoot({ factory: GlueWeb, config: { channels: true } })
+```
+
+2. Inside your `glue.config.json` file you need to provide a `channels` property that defines the channels to be added on initialization. Here's an example:
+
+```json
+{
+    "glue": ...,
+    "gateway": ...,
+    "channels": [
+        {
+            "name": "Red",
+            "meta": {
+                "color": "red"
+            }
+        },
+        {
+            "name": "Green",
+            "meta": {
+                "color": "green"
+            }
+        },
+        {
+            "name": "Blue",
+            "meta": {
+                "color": "#66ABFF"
+            }
+        }
+    ]
+}
+```
+
+
 In the next sections, you can see examples of using the Channels API. You can open the embedded examples directly in [CodeSandbox](https://codesandbox.io) to see the code and experiment with it.
 
 ## Discovering and Navigating

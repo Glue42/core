@@ -20,7 +20,7 @@
     "@angular/platform-browser": "~9.1.0",
     "@angular/platform-browser-dynamic": "~9.1.0",
     "@angular/router": "~9.1.0",
-    "@glue42/ng": "^1.0.1",
+    "@glue42/ng": "^1.0.3",
     "@ng-bootstrap/ng-bootstrap": "^6.1.0",
     "bootstrap": "^4.4.0",
     "rxjs": "~6.5.4",

@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build --source-map=false",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
@@ -22,8 +22,8 @@
     "@angular/platform-browser": "~9.1.0",
     "@angular/platform-browser-dynamic": "~9.1.0",
     "@angular/router": "~9.1.0",
-    "@glue42/ng": "^1.0.1",
-    "@glue42/web": "^1.1.0",
+    "@glue42/ng": "^1.0.3",
+    "@glue42/web": "^1.1.1",
     "rxjs": "~6.5.4",
     "tslib": "^1.10.0",
     "zone.js": "~0.10.2"

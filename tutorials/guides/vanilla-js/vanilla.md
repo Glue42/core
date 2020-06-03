@@ -424,7 +424,13 @@ Our users loved the beta and their feedback was overwhelmingly positive. However
 
 ### 6.2. Configuring channels
 
-To take advantage of the Channels API we first need to add the channels to our Glue42 Core environment. We do this by adding the following configuration to the `glue.config.json`. After adding it restart the `gluec` by quitting it and running `gluec serve` again for the changes to take effect:
+To take advantage of the Channels API we first need to initialize the API by passing `{ channels: true }` to the GlueProvider (@glue42/react-hooks) like this:
+
+```javascript
+await window.GlueWeb({ channels: true });
+```
+
+Additionally we need to add the channels to our Glue42 Core environment. We do this by adding the following configuration to the `glue.config.json`. After adding it restart the `gluec` by quitting it and running `gluec serve` again for the changes to take effect:
 
 ```json
 {

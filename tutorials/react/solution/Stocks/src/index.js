@@ -14,7 +14,7 @@ const { href } = window.location;
 const App = href.includes('details') ? StockDetails : Stocks;
 
 ReactDOM.render(
-    <GlueProvider>
+    <GlueProvider config={{ channels: true }}>
         <App />
     </GlueProvider>,
     document.getElementById('root')
