@@ -99,14 +99,9 @@
           .color;
         document.body.style.background = colorOfMyChannel;
       } catch (error) {
-        console.error(
-          `Failed to get the context of my channel "${myChannel}". Error: `,
-          error
-        );
-        logger.error(
-          error.message ||
-          `Failed to get the context of my channel "${myChannel}".`
-        );
+        const message = `Failed to get the context of my channel "${myChannel}"!`
+        console.error(message);
+        logger.error(message);
       }
     } else {
       document.body.style.background = "#fff";
