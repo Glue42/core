@@ -39,6 +39,17 @@ window
       myChannel = undefined;
       renderChannels(channelNames, myChannel, onJoinClicked, onLeaveClicked);
     }
+    // Support for Glue42 Enterprise. Whenever the container channel selector widget UI is used instead of the join/leave buttons our app should react.
+    glue.channels.onChanged((channelName) => {
+      myChannel = channelName;
+
+      renderChannels(
+        channelNames,
+        myChannel,
+        onJoinClicked,
+        onLeaveClicked
+      );
+    });
 
     renderChannels(channelNames, myChannel, onJoinClicked, onLeaveClicked);
 

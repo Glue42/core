@@ -10,6 +10,7 @@ window
   .then(channelNames => {
     let myChannel = glue.channels.my();
 
+    // Manually hide the element whenever our application isn't part of any channel as the application can't publish data when the application isn't part of any channel.
     const publishButtonElement = document.getElementById("publishButton");
     const onPublishClicked = async () => {
       const data = {
@@ -27,7 +28,7 @@ window
         );
         logger.error(
           error.message ||
-            `Failed to publish data:
+          `Failed to publish data:
           ${JSON.stringify(data)}
           on channel "${myChannel}".`
         );
@@ -61,7 +62,7 @@ window
         );
         logger.error(
           error.message ||
-            `Failed to get the context of my  channel "${channelName}".`
+          `Failed to get the context of my  channel "${channelName}".`
         );
       }
       renderChannels(channelNames, myChannel, onJoinClicked, onLeaveClicked);
@@ -84,6 +85,23 @@ window
       myChannel = undefined;
       renderChannels(channelNames, myChannel, onJoinClicked, onLeaveClicked);
     }
+    // Support for Glue42 Enterprise. Whenever the container channel selector widget UI is used instead of the join/leave buttons our app should react.
+    glue.channels.onChanged((channelName) => {
+      myChannel = channelName;
+
+      if (myChannel) {
+        publishButtonElement.classList.remove("d-none");
+      } else {
+        publishButtonElement.classList.add("d-none");
+      }
+
+      renderChannels(
+        channelNames,
+        myChannel,
+        onJoinClicked,
+        onLeaveClicked
+      );
+    });
 
     renderChannels(channelNames, myChannel, onJoinClicked, onLeaveClicked);
   })
