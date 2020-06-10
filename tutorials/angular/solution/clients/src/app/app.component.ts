@@ -27,4 +27,12 @@ export class AppComponent implements OnInit {
   public handleClientClick(client: Client): void {
     this.glueService.sendSelectedClient(client);
   }
+
+  public joinChannel(e) {
+    console.log("join", e);
+  }
+
+  public leaveChannel(e) {
+    console.log("leave", e);
+  }
 }

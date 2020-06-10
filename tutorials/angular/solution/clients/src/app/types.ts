@@ -17,3 +17,11 @@ export interface Client {
 }
 
 export type GlueStatus = "disconnected" | "failed" | "ready";
+
+export interface Channel {
+    name: string;
+    data?: any;
+    meta: {
+        color: string;
+    };
+}

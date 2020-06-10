@@ -4,8 +4,11 @@
             <div class="col-md-2">
                 <span id="glueSpan" class="label label-warning">Glue is {{glueStatus}}</span>
             </div>
-            <div class="col-md-10">
+            <div class="col-md-8">
                 <h1 class="text-center">Stocks</h1>
+            </div>
+            <div class="col-md-2">
+                <!-- Chapter 6 -->
             </div>
         </div>
         <div class="row">
@@ -19,14 +22,14 @@
                     </tr>
                 </thead>
                 <tbody>
-                  <tr *ngFor="let stock of stocks" (click)="handleStockClick(stock)">
-                    <td>{{stock.RIC}}</td>
-                    <td>{{stock.Description}}</td>
-                    <td>{{stock.Bid}}</td>
-                    <td>{{stock.Ask}}</td>
-                  </tr>
+                    <tr *ngFor="let stock of stocks" (click)="handleStockClick(stock)">
+                        <td>{{stock.RIC}}</td>
+                        <td>{{stock.Description}}</td>
+                        <td>{{stock.Bid}}</td>
+                        <td>{{stock.Ask}}</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
     </div>
-  </body>
+</body>

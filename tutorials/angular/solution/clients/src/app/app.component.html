@@ -1,32 +1,35 @@
 <body>
   <div class="container-fluid">
-      <div class="row">
-          <div class="col-md-2">
-              <span id="glueSpan" class="label label-warning">Glue is {{glueStatus}}</span>
-          </div>
-          <div class="col-md-10">
-              <h1 class="text-center">Clients</h1>
-          </div>
+    <div class="row">
+      <div class="col-md-2">
+        <span id="glueSpan" class="label label-warning">Glue is {{glueStatus}}</span>
       </div>
-      <div class="row">
-          <table id="clientsTable" class="table table-hover">
-              <thead>
-                  <tr>
-                      <th>Full Name</th>
-                      <th>PID</th>
-                      <th>GID</th>
-                      <th>Account Manager</th>
-                  </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let client of clients" (click)="handleClientClick(client)">
-                  <td>{{client.name}}</td>
-                  <td>{{client.pId}}</td>
-                  <td>{{client.gId}}</td>
-                  <td>{{client.accountManager}}</td>
-                </tr>
-              </tbody>
-          </table>
+      <div class="col-md-8">
+        <h1 class="text-center">Clients</h1>
       </div>
+      <div class="col-md-2">
+        <!-- Chapter 6 -->
+      </div>
+    </div>
+    <div class="row">
+      <table id="clientsTable" class="table table-hover">
+        <thead>
+          <tr>
+            <th>Full Name</th>
+            <th>PID</th>
+            <th>GID</th>
+            <th>Account Manager</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let client of clients" (click)="handleClientClick(client)">
+            <td>{{client.name}}</td>
+            <td>{{client.pId}}</td>
+            <td>{{client.gId}}</td>
+            <td>{{client.accountManager}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </body>
