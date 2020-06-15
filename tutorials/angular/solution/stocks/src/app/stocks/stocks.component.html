@@ -8,7 +8,7 @@
                 <h1 class="text-center">Stocks</h1>
             </div>
             <div class="col-md-2">
-                <!-- Chapter 6 -->
+                <channel-select [channels]="channels" (channelLeaveEmitter)="handleLeaveChannel()" (channelJoinEmitter)="handleJoinChannel($event)"></channel-select>
             </div>
         </div>
         <div class="row">

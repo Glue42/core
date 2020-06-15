@@ -633,6 +633,267 @@ Good, now **Clients** and **Stocks** communicate via Shared Contexts. Let's add 
 
 Awesome work! Now all three apps are connected and a single action in one of them can trigger changes in all.
 
+## 6. Channels
+
+### 6.1. Overview
+
+So far the early-adopters of our beta love the applications and the way they interop with each other. However, every project has room to improve and this is no different here. Our users have multiple monitors and often manage multiple clients at the same time. Our project forces them to manage a single client at a time, because every time a client is selected, his or her stocks will be displayed, basically making it impossible to work on multiple clients simultaneously. We will remove this limitation with the help of the [Channels API](../../reference/core/latest/channels/index.html). The targeted user experience is that a single **clients** app will manage multiple **stocks** apps by simply switching the app's channels.  
+
+We should extend the **stocks** and **clients** applications with a simple dropdown selector, which will be used to select a channel for the given app. Once a channel was selected the application should join that channel. In the **clients** app when a client is selected, instead of updating the shared context, we will update the current channel's context. In the **stocks** app instead of listening to changes in the shared context, the app will listen to changes to it's current channel's context.
+
+These are objectives, so let's start by configuring the channels for our project.
+
+### 6.2. Configuring Channels
+
+There are two things we need to do:
+1. Enable channels in the `glue.config.json`.
+2. Define our channels in the `glue.config.json`.
+
+The [Channels API](../../reference/core/latest/channels/index.html) is disabled by default, so firstly we need to ***enable*** it and then define our channels. All of this is done in the `glue.config.json` file located in the root of our project. It was generated with default settings by the Glue42 Core CLI and hosts all the settings of our project. The JSON object should look like this:
+
+```json
+{
+    "glue": {
+        "worker": "./worker.js",
+        "layouts": {
+            "autoRestore": false,
+            "autoSaveWindowContext": false
+        },
+        "channels": true
+    },
+    "gateway": {
+        "location": "./gateway.js"
+    },
+    "channels": [
+        {
+            "name": "Red",
+            "meta": {
+                "color": "red"
+            }
+        },
+        {
+            "name": "Green",
+            "meta": {
+                "color": "green"
+            }
+        },
+        {
+            "name": "Blue",
+            "meta": {
+                "color": "#66ABFF"
+            }
+        },
+        {
+            "name": "Pink",
+            "meta": {
+                "color": "#F328BB"
+            }
+        },
+        {
+            "name": "Yellow",
+            "meta": {
+                "color": "#FFE733"
+            }
+        },
+        {
+            "name": "DarkYellow",
+            "meta": {
+                "color": "#b09b00"
+            }
+        },
+        {
+            "name": "Orange",
+            "meta": {
+                "color": "#fa5a28"
+            }
+        },
+        {
+            "name": "Purple",
+            "meta": {
+                "color": "#c873ff"
+            }
+        },
+        {
+            "name": "Lime",
+            "meta": {
+                "color": "#8af59e"
+            }
+        },
+        {
+            "name": "Cyan",
+            "meta": {
+                "color": "#80f3ff"
+            }
+        }
+    ]
+}
+```
+
+The channels are enabled by `"channels": true` and below than you can see a `channels` array of objects, which define the minimum needed for now - just a name and a color. We will use the color as a visual aid for our users in the dropdown select component.
+
+### 6.3. Joining and Leaving
+
+The next step is to add a dropdown select component to **stocks** and **clients**, which will allow our users to pick a channel for the applications. We will cover the procedure for the **clients** app, the **stocks** is identical.
+
+We have prepared for your a simple, but fully functional material select component. All you have to do is import it in the `app.module.ts`:
+
+```javascript
+// previous imports
+
+@NgModule({
+  declarations: [
+    AppComponent
+  ],
+  imports: [
+    BrowserModule,
+    NgbModule,
+    HttpClientModule,
+    Glue42Ng.forRoot({ factory: GlueWeb }),
+    ChannelSelectModule
+  ],
+  providers: [DataService, GlueService],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+```
+
+Next, head over to `app.component.html`, locate the HTML comment saying `Chapter 6` and add the dropdown selector like this:
+
+```html
+      <div class="col-md-2">
+        <!-- Chapter 6 -->
+        <channel-select [channels]="channels" (channelLeaveEmitter)="handleLeaveChannel()" (channelJoinEmitter)="handleJoinChannel($event)"></channel-select>
+      </div>
+```
+
+This component accepts a list of channels to display and outputs commands to join a specific channel or leave the current channel. Let's handle the logic for the `channels` property and the `handleLeaveChannel` and `handleJoinChannel` methods in `app.component.ts`. We will fetch all the channels in `ngOnInit` and define public methods for the two operations like this:
+
+```javascript
+// previous code
+
+public async ngOnInit(): Promise<void> {
+  this.glueStatus = this.glueService.glueStatus;
+
+  [this.clients, this.channels] = await Promise.all([
+    this.data.getClients(),
+    this.glueService.getAllChannels()
+  ]);
+}
+
+public handleJoinChannel({ name }: { name: string }) {
+  this.glueService.joinChannel(name).catch(console.log);
+}
+
+public handleLeaveChannel() {
+  this.glueService.leaveChannel().catch(console.log);
+}
+
+// other code
+```
+
+Finally let's go to `glue.service.ts` and extend it with the channel methods we use in the component like this:
+
+```javascript
+// previous code
+
+public getAllChannels(): Promise<Channel[]> {
+    return this.glueStore.glue.channels.list();
+}
+
+public joinChannel(name: string): Promise<void> {
+    return this.glueStore.glue.channels.join(name);
+}
+
+public leaveChannel(): Promise<void> {
+    return this.glueStore.glue.channels.leave();
+}
+
+// other code
+```
+
+Repeat the exact same steps for the **stocks** app (do not extend the **stock details**, we will handle that later) and as a result both applications should have a selector in the top right corner, which allows the user to pick a channel to join. All of the functionality regarding joining and leaving is done, next we need to handle pushing and subscribing to channel data.
+
+### 6.4. Publishing and Subscribing
+
+The publishing part is done in the **clients** app and extending it is very easy. All of our client selection logic is handled by the `handleClientClick` method of the `app.component.ts`, which in turns delegates it to the `sendSelectedClient` of the `glue.service.ts`. All we have to do is extend that method to also update the current channel's context like this:
+
+```javascript
+//previous code
+
+public async sendSelectedClient(client: Client): Promise<void> {
+    // const foundMethod = this.glueStore.glue.interop.methods().find((method) => method.name === "SelectClient");
+    // if (foundMethod) {
+    //     await this.glueStore.glue.interop.invoke(foundMethod, { client });
+    // }
+    await Promise.all([
+        this.glueStore.glue.contexts.update('SelectedClient', client),
+        this.glueStore.glue.channels.publish(client)
+    ]);
+}
+
+// other code
+```
+
+Note that we also updating the shared context. We do that, because we would like the **stocks details** functionality to remain the same. 
+
+We are almost there, all we have to do is subscribe to the channel data in the **stocks** app. First, go to the `glue.service.ts` of the **stocks** app and define a method for subscribing to the channel context like this:
+
+```javascript
+public subscribeToChannelContext() {
+    this.glueStore.glue.channels.subscribe((client) => {
+        this._zone.run(() => this.selectedClientSource.next(client));
+    });
+}
+```
+
+Lastly we go to the `stocks.component.ts` and modify the `ngOnInit` by calling `subscribeToChannelContext` and removing the calls to `subscribeToSharedContext` and `registerClientSelect`, because we want the **stocks** app top receive selected clients only via the channels context. The method should look like this:
+
+```javascript
+// previous code
+
+public async ngOnInit(): Promise<void> {
+
+  this.glueStatus = this.glueService.glueStatus;
+
+  if (this.glueService.glueStatus === "ready") {
+    // this.glueService.registerClientSelect().catch(console.log);
+    this.glueService.createPriceStream().catch(console.log);
+    // this.glueService.subscribeToSharedContext().catch(console.log);
+    this.glueService.subscribeToChannelContext();
+    this.glueService.onClientSelected()
+      .subscribe((client) => {
+        if (client.portfolio) {
+          this.stocks = this.allStocks.filter((stock) => client.portfolio.includes(stock.RIC));
+          return;
+        }
+        this.stocks = this.allStocks;
+      });
+  }
+
+  [this.channels, this.allStocks] = await Promise.all([
+    this.glueService.getAllChannels(),
+    this.data.getStocks()
+  ]);
+
+  this.stocks = this.allStocks;
+
+  this.data.onStockPrices()
+    .subscribe((update) => {
+      this.stocks.forEach((stock) => {
+        const matchingStock = update.stocks.find((stockUpdate) => stockUpdate.RIC === stock.RIC);
+        stock.Ask = matchingStock.Ask;
+        stock.Bid = matchingStock.Bid;
+      })
+    });
+}
+
+//other code
+```
+
+Note that we check for the presence of a client portfolio, because when we join a new channel, we will always receive initial context. And if nothing has been published to that specific channel, the context will be an empty object, when this is the case, we just want to display all stocks.
+
+Let's see if everything works. Restart everything and open one **clients** and two **stocks** apps. Select the `Red` channel for the **clients** app and one of the **stocks** apps and `Lime` for the other **stocks** app. Now when you click on a client only one of the **stocks** apps should react, switch the **clients** to the `Lime` channel and the other **stocks** app should react. Clicking on a stock still brings up the **stock details**, which displays if the selected client has that stock or not regardless of the channels.
+
 ## Congratulations
 
 You have completed the Glue42 Core Angular tutorial! Now you have a good understanding of the core capabilities of the platform and are ready to delve deeper and build some awesome Angular applications!

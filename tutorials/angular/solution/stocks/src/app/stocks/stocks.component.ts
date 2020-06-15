@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Stock, GlueStatus } from '../types';
+import { Stock, GlueStatus, Channel } from '../types';
 import { DataService } from '../data.service';
 import { Router } from '@angular/router';
 import { GlueService } from '../glue.service';
@@ -11,6 +11,7 @@ export class StocksComponent implements OnInit {
   private allStocks: Stock[] = [];
   public stocks: Stock[] = [];
   public glueStatus: GlueStatus = "disconnected";
+  public channels: Channel[] = [];
 
   constructor(
     private readonly data: DataService,
@@ -23,17 +24,27 @@ export class StocksComponent implements OnInit {
     this.glueStatus = this.glueService.glueStatus;
 
     if (this.glueService.glueStatus === "ready") {
-      this.glueService.registerClientSelect().catch(console.log);
+      // this.glueService.registerClientSelect().catch(console.log);
       this.glueService.createPriceStream().catch(console.log);
-      this.glueService.subscribeToSharedContext().catch(console.log);
+      // this.glueService.subscribeToSharedContext().catch(console.log);
+      this.glueService.subscribeToChannelContext();
 
       this.glueService.onClientSelected()
         .subscribe((client) => {
-          this.stocks = this.allStocks.filter((stock) => client.portfolio.includes(stock.RIC));
+          if (client.portfolio) {
+            this.stocks = this.allStocks.filter((stock) => client.portfolio.includes(stock.RIC));
+            return;
+          }
+
+          this.stocks = this.allStocks;
         });
     }
 
-    this.allStocks = await this.data.getStocks();
+    [this.channels, this.allStocks] = await Promise.all([
+      this.glueService.getAllChannels(),
+      this.data.getStocks()
+    ]);
+
     this.stocks = this.allStocks;
 
     this.data.onStockPrices()
@@ -53,5 +64,13 @@ export class StocksComponent implements OnInit {
       this.data.selectedStock = stock;
       this.router.navigate(['/details']);
     }
+  }
+
+  public handleJoinChannel({ name }: { name: string }) {
+    this.glueService.joinChannel(name).catch(console.log);
+  }
+
+  public handleLeaveChannel() {
+    this.glueService.leaveChannel().catch(console.log);
   }
 }
