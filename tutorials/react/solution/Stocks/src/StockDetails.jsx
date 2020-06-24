@@ -22,12 +22,12 @@ function StockDetails() {
                 <div className="col-md-2">
                     {!glue && (
                         <span id="glueSpan" className="badge badge-warning">
-                            Glue is unavailable
+                            Glue42 is unavailable
                         </span>
                     )}
                     {glue && (
                         <span id="glueSpan" className="badge badge-success">
-                            Glue is available
+                            Glue42 is available
                         </span>
                     )}
                 </div>

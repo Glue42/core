@@ -23,7 +23,7 @@ export class StocksComponent implements OnInit {
 
     this.glueStatus = this.glueService.glueStatus;
 
-    if (this.glueService.glueStatus === "ready") {
+    if (this.glueService.glueStatus === "available") {
       // this.glueService.registerClientSelect().catch(console.log);
       this.glueService.createPriceStream().catch(console.log);
       // this.glueService.subscribeToSharedContext().catch(console.log);
@@ -58,7 +58,7 @@ export class StocksComponent implements OnInit {
   }
 
   public handleStockClick(stock: Stock): void {
-    if (this.glueService.glueStatus === "ready") {
+    if (this.glueService.glueStatus === "available") {
       this.glueService.openStockDetails(stock).catch(console.error);
     } else {
       this.data.selectedStock = stock;
