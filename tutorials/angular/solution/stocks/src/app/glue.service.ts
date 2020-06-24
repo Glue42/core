@@ -1,7 +1,7 @@
 import { Injectable, NgZone } from "@angular/core";
 import { Glue42Store } from '@glue42/ng';
 import { Glue42Web } from "@glue42/web";
-import { GlueStatus, Stock, Client } from './types';
+import { GlueStatus, Stock, Client, Channel } from './types';
 import { Observable, Subject } from 'rxjs';
 import { DataService } from './data.service';
 
@@ -65,8 +65,14 @@ export class GlueService {
         return subscription;
     }
 
+    public subscribeToChannelContext() {
+        this.glueStore.glue.channels.subscribe((client) => {
+            this._zone.run(() => this.selectedClientSource.next(client));
+        });
+    }
+
     public async subscribeToSharedContext() {
-        this.glueStore.glue.contexts.subscribe('SelectedClient', (client) => {
+        await this.glueStore.glue.contexts.subscribe('SelectedClient', (client) => {
             this._zone.run(() => this.selectedClientSource.next(client));
         });
     }
@@ -80,5 +86,17 @@ export class GlueService {
     public async createPriceStream() {
         const priceStream = await this.glueStore.glue.interop.createStream("LivePrices");
         this.dataService.onStockPrices().subscribe((priceUpdate) => priceStream.push(priceUpdate));
+    }
+
+    public getAllChannels(): Promise<Channel[]> {
+        return this.glueStore.glue.channels.list();
+    }
+
+    public joinChannel(name: string): Promise<void> {
+        return this.glueStore.glue.channels.join(name);
+    }
+
+    public leaveChannel(): Promise<void> {
+        return this.glueStore.glue.channels.leave();
     }
 }

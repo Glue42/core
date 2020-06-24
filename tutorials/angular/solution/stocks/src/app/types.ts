@@ -1,3 +1,5 @@
+import { Glue42Web } from '@glue42/web';
+
 export interface Stock {
     Ask: number;
     Bid: number;
@@ -38,3 +40,5 @@ export interface Client {
 }
 
 export type GlueStatus = "disconnected" | "failed" | "ready";
+
+export type Channel = Glue42Web.Channels.ChannelContext;

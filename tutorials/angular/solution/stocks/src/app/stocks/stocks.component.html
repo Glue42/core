@@ -4,8 +4,11 @@
             <div class="col-md-2">
                 <span id="glueSpan" class="label label-warning">Glue is {{glueStatus}}</span>
             </div>
-            <div class="col-md-10">
+            <div class="col-md-8">
                 <h1 class="text-center">Stocks</h1>
+            </div>
+            <div class="col-md-2">
+                <channel-select [channels]="channels" (channelLeaveEmitter)="handleLeaveChannel()" (channelJoinEmitter)="handleJoinChannel($event)"></channel-select>
             </div>
         </div>
         <div class="row">

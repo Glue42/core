@@ -9,6 +9,7 @@ import { DataService } from './data.service';
 import { Glue42Ng } from "@glue42/ng";
 import GlueWeb from "@glue42/web";
 import { GlueService } from './glue.service';
+import { ChannelSelectModule } from './channel-select/channel-select.module';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { GlueService } from './glue.service';
     BrowserModule,
     NgbModule,
     HttpClientModule,
-    Glue42Ng.forRoot({ factory: GlueWeb })
+    Glue42Ng.forRoot({ factory: GlueWeb }),
+    ChannelSelectModule
   ],
   providers: [DataService, GlueService],
   bootstrap: [AppComponent]
