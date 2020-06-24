@@ -39,7 +39,8 @@ Below you can see the default content and settings in the `glue.config.json` fil
     "gateway": {
         "location": "./gateway.js"
     },
-    "channels": []
+    "channels": [],
+    "appManager": {}
 }
 ```
 
@@ -70,9 +71,71 @@ The `gateway` top-level key has the following properties:
 
 For more information on defining a custom log appender, see the [Advanced Setup](../setup/index.html#advanced) section.
 
-- `channels` - An *optional* configuration object that defines the [color channels](../../../capabilities/channels/index.html) with their names, colors and initial contexts. The channels configuration is shared between all applications.
+- `channels` - An *optional* configuration property that defines the [color channels](../../../capabilities/channels/index.html) with their names, colors and initial contexts. The channels configuration is shared between all applications.
 
 The shape of the property is the same as the [**Glue42 Enterprise: Channels Configuration**](../../../../developers/configuration/channels/index.html#channels_configuration).
+
+- `appManager` - An *optional* configuration property that defines the local application definitions and the remote sources of application definitions. The applications and application instances accessed using the [App Manager API]([color channels](../../../capabilities/application-management/index.html)). They can be discovered, started/stopped and listened for using events.
+
+The `appManager` top-level key has the following properties:
+
+| Property | Type | Description | Required | Default |
+|----------|------|-------------|----------|---------|
+| `localApplications` | `Glue42CoreApplicationConfig[]` | The local application definitions. | No | `[]` |
+| `remoteSources` | `RemoteSource[]` | The remote sources of application definitions. | No | `[]` |
+
+A `Glue42CoreApplicationConfig` has the following properties:
+
+| Property | Type | Description | Required | Default |
+|----------|------|-------------|----------|---------|
+| `name` | `string` | Application name. Should be unique. | Yes | `-` |
+| `title` | `string` | The title of the application. Sets the window's title. | No | `""` |
+| `version` | `string` | Application version. | No | `""` |
+| `details` | `object` | Detailed configuration. Has the same shape as https://docs.glue42.com/reference/core/latest/windows/index.html#!CreateOptions | Yes. Additionally the details property needs to have a `url` field. | `-` |
+| `customProperties` | `object` | Generic object for passing properties, settings, etc., in the for of key/value pairs. Accessed using the `app.userProperties` property. | No | `{}` |
+
+A `RemoteSource` has the following properties:
+
+| Property | Type | Description | Required | Default |
+|----------|------|-------------|----------|---------|
+| `url` | `string` | The url of the remote source of application definitions. The remote source needs to follow the [FDC3 AppDirectory standard](https://github.com/finos/FDC3). The applications provided by the remote need to be of type Glue42CoreApplicationConfig. | Yes | `-` |
+| `pollingInterval` | `number` | The polling interval for fetching from the remote source. | No | `3000` |
+
+Below is an example configuration.
+
+```json
+{
+    "glue": ...,
+    "gateway": ...,
+    "channels": ...,
+    "appManager": {
+        "localApplications": [
+            {
+                "name": "Clients",
+                "details": {
+                    "url": "http://localhost:4242/clients"
+                }
+            },
+            {
+                "name": "Stocks",
+                "details": {
+                    "url": "http://localhost:4242/stocks",
+                    "left": 0,
+                    "top": 0,
+                    "width": 860,
+                    "height": 600
+                }
+            }
+        ],
+        "remoteSources": [
+            {
+                "url": "http://localhost:3001/v1/apps/search",
+                "pollingInterval": 5000
+            }
+        ]
+    }
+}
+```
 
 ## Glue42 Gateway
 

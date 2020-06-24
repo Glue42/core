@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+
+<html class="light">
+  <head>
+    <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico" />
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>
+      <!-- Dynamically set -->
+    </title>
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="manifest" href="/app-d/manifest.json" />
+    <link rel="stylesheet" href="/assets/style.css" />
+    <script src="/lib/web.umd.min.js"></script>
+  </head>
+
+  <body class="d-flex flex-column h-100">
+    <nav class="navbar navbar-light bg-light py-3">
+      <h5 class="mb-0">App D Instance</h5>
+    </nav>
+    <div class="container-fluid d-flex flex-column flex-grow-1 overflow-auto">
+      <div class="row flex-grow-1 py-2 py-sm-3" style="overflow-y: scroll;">
+        <div class="col-12 col-sm-6 col-md-2">
+          <h5 class="mb-0">ID</h5>
+          <div id="instanceIdText" class="text-monospace"></div>
+        </div>
+      </div>
+      <footer class="row">
+        <div class="align-items-center bg-light col d-flex py-2">
+          <img
+            id="glueImg"
+            src="/assets/disconnected.svg"
+            width="16"
+            height="16"
+          />
+          <span id="glueSpan" class="ml-1 small">Disconnected</span>
+        </div>
+      </footer>
+    </div>
+
+    <script src="/scripts/utils.js"></script>
+    <script src="/scripts/glue-utils.js"></script>
+    <script src="/app-d/index.js"></script>
+  </body>
+</html>

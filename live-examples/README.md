@@ -29,6 +29,11 @@ This folder contains live snippet examples for the [Glue42 Core documentation](h
   - Discovering and Navigating
   - Publishing and Subscribing
 
+- Application Management
+  - Discovering Applications
+  - Starting Applications
+  - Application and Instance Events
+
 ## Example Template
 
 Each example project contains the following:

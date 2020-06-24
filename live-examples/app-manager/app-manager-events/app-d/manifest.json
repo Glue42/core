@@ -1,0 +1,27 @@
+{
+  "short_name": "AppManager Events (App D)",
+  "name": "Glue42 Web AppManager Events (App D)",
+  "description": "Subscribing to appManager events.",
+  "icons": [
+    {
+      "src": "/assets/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/assets/logo192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/assets/logo512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/app-d/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}

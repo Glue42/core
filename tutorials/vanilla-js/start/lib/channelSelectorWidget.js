@@ -77,4 +77,10 @@ window.createChannelSelectorWidget = (
             })
         );
     });
+
+    // Return a method that would allow the update of the channel programmatically.
+    return (channelName) => {
+        channelSelectorWidgetElement.val(channelName);
+        channelSelectorWidgetElement.channelSelectorWidget('refresh', true);
+    };
 };

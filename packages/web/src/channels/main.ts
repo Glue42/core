@@ -1,5 +1,5 @@
 import { Glue42Web } from "../../web";
-import { default as CallbackRegistryFactory, CallbackRegistry } from "callback-registry";
+import { default as CallbackRegistryFactory, CallbackRegistry, UnsubscribeFunction } from "callback-registry";
 import { SharedContextSubscriber } from "./contexts";
 
 export class Channels implements Glue42Web.Channels.API {
@@ -20,14 +20,14 @@ export class Channels implements Glue42Web.Channels.API {
         }, Promise.resolve({})));
     }
 
-    public subscribe(callback: (data: object, context: Glue42Web.Channels.ChannelContext, updaterId: string) => void): () => void {
+    public subscribe(callback: (data: object, context: Glue42Web.Channels.ChannelContext, updaterId: string) => void): UnsubscribeFunction {
         if (typeof callback !== "function") {
             throw new Error("Please provide the callback as a function!");
         }
         return this.registry.add(this.subsKey, callback);
     }
 
-    public async subscribeFor(name: string, callback: (data: object, context: Glue42Web.Channels.ChannelContext, updaterId: string) => void): Promise<() => void> {
+    public async subscribeFor(name: string, callback: (data: object, context: Glue42Web.Channels.ChannelContext, updaterId: string) => void): Promise<UnsubscribeFunction> {
         if (typeof name !== "string") {
             throw new Error("Please provide the name as a string!");
         }
@@ -134,7 +134,7 @@ export class Channels implements Glue42Web.Channels.API {
         return this.current();
     }
 
-    public changed(callback: (channel: string) => void): () => void {
+    public changed(callback: (channel: string) => void): UnsubscribeFunction {
         if (typeof callback !== "function") {
             throw new Error("Please provide the callback as a function!");
         }
@@ -142,7 +142,7 @@ export class Channels implements Glue42Web.Channels.API {
         return this.registry.add(this.changedKey, callback);
     }
 
-    public onChanged(callback: (channel: string) => void): () => void {
+    public onChanged(callback: (channel: string) => void): UnsubscribeFunction {
         return this.changed(callback);
     }
 

@@ -51,11 +51,15 @@ const updateClientStatus = (client, stock) => {
 };
 
 const start = async () => {
-
-    window.glue = await window.GlueWeb();
+    window.glue = await window.GlueWeb({
+        appManager: true,
+        application: 'Details'
+    });
     toggleGlueAvailable();
-    
-    const stock = window.glue.windows.my().context;
+
+    // const stock = window.glue.windows.my().context;
+
+    const stock = window.glue.appManager.myInstance.context;
 
     setFields(stock);
 

@@ -134,15 +134,10 @@ const newPricesHandler = (priceUpdate) => {
 };
 
 const stockClickedHandler = (stock) => {
-    const openConfig = {
-        left: 100,
-        top: 100,
-        width: 400,
-        height: 400,
-        context: stock
-    };
+    // window.glue.windows.open(`${stock.BPOD} Details`, 'http://localhost:4242/stocks/details/', openConfig).catch(console.error);
 
-    window.glue.windows.open(`${stock.BPOD} Details`, 'http://localhost:4242/stocks/details/', openConfig).catch(console.error);
+    const detailsApplication = window.glue.appManager.application('Details');
+    detailsApplication.start(stock).catch(console.error);
 };
 
 const start = async () => {
@@ -159,7 +154,11 @@ const start = async () => {
 
     generateStockPrices(newPricesHandler);
 
-    window.glue = await window.GlueWeb({ channels: true });
+    window.glue = await window.GlueWeb({
+        channels: true,
+        appManager: true,
+        application: 'Stocks'
+    });
 
     toggleGlueAvailable();
 
@@ -207,11 +206,22 @@ const start = async () => {
         }
     };
 
-    await createChannelSelectorWidget(
+    const updateChannelSelectorWidget = createChannelSelectorWidget(
         NO_CHANNEL_VALUE,
         channelNamesAndColors,
         onChannelSelected
     );
+
+    // Whenever a channel is joined or left rerender the channels.
+    window.glue.channels.onChanged((channelName) => {
+        updateChannelSelectorWidget(channelName);
+    });
+
+    const channelToJoin = window.glue.appManager.myInstance.context.channel;
+
+    if (channelToJoin) {
+        window.glue.channels.join(channelToJoin);
+    }
 };
 
 start().catch(console.error);

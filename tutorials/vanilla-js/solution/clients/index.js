@@ -49,8 +49,16 @@ const clientClickedHandler = (client) => {
     // window.glue.contexts.update('SelectedClient', client).catch(console.error);
 
     // Update the context of the current channel with the newly selected client portfolio.
-    if (window.glue.channels.my()) {
+    const myChannel = window.glue.channels.my();
+
+    if (myChannel) {
         window.glue.channels.publish(client).catch(console.error);
+    }
+
+    const isStocksRunning = window.glue.appManager.application('Stocks').instances.length > 0;
+
+    if (!isStocksRunning) {
+        window.glue.appManager.application('Stocks').start({ channel: myChannel }).catch(console.error);
     }
 };
 
@@ -66,7 +74,11 @@ const start = async () => {
 
     setupClients(clients);
 
-    window.glue = await window.GlueWeb({ channels: true });
+    window.glue = await window.GlueWeb({
+        channels: true,
+        appManager: true,
+        application: 'Clients'
+    });
 
     toggleGlueAvailable();
 
@@ -90,7 +102,7 @@ const start = async () => {
         }
     };
 
-    await createChannelSelectorWidget(
+    createChannelSelectorWidget(
         NO_CHANNEL_VALUE,
         channelNamesAndColors,
         onChannelSelected

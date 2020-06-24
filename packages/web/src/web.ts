@@ -4,6 +4,7 @@ import { version } from "../package.json";
 import { Windows } from "./windows/main";
 import { Layouts } from "./layouts/main";
 import { Channels } from "./channels/main";
+import { AppManager } from "./app-manager/main";
 import { Glue42DesktopWindowContext } from "./types";
 import { Notifications } from "./notifications/main";
 import { defaultWorkerLocation } from "./config/defaults";
@@ -13,6 +14,7 @@ import { SaveAutoLayoutCommand } from "./control/commands";
 import { restoreAutoSavedLayout } from "./layouts/autoRestore";
 import { initStartupContext } from "./windows/startup";
 import { LocalWebWindow } from "./windows/my";
+import { LocalInstance } from "./app-manager/my";
 
 const hookCloseEvents = (api: Glue42Web.API, config: Glue42Web.Config, control: Control): void => {
     // hook up page close event's, so we can cleanup properly
@@ -66,6 +68,9 @@ export const createFactoryFunction = (coreFactoryFunction: GlueCoreFactoryFuncti
         // Whether to initialize the Channels API or not.
         const shouldInitializeChannels = builtCoreConfig.glue?.channels || false;
 
+        // Whether to initialize the AppManager API or not.
+        const shouldInitializeAppManager = builtCoreConfig.glue?.appManager || false;
+
         // check if we're running in Glue42 Enterprise, if so return @glue42/desktop API
         if (isWebEnvironment) {
             const gdWindowContext = window as unknown as Glue42DesktopWindowContext;
@@ -73,7 +78,8 @@ export const createFactoryFunction = (coreFactoryFunction: GlueCoreFactoryFuncti
                 return gdWindowContext.Glue({
                     windows: true,
                     logger: builtCoreConfig.glue?.logger,
-                    channels: shouldInitializeChannels
+                    channels: shouldInitializeChannels,
+                    appManager: shouldInitializeAppManager
                 });
             }
         }
@@ -114,6 +120,14 @@ export const createFactoryFunction = (coreFactoryFunction: GlueCoreFactoryFuncti
                     create: (coreLib): Layouts => new Layouts(windows, coreLib.interop, coreLib.logger.subLogger("layouts"), control, builtCoreConfig.glue)
                 }
             );
+
+            if (shouldInitializeAppManager) {
+                const appManagerLib: Glue42Core.ExternalLib = {
+                    name: "appManager",
+                    create: (coreLib): AppManager => new AppManager(windows, coreLib.interop, control, builtCoreConfig.appManager, builtCoreConfig.glue?.application)
+                };
+                ext.libs?.push(appManagerLib);
+            }
         }
 
         const coreConfig = {
@@ -121,7 +135,8 @@ export const createFactoryFunction = (coreFactoryFunction: GlueCoreFactoryFuncti
                 sharedWorker: builtCoreConfig.glue?.worker ?? defaultWorkerLocation,
                 inproc: builtCoreConfig.glue?.inproc
             },
-            logger: builtCoreConfig.glue?.logger
+            logger: builtCoreConfig.glue?.logger,
+            application: builtCoreConfig.glue?.application
         };
 
         const core = await coreFactoryFunction(coreConfig, ext) as Glue42Web.API;
@@ -129,7 +144,7 @@ export const createFactoryFunction = (coreFactoryFunction: GlueCoreFactoryFuncti
         control.start(core.interop, core.logger.subLogger("control"));
         if (isWebEnvironment) {
             // fill in our window context
-            await initStartupContext(core.windows.my() as LocalWebWindow, core.interop);
+            await initStartupContext(core.windows.my() as LocalWebWindow, core.interop, core.appManager.myInstance as LocalInstance);
             // if there is a saved layout restore it
             if (builtCoreConfig.glue?.layouts?.autoRestore) {
                 await restoreAutoSavedLayout(core);

@@ -65,7 +65,7 @@ await window.GlueWeb({ channels: true });
 Glue42Ng.forRoot({ factory: GlueWeb, config: { channels: true } })
 ```
 
-2. Inside your `glue.config.json` file you need to provide a `channels` property that defines the channels to be added on initialization. Here's an example:
+2. Inside of your `glue.config.json` file you need to provide a `channels` property that defines the channels to be added on initialization. Here's an example:
 
 ```json
 {

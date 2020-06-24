@@ -1,6 +1,6 @@
 import { Glue42Web } from "../../web";
 
-export type ControlDomain = "windows" | "layouts";
+export type ControlDomain = "windows" | "layouts" | "appManager";
 export type LayoutCommand = "saveLayoutAndClose";
 
 export interface RemoteCommand<T = any> {

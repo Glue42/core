@@ -1,0 +1,40 @@
+{
+  "glue": {
+    "worker": "./worker.js",
+    "layouts": {
+      "autoRestore": false,
+      "autoSaveWindowContext": false
+    }
+  },
+  "gateway": {
+    "location": "./gateway.js"
+  },
+  "appManager": {
+    "localApplications": [
+      {
+        "name": "Application A",
+        "details": {
+          "url": "https://xy5ne.csb.app/app-a/index.html"
+        }
+      },
+      {
+        "name": "Application B",
+        "details": {
+          "url": "https://xy5ne.csb.app/app-b/index.html"
+        }
+      },
+      {
+        "name": "Application C",
+        "details": {
+          "url": "https://xy5ne.csb.app/app-c/index.html"
+        }
+      },
+      {
+        "name": "Application D",
+        "details": {
+          "url": "https://xy5ne.csb.app/app-d/index.html"
+        }
+      }
+    ]
+  }
+}

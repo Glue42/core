@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-empty-interface */
 import { UnsubscribeFunction } from "callback-registry";
 import { Glue42Core } from "@glue42/core";
 import { Glue42 } from "@glue42/desktop";
@@ -100,6 +101,17 @@ export namespace Glue42Web {
          * @default false
          */
         channels?: boolean;
+
+        /**
+         * Whether to initialize the Application Manager API or not.
+         * @default false
+         */
+        appManager?: boolean;
+
+        /**
+         * Application name. If not specified the Application Manager API won't know about the application and its instances.
+         */
+        application?: string;
     }
 
     /**
@@ -113,6 +125,7 @@ export namespace Glue42Web {
         layouts: Glue42Web.Layouts.API;
         notifications: Glue42Web.Notifications.API;
         channels: Glue42Web.Channels.API;
+        appManager: Glue42Web.AppManager.API;
     }
 
     /**
@@ -249,10 +262,7 @@ export namespace Glue42Web {
             onContextUpdated(callback: (context: any, window: WebWindow) => void): UnsubscribeFunction;
         }
 
-        export interface CreateOptions {
-            /** Required. The URL of the app to be loaded in the new window */
-            url?: string;
-
+        export interface Settings {
             /**
              * Distance of the top left window corner from the top edge of the screen.
              * @default 0
@@ -293,6 +303,11 @@ export namespace Glue42Web {
              * @default "right"
              */
             relativeDirection?: RelativeDirection;
+        }
+
+        export interface CreateOptions extends Settings {
+            /** Required. The URL of the app to be loaded in the new window */
+            url: string;
         }
 
         export type RelativeDirection = "top" | "left" | "right" | "bottom";
@@ -500,7 +515,7 @@ export namespace Glue42Web {
      * @docmenuorder 7
      * @intro
      * The **Channels** are globally accessed named contexts that allow users to dynamically group applications, instructing them to work over the same shared data object.
-     * 
+     *
      * When two applications are on the same channel, they share a context data object, which they can monitor and/or update.
      *
      * The **Channels** API can be accessed through the `glue.channels` object.
@@ -508,7 +523,6 @@ export namespace Glue42Web {
      * See also the [**Channels**](../../../../core/capabilities/channels/index.html) documentation for more details.
      */
     namespace Channels {
-
         /**
          * Channels API.
          */
@@ -519,7 +533,7 @@ export namespace Glue42Web {
              * @param callback Callback function to handle the received data.
              * @returns Unsubscribe function.
              */
-            subscribe(callback: (data: any, context: ChannelContext, updaterId: string) => void): () => void;
+            subscribe(callback: (data: any, context: ChannelContext, updaterId: string) => void): UnsubscribeFunction;
 
             /**
              * Tracks the data in a given channel.
@@ -527,7 +541,7 @@ export namespace Glue42Web {
              * @param callback Callback function to handle the received data.
              * @returns Promise that resolves with an unsubscribe function.
              */
-            subscribeFor(name: string, callback: (data: any, context: ChannelContext, updaterId: string) => void): Promise<() => void>;
+            subscribeFor(name: string, callback: (data: any, context: ChannelContext, updaterId: string) => void): Promise<UnsubscribeFunction>;
 
             /**
              * Updates the context of the current or a given channel.
@@ -588,14 +602,14 @@ export namespace Glue42Web {
              * @param callback Callback function to handle channel changes.
              * @returns Unsubscribe function.
              */
-            changed(callback: (channel: string) => void): () => void;
+            changed(callback: (channel: string) => void): UnsubscribeFunction;
 
             /**
              * Subscribes for the event which fires when a channel is changed.
              * @param callback Callback function to handle channel changes.
              * @returns Unsubscribe function.
              */
-            onChanged(callback: (channel: string) => void): () => void;
+            onChanged(callback: (channel: string) => void): UnsubscribeFunction;
 
             /**
              * Adds a new channel.
@@ -616,6 +630,148 @@ export namespace Glue42Web {
             meta: any;
             /** Channel data. */
             data: any;
+        }
+    }
+
+    /**
+     * @docmenuorder 8
+     * @intro
+     * The **Application Management** API provides a way to manage Glue42 Core applications. It offers abstractions for:
+     *
+     * - **Application** - a program as a logical entity, registered in Glue42 Core with some metadata (name, description, icon, etc.) and with all the configuration needed to spawn one or more instances of it. The **Application Management** API provides facilities for retrieving application metadata and for detecting when an application is started.
+     *
+     * - **Instance** - a running copy of an application. The **Application Management** API provides facilities for starting/stopping application instances and for managing its windows.
+     *
+     * The **Application Management** API can be accessed through `glue.appManager`.
+     *
+     * See the the [AppManager](../../../../core/capabilities/application-management/index.html) documentation for more details.
+     */
+    namespace AppManager {
+        /**
+         * Application Management API.
+         */
+        export interface API {
+            /** The instance of the application. */
+            myInstance: Instance;
+
+            /**
+             * Returns an application by name.
+             * @param name Name of the desired application.
+             * @returns The application.
+             */
+            application(name: string): Application;
+
+            /** Returns a list of all applications.
+             * @returns A list of all applications.
+             */
+            applications(): Application[];
+
+            /** Returns an array with all running application instances.
+             * @returns A list of all running application instances.
+             */
+            instances(): Instance[];
+
+            /**
+             * Notifies when a new application instance has been started.
+             * @param callback Callback function to handle the event. Receives the started application instance as a parameter.
+             * @returns Unsubscribe function.
+             */
+            onInstanceStarted(callback: (instance: Instance) => any): UnsubscribeFunction;
+
+            /**
+             * Notifies when an application instance has been stopped.
+             * @param callback Callback function to handle the event. Receives the stopped application instance as a parameter.
+             * @returns Unsubscribe function.
+             */
+            onInstanceStopped(callback: (instance: Instance) => any): UnsubscribeFunction;
+
+            /**
+             * Notifies when an application is registered in the environment.
+             * @param callback Callback function to handle the event. Receives the added application as a parameter.
+             * @returns Unsubscribe function.
+             */
+            onAppAdded(callback: (app: Application) => any): UnsubscribeFunction;
+
+            /**
+             * Notifies when the application is removed from the environment.
+             * @param callback Callback function to handle the event. Receives the removed application as a parameter.
+             * @returns Unsubscribe function.
+             */
+            onAppRemoved(callback: (app: Application) => any): UnsubscribeFunction;
+
+            /**
+             * Notifies when the configuration for an application has changed.
+             * @param callback Callback function to handle the event. Receives the changed application as a parameter.
+             * @returns Unsubscribe function.
+             */
+            onAppChanged(callback: (app: Application) => any): UnsubscribeFunction;
+        }
+
+        /** Object describing an application. */
+        export interface Application {
+            /** Application name. */
+            name: string;
+
+            /** Application title. */
+            title: string;
+
+            /** Application version. */
+            version: string;
+
+            /** Generic object for passing properties, settings, etc., in the for of key/value pairs. */
+            userProperties: PropertiesObject;
+
+            /** Instances of that app. */
+            instances: Instance[];
+
+            /**
+             * Returns the newly started application instance.
+             * @param context The initial context of the application.
+             * @param options Options object in which you can specify window setting (that will override the default configuration settings), as well as other additional options.
+             * @returns Promise that resolves with the newly started application instance.
+             */
+            start(context?: object, options?: ApplicationStartOptions): Promise<Instance>;
+
+            /**
+             * Subscribes for the event which fires when an application instance is started.
+             * @param callback Callback function to handle the newly started instance.
+             * @returns Unsubscribe function.
+             */
+            onInstanceStarted: (callback: (instance: Instance) => any) => void;
+
+            /**
+             * Subscribes for the event which fires when an application instance is stopped.
+             * @param callback Callback function to handle the newly started instance.
+             * @returns Unsubscribe function.
+             */
+            onInstanceStopped: (callback: (instance: Instance) => any) => void;
+        }
+
+        /**
+         * Object with options for starting an application.
+         */
+        export import ApplicationStartOptions = Glue42Web.Windows.Settings;
+
+        /** Generic object for passing properties, settings, etc., in the for of key/value pairs. */
+        export interface PropertiesObject {
+            [key: string]: any;
+        }
+
+        /** Object describing an application instance. */
+        export interface Instance {
+            /** Instance ID. */
+            id: string;
+
+            /** The application object of that instance. */
+            application: Application;
+
+            /** The starting context of the instance. */
+            context: object;
+
+            /** Stops the instance.
+             * @returns Promise that resolves when the instance has been stopped.
+            */
+            stop(): Promise<void>;
         }
     }
 }

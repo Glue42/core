@@ -1,30 +1,7 @@
 import { Glue42Web } from "../../web";
 import { defaultConfigLocation, defaultConfig, defaultWorkerName } from "./defaults";
 import { Glue42CoreConfig } from "../glue.config";
-
-const fetchTimeout = (url: string, timeoutMilliseconds = 1000): Promise<Response> => {
-    return new Promise((resolve, reject) => {
-        let timeoutHit = false;
-        const timeout = setTimeout(() => {
-            timeoutHit = true;
-            reject(new Error(`Fetch request for: ${url} timed out at: ${timeoutMilliseconds} milliseconds`));
-        }, timeoutMilliseconds);
-
-        fetch(url)
-            .then((response) => {
-                if (!timeoutHit) {
-                    clearTimeout(timeout);
-                    resolve(response);
-                }
-            })
-            .catch((err) => {
-                if (!timeoutHit) {
-                    clearTimeout(timeout);
-                    reject(err);
-                }
-            });
-    });
-};
+import { fetchTimeout } from "../utils";
 
 const getRemoteConfig = async (userConfig: Glue42Web.Config): Promise<Glue42CoreConfig> => {
     // check userConfig, if not there check defaultConfig, if not there use the defaultConfigLocation

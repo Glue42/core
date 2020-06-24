@@ -22,7 +22,8 @@
             "es6",
             "scripthost",
             "es2015.promise",
-            "es2015.symbol"
+            "es2015.symbol",
+            "es2019.object"
         ]
     },
     "include": [
