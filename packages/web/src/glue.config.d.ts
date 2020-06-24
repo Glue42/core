@@ -46,119 +46,111 @@ export interface Glue42CoreApplicationConfig extends ApplicationConfig {
 }
 
 /**
- * A namespace that holds all FDC3 specific interfaces.
+ * A FDC3 Application config.
  */
-declare namespace FDC3 {
+export interface FDC3ApplicationConfig extends ApplicationConfig {
     /**
-     * A FDC3 Application config.
+     * The unique application identifier located within a specific application directory instance.
      */
-    export interface FDC3ApplicationConfig extends ApplicationConfig {
-        /**
-         * The unique application identifier located within a specific application directory instance.
-         */
-        appId: string;
-
-        /**
-         * URI or full JSON of the application manifest providing all details related to launch and use requirements as described by the vendor.
-         * The format of this manifest is vendor specific, but can be identified by the manifestType attribute.
-         */
-        manifest: string;
-
-        /**
-         * The manifest type which relates to the format and structure of the manifest content. The definition is based on the vendor specific format and definition outside of this specification.
-         */
-        manifestType: string;
-
-        /**
-         * Optional tooltip description e.g. for a launcher.
-         */
-        tooltip?: string;
-
-        /**
-         *Description of the application.This will typically be a 1 - 2 paragraph style blurb about the application.Allow mark up language.
-         */
-        description?: string;
-
-        /**
-         * Optional e - mail to receive queries about the application.
-         */
-        contactEmail?: string;
-
-        /**
-         * Optional e - mail to receive support requests for the application.
-         */
-        supportEmail?: string;
-
-        /**
-         * The name of the company that owns the application.The publisher has control over their namespace / app / signature.
-         */
-        publisher?: string;
-
-        /**
-         * Array of images to show the user when they are looking at app description.Each image can have an optional description / tooltip.
-         */
-        images?: AppImage[];
-
-        /**
-         * Holds Icons used for the application, a Launcher may be able to use multiple Icon sizes or there may be a 'button' Icon.
-         */
-        icons?: Icon[];
-
-        /**
-         * An optional set of name value pairs that can be used to deliver custom data from an App Directory to a launcher.
-         */
-        customConfig?: PropertiesObject;
-
-        /**
-         * The list of intents implemented by the Application
-         */
-        intents?: Intent[];
-    }
-
-
-    /** App Image holder */
-    export interface AppImage {
-        /**
-         * App Image URL.
-         */
-        url?: string;
-    }
-
-    /** Icon holder */
-    export interface Icon {
-        /**
-         * Icon URL.
-         */
-        icon?: string;
-    }
+    appId: string;
 
     /**
-     * An intent definition.
+     * URI or full JSON of the application manifest providing all details related to launch and use requirements as described by the vendor.
+     * The format of this manifest is vendor specific, but can be identified by the manifestType attribute.
      */
-    export interface Intent {
-        /**
-         * The name of the intent to 'launch'. In this case the name of an Intent supported by an Application.
-         */
-        name: string;
+    manifest: string;
 
-        /**
-         * An optional display name for the intent that may be used in UI instead of the name.
-         */
-        displayName?: string;
+    /**
+     * The manifest type which relates to the format and structure of the manifest content. The definition is based on the vendor specific format and definition outside of this specification.
+     */
+    manifestType: string;
 
-        /**
-         * A comma separated list of the types of contexts the intent offered by the application can process, here the first part of the context type is the namespace e.g."fdc3.contact, org.symphony.contact".
-         */
-        contexts?: string[];
+    /**
+     * Optional tooltip description e.g. for a launcher.
+     */
+    tooltip?: string;
 
-        /**
-         * Custom configuration for the intent that may be required for a particular desktop agent.
-         */
-        customConfig?: object;
-    }
+    /**
+     * Description of the application.This will typically be a 1 - 2 paragraph style blurb about the application.Allow mark up language.
+     */
+    description?: string;
+
+    /**
+     * Optional e - mail to receive queries about the application.
+     */
+    contactEmail?: string;
+
+    /**
+     * Optional e - mail to receive support requests for the application.
+     */
+    supportEmail?: string;
+
+    /**
+     * The name of the company that owns the application.The publisher has control over their namespace / app / signature.
+     */
+    publisher?: string;
+
+    /**
+     * Array of images to show the user when they are looking at app description.Each image can have an optional description / tooltip.
+     */
+    images?: AppImage[];
+
+    /**
+     * Holds Icons used for the application, a Launcher may be able to use multiple Icon sizes or there may be a 'button' Icon.
+     */
+    icons?: Icon[];
+
+    /**
+     * An optional set of name value pairs that can be used to deliver custom data from an App Directory to a launcher.
+     */
+    customConfig?: PropertiesObject;
+
+    /**
+     * The list of intents implemented by the Application
+     */
+    intents?: Intent[];
 }
 
-export import FDC3ApplicationConfig = FDC3.FDC3ApplicationConfig;
+/** App Image holder */
+export interface AppImage {
+    /**
+     * App Image URL.
+     */
+    url?: string;
+}
+
+/** Icon holder */
+export interface Icon {
+    /**
+     * Icon URL.
+     */
+    icon?: string;
+}
+
+/**
+ * An intent definition.
+ */
+export interface Intent {
+    /**
+     * The name of the intent to 'launch'. In this case the name of an Intent supported by an Application.
+     */
+    name: string;
+
+    /**
+     * An optional display name for the intent that may be used in UI instead of the name.
+     */
+    displayName?: string;
+
+    /**
+     * A comma separated list of the types of contexts the intent offered by the application can process, here the first part of the context type is the namespace e.g."fdc3.contact, org.symphony.contact".
+     */
+    contexts?: string[];
+
+    /**
+     * Custom configuration for the intent that may be required for a particular desktop agent.
+     */
+    customConfig?: object;
+}
 
 /** Generic object for passing properties, settings, etc., in the for of key/value pairs. */
 export interface PropertiesObject {

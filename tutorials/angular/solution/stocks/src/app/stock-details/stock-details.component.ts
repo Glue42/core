@@ -23,7 +23,7 @@ export class StockDetailsComponent implements OnInit, OnDestroy {
         this.glueStatus = this.glueService.glueStatus;
         this.stock = this.dataService.selectedStock;
 
-        if (this.glueStatus === "ready") {
+        if (this.glueStatus === "available") {
             this.stock = await this.glueService.getMyContext();
             this.glueSubscription = await this.glueService.subscribeToLivePrices(this.stock);
             this.glueService.subscribeToSharedContext().catch(console.log);

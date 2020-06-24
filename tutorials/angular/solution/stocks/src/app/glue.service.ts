@@ -14,7 +14,7 @@ export class GlueService {
     constructor(private readonly glueStore: Glue42Store, private _zone: NgZone, private readonly dataService: DataService) { }
 
     public get glueStatus(): GlueStatus {
-        return this.glueStore.initError ? "failed" : "ready";
+        return this.glueStore.initError ? "unavailable" : "available";
     }
 
     public onClientSelected(): Observable<Client> {

@@ -1,0 +1,10 @@
+{
+  "name": "js-tutorial",
+  "version": "1.0.0",
+  "description": "Glue42 Core JavaScript Tutorial",
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {}
+}

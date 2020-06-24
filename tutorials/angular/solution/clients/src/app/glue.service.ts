@@ -8,7 +8,7 @@ export class GlueService {
     constructor(private readonly glueStore: Glue42Store) { }
 
     public get glueStatus(): GlueStatus {
-        return this.glueStore.initError ? "failed" : "ready";
+        return this.glueStore.initError ? "unavailable" : "available";
     }
 
     public getAllChannels(): Promise<Channel[]> {
