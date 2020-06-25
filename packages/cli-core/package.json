@@ -1,6 +1,6 @@
 {
     "name": "@glue42/cli-core",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "description": "Glue42 Core development environment CLI",
     "main": "./dist/index.js",
     "license": "MIT",

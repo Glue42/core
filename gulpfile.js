@@ -9,7 +9,7 @@ const sync = require('./scripts/preversion/sync.js');
 
 const stableBranch = 'master';
 const releaseBranch = 'release';
-const ignored = ['.git', '.log', 'node_modules', '.lock', 'packages', '.md', 'package-lock'];
+const ignored = ['.git', '.log', 'node_modules', 'packages', '.md', 'package-lock', '.vscode'];
 const packagesDirectory = join(__dirname, '/packages/');
 let packagesDirNamesToRelease = [];
 let fullRelease = false;

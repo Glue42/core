@@ -13,17 +13,31 @@ export class ConfigController {
     public async composeCliConfig(process: NodeJS.Process): Promise<CliConfig> {
         const command = this.getCommand(process.argv);
 
-        const userConfig = await this.getUserDefinedConfig(process.cwd(), command);
+        const cwd = this.getCwd(process.argv);
 
-        const cliConfig = this.mergeDefaults(userConfig, process.cwd(), command);
+        const userConfig = await this.getUserDefinedConfig(cwd, command);
 
-        this.transFormAllToAbsolute(cliConfig, process.cwd());
+        const cliConfig = this.mergeDefaults(userConfig, cwd, command);
+
+        this.transFormAllToAbsolute(cliConfig, cwd);
 
         if (command.requiredConfig) {
             await this.validateExistence(cliConfig);
         }
         
         return cliConfig;
+    }
+
+    private getCwd(processArgv: string[]): string {
+
+        const userDefinedCwd = processArgv.find((arg) => arg.includes("--cwd"));
+
+        if (userDefinedCwd) {
+            const cwd = userDefinedCwd.slice(userDefinedCwd.indexOf("=") + 1);
+            return join(process.cwd(), cwd);
+        }
+
+        return process.cwd();
     }
 
     private async validateExistence(config: CliConfig): Promise<void> {
