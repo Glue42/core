@@ -1,6 +1,6 @@
 {
     "name": "@glue42/react-hooks",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "description": "React Hooks for Glue Web",
     "main": "dist/npm/index.js",
     "module": "dist/es/index.js",
@@ -41,7 +41,7 @@
         "react-dom": "^16.13.1"
     },
     "devDependencies": {
-        "@glue42/web": "^1.1.2",
+        "@glue42/web": "^1.2.0",
         "@testing-library/react-hooks": "^3.2.1",
         "@types/enzyme": "^3.10.5",
         "@types/enzyme-adapter-react-16": "^1.0.6",
