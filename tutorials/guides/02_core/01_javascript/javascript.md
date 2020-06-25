@@ -690,7 +690,7 @@ await window.GlueWeb({
 });
 ```
 
-Do this for all three applications, passing in the correct application name. The application name is used by the platform to map it to an application definition that is then accessible using `glue.appManager.myInstance.application`.
+Do this for all three applications, passing in the correct application name. The application name is used by the platform to map it to an application definition that is then accessible using `glue.appManager.myInstance.application`. For the mapping to work when the application is accessed directly using the URL and not Glue42 Core's APIs it is important that the application name provided to `GlueWeb` is the same as the application name defined inside the local/remote application definition of the application!
 
 Additionally we need to predefine our applications inside our Glue42 Core environment. We do this by adding the following configuration to the `glue.config.json`. After adding it restart the `gluec` by quitting it and running `gluec serve` again for the changes to take effect:
 

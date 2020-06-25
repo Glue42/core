@@ -10,7 +10,7 @@ Instance - a running copy of an application. The Application Management API prov
 
 To initialize the AppManager API inside of your application you need to:
 
-1. Pass `{ appManager: true }` together with the application name on initialization. The application name is used by the platform to map it to a local/remote application definition that is then accessible using `glue.appManager.myInstance.application` (see 2.):
+1. Pass `{ appManager: true }` together with the application name on initialization. The application name is used by the platform to map it to a local/remote application definition that is then accessible using `glue.appManager.myInstance.application` (see 2.). For the mapping to work it is important that the application name provided to `GlueWeb` is the same as the application name defined inside the local/remote application definition of the application!
 
 - Vanilla JS (*@glue42/web*) example:
 
@@ -33,7 +33,7 @@ Glue42Ng.forRoot({ factory: GlueWeb, config: { appManager: true, application: 'C
 ```
 
 2. Inside of your `glue.config.json` file you need to provide an `appManager` property that defines the application definitions (`localApplications`) *and*/*or* the remote sources of application definitions (`remoteSources`).
-The `remoteSources` of application will be fetched with a GET request at the provided pollingInterval (in milliseconds). The expected response is in following format:
+The `remoteSources` of application will be fetched with a GET request at the provided pollingInterval (in milliseconds). The expected response is in the following format:
 
 ```json
 {
