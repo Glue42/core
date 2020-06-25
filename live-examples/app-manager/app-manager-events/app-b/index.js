@@ -23,11 +23,6 @@ function subscribeToAppManagerEvents() {
   });
 
   glue.appManager.onInstanceStopped(instance => {
-    const instanceId = instance.id;
-
-    // When it is my window - do not log. Keep the logs list clean.
-    if (!isMyInstance(instanceId)) {
-      logger.info(`Instance with id "${instanceId}" stopped.`);
-    }
+    logger.info(`Instance with id "${instance.id}" stopped.`);
   });
 }

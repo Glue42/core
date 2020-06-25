@@ -12,18 +12,6 @@
   "appManager": {
     "localApplications": [
       {
-        "name": "Application A",
-        "details": {
-          "url": "https://hu9ve.csb.app/app-a/index.html"
-        }
-      },
-      {
-        "name": "Application B",
-        "details": {
-          "url": "https://hu9ve.csb.app/app-b/index.html"
-        }
-      },
-      {
         "name": "Application C",
         "details": {
           "url": "https://hu9ve.csb.app/app-c/index.html"

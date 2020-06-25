@@ -18,7 +18,6 @@ async function onStopClicked(instanceId) {
     .find(instance => instance.id === instanceId);
   try {
     await instanceToStop.stop();
-    logger.info(`Stopped Instance "${instanceId}"!`);
   } catch (error) {
     const message = `Failed to stop Instance "${instanceId}"!`;
     console.error(message);
@@ -42,8 +41,10 @@ window
       rerenderApplications(applications);
     });
 
-    glue.appManager.onInstanceStopped(() => {
+    glue.appManager.onInstanceStopped((instance) => {
       rerenderApplications(applications);
+
+      logger.info(`Instance with id "${instance.id}" stopped.`);
     });
 
     // Initial applications rendering.
