@@ -7,16 +7,14 @@ export class RemoteInstance implements Glue42Web.AppManager.Instance {
     constructor(public id: string, public application: Glue42Web.AppManager.Application, private control: Control, public context: object, public agm: Glue42Web.Interop.Instance) {
     }
 
-    public stop(): Promise<void> {
-        return this.callControl("stop", {}, false)
-            .then(() => {
-                // stop() is expected to return Promise<void> and not Promise<InvocationResult>
-            })
-            .catch((e) => {
-                if (e.message !== this.WINDOW_DID_NOT_HAVE_TIME_TO_RESPOND) {
-                    throw new Error(e);
-                }
-            });
+    public async stop(): Promise<void> {
+        try {
+            await this.callControl("stop", {}, false);
+        } catch (error) {
+            if (error.message !== this.WINDOW_DID_NOT_HAVE_TIME_TO_RESPOND) {
+                throw new Error(error);
+            }
+        }
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
