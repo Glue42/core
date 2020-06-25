@@ -4,7 +4,7 @@ import { default as CallbackRegistryFactory, CallbackRegistry, UnsubscribeFuncti
 import { AppProps } from "./types";
 
 export class Application implements Glue42Web.AppManager.Application {
-    public _url: string | undefined;
+    public _url: string;
     private _registry: CallbackRegistry = CallbackRegistryFactory();
 
     constructor(private _appManager: Glue42Web.AppManager.API, private _props: AppProps, private _windows: Windows) {

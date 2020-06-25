@@ -22,10 +22,8 @@ export const initStartupContext = async (my: LocalWebWindow, interop: Glue42Web.
             my.setContext(result.returned.context);
             my.name = result.returned.name;
             my.parent = result.returned.parent;
-            if (typeof instance !== "undefined") {
-                instance.startedByScript = true;
-                instance.context = result.returned.context;
-            }
+            instance.startedByScript = true;
+            instance.context = result.returned.context;
         }
     }
 };

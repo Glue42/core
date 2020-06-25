@@ -98,8 +98,36 @@ A `RemoteSource` has the following properties:
 
 | Property | Type | Description | Required | Default |
 |----------|------|-------------|----------|---------|
-| `url` | `string` | The url of the remote source of application definitions. The remote source needs to follow the [FDC3 AppDirectory standard](https://github.com/finos/FDC3). The applications provided by the remote need to be of type Glue42CoreApplicationConfig. | Yes | `-` |
+| `url` | `string` | The url of the remote source of application definitions. The applications provided by the remote need to be of type Glue42CoreApplicationConfig. | Yes | `-` |
 | `pollingInterval` | `number` | The polling interval for fetching from the remote source. | No | `3000` |
+
+The `remoteSources` of application will be fetched with a GET request at the provided pollingInterval (in milliseconds). The expected response is in following format:
+
+```json
+{
+    "message": "OK",
+    "applications": [
+        {
+            "name": "Clients",
+            "details": {
+                "url": "http://localhost:4242/clients"
+            }
+        },
+        {
+            "name": "Stocks",
+            "details": {
+                "url": "http://localhost:4242/stocks",
+                "left": 0,
+                "top": 0,
+                "width": 860,
+                "height": 600
+            }
+        }
+    ]
+}
+```
+
+If the response contains invalid application definitions a warning will be displayed inside the application's console. The application name serves as an identifier and needs to be unique across all application definitions.
 
 Below is an example configuration.
 

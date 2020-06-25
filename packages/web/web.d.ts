@@ -768,6 +768,9 @@ export namespace Glue42Web {
             /** The starting context of the instance. */
             context: object;
 
+            /** Interop instance. Use this to invoke Interop methods for that instance. */
+            agm: Interop.Instance;
+
             /** Stops the instance.
              * @returns Promise that resolves when the instance has been stopped.
             */

@@ -8,6 +8,7 @@ import { LocalInstance } from "./my";
 import { Control } from "../control/control";
 import { Windows } from "../windows/main";
 import { AppProps } from "./types";
+import { fdc3ApplicationConfigDecoder, glue42CoreApplicationConfigDecoder } from "../shared/decoders/app-manager";
 
 export class AppManager implements Glue42Web.AppManager.API {
     private _apps: {
@@ -17,7 +18,7 @@ export class AppManager implements Glue42Web.AppManager.API {
             appProps: AppProps;
         };
     } = {};
-    private _myInstance: LocalInstance | undefined;
+    private _myInstance: LocalInstance;
     private _instances: RemoteInstance[] = [];
     private registry: CallbackRegistry = CallbackRegistryFactory();
 
@@ -26,6 +27,10 @@ export class AppManager implements Glue42Web.AppManager.API {
     private LOCAL_SOURCE = "LOCAL_SOURCE";
 
     constructor(private windows: Windows, private interop: Glue42Web.Interop.API, private control: Control, private config?: AppManagerConfig, private appName?: string) {
+        const myId = interop.instance.instance as string;
+
+        this._myInstance = new LocalInstance(myId, this.control, this, this.interop.instance);
+
         if (config?.remoteSources) {
             this.subscribeForRemoteApplications(config.remoteSources);
         }
@@ -94,50 +99,6 @@ export class AppManager implements Glue42Web.AppManager.API {
         return this.registry.add("instanceStopped", callback);
     }
 
-    private validateFDC3ApplicationConfig(application: FDC3ApplicationConfig): boolean {
-        if (typeof application.name !== "string" ||
-            (typeof application.title !== "undefined" && typeof application.title !== "string") ||
-            (typeof application.version !== "undefined" && typeof application.version !== "string") ||
-            !application.appId ||
-            typeof application.appId !== "string" ||
-            typeof application.manifest !== "object" ||
-            typeof application.manifestType !== "string" ||
-            (typeof application.tooltip !== "undefined" && typeof application.tooltip !== "string") ||
-            (typeof application.description !== "undefined" && typeof application.description !== "string") ||
-            (typeof application.contactEmail !== "undefined" && typeof application.contactEmail !== "string") ||
-            (typeof application.supportEmail !== "undefined" && typeof application.supportEmail !== "string") ||
-            (typeof application.publisher !== "undefined" && typeof application.publisher !== "string") ||
-            (typeof application.images !== "undefined" && (!Array.isArray(application.images) || application.images.some((image) => typeof image.url !== "string"))) ||
-            (typeof application.icons !== "undefined" && (!Array.isArray(application.icons) || application.icons.some((icon) => typeof icon.icon !== "string"))) ||
-            (typeof application.intents !== "undefined" && (!Array.isArray(application.intents) || application.intents.some((intent) => typeof intent.name !== "string" ||
-                (typeof intent.displayName !== "undefined" && typeof intent.displayName !== "string") ||
-                (typeof intent.contexts !== "undefined" && (!Array.isArray(intent.contexts) || intent.contexts.some((intentContext) => typeof intentContext !== "string"))))))
-        ) {
-            return false;
-        }
-
-        return true;
-    }
-
-    private validateGlue42CoreApplicationConfig(application: Glue42CoreApplicationConfig): boolean {
-        if (typeof application.name !== "string" ||
-            (typeof application.title !== "undefined" && typeof application.title !== "string") ||
-            (typeof application.version !== "undefined" && typeof application.version !== "string") ||
-            typeof application.details !== "object" ||
-            typeof application.details.url !== "string" ||
-            (typeof application.details.top !== "undefined" && typeof application.details.top !== "number") ||
-            (typeof application.details.left !== "undefined" && typeof application.details.left !== "number") ||
-            (typeof application.details.width !== "undefined" && typeof application.details.width !== "number") ||
-            (typeof application.details.height !== "undefined" && typeof application.details.height !== "number") ||
-            (typeof application.details.relativeTo !== "undefined" && typeof application.details.relativeTo !== "string") ||
-            (typeof application.details.relativeDirection !== "undefined" && !["top", "left", "right", "bottom"].includes(application.details.relativeDirection))
-        ) {
-            return false;
-        }
-
-        return true;
-    }
-
     private getValidatedApplications(applications: Array<Glue42CoreApplicationConfig | FDC3ApplicationConfig>): Array<Glue42CoreApplicationConfig | FDC3ApplicationConfig> {
         const verifiedApplications = applications.filter((application) => {
             const isFDC3App = typeof (application as FDC3ApplicationConfig).manifest !== "undefined";
@@ -145,9 +106,9 @@ export class AppManager implements Glue42Web.AppManager.API {
             let isValid: boolean;
 
             if (isFDC3App) {
-                isValid = this.validateFDC3ApplicationConfig(application as FDC3ApplicationConfig);
+                isValid = fdc3ApplicationConfigDecoder.run(application as FDC3ApplicationConfig).ok;
             } else {
-                isValid = this.validateGlue42CoreApplicationConfig(application as Glue42CoreApplicationConfig);
+                isValid = glue42CoreApplicationConfigDecoder.run(application as Glue42CoreApplicationConfig).ok;
             }
 
             if (!isValid) {
@@ -276,17 +237,17 @@ export class AppManager implements Glue42Web.AppManager.API {
         }
     }
 
-    private populateMyInstance(): void {
-        if (this.appName && this._apps[this.appName] && this._apps[this.appName].application) {
-            const myId = this.interop.instance.instance as string;
+    private tryPopulateMyInstanceApplication(): void {
+        if (this.appName) {
+            const myApp = Object.values(this._apps).find((app) => app.application.name === this.appName)?.application;
 
-            const myApp = this._apps[this.appName].application;
+            if (myApp) {
+                if (myApp.title) {
+                    document.title = myApp.title;
+                }
 
-            if (myApp.title) {
-                document.title = myApp.title;
+                this._myInstance.application = myApp;
             }
-
-            this._myInstance = new LocalInstance(myId, myApp, this.control, this);
         }
     }
 
@@ -301,8 +262,8 @@ export class AppManager implements Glue42Web.AppManager.API {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         this.handleAppsRemoved(newlyAddedApplications, source);
 
-        if (!this._myInstance) {
-            this.populateMyInstance();
+        if (!this._myInstance.application) {
+            this.tryPopulateMyInstanceApplication();
         }
     }
 
@@ -325,7 +286,7 @@ export class AppManager implements Glue42Web.AppManager.API {
         const appWindow = this.windows.list().find((window) => window.id === server.windowId);
         const context = await appWindow?.getContext();
 
-        return new RemoteInstance(id, app, this.control, context);
+        return new RemoteInstance(id, app, this.control, context, server);
     }
 
     private trackInstanceLifetime(): void {

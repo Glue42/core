@@ -4,7 +4,7 @@ import { Control } from "../control/control";
 export class RemoteInstance implements Glue42Web.AppManager.Instance {
     private WINDOW_DID_NOT_HAVE_TIME_TO_RESPOND = "Peer has left while waiting for result";
 
-    constructor(public id: string, public application: Glue42Web.AppManager.Application, private control: Control, public context: object) {
+    constructor(public id: string, public application: Glue42Web.AppManager.Application, private control: Control, public context: object, public agm: Glue42Web.Interop.Instance) {
     }
 
     public stop(): Promise<void> {

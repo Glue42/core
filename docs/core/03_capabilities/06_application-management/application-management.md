@@ -10,7 +10,7 @@ Instance - a running copy of an application. The Application Management API prov
 
 To initialize the AppManager API inside of your application you need to:
 
-1. Pass `{ appManager: true }` together with the application name on initialization:
+1. Pass `{ appManager: true }` together with the application name on initialization. The application name is used by the platform to map it to a local/remote application definition that is then accessible using `glue.appManager.myInstance.application` (see 2.):
 
 - Vanilla JS (*@glue42/web*) example:
 
@@ -32,7 +32,34 @@ await window.GlueWeb({ appManager: true, application: 'Clients' });
 Glue42Ng.forRoot({ factory: GlueWeb, config: { appManager: true, application: 'Clients' } })
 ```
 
-2. Inside of your `glue.config.json` file you need to provide a `appManager` property that defines the local application definitions as well as the remote sources of application definitions. You can read more about it inside of the [configuration section](../../core-concepts/environment/overview/index.html#configuration_file).
+2. Inside of your `glue.config.json` file you need to provide an `appManager` property that defines the application definitions (`localApplications`) *and*/*or* the remote sources of application definitions (`remoteSources`).
+The `remoteSources` of application will be fetched with a GET request at the provided pollingInterval (in milliseconds). The expected response is in following format:
+
+```json
+{
+    "message": "OK",
+    "applications": [
+        {
+            "name": "Clients",
+            "details": {
+                "url": "http://localhost:4242/clients"
+            }
+        },
+        {
+            "name": "Stocks",
+            "details": {
+                "url": "http://localhost:4242/stocks",
+                "left": 0,
+                "top": 0,
+                "width": 860,
+                "height": 600
+            }
+        }
+    ]
+}
+```
+
+You can read more about it inside of the [configuration section](../../core-concepts/environment/overview/index.html#configuration_file).
 
 Below is an example configuration.
 
