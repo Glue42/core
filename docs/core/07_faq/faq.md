@@ -50,15 +50,15 @@ Go to the [Quick Start](../getting-started/quick-start/index.html) section to se
 
 - #### Is there a more in-depth tutorial for Glue42 Core?	
 
-Yes, there are complete and detailed [JavaScript](../../tutorials/vanilla-js/index.html), [React](../../tutorials/react/index.html) and [Angular](../../tutorials/angular/index.html) tutorials about **Glue42 Core**.	
+Yes, there are complete and detailed [JavaScript](../../tutorials/core/javascript/index.html), [React](../../tutorials/core/react/index.html) and [Angular](../../tutorials/core/angular/index.html) tutorials about **Glue42 Core**.	
 
 - #### I am a React developer. Is there any React documentation/tutorial about Glue42 Core?	
 
-Yes, there is [React documentation](../core-concepts/glue42-client/react/index.html) and a [React tutorial](../../tutorials/react/index.html) available for **Glue42 Core**.	
+Yes, there is [React documentation](../core-concepts/glue42-client/react/index.html) and a [React tutorial](../../tutorials/core/react/index.html) available for **Glue42 Core**.	
 
 - #### I am an Angular developer. Is there any Angular documentation/tutorial about Glue42 Core?	
 
-Yes, there is [Angular documentation](../core-concepts/glue42-client/angular/index.html) and an [Angular tutorial](../../tutorials/angular/index.html) available for **Glue42 Core**.	
+Yes, there is [Angular documentation](../core-concepts/glue42-client/angular/index.html) and an [Angular tutorial](../../tutorials/core/angular/index.html) available for **Glue42 Core**.	
 
 - #### What is the difference between Glue42 Enterprise and Glue42 Core?	
 
