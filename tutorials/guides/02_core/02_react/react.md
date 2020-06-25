@@ -32,7 +32,7 @@ The tutorial code is located in the **Glue42 Core** [**GitHub repo**](https://gi
         /solution
         /start
     /guides
-        /core
+        /02_core
             /01_javascript
             /02_react
             /03_angular
