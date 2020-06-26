@@ -16,7 +16,8 @@
         "tutorials/*",
         "packages/web/**/*.js",
         "packages/core/**/*.js",
-        "docs/*"
+        "docs/*",
+        "e2e/*"
     ],
     "rules": {
         "indent": [
@@ -31,6 +32,13 @@
             "error",
             "always"
         ]
+    },
+    "globals": {
+        "expect": true,
+        "glue": true,
+        "glueReady": true,
+        "gtfReady": true,
+        "GlueWeb": true
     },
     "overrides": [
         {

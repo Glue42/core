@@ -13,7 +13,12 @@
             "disableCache": true
         },
         "apps": [],
-        "sharedAssets": []
+        "sharedAssets": [
+            {
+                "route": "/glue/glue.layouts.json",
+                "path": "./glue/glue.layouts.json"
+            }
+        ]
     },
     "logging": "default"
 }

@@ -81,10 +81,20 @@
         }
     }
 
-    var version = "1.1.2";
+    var version = "1.2.1";
 
-    function createCommonjsModule(fn, module) {
-    	return module = { exports: {} }, fn(module, module.exports), module.exports;
+    function createCommonjsModule(fn, basedir, module) {
+    	return module = {
+    	  path: basedir,
+    	  exports: {},
+    	  require: function (path, base) {
+          return commonjsRequire(path, (base === undefined || base === null) ? module.path : base);
+        }
+    	}, fn(module, module.exports), module.exports;
+    }
+
+    function commonjsRequire () {
+    	throw new Error('Dynamic requires are not currently supported by @rollup/plugin-commonjs');
     }
 
     // Found this seed-based random generator somewhere
@@ -406,11 +416,6 @@
     module.exports.characters = characters;
     module.exports.isValid = isValid;
     });
-    var lib_1 = lib.generate;
-    var lib_2 = lib.seed;
-    var lib_3 = lib.worker;
-    var lib_4 = lib.characters;
-    var lib_5 = lib.isValid;
 
     var shortid = lib;
 
@@ -597,58 +602,6 @@
         return RemoteWebWindow;
     }());
 
-    var Control = (function () {
-        function Control() {
-            this.callbacks = {};
-        }
-        Control.prototype.start = function (interop, logger) {
-            var _this = this;
-            this.interop = interop;
-            this.logger = logger;
-            this.interop.register(Control.CONTROL_METHOD, function (arg) { return __awaiter(_this, void 0, void 0, function () {
-                var command, result, callback;
-                return __generator(this, function (_a) {
-                    command = arg;
-                    logger.trace("received control command " + JSON.stringify(command));
-                    if (command.domain === "windows") {
-                        if (!this.myWindow) {
-                            return [2];
-                        }
-                        result = this.myWindow[command.command].call(this.myWindow, command.args);
-                        if (command.skipResult) {
-                            return [2, {}];
-                        }
-                        else {
-                            return [2, result];
-                        }
-                    }
-                    if (command.domain === "layouts") {
-                        callback = this.callbacks[command.domain];
-                        if (callback) {
-                            callback(command);
-                        }
-                    }
-                    return [2];
-                });
-            }); });
-        };
-        Control.prototype.send = function (command, target) {
-            if (!this.interop) {
-                throw new Error("Control not started");
-            }
-            this.logger.info("sending control command " + JSON.stringify(command) + " to " + JSON.stringify(target) + "}");
-            return this.interop.invoke(Control.CONTROL_METHOD, command, target);
-        };
-        Control.prototype.subscribe = function (domain, callback) {
-            this.callbacks[domain] = callback;
-        };
-        Control.prototype.setLocalWindow = function (window) {
-            this.myWindow = window;
-        };
-        Control.CONTROL_METHOD = "GC.Control";
-        return Control;
-    }());
-
     function createRegistry(options) {
         if (options && options.errorHandling
             && typeof options.errorHandling !== "function"
@@ -740,6 +693,88 @@
     }
     createRegistry.default = createRegistry;
     var lib$1 = createRegistry;
+
+    var Control = (function () {
+        function Control() {
+            this.callbacks = {};
+            this.registry = lib$1();
+        }
+        Control.prototype.start = function (interop, logger) {
+            return __awaiter(this, void 0, void 0, function () {
+                var _this = this;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            this.interop = interop;
+                            this.logger = logger;
+                            return [4, this.interop.register(Control.CONTROL_METHOD, function (arg) { return __awaiter(_this, void 0, void 0, function () {
+                                    var command, result, result, callback;
+                                    return __generator(this, function (_a) {
+                                        command = arg;
+                                        logger.trace("received control command " + JSON.stringify(command));
+                                        if (command.domain === "windows") {
+                                            if (!this.myWindow) {
+                                                return [2];
+                                            }
+                                            result = this.myWindow[command.command].call(this.myWindow, command.args);
+                                            if (command.skipResult) {
+                                                return [2, {}];
+                                            }
+                                            else {
+                                                return [2, result];
+                                            }
+                                        }
+                                        if (command.domain === "appManager") {
+                                            if (!this.myInstance) {
+                                                return [2];
+                                            }
+                                            result = this.myInstance[command.command].call(this.myInstance, command.args);
+                                            if (command.skipResult) {
+                                                return [2, {}];
+                                            }
+                                            else {
+                                                return [2, result];
+                                            }
+                                        }
+                                        if (command.domain === "layouts") {
+                                            callback = this.callbacks[command.domain];
+                                            if (callback) {
+                                                callback(command);
+                                            }
+                                        }
+                                        return [2];
+                                    });
+                                }); })];
+                        case 1:
+                            _a.sent();
+                            this.registry.execute("started");
+                            return [2];
+                    }
+                });
+            });
+        };
+        Control.prototype.send = function (command, target) {
+            if (!this.interop) {
+                throw new Error("Control not started");
+            }
+            this.logger.info("sending control command " + JSON.stringify(command) + " to " + JSON.stringify(target) + "}");
+            return this.interop.invoke(Control.CONTROL_METHOD, command, target);
+        };
+        Control.prototype.subscribe = function (domain, callback) {
+            this.callbacks[domain] = callback;
+        };
+        Control.prototype.setLocalWindow = function (window) {
+            this.myWindow = window;
+        };
+        Control.prototype.setLocalInstance = function (instance) {
+            this.myInstance = instance;
+        };
+        Control.prototype.onStart = function (callback) {
+            return this.registry.add("started", callback);
+        };
+        Control.CONTROL_METHOD = "GC.Control";
+        return Control;
+    }());
 
     var LocalWebWindow = (function () {
         function LocalWebWindow(id, name, window, control, interop) {
@@ -891,6 +926,7 @@
         return ChildWebWindow;
     }(RemoteWebWindow));
 
+    var createMethodName = function (id) { return "\"GC.Wnd.\"" + id; };
     var registerChildStartupContext = function (interop, parent, id, name, options) {
         var _a;
         var methodName = createMethodName(id);
@@ -901,7 +937,7 @@
         };
         interop.register(methodName, function () { return startingContext; });
     };
-    var initStartupContext = function (my, interop) { return __awaiter(void 0, void 0, void 0, function () {
+    var initStartupContext = function (my, interop, instance) { return __awaiter(void 0, void 0, void 0, function () {
         var methodName, result;
         return __generator(this, function (_a) {
             switch (_a.label) {
@@ -915,13 +951,16 @@
                         my.setContext(result.returned.context);
                         my.name = result.returned.name;
                         my.parent = result.returned.parent;
+                        if (instance) {
+                            instance.startedByScript = true;
+                            instance.context = result.returned.context;
+                        }
                     }
                     _a.label = 2;
                 case 2: return [2];
             }
         });
     }); };
-    var createMethodName = function (id) { return "\"GC.Wnd.\"" + id; };
 
     var Windows = (function () {
         function Windows(interop, control) {
@@ -1070,231 +1109,35 @@
         return Windows;
     }());
 
-    var LocalStorage = (function () {
-        function LocalStorage() {
-        }
-        LocalStorage.prototype.getAll = function () {
-            var obj = this.getObjectFromLocalStorage();
-            return Object.values(obj);
-        };
-        LocalStorage.prototype.get = function (name, type) {
-            var obj = this.getObjectFromLocalStorage();
-            var key = this.getKey(name, type);
-            return obj[key];
-        };
-        LocalStorage.prototype.save = function (layout) {
-            var obj = this.getObjectFromLocalStorage();
-            var key = this.getKey(layout.name, layout.type);
-            obj[key] = layout;
-            this.setObjectToLocalStorage(obj);
-            return Promise.resolve(layout);
-        };
-        LocalStorage.prototype.remove = function (name, type) {
-            var obj = this.getObjectFromLocalStorage();
-            var key = this.getKey(name, type);
-            delete obj[key];
-            return Promise.resolve();
-        };
-        LocalStorage.prototype.clear = function () {
-            this.setObjectToLocalStorage({});
-            return Promise.resolve();
-        };
-        LocalStorage.prototype.getObjectFromLocalStorage = function () {
-            var values = window.localStorage.getItem(LocalStorage.KEY);
-            if (values) {
-                return JSON.parse(values);
-            }
-            return {};
-        };
-        LocalStorage.prototype.setObjectToLocalStorage = function (obj) {
-            window.localStorage.setItem(LocalStorage.KEY, JSON.stringify(obj));
-        };
-        LocalStorage.prototype.getKey = function (name, type) {
-            return type + "_" + name;
-        };
-        LocalStorage.KEY = "G0_layouts";
-        return LocalStorage;
-    }());
-
     var Layouts = (function () {
-        function Layouts(windows, interop, logger, control, config) {
-            var _a, _b;
-            this.windows = windows;
-            this.interop = interop;
-            this.logger = logger;
-            this.control = control;
-            this.storage = new LocalStorage();
-            this.registerRequestMethods();
-            this.control.subscribe("layouts", this.handleControlMessage.bind(this));
-            this.autoSaveContext = (_b = (_a = config === null || config === void 0 ? void 0 : config.layouts) === null || _a === void 0 ? void 0 : _a.autoSaveWindowContext) !== null && _b !== void 0 ? _b : false;
+        function Layouts(controller) {
+            this.controller = controller;
         }
-        Layouts.prototype.list = function () {
-            return this.storage.getAll();
+        Layouts.prototype.getAll = function (type) {
+            return this.controller.getAll(type);
         };
-        Layouts.prototype.save = function (layoutOptions) {
+        Layouts.prototype.get = function (name, type) {
+            return this.controller.get(name, type);
+        };
+        Layouts.prototype.export = function (layoutType) {
             return __awaiter(this, void 0, void 0, function () {
-                var openedWindows, components;
                 return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!layoutOptions.name) {
-                                return [2, Promise.reject("missing name for layout " + JSON.stringify(layoutOptions))];
-                            }
-                            openedWindows = this.windows.getChildWindows().map(function (w) { return w.id; });
-                            return [4, this.getRemoteWindowsInfo(openedWindows)];
-                        case 1:
-                            components = _a.sent();
-                            components.push(this.getLocalLayoutComponent(layoutOptions.context, true));
-                            return [2, this.storage.save({
-                                    type: "Global",
-                                    name: layoutOptions.name,
-                                    components: components,
-                                    context: layoutOptions.context || {},
-                                    metadata: layoutOptions.metadata || {}
-                                })];
-                    }
+                    return [2, this.controller.export(layoutType)];
                 });
             });
+        };
+        Layouts.prototype.import = function (layout) {
+            return this.controller.import(layout);
+        };
+        Layouts.prototype.save = function (layout) {
+            return this.controller.save(layout);
         };
         Layouts.prototype.restore = function (options) {
-            return __awaiter(this, void 0, void 0, function () {
-                var layout;
-                var _this = this;
-                return __generator(this, function (_a) {
-                    layout = this.list().find(function (l) { return l.name === options.name && l.type === "Global"; });
-                    if (!layout) {
-                        throw new Error("can not find layout with name " + options.name);
-                    }
-                    layout.components.forEach(function (c) {
-                        if (c.type === "window") {
-                            var state = c.state;
-                            if (state.main) {
-                                return;
-                            }
-                            var newWindowOptions = __assign(__assign({}, state.bounds), { context: state.context });
-                            _this.windows.open(state.name, state.url, newWindowOptions);
-                        }
-                    });
-                    return [2];
-                });
-            });
+            return this.controller.restore(options);
         };
         Layouts.prototype.remove = function (type, name) {
-            this.storage.remove(name, type);
-            return Promise.resolve();
+            return this.controller.remove(type, name);
         };
-        Layouts.prototype.onSaveRequested = function (callback) {
-            var _this = this;
-            this.getLocalInfoCallback = callback;
-            return function () {
-                _this.getLocalInfoCallback = undefined;
-            };
-        };
-        Layouts.prototype.getLocalLayoutComponent = function (context, main) {
-            if (main === void 0) { main = false; }
-            var requestResult;
-            var my = this.windows.my();
-            try {
-                if (this.autoSaveContext) {
-                    requestResult = {
-                        windowContext: my.getContextSync()
-                    };
-                }
-                if (this.getLocalInfoCallback) {
-                    requestResult = this.getLocalInfoCallback(context);
-                }
-            }
-            catch (err) {
-                this.logger.warn("onSaveRequested - error getting data from user function - " + err);
-            }
-            return {
-                type: "window",
-                componentType: "application",
-                state: {
-                    name: my.name,
-                    context: (requestResult === null || requestResult === void 0 ? void 0 : requestResult.windowContext) || {},
-                    bounds: my.getBoundsSync(),
-                    url: window.document.location.href,
-                    id: my.id,
-                    parentId: my.parent,
-                    main: main
-                }
-            };
-        };
-        Layouts.prototype.registerRequestMethods = function () {
-            var _this = this;
-            this.interop.register(Layouts.SaveContextMethodName, function (args) {
-                return _this.getLocalLayoutComponent(args);
-            });
-        };
-        Layouts.prototype.handleControlMessage = function (command) {
-            return __awaiter(this, void 0, void 0, function () {
-                var layoutCommand, args, components;
-                var _this = this;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            layoutCommand = command;
-                            if (!(layoutCommand.command === "saveLayoutAndClose")) return [3, 3];
-                            args = layoutCommand.args;
-                            return [4, this.getRemoteWindowsInfo(args.childWindows)];
-                        case 1:
-                            components = _a.sent();
-                            components.push(args.parentInfo);
-                            return [4, this.storage.save({
-                                    type: "Global",
-                                    name: args.layoutName,
-                                    components: components,
-                                    context: args.context || {},
-                                    metadata: args.metadata || {}
-                                })];
-                        case 2:
-                            _a.sent();
-                            args.childWindows.forEach(function (cw) {
-                                var _a;
-                                (_a = _this.windows.findById(cw)) === null || _a === void 0 ? void 0 : _a.close();
-                            });
-                            _a.label = 3;
-                        case 3: return [2];
-                    }
-                });
-            });
-        };
-        Layouts.prototype.getRemoteWindowsInfo = function (windows) {
-            return __awaiter(this, void 0, void 0, function () {
-                var promises, _loop_1, this_1, _i, windows_1, id, responses;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            promises = [];
-                            _loop_1 = function (id) {
-                                var interopServer = this_1.interop.servers().find(function (s) { return s.windowId === id; });
-                                if (!interopServer || !interopServer.getMethods) {
-                                    return "continue";
-                                }
-                                var methods = interopServer.getMethods();
-                                if (methods.find(function (m) { return m.name === Layouts.SaveContextMethodName; })) {
-                                    try {
-                                        promises.push(this_1.interop.invoke(Layouts.SaveContextMethodName, {}, { windowId: id }));
-                                    }
-                                    catch (_a) {
-                                    }
-                                }
-                            };
-                            this_1 = this;
-                            for (_i = 0, windows_1 = windows; _i < windows_1.length; _i++) {
-                                id = windows_1[_i];
-                                _loop_1(id);
-                            }
-                            return [4, Promise.all(promises)];
-                        case 1:
-                            responses = _a.sent();
-                            return [2, responses.map(function (response) { return response.returned; })];
-                    }
-                });
-            });
-        };
-        Layouts.SaveContextMethodName = "T42.HC.GetSaveContext";
         return Layouts;
     }());
 
@@ -1581,6 +1424,1321 @@
         return Channels;
     }());
 
+    var fetchTimeout = function (url, timeoutMilliseconds) {
+        if (timeoutMilliseconds === void 0) { timeoutMilliseconds = 1000; }
+        return new Promise(function (resolve, reject) {
+            var timeoutHit = false;
+            var timeout = setTimeout(function () {
+                timeoutHit = true;
+                reject(new Error("Fetch request for: " + url + " timed out at: " + timeoutMilliseconds + " milliseconds"));
+            }, timeoutMilliseconds);
+            fetch(url)
+                .then(function (response) {
+                if (!timeoutHit) {
+                    clearTimeout(timeout);
+                    resolve(response);
+                }
+            })
+                .catch(function (err) {
+                if (!timeoutHit) {
+                    clearTimeout(timeout);
+                    reject(err);
+                }
+            });
+        });
+    };
+
+    var Application = (function () {
+        function Application(_appManager, _props, _windows) {
+            var _this = this;
+            var _a, _b;
+            this._appManager = _appManager;
+            this._props = _props;
+            this._windows = _windows;
+            this._registry = lib$1();
+            var url = typeof ((_a = _props === null || _props === void 0 ? void 0 : _props.userProperties) === null || _a === void 0 ? void 0 : _a.manifest) !== "undefined" ? JSON.parse(_props === null || _props === void 0 ? void 0 : _props.userProperties.manifest).url : (_b = _props === null || _props === void 0 ? void 0 : _props.userProperties) === null || _b === void 0 ? void 0 : _b.details.url;
+            this._url = url;
+            _appManager.onInstanceStarted(function (instance) {
+                if (instance.application.name === _this.name) {
+                    _this._registry.execute("instanceStarted", instance);
+                }
+            });
+            _appManager.onInstanceStopped(function (instance) {
+                if (instance.application.name === _this.name) {
+                    _this._registry.execute("instanceStopped", instance);
+                }
+            });
+        }
+        Object.defineProperty(Application.prototype, "name", {
+            get: function () {
+                return this._props.name;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Application.prototype, "title", {
+            get: function () {
+                return this._props.title || "";
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Application.prototype, "version", {
+            get: function () {
+                return this._props.version || "";
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Application.prototype, "userProperties", {
+            get: function () {
+                return this._props.userProperties || {};
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Application.prototype, "instances", {
+            get: function () {
+                var _this = this;
+                return this._appManager.instances().filter(function (instance) { return instance.application.name === _this.name; });
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Application.prototype.start = function (context, options) {
+            var _this = this;
+            return new Promise(function (resolve, reject) {
+                var _a, _b;
+                var unsubscribeFunc;
+                var timeoutId = setTimeout(function () {
+                    unsubscribeFunc();
+                    reject("Application \"" + _this.name + "\" start timeout!");
+                }, 3000);
+                unsubscribeFunc = _this._appManager.onInstanceStarted(function (instance) {
+                    if (instance.application.name === _this.name) {
+                        clearTimeout(timeoutId);
+                        unsubscribeFunc();
+                        resolve(instance);
+                    }
+                });
+                var openOptions = __assign(__assign(__assign({}, (_b = (_a = _this._props) === null || _a === void 0 ? void 0 : _a.userProperties) === null || _b === void 0 ? void 0 : _b.details), options), { context: context || (options === null || options === void 0 ? void 0 : options.context) });
+                if (!_this._url) {
+                    throw new Error("Application " + _this.name + " doesn't have a URL.");
+                }
+                _this._windows.open(_this.name, _this._url, openOptions);
+            });
+        };
+        Application.prototype.onInstanceStarted = function (callback) {
+            this._registry.add("instanceStarted", callback);
+        };
+        Application.prototype.onInstanceStopped = function (callback) {
+            this._registry.add("instanceStopped", callback);
+        };
+        Application.prototype.updateFromProps = function (props) {
+            var _this = this;
+            var _a, _b;
+            var url = typeof ((_a = props === null || props === void 0 ? void 0 : props.userProperties) === null || _a === void 0 ? void 0 : _a.manifest) !== "undefined" ? JSON.parse(props === null || props === void 0 ? void 0 : props.userProperties.manifest).url : (_b = props === null || props === void 0 ? void 0 : props.userProperties) === null || _b === void 0 ? void 0 : _b.details.url;
+            this._url = url;
+            Object.keys(props).forEach(function (key) {
+                _this._props[key] = props[key];
+            });
+        };
+        return Application;
+    }());
+
+    var RemoteInstance = (function () {
+        function RemoteInstance(id, application, control, context, agm) {
+            this.id = id;
+            this.application = application;
+            this.control = control;
+            this.context = context;
+            this.agm = agm;
+            this.WINDOW_DID_NOT_HAVE_TIME_TO_RESPOND = "Peer has left while waiting for result";
+        }
+        RemoteInstance.prototype.stop = function () {
+            return __awaiter(this, void 0, void 0, function () {
+                var error_1;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            _a.trys.push([0, 2, , 3]);
+                            return [4, this.callControl("stop", {}, false)];
+                        case 1:
+                            _a.sent();
+                            return [3, 3];
+                        case 2:
+                            error_1 = _a.sent();
+                            if (error_1.message !== this.WINDOW_DID_NOT_HAVE_TIME_TO_RESPOND) {
+                                throw new Error(error_1);
+                            }
+                            return [3, 3];
+                        case 3: return [2];
+                    }
+                });
+            });
+        };
+        RemoteInstance.prototype.callControl = function (command, args, skipResult) {
+            if (skipResult === void 0) { skipResult = false; }
+            return this.control.send({ command: command, domain: "appManager", args: args, skipResult: skipResult }, { instance: this.id });
+        };
+        return RemoteInstance;
+    }());
+
+    var LocalInstance = (function () {
+        function LocalInstance(id, control, _appManager, agm) {
+            this.id = id;
+            this.control = control;
+            this._appManager = _appManager;
+            this.agm = agm;
+            this.context = {};
+            this.startedByScript = false;
+            this.application = undefined;
+            control.setLocalInstance(this);
+        }
+        LocalInstance.prototype.stop = function () {
+            var _this = this;
+            return new Promise(function (resolve, reject) {
+                if (_this.startedByScript) {
+                    var unsubscribe_1 = _this._appManager.onInstanceStopped(function (instance) {
+                        if (instance.id === _this.id) {
+                            unsubscribe_1();
+                            resolve();
+                        }
+                    });
+                    window.close();
+                }
+                else {
+                    reject("Can't close a window that wasn't started by a script.");
+                }
+            });
+        };
+        return LocalInstance;
+    }());
+
+    /**
+     * Wraps values in an `Ok` type.
+     *
+     * Example: `ok(5) // => {ok: true, result: 5}`
+     */
+    var ok = function (result) { return ({ ok: true, result: result }); };
+    /**
+     * Typeguard for `Ok`.
+     */
+    var isOk = function (r) { return r.ok === true; };
+    /**
+     * Wraps errors in an `Err` type.
+     *
+     * Example: `err('on fire') // => {ok: false, error: 'on fire'}`
+     */
+    var err = function (error) { return ({ ok: false, error: error }); };
+    /**
+     * Typeguard for `Err`.
+     */
+    var isErr = function (r) { return r.ok === false; };
+    /**
+     * Create a `Promise` that either resolves with the result of `Ok` or rejects
+     * with the error of `Err`.
+     */
+    var asPromise = function (r) {
+        return r.ok === true ? Promise.resolve(r.result) : Promise.reject(r.error);
+    };
+    /**
+     * Unwraps a `Result` and returns either the result of an `Ok`, or
+     * `defaultValue`.
+     *
+     * Example:
+     * ```
+     * Result.withDefault(5, number().run(json))
+     * ```
+     *
+     * It would be nice if `Decoder` had an instance method that mirrored this
+     * function. Such a method would look something like this:
+     * ```
+     * class Decoder<A> {
+     *   runWithDefault = (defaultValue: A, json: any): A =>
+     *     Result.withDefault(defaultValue, this.run(json));
+     * }
+     *
+     * number().runWithDefault(5, json)
+     * ```
+     * Unfortunately, the type of `defaultValue: A` on the method causes issues
+     * with type inference on  the `object` decoder in some situations. While these
+     * inference issues can be solved by providing the optional type argument for
+     * `object`s, the extra trouble and confusion doesn't seem worth it.
+     */
+    var withDefault = function (defaultValue, r) {
+        return r.ok === true ? r.result : defaultValue;
+    };
+    /**
+     * Return the successful result, or throw an error.
+     */
+    var withException = function (r) {
+        if (r.ok === true) {
+            return r.result;
+        }
+        else {
+            throw r.error;
+        }
+    };
+    /**
+     * Given an array of `Result`s, return the successful values.
+     */
+    var successes = function (results) {
+        return results.reduce(function (acc, r) { return (r.ok === true ? acc.concat(r.result) : acc); }, []);
+    };
+    /**
+     * Apply `f` to the result of an `Ok`, or pass the error through.
+     */
+    var map = function (f, r) {
+        return r.ok === true ? ok(f(r.result)) : r;
+    };
+    /**
+     * Apply `f` to the result of two `Ok`s, or pass an error through. If both
+     * `Result`s are errors then the first one is returned.
+     */
+    var map2 = function (f, ar, br) {
+        return ar.ok === false ? ar :
+            br.ok === false ? br :
+                ok(f(ar.result, br.result));
+    };
+    /**
+     * Apply `f` to the error of an `Err`, or pass the success through.
+     */
+    var mapError = function (f, r) {
+        return r.ok === true ? r : err(f(r.error));
+    };
+    /**
+     * Chain together a sequence of computations that may fail, similar to a
+     * `Promise`. If the first computation fails then the error will propagate
+     * through. If it succeeds, then `f` will be applied to the value, returning a
+     * new `Result`.
+     */
+    var andThen = function (f, r) {
+        return r.ok === true ? f(r.result) : r;
+    };
+
+
+    var result = Object.freeze({
+    	ok: ok,
+    	isOk: isOk,
+    	err: err,
+    	isErr: isErr,
+    	asPromise: asPromise,
+    	withDefault: withDefault,
+    	withException: withException,
+    	successes: successes,
+    	map: map,
+    	map2: map2,
+    	mapError: mapError,
+    	andThen: andThen
+    });
+
+    /*! *****************************************************************************
+    Copyright (c) Microsoft Corporation.
+
+    Permission to use, copy, modify, and/or distribute this software for any
+    purpose with or without fee is hereby granted.
+
+    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+    REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+    AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+    INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+    LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+    OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+    PERFORMANCE OF THIS SOFTWARE.
+    ***************************************************************************** */
+    /* global Reflect, Promise */
+
+
+
+    var __assign$1 = function() {
+        __assign$1 = Object.assign || function __assign(t) {
+            for (var s, i = 1, n = arguments.length; i < n; i++) {
+                s = arguments[i];
+                for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+            }
+            return t;
+        };
+        return __assign$1.apply(this, arguments);
+    };
+
+    function __rest(s, e) {
+        var t = {};
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+            t[p] = s[p];
+        if (s != null && typeof Object.getOwnPropertySymbols === "function")
+            for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+                if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                    t[p[i]] = s[p[i]];
+            }
+        return t;
+    }
+
+    function isEqual(a, b) {
+        if (a === b) {
+            return true;
+        }
+        if (a === null && b === null) {
+            return true;
+        }
+        if (typeof (a) !== typeof (b)) {
+            return false;
+        }
+        if (typeof (a) === 'object') {
+            // Array
+            if (Array.isArray(a)) {
+                if (!Array.isArray(b)) {
+                    return false;
+                }
+                if (a.length !== b.length) {
+                    return false;
+                }
+                for (var i = 0; i < a.length; i++) {
+                    if (!isEqual(a[i], b[i])) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            // Hash table
+            var keys = Object.keys(a);
+            if (keys.length !== Object.keys(b).length) {
+                return false;
+            }
+            for (var i = 0; i < keys.length; i++) {
+                if (!b.hasOwnProperty(keys[i])) {
+                    return false;
+                }
+                if (!isEqual(a[keys[i]], b[keys[i]])) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+    /*
+     * Helpers
+     */
+    var isJsonArray = function (json) { return Array.isArray(json); };
+    var isJsonObject = function (json) {
+        return typeof json === 'object' && json !== null && !isJsonArray(json);
+    };
+    var typeString = function (json) {
+        switch (typeof json) {
+            case 'string':
+                return 'a string';
+            case 'number':
+                return 'a number';
+            case 'boolean':
+                return 'a boolean';
+            case 'undefined':
+                return 'undefined';
+            case 'object':
+                if (json instanceof Array) {
+                    return 'an array';
+                }
+                else if (json === null) {
+                    return 'null';
+                }
+                else {
+                    return 'an object';
+                }
+            default:
+                return JSON.stringify(json);
+        }
+    };
+    var expectedGot = function (expected, got) {
+        return "expected " + expected + ", got " + typeString(got);
+    };
+    var printPath = function (paths) {
+        return paths.map(function (path) { return (typeof path === 'string' ? "." + path : "[" + path + "]"); }).join('');
+    };
+    var prependAt = function (newAt, _a) {
+        var at = _a.at, rest = __rest(_a, ["at"]);
+        return (__assign$1({ at: newAt + (at || '') }, rest));
+    };
+    /**
+     * Decoders transform json objects with unknown structure into known and
+     * verified forms. You can create objects of type `Decoder<A>` with either the
+     * primitive decoder functions, such as `boolean()` and `string()`, or by
+     * applying higher-order decoders to the primitives, such as `array(boolean())`
+     * or `dict(string())`.
+     *
+     * Each of the decoder functions are available both as a static method on
+     * `Decoder` and as a function alias -- for example the string decoder is
+     * defined at `Decoder.string()`, but is also aliased to `string()`. Using the
+     * function aliases exported with the library is recommended.
+     *
+     * `Decoder` exposes a number of 'run' methods, which all decode json in the
+     * same way, but communicate success and failure in different ways. The `map`
+     * and `andThen` methods modify decoders without having to call a 'run' method.
+     *
+     * Alternatively, the main decoder `run()` method returns an object of type
+     * `Result<A, DecoderError>`. This library provides a number of helper
+     * functions for dealing with the `Result` type, so you can do all the same
+     * things with a `Result` as with the decoder methods.
+     */
+    var Decoder = /** @class */ (function () {
+        /**
+         * The Decoder class constructor is kept private to separate the internal
+         * `decode` function from the external `run` function. The distinction
+         * between the two functions is that `decode` returns a
+         * `Partial<DecoderError>` on failure, which contains an unfinished error
+         * report. When `run` is called on a decoder, the relevant series of `decode`
+         * calls is made, and then on failure the resulting `Partial<DecoderError>`
+         * is turned into a `DecoderError` by filling in the missing information.
+         *
+         * While hiding the constructor may seem restrictive, leveraging the
+         * provided decoder combinators and helper functions such as
+         * `andThen` and `map` should be enough to build specialized decoders as
+         * needed.
+         */
+        function Decoder(decode) {
+            var _this = this;
+            this.decode = decode;
+            /**
+             * Run the decoder and return a `Result` with either the decoded value or a
+             * `DecoderError` containing the json input, the location of the error, and
+             * the error message.
+             *
+             * Examples:
+             * ```
+             * number().run(12)
+             * // => {ok: true, result: 12}
+             *
+             * string().run(9001)
+             * // =>
+             * // {
+             * //   ok: false,
+             * //   error: {
+             * //     kind: 'DecoderError',
+             * //     input: 9001,
+             * //     at: 'input',
+             * //     message: 'expected a string, got 9001'
+             * //   }
+             * // }
+             * ```
+             */
+            this.run = function (json) {
+                return mapError(function (error) { return ({
+                    kind: 'DecoderError',
+                    input: json,
+                    at: 'input' + (error.at || ''),
+                    message: error.message || ''
+                }); }, _this.decode(json));
+            };
+            /**
+             * Run the decoder as a `Promise`.
+             */
+            this.runPromise = function (json) { return asPromise(_this.run(json)); };
+            /**
+             * Run the decoder and return the value on success, or throw an exception
+             * with a formatted error string.
+             */
+            this.runWithException = function (json) { return withException(_this.run(json)); };
+            /**
+             * Construct a new decoder that applies a transformation to the decoded
+             * result. If the decoder succeeds then `f` will be applied to the value. If
+             * it fails the error will propagated through.
+             *
+             * Example:
+             * ```
+             * number().map(x => x * 5).run(10)
+             * // => {ok: true, result: 50}
+             * ```
+             */
+            this.map = function (f) {
+                return new Decoder(function (json) { return map(f, _this.decode(json)); });
+            };
+            /**
+             * Chain together a sequence of decoders. The first decoder will run, and
+             * then the function will determine what decoder to run second. If the result
+             * of the first decoder succeeds then `f` will be applied to the decoded
+             * value. If it fails the error will propagate through.
+             *
+             * This is a very powerful method -- it can act as both the `map` and `where`
+             * methods, can improve error messages for edge cases, and can be used to
+             * make a decoder for custom types.
+             *
+             * Example of adding an error message:
+             * ```
+             * const versionDecoder = valueAt(['version'], number());
+             * const infoDecoder3 = object({a: boolean()});
+             *
+             * const decoder = versionDecoder.andThen(version => {
+             *   switch (version) {
+             *     case 3:
+             *       return infoDecoder3;
+             *     default:
+             *       return fail(`Unable to decode info, version ${version} is not supported.`);
+             *   }
+             * });
+             *
+             * decoder.run({version: 3, a: true})
+             * // => {ok: true, result: {a: true}}
+             *
+             * decoder.run({version: 5, x: 'abc'})
+             * // =>
+             * // {
+             * //   ok: false,
+             * //   error: {... message: 'Unable to decode info, version 5 is not supported.'}
+             * // }
+             * ```
+             *
+             * Example of decoding a custom type:
+             * ```
+             * // nominal type for arrays with a length of at least one
+             * type NonEmptyArray<T> = T[] & { __nonEmptyArrayBrand__: void };
+             *
+             * const nonEmptyArrayDecoder = <T>(values: Decoder<T>): Decoder<NonEmptyArray<T>> =>
+             *   array(values).andThen(arr =>
+             *     arr.length > 0
+             *       ? succeed(createNonEmptyArray(arr))
+             *       : fail(`expected a non-empty array, got an empty array`)
+             *   );
+             * ```
+             */
+            this.andThen = function (f) {
+                return new Decoder(function (json) {
+                    return andThen(function (value) { return f(value).decode(json); }, _this.decode(json));
+                });
+            };
+            /**
+             * Add constraints to a decoder _without_ changing the resulting type. The
+             * `test` argument is a predicate function which returns true for valid
+             * inputs. When `test` fails on an input, the decoder fails with the given
+             * `errorMessage`.
+             *
+             * ```
+             * const chars = (length: number): Decoder<string> =>
+             *   string().where(
+             *     (s: string) => s.length === length,
+             *     `expected a string of length ${length}`
+             *   );
+             *
+             * chars(5).run('12345')
+             * // => {ok: true, result: '12345'}
+             *
+             * chars(2).run('HELLO')
+             * // => {ok: false, error: {... message: 'expected a string of length 2'}}
+             *
+             * chars(12).run(true)
+             * // => {ok: false, error: {... message: 'expected a string, got a boolean'}}
+             * ```
+             */
+            this.where = function (test, errorMessage) {
+                return _this.andThen(function (value) { return (test(value) ? Decoder.succeed(value) : Decoder.fail(errorMessage)); });
+            };
+        }
+        /**
+         * Decoder primitive that validates strings, and fails on all other input.
+         */
+        Decoder.string = function () {
+            return new Decoder(function (json) {
+                return typeof json === 'string'
+                    ? ok(json)
+                    : err({ message: expectedGot('a string', json) });
+            });
+        };
+        /**
+         * Decoder primitive that validates numbers, and fails on all other input.
+         */
+        Decoder.number = function () {
+            return new Decoder(function (json) {
+                return typeof json === 'number'
+                    ? ok(json)
+                    : err({ message: expectedGot('a number', json) });
+            });
+        };
+        /**
+         * Decoder primitive that validates booleans, and fails on all other input.
+         */
+        Decoder.boolean = function () {
+            return new Decoder(function (json) {
+                return typeof json === 'boolean'
+                    ? ok(json)
+                    : err({ message: expectedGot('a boolean', json) });
+            });
+        };
+        Decoder.constant = function (value) {
+            return new Decoder(function (json) {
+                return isEqual(json, value)
+                    ? ok(value)
+                    : err({ message: "expected " + JSON.stringify(value) + ", got " + JSON.stringify(json) });
+            });
+        };
+        Decoder.object = function (decoders) {
+            return new Decoder(function (json) {
+                if (isJsonObject(json) && decoders) {
+                    var obj = {};
+                    for (var key in decoders) {
+                        if (decoders.hasOwnProperty(key)) {
+                            var r = decoders[key].decode(json[key]);
+                            if (r.ok === true) {
+                                // tslint:disable-next-line:strict-type-predicates
+                                if (r.result !== undefined) {
+                                    obj[key] = r.result;
+                                }
+                            }
+                            else if (json[key] === undefined) {
+                                return err({ message: "the key '" + key + "' is required but was not present" });
+                            }
+                            else {
+                                return err(prependAt("." + key, r.error));
+                            }
+                        }
+                    }
+                    return ok(obj);
+                }
+                else if (isJsonObject(json)) {
+                    return ok(json);
+                }
+                else {
+                    return err({ message: expectedGot('an object', json) });
+                }
+            });
+        };
+        Decoder.array = function (decoder) {
+            return new Decoder(function (json) {
+                if (isJsonArray(json) && decoder) {
+                    var decodeValue_1 = function (v, i) {
+                        return mapError(function (err$$1) { return prependAt("[" + i + "]", err$$1); }, decoder.decode(v));
+                    };
+                    return json.reduce(function (acc, v, i) {
+                        return map2(function (arr, result) { return arr.concat([result]); }, acc, decodeValue_1(v, i));
+                    }, ok([]));
+                }
+                else if (isJsonArray(json)) {
+                    return ok(json);
+                }
+                else {
+                    return err({ message: expectedGot('an array', json) });
+                }
+            });
+        };
+        Decoder.tuple = function (decoders) {
+            return new Decoder(function (json) {
+                if (isJsonArray(json)) {
+                    if (json.length !== decoders.length) {
+                        return err({
+                            message: "expected a tuple of length " + decoders.length + ", got one of length " + json.length
+                        });
+                    }
+                    var result = [];
+                    for (var i = 0; i < decoders.length; i++) {
+                        var nth = decoders[i].decode(json[i]);
+                        if (nth.ok) {
+                            result[i] = nth.result;
+                        }
+                        else {
+                            return err(prependAt("[" + i + "]", nth.error));
+                        }
+                    }
+                    return ok(result);
+                }
+                else {
+                    return err({ message: expectedGot("a tuple of length " + decoders.length, json) });
+                }
+            });
+        };
+        Decoder.union = function (ad, bd) {
+            var decoders = [];
+            for (var _i = 2; _i < arguments.length; _i++) {
+                decoders[_i - 2] = arguments[_i];
+            }
+            return Decoder.oneOf.apply(Decoder, [ad, bd].concat(decoders));
+        };
+        Decoder.intersection = function (ad, bd) {
+            var ds = [];
+            for (var _i = 2; _i < arguments.length; _i++) {
+                ds[_i - 2] = arguments[_i];
+            }
+            return new Decoder(function (json) {
+                return [ad, bd].concat(ds).reduce(function (acc, decoder) { return map2(Object.assign, acc, decoder.decode(json)); }, ok({}));
+            });
+        };
+        /**
+         * Escape hatch to bypass validation. Always succeeds and types the result as
+         * `any`. Useful for defining decoders incrementally, particularly for
+         * complex objects.
+         *
+         * Example:
+         * ```
+         * interface User {
+         *   name: string;
+         *   complexUserData: ComplexType;
+         * }
+         *
+         * const userDecoder: Decoder<User> = object({
+         *   name: string(),
+         *   complexUserData: anyJson()
+         * });
+         * ```
+         */
+        Decoder.anyJson = function () { return new Decoder(function (json) { return ok(json); }); };
+        /**
+         * Decoder identity function which always succeeds and types the result as
+         * `unknown`.
+         */
+        Decoder.unknownJson = function () {
+            return new Decoder(function (json) { return ok(json); });
+        };
+        /**
+         * Decoder for json objects where the keys are unknown strings, but the values
+         * should all be of the same type.
+         *
+         * Example:
+         * ```
+         * dict(number()).run({chocolate: 12, vanilla: 10, mint: 37});
+         * // => {ok: true, result: {chocolate: 12, vanilla: 10, mint: 37}}
+         * ```
+         */
+        Decoder.dict = function (decoder) {
+            return new Decoder(function (json) {
+                if (isJsonObject(json)) {
+                    var obj = {};
+                    for (var key in json) {
+                        if (json.hasOwnProperty(key)) {
+                            var r = decoder.decode(json[key]);
+                            if (r.ok === true) {
+                                obj[key] = r.result;
+                            }
+                            else {
+                                return err(prependAt("." + key, r.error));
+                            }
+                        }
+                    }
+                    return ok(obj);
+                }
+                else {
+                    return err({ message: expectedGot('an object', json) });
+                }
+            });
+        };
+        /**
+         * Decoder for values that may be `undefined`. This is primarily helpful for
+         * decoding interfaces with optional fields.
+         *
+         * Example:
+         * ```
+         * interface User {
+         *   id: number;
+         *   isOwner?: boolean;
+         * }
+         *
+         * const decoder: Decoder<User> = object({
+         *   id: number(),
+         *   isOwner: optional(boolean())
+         * });
+         * ```
+         */
+        Decoder.optional = function (decoder) {
+            return new Decoder(function (json) { return (json === undefined ? ok(undefined) : decoder.decode(json)); });
+        };
+        /**
+         * Decoder that attempts to run each decoder in `decoders` and either succeeds
+         * with the first successful decoder, or fails after all decoders have failed.
+         *
+         * Note that `oneOf` expects the decoders to all have the same return type,
+         * while `union` creates a decoder for the union type of all the input
+         * decoders.
+         *
+         * Examples:
+         * ```
+         * oneOf(string(), number().map(String))
+         * oneOf(constant('start'), constant('stop'), succeed('unknown'))
+         * ```
+         */
+        Decoder.oneOf = function () {
+            var decoders = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                decoders[_i] = arguments[_i];
+            }
+            return new Decoder(function (json) {
+                var errors = [];
+                for (var i = 0; i < decoders.length; i++) {
+                    var r = decoders[i].decode(json);
+                    if (r.ok === true) {
+                        return r;
+                    }
+                    else {
+                        errors[i] = r.error;
+                    }
+                }
+                var errorsList = errors
+                    .map(function (error) { return "at error" + (error.at || '') + ": " + error.message; })
+                    .join('", "');
+                return err({
+                    message: "expected a value matching one of the decoders, got the errors [\"" + errorsList + "\"]"
+                });
+            });
+        };
+        /**
+         * Decoder that always succeeds with either the decoded value, or a fallback
+         * default value.
+         */
+        Decoder.withDefault = function (defaultValue, decoder) {
+            return new Decoder(function (json) {
+                return ok(withDefault(defaultValue, decoder.decode(json)));
+            });
+        };
+        /**
+         * Decoder that pulls a specific field out of a json structure, instead of
+         * decoding and returning the full structure. The `paths` array describes the
+         * object keys and array indices to traverse, so that values can be pulled out
+         * of a nested structure.
+         *
+         * Example:
+         * ```
+         * const decoder = valueAt(['a', 'b', 0], string());
+         *
+         * decoder.run({a: {b: ['surprise!']}})
+         * // => {ok: true, result: 'surprise!'}
+         *
+         * decoder.run({a: {x: 'cats'}})
+         * // => {ok: false, error: {... at: 'input.a.b[0]' message: 'path does not exist'}}
+         * ```
+         *
+         * Note that the `decoder` is ran on the value found at the last key in the
+         * path, even if the last key is not found. This allows the `optional`
+         * decoder to succeed when appropriate.
+         * ```
+         * const optionalDecoder = valueAt(['a', 'b', 'c'], optional(string()));
+         *
+         * optionalDecoder.run({a: {b: {c: 'surprise!'}}})
+         * // => {ok: true, result: 'surprise!'}
+         *
+         * optionalDecoder.run({a: {b: 'cats'}})
+         * // => {ok: false, error: {... at: 'input.a.b.c' message: 'expected an object, got "cats"'}
+         *
+         * optionalDecoder.run({a: {b: {z: 1}}})
+         * // => {ok: true, result: undefined}
+         * ```
+         */
+        Decoder.valueAt = function (paths, decoder) {
+            return new Decoder(function (json) {
+                var jsonAtPath = json;
+                for (var i = 0; i < paths.length; i++) {
+                    if (jsonAtPath === undefined) {
+                        return err({
+                            at: printPath(paths.slice(0, i + 1)),
+                            message: 'path does not exist'
+                        });
+                    }
+                    else if (typeof paths[i] === 'string' && !isJsonObject(jsonAtPath)) {
+                        return err({
+                            at: printPath(paths.slice(0, i + 1)),
+                            message: expectedGot('an object', jsonAtPath)
+                        });
+                    }
+                    else if (typeof paths[i] === 'number' && !isJsonArray(jsonAtPath)) {
+                        return err({
+                            at: printPath(paths.slice(0, i + 1)),
+                            message: expectedGot('an array', jsonAtPath)
+                        });
+                    }
+                    else {
+                        jsonAtPath = jsonAtPath[paths[i]];
+                    }
+                }
+                return mapError(function (error) {
+                    return jsonAtPath === undefined
+                        ? { at: printPath(paths), message: 'path does not exist' }
+                        : prependAt(printPath(paths), error);
+                }, decoder.decode(jsonAtPath));
+            });
+        };
+        /**
+         * Decoder that ignores the input json and always succeeds with `fixedValue`.
+         */
+        Decoder.succeed = function (fixedValue) {
+            return new Decoder(function (json) { return ok(fixedValue); });
+        };
+        /**
+         * Decoder that ignores the input json and always fails with `errorMessage`.
+         */
+        Decoder.fail = function (errorMessage) {
+            return new Decoder(function (json) { return err({ message: errorMessage }); });
+        };
+        /**
+         * Decoder that allows for validating recursive data structures. Unlike with
+         * functions, decoders assigned to variables can't reference themselves
+         * before they are fully defined. We can avoid prematurely referencing the
+         * decoder by wrapping it in a function that won't be called until use, at
+         * which point the decoder has been defined.
+         *
+         * Example:
+         * ```
+         * interface Comment {
+         *   msg: string;
+         *   replies: Comment[];
+         * }
+         *
+         * const decoder: Decoder<Comment> = object({
+         *   msg: string(),
+         *   replies: lazy(() => array(decoder))
+         * });
+         * ```
+         */
+        Decoder.lazy = function (mkDecoder) {
+            return new Decoder(function (json) { return mkDecoder().decode(json); });
+        };
+        return Decoder;
+    }());
+
+    /* tslint:disable:variable-name */
+    /** See `Decoder.string` */
+    var string = Decoder.string;
+    /** See `Decoder.number` */
+    var number = Decoder.number;
+    /** See `Decoder.anyJson` */
+    var anyJson = Decoder.anyJson;
+    /** See `Decoder.constant` */
+    var constant = Decoder.constant;
+    /** See `Decoder.object` */
+    var object = Decoder.object;
+    /** See `Decoder.array` */
+    var array = Decoder.array;
+    /** See `Decoder.optional` */
+    var optional = Decoder.optional;
+    /** See `Decoder.oneOf` */
+    var oneOf = Decoder.oneOf;
+
+    var nonEmptyStringDecoder = string().where(function (s) { return s.length > 0; }, "Expected a non-empty string");
+    var fdc3AppImageDecoder = object({
+        url: optional(nonEmptyStringDecoder)
+    });
+    var fdc3IconDecoder = object({
+        icon: optional(nonEmptyStringDecoder)
+    });
+    var fdc3IntentDecoder = object({
+        name: nonEmptyStringDecoder,
+        displayName: optional(string()),
+        contexts: optional(array(string())),
+        customConfig: optional(object())
+    });
+    var glue42CoreCreateOptionsDecoder = object({
+        url: nonEmptyStringDecoder,
+        top: optional(number()),
+        left: optional(number()),
+        width: optional(number()),
+        height: optional(number()),
+        context: optional(anyJson()),
+        relativeTo: optional(nonEmptyStringDecoder),
+        relativeDirection: optional(oneOf(constant("top"), constant("left"), constant("right"), constant("bottom")))
+    });
+    var fdc3ApplicationConfigDecoder = object({
+        name: nonEmptyStringDecoder,
+        title: optional(string()),
+        version: optional(string()),
+        appId: nonEmptyStringDecoder,
+        manifest: nonEmptyStringDecoder,
+        manifestType: nonEmptyStringDecoder,
+        tooltip: optional(string()),
+        description: optional(string()),
+        contactEmail: optional(string()),
+        supportEmail: optional(string()),
+        publisher: optional(string()),
+        images: optional(array(fdc3AppImageDecoder)),
+        icons: optional(array(fdc3IconDecoder)),
+        customConfig: optional(object()),
+        intents: optional(array(fdc3IntentDecoder))
+    });
+    var glue42CoreApplicationConfigDecoder = object({
+        name: nonEmptyStringDecoder,
+        title: optional(string()),
+        version: optional(string()),
+        details: glue42CoreCreateOptionsDecoder,
+        customProperties: optional(object())
+    });
+
+    var AppManager = (function () {
+        function AppManager(windows, interop, control, config, appName) {
+            var _this = this;
+            this.windows = windows;
+            this.interop = interop;
+            this.control = control;
+            this.config = config;
+            this.appName = appName;
+            this._apps = {};
+            this._instances = [];
+            this.registry = lib$1();
+            this.DEFAULT_POLLING_INTERVAL = 3000;
+            this.OKAY_MESSAGE = "OK";
+            this.LOCAL_SOURCE = "LOCAL_SOURCE";
+            var myId = interop.instance.instance;
+            this._myInstance = new LocalInstance(myId, this.control, this, this.interop.instance);
+            if (config === null || config === void 0 ? void 0 : config.remoteSources) {
+                this.subscribeForRemoteApplications(config.remoteSources);
+            }
+            if (config === null || config === void 0 ? void 0 : config.localApplications) {
+                var validatedApplications = this.getValidatedApplications(config.localApplications);
+                this.addApplications(validatedApplications);
+            }
+            control.onStart(function () {
+                _this.trackInstanceLifetime();
+            });
+        }
+        Object.defineProperty(AppManager.prototype, "myInstance", {
+            get: function () {
+                if (!this.appName) {
+                    console.warn("application wasn't provided to the GlueWeb factory function!");
+                }
+                if (!this._myInstance) {
+                    console.warn("The application isn't defined in any of the local/remote application sources!");
+                }
+                return this._myInstance;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        AppManager.prototype.application = function (name) {
+            return this._apps[name].application;
+        };
+        AppManager.prototype.applications = function () {
+            var _this = this;
+            return Object.keys(this._apps).map(function (appName) { return _this._apps[appName].application; });
+        };
+        AppManager.prototype.instances = function () {
+            return this._instances;
+        };
+        AppManager.prototype.onAppAdded = function (callback) {
+            var _this = this;
+            var applications = Object.keys(this._apps).map(function (appName) {
+                return _this._apps[appName].application;
+            });
+            this.replay(applications, callback);
+            return this.registry.add("appAdded", callback);
+        };
+        AppManager.prototype.onAppRemoved = function (callback) {
+            return this.registry.add("appRemoved", callback);
+        };
+        AppManager.prototype.onAppChanged = function (callback) {
+            return this.registry.add("appChanged", callback);
+        };
+        AppManager.prototype.onInstanceStarted = function (callback) {
+            return this.registry.add("instanceStarted", callback);
+        };
+        AppManager.prototype.onInstanceStopped = function (callback) {
+            return this.registry.add("instanceStopped", callback);
+        };
+        AppManager.prototype.getValidatedApplications = function (applications) {
+            var verifiedApplications = applications.filter(function (application) {
+                var isFDC3App = typeof application.manifest !== "undefined";
+                var isValid;
+                if (isFDC3App) {
+                    isValid = fdc3ApplicationConfigDecoder.run(application).ok;
+                }
+                else {
+                    isValid = glue42CoreApplicationConfigDecoder.run(application).ok;
+                }
+                if (!isValid) {
+                    console.warn("Validation failed for application \"" + application.name + "\"!");
+                }
+                return isValid;
+            });
+            return verifiedApplications;
+        };
+        AppManager.prototype.subscribeForRemoteApplications = function (remoteSources) {
+            var _this = this;
+            var _loop_1 = function (remoteSource) {
+                var url = remoteSource.url;
+                var fetchApps = function () {
+                    fetchTimeout(url)
+                        .then(function (response) {
+                        return response.json();
+                    })
+                        .then(function (json) {
+                        if (json.message === _this.OKAY_MESSAGE) {
+                            var validatedApplications = _this.getValidatedApplications(json.applications);
+                            _this.addApplications(validatedApplications, url);
+                        }
+                    })
+                        .catch(function (error) {
+                        console.warn(error);
+                    });
+                };
+                fetchApps();
+                setInterval(fetchApps, remoteSource.pollingInterval || this_1.DEFAULT_POLLING_INTERVAL);
+            };
+            var this_1 = this;
+            for (var _i = 0, remoteSources_1 = remoteSources; _i < remoteSources_1.length; _i++) {
+                var remoteSource = remoteSources_1[_i];
+                _loop_1(remoteSource);
+            }
+        };
+        AppManager.prototype.getAppProps = function (application) {
+            var requiredProps = ["name", "title", "version"];
+            var userProperties = Object.fromEntries(Object.entries(application).filter(function (_a) {
+                var key = _a[0];
+                return !requiredProps.includes(key);
+            }));
+            return {
+                name: application.name,
+                title: application.title,
+                version: application.version,
+                userProperties: userProperties
+            };
+        };
+        AppManager.prototype.handleAppsChanged = function (newlyAddedApplications, source) {
+            var _this = this;
+            var _loop_2 = function (newlyAddedApplication) {
+                var currentApplicationWithTheSameNameAndSource = Object.keys(this_2._apps).find(function (appName) {
+                    return appName === newlyAddedApplication.name && _this._apps[appName].source === source;
+                });
+                var currentApplicationWithTheSameNameButDifferentSource = Object.keys(this_2._apps).find(function (appName) {
+                    return appName === newlyAddedApplication.name && _this._apps[appName].source !== source;
+                });
+                if (currentApplicationWithTheSameNameAndSource) {
+                    var currentApplication = this_2._apps[currentApplicationWithTheSameNameAndSource];
+                    var appProps = this_2.getAppProps(newlyAddedApplication);
+                    if (JSON.stringify(currentApplication.appProps) !== JSON.stringify(appProps)) {
+                        var newlyAddedApplicationInstance = new Application(this_2, appProps, this_2.windows);
+                        this_2.registry.execute("appChanged", newlyAddedApplicationInstance);
+                        this_2._apps[newlyAddedApplication.name] = {
+                            source: currentApplication.source,
+                            application: newlyAddedApplicationInstance,
+                            appProps: appProps
+                        };
+                    }
+                }
+                else if (currentApplicationWithTheSameNameButDifferentSource) {
+                    console.warn("Application \"" + newlyAddedApplication.name + "\" already defined by source \"" + this_2._apps[currentApplicationWithTheSameNameButDifferentSource].source + "\". Skipping application definition from source " + source + ".");
+                }
+            };
+            var this_2 = this;
+            for (var _i = 0, newlyAddedApplications_1 = newlyAddedApplications; _i < newlyAddedApplications_1.length; _i++) {
+                var newlyAddedApplication = newlyAddedApplications_1[_i];
+                _loop_2(newlyAddedApplication);
+            }
+        };
+        AppManager.prototype.handleAppsAdded = function (newlyAddedApplications, source) {
+            var currentAppNames = Object.keys(this._apps);
+            var newApplications = newlyAddedApplications.filter(function (newlyAddedApplication) {
+                return !currentAppNames.includes(newlyAddedApplication.name);
+            });
+            for (var _i = 0, newApplications_1 = newApplications; _i < newApplications_1.length; _i++) {
+                var newApplication = newApplications_1[_i];
+                var appProps = this.getAppProps(newApplication);
+                var newApplicationInstance = new Application(this, appProps, this.windows);
+                this.registry.execute("appAdded", newApplicationInstance);
+                this._apps[newApplication.name] = {
+                    source: source || this.LOCAL_SOURCE,
+                    application: newApplicationInstance,
+                    appProps: appProps
+                };
+            }
+        };
+        AppManager.prototype.handleAppsRemoved = function (newlyAddedApplications, source) {
+            var _this = this;
+            var currentApplicationsFromThisSource = Object.keys(this._apps)
+                .filter(function (appName) {
+                return _this._apps[appName].source === source;
+            })
+                .map(function (appName) {
+                return _this._apps[appName].application;
+            });
+            var newlyAddedApplicationNames = newlyAddedApplications.map(function (newlyAddedApplication) {
+                return newlyAddedApplication.name;
+            });
+            var removedApplications = currentApplicationsFromThisSource.filter(function (currentApplicationFromThisSource) {
+                return !newlyAddedApplicationNames.includes(currentApplicationFromThisSource.name);
+            });
+            for (var _i = 0, removedApplications_1 = removedApplications; _i < removedApplications_1.length; _i++) {
+                var removedApplication = removedApplications_1[_i];
+                this.registry.execute("appRemoved", removedApplication);
+                delete this._apps[removedApplication.name];
+            }
+        };
+        AppManager.prototype.tryPopulateMyInstanceApplication = function () {
+            var _this = this;
+            var _a;
+            if (this.appName) {
+                var myApp = (_a = Object.values(this._apps).find(function (app) { return app.application.name === _this.appName; })) === null || _a === void 0 ? void 0 : _a.application;
+                if (myApp) {
+                    if (myApp.title) {
+                        document.title = myApp.title;
+                    }
+                    this._myInstance.application = myApp;
+                }
+            }
+        };
+        AppManager.prototype.addApplications = function (newlyAddedApplications, source) {
+            this.handleAppsChanged(newlyAddedApplications, source);
+            this.handleAppsAdded(newlyAddedApplications, source);
+            this.handleAppsRemoved(newlyAddedApplications, source);
+            if (!this._myInstance.application) {
+                this.tryPopulateMyInstanceApplication();
+            }
+        };
+        AppManager.prototype.replay = function (items, callback) {
+            var itemsToReplay = Array.isArray(items) ? items : Object.values(items);
+            itemsToReplay.forEach(function (item) { return callback(item); });
+        };
+        AppManager.prototype.remoteFromServer = function (server) {
+            return __awaiter(this, void 0, void 0, function () {
+                var serverApp, id, app, appWindow, context;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            serverApp = server.application;
+                            if (!server.instance || !serverApp || !this._apps[serverApp]) {
+                                return [2, undefined];
+                            }
+                            id = server.instance;
+                            app = this._apps[serverApp].application;
+                            appWindow = this.windows.list().find(function (window) { return window.id === server.windowId; });
+                            return [4, (appWindow === null || appWindow === void 0 ? void 0 : appWindow.getContext())];
+                        case 1:
+                            context = _a.sent();
+                            return [2, new RemoteInstance(id, app, this.control, context, server)];
+                    }
+                });
+            });
+        };
+        AppManager.prototype.trackInstanceLifetime = function () {
+            var _this = this;
+            this.interop.serverMethodAdded(function (_a) {
+                var server = _a.server, method = _a.method;
+                return __awaiter(_this, void 0, void 0, function () {
+                    var remoteInstance;
+                    return __generator(this, function (_b) {
+                        switch (_b.label) {
+                            case 0:
+                                if (method.name !== Control.CONTROL_METHOD) {
+                                    return [2];
+                                }
+                                return [4, this.remoteFromServer(server)];
+                            case 1:
+                                remoteInstance = _b.sent();
+                                if (remoteInstance) {
+                                    this._instances.push(remoteInstance);
+                                    this.registry.execute("instanceStarted", remoteInstance);
+                                }
+                                return [2];
+                        }
+                    });
+                });
+            });
+            this.interop.serverRemoved(function (server) { return __awaiter(_this, void 0, void 0, function () {
+                var remoteInstance;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4, this.remoteFromServer(server)];
+                        case 1:
+                            remoteInstance = _a.sent();
+                            if (remoteInstance) {
+                                this._instances = this._instances.filter(function (instance) { return instance.id !== remoteInstance.id; });
+                                this.registry.execute("instanceStopped", remoteInstance);
+                            }
+                            return [2];
+                    }
+                });
+            }); });
+        };
+        return AppManager;
+    }());
+
     var Notifications = (function () {
         function Notifications(interop) {
             this.interop = interop;
@@ -1641,29 +2799,6 @@
         logger: "error",
     };
 
-    var fetchTimeout = function (url, timeoutMilliseconds) {
-        if (timeoutMilliseconds === void 0) { timeoutMilliseconds = 1000; }
-        return new Promise(function (resolve, reject) {
-            var timeoutHit = false;
-            var timeout = setTimeout(function () {
-                timeoutHit = true;
-                reject(new Error("Fetch request for: " + url + " timed out at: " + timeoutMilliseconds + " milliseconds"));
-            }, timeoutMilliseconds);
-            fetch(url)
-                .then(function (response) {
-                if (!timeoutHit) {
-                    clearTimeout(timeout);
-                    resolve(response);
-                }
-            })
-                .catch(function (err) {
-                if (!timeoutHit) {
-                    clearTimeout(timeout);
-                    reject(err);
-                }
-            });
-        });
-    };
     var getRemoteConfig = function (userConfig) { return __awaiter(void 0, void 0, void 0, function () {
         var extend, response, json, _a;
         var _b, _c;
@@ -1709,40 +2844,869 @@
                         worker = resultWebConfig.extends.substr(0, lastIndex + 1) + defaultWorkerName;
                         resultWebConfig.worker = worker;
                     }
+                    if (!remoteConfig.layouts) {
+                        remoteConfig.layouts = { remoteType: "json" };
+                    }
                     return [2, __assign(__assign({}, remoteConfig), { glue: resultWebConfig })];
             }
         });
     }); };
 
-    var restoreAutoSavedLayout = function (api) {
-        var layoutName = "_auto_" + document.location.href;
-        var layout = api.layouts.list().find(function (l) { return l.name === layoutName; });
-        if (!layout) {
-            return Promise.resolve();
+    var dbName = "glue42core";
+    var dbVersion = 1;
+    var SaveContextMethodName = "T42.HC.GetSaveContext";
+
+    var LayoutsController = (function () {
+        function LayoutsController(storage, windows, control, interop, config) {
+            var _a, _b;
+            this.storage = storage;
+            this.windows = windows;
+            this.control = control;
+            this.interop = interop;
+            this.autoSaveContext = (_b = (_a = config === null || config === void 0 ? void 0 : config.layouts) === null || _a === void 0 ? void 0 : _a.autoSaveWindowContext) !== null && _b !== void 0 ? _b : false;
+            this.control.subscribe("layouts", this.handleControlMessage.bind(this));
+            this.registerRequestMethods();
         }
-        var my = api.windows.my();
-        if (my.parent) {
-            return Promise.resolve();
+        LayoutsController.prototype.export = function (layoutType) {
+            return __awaiter(this, void 0, void 0, function () {
+                var _a, globalLayouts, workspaceLayouts;
+                return __generator(this, function (_b) {
+                    switch (_b.label) {
+                        case 0:
+                            if (layoutType) {
+                                return [2, this.storage.getAll(layoutType)];
+                            }
+                            return [4, Promise.all([
+                                    this.storage.getAll("Global"),
+                                    this.storage.getAll("Workspace")
+                                ])];
+                        case 1:
+                            _a = _b.sent(), globalLayouts = _a[0], workspaceLayouts = _a[1];
+                            return [2, globalLayouts.concat(workspaceLayouts)];
+                    }
+                });
+            });
+        };
+        LayoutsController.prototype.import = function (layout) {
+            return __awaiter(this, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    return [2, this.storage.store(layout, layout.type)];
+                });
+            });
+        };
+        LayoutsController.prototype.save = function (layoutOptions, autoSave) {
+            if (autoSave === void 0) { autoSave = false; }
+            return __awaiter(this, void 0, void 0, function () {
+                var openedWindows, components, layout;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            openedWindows = this.windows.getChildWindows().map(function (w) { return w.id; });
+                            return [4, this.getRemoteWindowsInfo(openedWindows)];
+                        case 1:
+                            components = _a.sent();
+                            components.push(this.getLocalLayoutComponent(layoutOptions.context, true));
+                            layout = {
+                                type: "Global",
+                                name: layoutOptions.name,
+                                components: components,
+                                context: layoutOptions.context || {},
+                                metadata: layoutOptions.metadata || {}
+                            };
+                            if (!autoSave) return [3, 2];
+                            this.storage.storeAutoLayout(layout);
+                            return [3, 4];
+                        case 2: return [4, this.storage.store(layout, "Global")];
+                        case 3:
+                            _a.sent();
+                            _a.label = 4;
+                        case 4: return [2, layout];
+                    }
+                });
+            });
+        };
+        LayoutsController.prototype.autoSave = function (layoutOptions) {
+            return __awaiter(this, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    return [2, this.save(layoutOptions, true)];
+                });
+            });
+        };
+        LayoutsController.prototype.restore = function (options) {
+            return __awaiter(this, void 0, void 0, function () {
+                var layout;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4, this.storage.get(options.name, "Global")];
+                        case 1:
+                            layout = _a.sent();
+                            if (!layout) {
+                                throw new Error("can not find layout with name " + options.name);
+                            }
+                            this.restoreComponents(layout);
+                            return [2];
+                    }
+                });
+            });
+        };
+        LayoutsController.prototype.restoreAutoSavedLayout = function () {
+            return __awaiter(this, void 0, void 0, function () {
+                var layoutName, layout, my, mainComponent;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            layoutName = "_auto_" + document.location.href;
+                            return [4, this.storage.getAutoLayout(layoutName)];
+                        case 1:
+                            layout = _a.sent();
+                            if (!layout) {
+                                return [2, Promise.resolve()];
+                            }
+                            my = this.windows.my();
+                            if (my.parent) {
+                                return [2];
+                            }
+                            mainComponent = layout.components.find(function (c) { return c.state.main; });
+                            my.setContext(mainComponent === null || mainComponent === void 0 ? void 0 : mainComponent.state.context);
+                            try {
+                                this.restoreComponents(layout);
+                            }
+                            catch (e) {
+                                return [2];
+                            }
+                            return [2];
+                    }
+                });
+            });
+        };
+        LayoutsController.prototype.remove = function (type, name) {
+            return this.storage.remove(name, type);
+        };
+        LayoutsController.prototype.getAll = function (type) {
+            return __awaiter(this, void 0, void 0, function () {
+                var allLayouts;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4, this.storage.getAll(type)];
+                        case 1:
+                            allLayouts = _a.sent();
+                            return [2, allLayouts.map(function (layout) {
+                                    return {
+                                        name: layout.name,
+                                        type: layout.type,
+                                        context: layout.context,
+                                        metadata: layout.metadata
+                                    };
+                                })];
+                    }
+                });
+            });
+        };
+        LayoutsController.prototype.get = function (name, type) {
+            return this.storage.get(name, type);
+        };
+        LayoutsController.prototype.getLocalLayoutComponent = function (context, main) {
+            if (main === void 0) { main = false; }
+            var requestResult;
+            var my = this.windows.my();
+            try {
+                if (this.autoSaveContext) {
+                    requestResult = {
+                        windowContext: my.getContextSync()
+                    };
+                }
+            }
+            catch (err) {
+            }
+            return {
+                type: "window",
+                componentType: "application",
+                state: {
+                    name: my.name,
+                    context: (requestResult === null || requestResult === void 0 ? void 0 : requestResult.windowContext) || {},
+                    bounds: my.getBoundsSync(),
+                    url: window.document.location.href,
+                    id: my.id,
+                    parentId: my.parent,
+                    main: main
+                }
+            };
+        };
+        LayoutsController.prototype.restoreComponents = function (layout) {
+            var _this = this;
+            layout.components.forEach(function (c) {
+                if (c.type === "window") {
+                    var state = c.state;
+                    if (state.main) {
+                        return;
+                    }
+                    var newWindowOptions = __assign(__assign({}, state.bounds), { context: state.context });
+                    _this.windows.open(state.name, state.url, newWindowOptions);
+                }
+            });
+        };
+        LayoutsController.prototype.getRemoteWindowsInfo = function (windows) {
+            return __awaiter(this, void 0, void 0, function () {
+                var promises, _loop_1, this_1, _i, windows_1, id, responses;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            promises = [];
+                            _loop_1 = function (id) {
+                                var interopServer = this_1.interop.servers().find(function (s) { return s.windowId === id; });
+                                if (!interopServer || !interopServer.getMethods) {
+                                    return "continue";
+                                }
+                                var methods = interopServer.getMethods();
+                                if (methods.find(function (m) { return m.name === SaveContextMethodName; })) {
+                                    try {
+                                        promises.push(this_1.interop.invoke(SaveContextMethodName, {}, { windowId: id }));
+                                    }
+                                    catch (_a) {
+                                    }
+                                }
+                            };
+                            this_1 = this;
+                            for (_i = 0, windows_1 = windows; _i < windows_1.length; _i++) {
+                                id = windows_1[_i];
+                                _loop_1(id);
+                            }
+                            return [4, Promise.all(promises)];
+                        case 1:
+                            responses = _a.sent();
+                            return [2, responses.map(function (response) { return response.returned; })];
+                    }
+                });
+            });
+        };
+        LayoutsController.prototype.registerRequestMethods = function () {
+            var _this = this;
+            this.interop.register(SaveContextMethodName, function (args) {
+                return _this.getLocalLayoutComponent(args);
+            });
+        };
+        LayoutsController.prototype.handleControlMessage = function (command) {
+            return __awaiter(this, void 0, void 0, function () {
+                var layoutCommand, args, components;
+                var _this = this;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            layoutCommand = command;
+                            if (!(layoutCommand.command === "saveLayoutAndClose")) return [3, 3];
+                            args = layoutCommand.args;
+                            return [4, this.getRemoteWindowsInfo(args.childWindows)];
+                        case 1:
+                            components = _a.sent();
+                            components.push(args.parentInfo);
+                            return [4, this.storage.storeAutoLayout({
+                                    type: "Global",
+                                    name: args.layoutName,
+                                    components: components,
+                                    context: args.context || {},
+                                    metadata: args.metadata || {}
+                                })];
+                        case 2:
+                            _a.sent();
+                            args.childWindows.forEach(function (cw) {
+                                var _a;
+                                (_a = _this.windows.findById(cw)) === null || _a === void 0 ? void 0 : _a.close();
+                            });
+                            _a.label = 3;
+                        case 3: return [2];
+                    }
+                });
+            });
+        };
+        return LayoutsController;
+    }());
+
+    var LayoutStorage = (function () {
+        function LayoutStorage(localStore, autoStore, remoteStore) {
+            this.localStore = localStore;
+            this.autoStore = autoStore;
+            this.remoteStore = remoteStore;
         }
-        api.logger.info("restoring layout " + layoutName);
-        var mainComponent = layout.components.find(function (c) { return c.state.main; });
-        my.setContext(mainComponent === null || mainComponent === void 0 ? void 0 : mainComponent.state.context);
-        try {
-            return api.layouts.restore({
-                name: layoutName,
-                closeRunningInstance: false,
+        LayoutStorage.prototype.get = function (name, layoutType) {
+            var _a;
+            return __awaiter(this, void 0, void 0, function () {
+                var foundRemote, foundLocal;
+                return __generator(this, function (_b) {
+                    switch (_b.label) {
+                        case 0: return [4, ((_a = this.remoteStore) === null || _a === void 0 ? void 0 : _a.get(name, layoutType))];
+                        case 1:
+                            foundRemote = _b.sent();
+                            return [4, this.localStore.get(name, layoutType)];
+                        case 2:
+                            foundLocal = _b.sent();
+                            if (foundRemote && foundLocal) {
+                                return [2, foundRemote];
+                            }
+                            return [2, foundRemote || foundLocal];
+                    }
+                });
+            });
+        };
+        LayoutStorage.prototype.getAll = function (layoutType) {
+            return __awaiter(this, void 0, void 0, function () {
+                var _a, local, remote, nonConflictLocal;
+                var _this = this;
+                return __generator(this, function (_b) {
+                    switch (_b.label) {
+                        case 0: return [4, Promise.all([
+                                this.localStore.getAll(layoutType),
+                                new Promise(function (resolve) {
+                                    if (_this.remoteStore) {
+                                        return _this.remoteStore.getAll(layoutType).then(resolve);
+                                    }
+                                    resolve([]);
+                                })
+                            ])];
+                        case 1:
+                            _a = _b.sent(), local = _a[0], remote = _a[1];
+                            nonConflictLocal = local.filter(function (localLayout) { return !remote.some(function (remoteLayout) { return remoteLayout.name === localLayout.name; }); });
+                            return [2, remote.concat(nonConflictLocal)];
+                    }
+                });
+            });
+        };
+        LayoutStorage.prototype.store = function (layout, layoutType) {
+            var _a;
+            return __awaiter(this, void 0, void 0, function () {
+                var remoteLayout;
+                return __generator(this, function (_b) {
+                    switch (_b.label) {
+                        case 0: return [4, ((_a = this.remoteStore) === null || _a === void 0 ? void 0 : _a.get(layout.name, layoutType))];
+                        case 1:
+                            remoteLayout = _b.sent();
+                            if (remoteLayout) {
+                                throw new Error("Cannot save layout with name: " + layout.name + " and type: " + layoutType + ", because it is present in the remote store and is treated as readonly");
+                            }
+                            layout.metadata.allowSave = true;
+                            return [4, this.localStore.store(layout, layoutType)];
+                        case 2:
+                            _b.sent();
+                            return [2];
+                    }
+                });
+            });
+        };
+        LayoutStorage.prototype.remove = function (name, layoutType) {
+            var _a;
+            return __awaiter(this, void 0, void 0, function () {
+                var remoteLayout;
+                return __generator(this, function (_b) {
+                    switch (_b.label) {
+                        case 0: return [4, ((_a = this.remoteStore) === null || _a === void 0 ? void 0 : _a.get(name, layoutType))];
+                        case 1:
+                            remoteLayout = _b.sent();
+                            if (remoteLayout) {
+                                throw new Error("Cannot remove layout with name: " + name + " and type: " + layoutType + ", because it is present in the remote store and is treated as readonly");
+                            }
+                            return [4, this.localStore.delete(name, layoutType)];
+                        case 2:
+                            _b.sent();
+                            return [2];
+                    }
+                });
+            });
+        };
+        LayoutStorage.prototype.getAutoLayout = function (name) {
+            return this.autoStore.get(name, "Global");
+        };
+        LayoutStorage.prototype.storeAutoLayout = function (layout) {
+            this.autoStore.save(layout);
+        };
+        return LayoutStorage;
+    }());
+
+    const instanceOfAny = (object, constructors) => constructors.some((c) => object instanceof c);
+
+    let idbProxyableTypes;
+    let cursorAdvanceMethods;
+    // This is a function to prevent it throwing up in node environments.
+    function getIdbProxyableTypes() {
+        return (idbProxyableTypes ||
+            (idbProxyableTypes = [
+                IDBDatabase,
+                IDBObjectStore,
+                IDBIndex,
+                IDBCursor,
+                IDBTransaction,
+            ]));
+    }
+    // This is a function to prevent it throwing up in node environments.
+    function getCursorAdvanceMethods() {
+        return (cursorAdvanceMethods ||
+            (cursorAdvanceMethods = [
+                IDBCursor.prototype.advance,
+                IDBCursor.prototype.continue,
+                IDBCursor.prototype.continuePrimaryKey,
+            ]));
+    }
+    const cursorRequestMap = new WeakMap();
+    const transactionDoneMap = new WeakMap();
+    const transactionStoreNamesMap = new WeakMap();
+    const transformCache = new WeakMap();
+    const reverseTransformCache = new WeakMap();
+    function promisifyRequest(request) {
+        const promise = new Promise((resolve, reject) => {
+            const unlisten = () => {
+                request.removeEventListener('success', success);
+                request.removeEventListener('error', error);
+            };
+            const success = () => {
+                resolve(wrap(request.result));
+                unlisten();
+            };
+            const error = () => {
+                reject(request.error);
+                unlisten();
+            };
+            request.addEventListener('success', success);
+            request.addEventListener('error', error);
+        });
+        promise
+            .then((value) => {
+            // Since cursoring reuses the IDBRequest (*sigh*), we cache it for later retrieval
+            // (see wrapFunction).
+            if (value instanceof IDBCursor) {
+                cursorRequestMap.set(value, request);
+            }
+            // Catching to avoid "Uncaught Promise exceptions"
+        })
+            .catch(() => { });
+        // This mapping exists in reverseTransformCache but doesn't doesn't exist in transformCache. This
+        // is because we create many promises from a single IDBRequest.
+        reverseTransformCache.set(promise, request);
+        return promise;
+    }
+    function cacheDonePromiseForTransaction(tx) {
+        // Early bail if we've already created a done promise for this transaction.
+        if (transactionDoneMap.has(tx))
+            return;
+        const done = new Promise((resolve, reject) => {
+            const unlisten = () => {
+                tx.removeEventListener('complete', complete);
+                tx.removeEventListener('error', error);
+                tx.removeEventListener('abort', error);
+            };
+            const complete = () => {
+                resolve();
+                unlisten();
+            };
+            const error = () => {
+                reject(tx.error || new DOMException('AbortError', 'AbortError'));
+                unlisten();
+            };
+            tx.addEventListener('complete', complete);
+            tx.addEventListener('error', error);
+            tx.addEventListener('abort', error);
+        });
+        // Cache it for later retrieval.
+        transactionDoneMap.set(tx, done);
+    }
+    let idbProxyTraps = {
+        get(target, prop, receiver) {
+            if (target instanceof IDBTransaction) {
+                // Special handling for transaction.done.
+                if (prop === 'done')
+                    return transactionDoneMap.get(target);
+                // Polyfill for objectStoreNames because of Edge.
+                if (prop === 'objectStoreNames') {
+                    return target.objectStoreNames || transactionStoreNamesMap.get(target);
+                }
+                // Make tx.store return the only store in the transaction, or undefined if there are many.
+                if (prop === 'store') {
+                    return receiver.objectStoreNames[1]
+                        ? undefined
+                        : receiver.objectStore(receiver.objectStoreNames[0]);
+                }
+            }
+            // Else transform whatever we get back.
+            return wrap(target[prop]);
+        },
+        set(target, prop, value) {
+            target[prop] = value;
+            return true;
+        },
+        has(target, prop) {
+            if (target instanceof IDBTransaction &&
+                (prop === 'done' || prop === 'store')) {
+                return true;
+            }
+            return prop in target;
+        },
+    };
+    function replaceTraps(callback) {
+        idbProxyTraps = callback(idbProxyTraps);
+    }
+    function wrapFunction(func) {
+        // Due to expected object equality (which is enforced by the caching in `wrap`), we
+        // only create one new func per func.
+        // Edge doesn't support objectStoreNames (booo), so we polyfill it here.
+        if (func === IDBDatabase.prototype.transaction &&
+            !('objectStoreNames' in IDBTransaction.prototype)) {
+            return function (storeNames, ...args) {
+                const tx = func.call(unwrap(this), storeNames, ...args);
+                transactionStoreNamesMap.set(tx, storeNames.sort ? storeNames.sort() : [storeNames]);
+                return wrap(tx);
+            };
+        }
+        // Cursor methods are special, as the behaviour is a little more different to standard IDB. In
+        // IDB, you advance the cursor and wait for a new 'success' on the IDBRequest that gave you the
+        // cursor. It's kinda like a promise that can resolve with many values. That doesn't make sense
+        // with real promises, so each advance methods returns a new promise for the cursor object, or
+        // undefined if the end of the cursor has been reached.
+        if (getCursorAdvanceMethods().includes(func)) {
+            return function (...args) {
+                // Calling the original function with the proxy as 'this' causes ILLEGAL INVOCATION, so we use
+                // the original object.
+                func.apply(unwrap(this), args);
+                return wrap(cursorRequestMap.get(this));
+            };
+        }
+        return function (...args) {
+            // Calling the original function with the proxy as 'this' causes ILLEGAL INVOCATION, so we use
+            // the original object.
+            return wrap(func.apply(unwrap(this), args));
+        };
+    }
+    function transformCachableValue(value) {
+        if (typeof value === 'function')
+            return wrapFunction(value);
+        // This doesn't return, it just creates a 'done' promise for the transaction,
+        // which is later returned for transaction.done (see idbObjectHandler).
+        if (value instanceof IDBTransaction)
+            cacheDonePromiseForTransaction(value);
+        if (instanceOfAny(value, getIdbProxyableTypes()))
+            return new Proxy(value, idbProxyTraps);
+        // Return the same value back if we're not going to transform it.
+        return value;
+    }
+    function wrap(value) {
+        // We sometimes generate multiple promises from a single IDBRequest (eg when cursoring), because
+        // IDB is weird and a single IDBRequest can yield many responses, so these can't be cached.
+        if (value instanceof IDBRequest)
+            return promisifyRequest(value);
+        // If we've already transformed this value before, reuse the transformed value.
+        // This is faster, but it also provides object equality.
+        if (transformCache.has(value))
+            return transformCache.get(value);
+        const newValue = transformCachableValue(value);
+        // Not all types are transformed.
+        // These may be primitive types, so they can't be WeakMap keys.
+        if (newValue !== value) {
+            transformCache.set(value, newValue);
+            reverseTransformCache.set(newValue, value);
+        }
+        return newValue;
+    }
+    const unwrap = (value) => reverseTransformCache.get(value);
+
+    /**
+     * Open a database.
+     *
+     * @param name Name of the database.
+     * @param version Schema version.
+     * @param callbacks Additional callbacks.
+     */
+    function openDB(name, version, { blocked, upgrade, blocking, terminated } = {}) {
+        const request = indexedDB.open(name, version);
+        const openPromise = wrap(request);
+        if (upgrade) {
+            request.addEventListener('upgradeneeded', (event) => {
+                upgrade(wrap(request.result), event.oldVersion, event.newVersion, wrap(request.transaction));
             });
         }
-        catch (e) {
-            api.logger.error(e);
-            return Promise.resolve();
-        }
-    };
+        if (blocked)
+            request.addEventListener('blocked', () => blocked());
+        openPromise
+            .then((db) => {
+            if (terminated)
+                db.addEventListener('close', () => terminated());
+            if (blocking)
+                db.addEventListener('versionchange', () => blocking());
+        })
+            .catch(() => { });
+        return openPromise;
+    }
 
-    var hookCloseEvents = function (api, config, control) {
+    const readMethods = ['get', 'getKey', 'getAll', 'getAllKeys', 'count'];
+    const writeMethods = ['put', 'add', 'delete', 'clear'];
+    const cachedMethods = new Map();
+    function getMethod(target, prop) {
+        if (!(target instanceof IDBDatabase &&
+            !(prop in target) &&
+            typeof prop === 'string')) {
+            return;
+        }
+        if (cachedMethods.get(prop))
+            return cachedMethods.get(prop);
+        const targetFuncName = prop.replace(/FromIndex$/, '');
+        const useIndex = prop !== targetFuncName;
+        const isWrite = writeMethods.includes(targetFuncName);
+        if (
+        // Bail if the target doesn't exist on the target. Eg, getAll isn't in Edge.
+        !(targetFuncName in (useIndex ? IDBIndex : IDBObjectStore).prototype) ||
+            !(isWrite || readMethods.includes(targetFuncName))) {
+            return;
+        }
+        const method = async function (storeName, ...args) {
+            // isWrite ? 'readwrite' : undefined gzipps better, but fails in Edge :(
+            const tx = this.transaction(storeName, isWrite ? 'readwrite' : 'readonly');
+            let target = tx.store;
+            if (useIndex)
+                target = target.index(args.shift());
+            const returnVal = await target[targetFuncName](...args);
+            if (isWrite)
+                await tx.done;
+            return returnVal;
+        };
+        cachedMethods.set(prop, method);
+        return method;
+    }
+    replaceTraps((oldTraps) => ({
+        ...oldTraps,
+        get: (target, prop, receiver) => getMethod(target, prop) || oldTraps.get(target, prop, receiver),
+        has: (target, prop) => !!getMethod(target, prop) || oldTraps.has(target, prop),
+    }));
+
+    var LocalStore = (function () {
+        function LocalStore() {
+            if (!("indexedDB" in window)) {
+                throw new Error("Cannot initialize the local storage, because IndexedDb is not supported");
+            }
+        }
+        Object.defineProperty(LocalStore.prototype, "database", {
+            get: function () {
+                var _this = this;
+                if (this._database) {
+                    return Promise.resolve(this._database);
+                }
+                return new Promise(function (resolve) {
+                    openDB(dbName, dbVersion, { upgrade: _this.setUpDb.bind(_this) })
+                        .then(function (database) {
+                        _this._database = database;
+                        resolve(_this._database);
+                    });
+                });
+            },
+            enumerable: true,
+            configurable: true
+        });
+        LocalStore.prototype.getAll = function (layoutType) {
+            return __awaiter(this, void 0, void 0, function () {
+                var _a;
+                return __generator(this, function (_b) {
+                    switch (_b.label) {
+                        case 0:
+                            _a = layoutType;
+                            switch (_a) {
+                                case "Workspace": return [3, 1];
+                                case "Global": return [3, 3];
+                            }
+                            return [3, 5];
+                        case 1: return [4, this.database];
+                        case 2: return [2, (_b.sent()).getAll("workspaceLayouts")];
+                        case 3: return [4, this.database];
+                        case 4: return [2, (_b.sent()).getAll("globalLayouts")];
+                        case 5: throw new Error("The provided layout type is not recognized: " + layoutType);
+                    }
+                });
+            });
+        };
+        LocalStore.prototype.delete = function (name, layoutType) {
+            return __awaiter(this, void 0, void 0, function () {
+                var _a;
+                return __generator(this, function (_b) {
+                    switch (_b.label) {
+                        case 0:
+                            _a = layoutType;
+                            switch (_a) {
+                                case "Workspace": return [3, 1];
+                                case "Global": return [3, 3];
+                            }
+                            return [3, 5];
+                        case 1: return [4, this.database];
+                        case 2: return [2, (_b.sent()).delete("workspaceLayouts", name)];
+                        case 3: return [4, this.database];
+                        case 4: return [2, (_b.sent()).delete("globalLayouts", name)];
+                        case 5: throw new Error("The provided layout type is not recognized: " + layoutType);
+                    }
+                });
+            });
+        };
+        LocalStore.prototype.get = function (name, layoutType) {
+            return __awaiter(this, void 0, void 0, function () {
+                var _a;
+                return __generator(this, function (_b) {
+                    switch (_b.label) {
+                        case 0:
+                            _a = layoutType;
+                            switch (_a) {
+                                case "Workspace": return [3, 1];
+                                case "Global": return [3, 3];
+                            }
+                            return [3, 5];
+                        case 1: return [4, this.database];
+                        case 2: return [2, (_b.sent()).get("workspaceLayouts", name)];
+                        case 3: return [4, this.database];
+                        case 4: return [2, (_b.sent()).get("globalLayouts", name)];
+                        case 5: throw new Error("The provided layout type is not recognized: " + layoutType);
+                    }
+                });
+            });
+        };
+        LocalStore.prototype.store = function (layout, layoutType) {
+            return __awaiter(this, void 0, void 0, function () {
+                var _a;
+                return __generator(this, function (_b) {
+                    switch (_b.label) {
+                        case 0:
+                            _a = layoutType;
+                            switch (_a) {
+                                case "Workspace": return [3, 1];
+                                case "Global": return [3, 3];
+                            }
+                            return [3, 5];
+                        case 1: return [4, this.database];
+                        case 2: return [2, (_b.sent()).put("workspaceLayouts", layout, layout.name)];
+                        case 3: return [4, this.database];
+                        case 4: return [2, (_b.sent()).put("globalLayouts", layout, layout.name)];
+                        case 5: throw new Error("The provided layout type is not recognized: " + layoutType);
+                    }
+                });
+            });
+        };
+        LocalStore.prototype.setUpDb = function (database) {
+            if (!database.objectStoreNames.contains("workspaceLayouts")) {
+                database.createObjectStore("workspaceLayouts");
+            }
+            if (!database.objectStoreNames.contains("globalLayouts")) {
+                database.createObjectStore("globalLayouts");
+            }
+        };
+        return LocalStore;
+    }());
+
+    var JSONStore = (function () {
+        function JSONStore(storeBaseUrl) {
+            this.storeBaseUrl = storeBaseUrl;
+        }
+        JSONStore.prototype.getAll = function (layoutType) {
+            return __awaiter(this, void 0, void 0, function () {
+                var fetchUrl, response, layouts, error_1, layoutProp;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            fetchUrl = this.storeBaseUrl + "/glue.layouts.json";
+                            return [4, this.fetchTimeout(fetchUrl)];
+                        case 1:
+                            response = _a.sent();
+                            if (!response.ok) {
+                                return [2, []];
+                            }
+                            _a.label = 2;
+                        case 2:
+                            _a.trys.push([2, 4, , 5]);
+                            return [4, response.json()];
+                        case 3:
+                            layouts = _a.sent();
+                            return [3, 5];
+                        case 4:
+                            error_1 = _a.sent();
+                            return [2, []];
+                        case 5:
+                            if (!layouts) {
+                                return [2, []];
+                            }
+                            layoutProp = layoutType === "Global" ? "globals" : "workspaces";
+                            return [2, layouts[layoutProp] || []];
+                    }
+                });
+            });
+        };
+        JSONStore.prototype.get = function (name, layoutType) {
+            return __awaiter(this, void 0, void 0, function () {
+                var allLayouts;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4, this.getAll(layoutType)];
+                        case 1:
+                            allLayouts = _a.sent();
+                            return [2, allLayouts.find(function (layout) { return layout.name === name; })];
+                    }
+                });
+            });
+        };
+        JSONStore.prototype.fetchTimeout = function (url, timeoutMilliseconds) {
+            if (timeoutMilliseconds === void 0) { timeoutMilliseconds = 1000; }
+            return new Promise(function (resolve, reject) {
+                var timeoutHit = false;
+                var timeout = setTimeout(function () {
+                    timeoutHit = true;
+                    reject(new Error("Fetch request for: " + url + " timed out at: " + timeoutMilliseconds + " milliseconds"));
+                }, timeoutMilliseconds);
+                fetch(url)
+                    .then(function (response) {
+                    if (!timeoutHit) {
+                        clearTimeout(timeout);
+                        resolve(response);
+                    }
+                })
+                    .catch(function (err) {
+                    if (!timeoutHit) {
+                        clearTimeout(timeout);
+                        reject(err);
+                    }
+                });
+            });
+        };
+        return JSONStore;
+    }());
+
+    var AutoStorage = (function () {
+        function AutoStorage() {
+        }
+        AutoStorage.prototype.get = function (name, type) {
+            var obj = this.getObjectFromLocalStorage();
+            var key = this.getKey(name, type);
+            return obj[key];
+        };
+        AutoStorage.prototype.save = function (layout) {
+            var obj = this.getObjectFromLocalStorage();
+            var key = this.getKey(layout.name, layout.type);
+            obj[key] = layout;
+            this.setObjectToLocalStorage(obj);
+            return layout;
+        };
+        AutoStorage.prototype.remove = function (name, type) {
+            var obj = this.getObjectFromLocalStorage();
+            var key = this.getKey(name, type);
+            delete obj[key];
+        };
+        AutoStorage.prototype.getObjectFromLocalStorage = function () {
+            var values = window.localStorage.getItem(AutoStorage.KEY);
+            if (values) {
+                return JSON.parse(values);
+            }
+            return {};
+        };
+        AutoStorage.prototype.setObjectToLocalStorage = function (obj) {
+            window.localStorage.setItem(AutoStorage.KEY, JSON.stringify(obj));
+        };
+        AutoStorage.prototype.getKey = function (name, type) {
+            return type + "_" + name;
+        };
+        AutoStorage.KEY = "G0_layouts";
+        return AutoStorage;
+    }());
+
+    var hookCloseEvents = function (api, config, control, layoutsController) {
         var done = false;
         var doneFn = function () { return __awaiter(void 0, void 0, void 0, function () {
-            var shouldSave, allChildren, firstChild, layoutName, layouts, command;
+            var shouldSave, allChildren, firstChild, layoutName, command;
             var _a;
             return __generator(this, function (_b) {
                 if (!done) {
@@ -1753,7 +3717,6 @@
                         firstChild = allChildren[0];
                         layoutName = "_auto_" + document.location.href;
                         if (allChildren.length > 0) {
-                            layouts = api.layouts;
                             command = {
                                 domain: "layouts",
                                 command: "saveLayoutAndClose",
@@ -1763,13 +3726,13 @@
                                     layoutName: layoutName,
                                     context: {},
                                     metadata: {},
-                                    parentInfo: layouts.getLocalLayoutComponent({}, true)
+                                    parentInfo: layoutsController === null || layoutsController === void 0 ? void 0 : layoutsController.getLocalLayoutComponent({}, true)
                                 }
                             };
                             control.send(command, { windowId: firstChild });
                         }
                         else {
-                            api.layouts.save({ name: layoutName });
+                            layoutsController === null || layoutsController === void 0 ? void 0 : layoutsController.autoSave({ name: layoutName });
                         }
                     }
                     api.done();
@@ -1783,22 +3746,25 @@
     };
     var createFactoryFunction = function (coreFactoryFunction) {
         return function (config) { return __awaiter(void 0, void 0, void 0, function () {
-            var builtCoreConfig, isWebEnvironment, shouldInitializeChannels, gdWindowContext, control, windows, ext, channelsLib, coreConfig, core;
-            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
-            return __generator(this, function (_m) {
-                switch (_m.label) {
+            var builtCoreConfig, isWebEnvironment, shouldInitializeChannels, shouldInitializeAppManager, gdWindowContext, control, windows, layoutsController, ext, channelsLib, appManagerLib, coreConfig, core;
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
+            return __generator(this, function (_r) {
+                switch (_r.label) {
                     case 0: return [4, buildConfig(config)];
                     case 1:
-                        builtCoreConfig = _m.sent();
+                        builtCoreConfig = _r.sent();
                         isWebEnvironment = typeof window !== "undefined";
                         shouldInitializeChannels = ((_a = builtCoreConfig.glue) === null || _a === void 0 ? void 0 : _a.channels) || false;
+                        shouldInitializeAppManager = ((_b = builtCoreConfig.glue) === null || _b === void 0 ? void 0 : _b.appManager) || false;
                         if (isWebEnvironment) {
                             gdWindowContext = window;
                             if ((gdWindowContext === null || gdWindowContext === void 0 ? void 0 : gdWindowContext.glue42gd) && (gdWindowContext === null || gdWindowContext === void 0 ? void 0 : gdWindowContext.Glue)) {
                                 return [2, gdWindowContext.Glue({
                                         windows: true,
-                                        logger: (_b = builtCoreConfig.glue) === null || _b === void 0 ? void 0 : _b.logger,
-                                        channels: shouldInitializeChannels
+                                        logger: (_c = builtCoreConfig.glue) === null || _c === void 0 ? void 0 : _c.logger,
+                                        channels: shouldInitializeChannels,
+                                        layouts: true,
+                                        appManager: shouldInitializeAppManager
                                     })];
                             }
                         }
@@ -1817,10 +3783,10 @@
                                 name: "channels",
                                 create: function (coreLib) { return new Channels(coreLib.contexts, builtCoreConfig.channels); }
                             };
-                            (_c = ext.libs) === null || _c === void 0 ? void 0 : _c.push(channelsLib);
+                            (_d = ext.libs) === null || _d === void 0 ? void 0 : _d.push(channelsLib);
                         }
                         if (isWebEnvironment) {
-                            (_d = ext.libs) === null || _d === void 0 ? void 0 : _d.push({
+                            (_e = ext.libs) === null || _e === void 0 ? void 0 : _e.push({
                                 name: "windows",
                                 create: function (coreLib) {
                                     windows = new Windows(coreLib.interop, control);
@@ -1828,33 +3794,52 @@
                                 }
                             }, {
                                 name: "layouts",
-                                create: function (coreLib) { return new Layouts(windows, coreLib.interop, coreLib.logger.subLogger("layouts"), control, builtCoreConfig.glue); }
+                                create: function (coreLib) {
+                                    var _a;
+                                    var remoteStore;
+                                    if (((_a = builtCoreConfig.layouts) === null || _a === void 0 ? void 0 : _a.remoteType) === "json") {
+                                        remoteStore = new JSONStore("/glue");
+                                    }
+                                    var localStore = new LocalStore();
+                                    var autoStore = new AutoStorage();
+                                    var layoutsStorage = new LayoutStorage(localStore, autoStore, remoteStore);
+                                    layoutsController = new LayoutsController(layoutsStorage, windows, control, coreLib.interop, builtCoreConfig === null || builtCoreConfig === void 0 ? void 0 : builtCoreConfig.glue);
+                                    return new Layouts(layoutsController);
+                                }
                             });
+                            if (shouldInitializeAppManager) {
+                                appManagerLib = {
+                                    name: "appManager",
+                                    create: function (coreLib) { var _a; return new AppManager(windows, coreLib.interop, control, builtCoreConfig.appManager, (_a = builtCoreConfig.glue) === null || _a === void 0 ? void 0 : _a.application); }
+                                };
+                                (_f = ext.libs) === null || _f === void 0 ? void 0 : _f.push(appManagerLib);
+                            }
                         }
                         coreConfig = {
                             gateway: {
-                                sharedWorker: (_f = (_e = builtCoreConfig.glue) === null || _e === void 0 ? void 0 : _e.worker) !== null && _f !== void 0 ? _f : defaultWorkerLocation,
-                                inproc: (_g = builtCoreConfig.glue) === null || _g === void 0 ? void 0 : _g.inproc
+                                sharedWorker: (_h = (_g = builtCoreConfig.glue) === null || _g === void 0 ? void 0 : _g.worker) !== null && _h !== void 0 ? _h : defaultWorkerLocation,
+                                inproc: (_j = builtCoreConfig.glue) === null || _j === void 0 ? void 0 : _j.inproc
                             },
-                            logger: (_h = builtCoreConfig.glue) === null || _h === void 0 ? void 0 : _h.logger
+                            logger: (_k = builtCoreConfig.glue) === null || _k === void 0 ? void 0 : _k.logger,
+                            application: (_l = builtCoreConfig.glue) === null || _l === void 0 ? void 0 : _l.application
                         };
                         return [4, coreFactoryFunction(coreConfig, ext)];
                     case 2:
-                        core = _m.sent();
+                        core = _r.sent();
                         control.start(core.interop, core.logger.subLogger("control"));
                         if (!isWebEnvironment) return [3, 7];
-                        return [4, initStartupContext(core.windows.my(), core.interop)];
+                        return [4, initStartupContext(core.windows.my(), core.interop, (_m = core.appManager) === null || _m === void 0 ? void 0 : _m.myInstance)];
                     case 3:
-                        _m.sent();
-                        if (!((_k = (_j = builtCoreConfig.glue) === null || _j === void 0 ? void 0 : _j.layouts) === null || _k === void 0 ? void 0 : _k.autoRestore)) return [3, 5];
-                        return [4, restoreAutoSavedLayout(core)];
+                        _r.sent();
+                        if (!((_p = (_o = builtCoreConfig.glue) === null || _o === void 0 ? void 0 : _o.layouts) === null || _p === void 0 ? void 0 : _p.autoRestore)) return [3, 5];
+                        return [4, (layoutsController === null || layoutsController === void 0 ? void 0 : layoutsController.restoreAutoSavedLayout())];
                     case 4:
-                        _m.sent();
-                        _m.label = 5;
-                    case 5: return [4, hookCloseEvents(core, (_l = builtCoreConfig.glue) !== null && _l !== void 0 ? _l : {}, control)];
+                        _r.sent();
+                        _r.label = 5;
+                    case 5: return [4, hookCloseEvents(core, (_q = builtCoreConfig.glue) !== null && _q !== void 0 ? _q : {}, control, layoutsController)];
                     case 6:
-                        _m.sent();
-                        _m.label = 7;
+                        _r.sent();
+                        _r.label = 7;
                     case 7: return [2, core];
                 }
             });
@@ -1890,15 +3875,15 @@
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     }
 
-    var __assign$1 = function() {
-        __assign$1 = Object.assign || function __assign(t) {
+    var __assign$2 = function() {
+        __assign$2 = Object.assign || function __assign(t) {
             for (var s, i = 1, n = arguments.length; i < n; i++) {
                 s = arguments[i];
                 for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
             }
             return t;
         };
-        return __assign$1.apply(this, arguments);
+        return __assign$2.apply(this, arguments);
     };
 
     function __awaiter$1(thisArg, _arguments, P, generator) {
@@ -2272,9 +4257,9 @@
             }
         };
         var cloneMetric = function (metric) {
-            var metricClone = __assign$1({}, metric);
+            var metricClone = __assign$2({}, metric);
             if (typeof metric.value === "object" && metric.value !== null) {
-                metricClone.value = __assign$1({}, metric.value);
+                metricClone.value = __assign$2({}, metric.value);
             }
             return metricClone;
         };
@@ -2867,6 +4852,10 @@
             if (typeof Utils._isNode !== "undefined") {
                 return Utils._isNode;
             }
+            if (typeof window !== "undefined") {
+                Utils._isNode = false;
+                return false;
+            }
             try {
                 Utils._isNode = Object.prototype.toString.call(global.process) === "[object process]";
             }
@@ -3367,11 +5356,11 @@
     module.exports.decode = decode_1;
     module.exports.isValid = isValid$1;
     });
-    var lib_1$1 = lib$1$1.generate;
-    var lib_2$1 = lib$1$1.seed;
-    var lib_3$1 = lib$1$1.worker;
-    var lib_4$1 = lib$1$1.characters;
-    var lib_5$1 = lib$1$1.decode;
+    var lib_1 = lib$1$1.generate;
+    var lib_2 = lib$1$1.seed;
+    var lib_3 = lib$1$1.worker;
+    var lib_4 = lib$1$1.characters;
+    var lib_5 = lib$1$1.decode;
     var lib_6 = lib$1$1.isValid;
 
     var shortid$1 = lib$1$1;
@@ -4331,7 +6320,7 @@
         }
     };
 
-    var version$2 = "5.0.6";
+    var version$2 = "5.0.7";
 
     function prepareConfig (configuration, ext, glue42gd) {
         var _a, _b, _c, _d;
@@ -4540,7 +6529,7 @@
     function applyContextDelta(context, delta) {
         if (delta) {
             if (delta.reset) {
-                context = __assign$1({}, delta.reset);
+                context = __assign$2({}, delta.reset);
                 return context;
             }
             context = deepClone(context, undefined);
@@ -5251,7 +7240,7 @@
         Client.prototype.servers = function (methodFilter) {
             var filterCopy = methodFilter === undefined
                 ? undefined
-                : __assign$1({}, methodFilter);
+                : __assign$2({}, methodFilter);
             return this.getServers(filterCopy).map(function (serverMethodMap) {
                 return serverMethodMap.server.instance;
             });
@@ -5261,7 +7250,7 @@
                 methodFilter = { name: methodFilter };
             }
             else {
-                methodFilter = __assign$1({}, methodFilter);
+                methodFilter = __assign$2({}, methodFilter);
             }
             return this.getMethods(methodFilter);
         };
@@ -5308,7 +7297,7 @@
                                         methodDefinition = { name: methodFilter };
                                     }
                                     else {
-                                        methodDefinition = __assign$1({}, methodFilter);
+                                        methodDefinition = __assign$2({}, methodFilter);
                                     }
                                     if (!methodDefinition.name) {
                                         return [2, Promise.reject("Method definition is required. Please, provide either a unique string for a method name or a \u201CmethodDefinition\u201D object with a required \u201Cname\u201D property.")];
@@ -5354,7 +7343,7 @@
                                     return [3, 4];
                                 case 3:
                                     err_1 = _b.sent();
-                                    method = __assign$1(__assign$1({}, methodDefinition), { getServers: function () { return []; }, supportsStreaming: false, objectTypes: (_a = methodDefinition.objectTypes) !== null && _a !== void 0 ? _a : [] });
+                                    method = __assign$2(__assign$2({}, methodDefinition), { getServers: function () { return []; }, supportsStreaming: false, objectTypes: (_a = methodDefinition.objectTypes) !== null && _a !== void 0 ? _a : [] });
                                     errorObj = {
                                         method: method,
                                         called_with: argumentObj,
@@ -5830,7 +7819,7 @@
                     streamMethodDefinition = { name: "" + streamDef };
                 }
                 else {
-                    streamMethodDefinition = __assign$1({}, streamDef);
+                    streamMethodDefinition = __assign$2({}, streamDef);
                 }
                 if (!streamMethodDefinition.name) {
                     return reject("The \u201Cname\u201D property is required for the \u201CstreamDefinition\u201D object and must be unique. Stream definition: " + JSON.stringify(streamMethodDefinition));
@@ -6055,7 +8044,7 @@
                                 methodDefinition = { name: "" + method };
                             }
                             else {
-                                methodDefinition = __assign$1({}, method);
+                                methodDefinition = __assign$2({}, method);
                             }
                             if (!methodDefinition.name) {
                                 return [2, Promise.reject("Please, provide a (unique) string value for the \u201Cname\u201D property in the \u201CmethodDefinition\u201D object: " + JSON.stringify(method))];
