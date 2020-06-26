@@ -252,16 +252,16 @@ Note that if you go with this approach, you will have to rebuild the **Clients**
 
 Now, you need to initialize the [**Glue42 Web**](../../../reference/core/latest/glue42%20web/index.html) library in each of the components. 
 
-First, install the Glue42 Web and the Glue42 React Hooks libraries for both applications:
+First, install the Glue42 React Hooks libraries for both applications:
 
 ```cmd
-npm install --save @glue42/web @glue42/react-hooks
+npm install --save @glue42/react-hooks
 ```
 
-Next, in the `index.js` files of both apps import the `@glue42/web` and `@glue42/react-hooks` libraries:
+Next, in the `index.js` files of both apps import the factory function from `@glue42/web` and pass it to the `GlueProvider`:
 
 ```javascript
-import "@glue42/web";
+import GlueWeb from "@glue42/web";
 import { GlueProvider } from "@glue42/react-hooks";
 ```
 
@@ -269,7 +269,7 @@ Wrap the `App` component with the `GlueProvider` component so you can consume th
 
 ```javascript
 ReactDOM.render(
-    <GlueProvider>
+    <GlueProvider glueFactory={GlueWeb}>
         <App />
     </GlueProvider>,
     document.getElementById("root")
@@ -906,7 +906,7 @@ To enable the Channels API, you need to pass a configuration object to the `Glue
 
 ```javascript
 // Enabling the Channels API.
-<GlueProvider config={{ channels: true }}>
+<GlueProvider config={{ channels: true }} glueFactory={GlueWeb}>
     ...
 </GlueProvider>
 ```

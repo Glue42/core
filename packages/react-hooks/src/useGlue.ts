@@ -1,9 +1,10 @@
 import { useContext, useEffect, useState } from "react";
 import { GlueContext } from "./Glue";
 import { Glue42Web } from "@glue42/web";
+import { Glue42 } from "@glue42/desktop";
 
 export const useGlue = <T = undefined>(
-    cb: (glue: Glue42Web.API, ...dependencies: any[]) => void | Promise<T> | T,
+    cb: (glue: Glue42Web.API | Glue42.Glue, ...dependencies: any[]) => void | Promise<T> | T,
     dependencies: any[] = []
 ): T => {
     const [result, setResult] = useState<T>();

@@ -61,7 +61,7 @@ describe("<GlueProvider/>", () => {
         await act(async () => {
             const Fallback = () => <div id="fallback" />;
             wrapper = mount(
-                <GlueProvider fallback={<Fallback />}>
+                <GlueProvider fallback={<Fallback />} glueFactory={mockedGlueFactory}>
                     <div />
                 </GlueProvider>
             );
@@ -73,7 +73,7 @@ describe("<GlueProvider/>", () => {
         let wrapper: ReactWrapper;
         await act(async () => {
             wrapper = mount(
-                <GlueProvider>
+                <GlueProvider glueFactory={mockedGlueFactory}>
                     <div />
                 </GlueProvider>
             );
