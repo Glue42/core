@@ -144,7 +144,7 @@ export const createFactoryFunction = (coreFactoryFunction: GlueCoreFactoryFuncti
         control.start(core.interop, core.logger.subLogger("control"));
         if (isWebEnvironment) {
             // fill in our window context
-            await initStartupContext(core.windows.my() as LocalWebWindow, core.interop, core.appManager.myInstance as LocalInstance);
+            await initStartupContext(core.windows.my() as LocalWebWindow, core.interop, core.appManager?.myInstance as LocalInstance);
             // if there is a saved layout restore it
             if (builtCoreConfig.glue?.layouts?.autoRestore) {
                 await restoreAutoSavedLayout(core);
