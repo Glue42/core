@@ -101,9 +101,9 @@ In the next section, you will see an example that uses the AppManager API. You c
 
 ## Discovering and Starting of Applications, Application and Instance Events
 
-App A below demonstrates how to discover the application definitions from `glue.config.json` using the [`applications()`](../../../reference/core/latest/appManager/index.html#!API-applications) method of the AppManager API. It also allows us to start the applications using the [`start()`](../../../reference/core/latest/appManager/index.html#!Application-start) method of the applications. Additionally it lists all instances of running applications and allows us to stop them using the instance's [`stop()`](../../../reference/core/latest/appManager/index.html#!Instance-stop) method.
+App A below demonstrates how to discover the application definitions from `glue.config.json` using the [`applications()`](../../../reference/core/latest/appmanager/index.html#!API-applications) method of the AppManager API. It also allows us to start the applications using the [`start()`](../../../reference/core/latest/appmanager/index.html#!Application-start) method of the applications. Additionally it lists all instances of running applications and allows us to stop them using the instance's [`stop()`](../../../reference/core/latest/appmanager/index.html#!Instance-stop) method.
 
-App B is subscribed for the [`onInstanceStarted()`](../../../reference/core/latest/appManager/index.html#!API-onInstanceStarted) and [`onInstanceStopped()`](../../../reference/core/latest/appManager/index.html#!API-onInstanceStopped) events and logs whenever an instance is started/stopped.
+App B is subscribed for the [`onInstanceStarted()`](../../../reference/core/latest/appmanager/index.html#!API-onInstanceStarted) and [`onInstanceStopped()`](../../../reference/core/latest/appmanager/index.html#!API-onInstanceStopped) events and logs whenever an instance is started/stopped.
 
 The applications are defined inside of glue.config.json with their names and urls.
 

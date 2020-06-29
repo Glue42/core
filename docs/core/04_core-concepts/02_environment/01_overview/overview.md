@@ -75,7 +75,7 @@ For more information on defining a custom log appender, see the [Advanced Setup]
 
 The shape of the property is the same as the [**Glue42 Enterprise: Channels Configuration**](../../../../developers/configuration/channels/index.html#channels_configuration).
 
-- `appManager` - An *optional* configuration property that defines the local application definitions and the remote sources of application definitions. The applications and application instances accessed using the [App Manager API]([color channels](../../../capabilities/application-management/index.html)). They can be discovered, started/stopped and listened for using events.
+- `appManager` - An *optional* configuration property that defines the local application definitions and the remote sources of application definitions. The applications and application instances accessed using the [App Manager API](../../../capabilities/application-management/index.html). They can be discovered, started/stopped and listened for using events.
 
 The `appManager` top-level key has the following properties:
 
