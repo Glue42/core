@@ -9,7 +9,6 @@
     "bootstrap": "lerna bootstrap",
     "build": "lerna run build",
     "test": "npm run test:scripts && lerna run test",
-    "e2e-server": "gluec serve --cwd=./e2e/config",
     "e2e": "node ./e2e/index.js",
     "release": "gulp release",
     "test:scripts": "mocha ./scripts/test/**/*spec.js",
