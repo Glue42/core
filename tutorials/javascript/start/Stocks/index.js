@@ -138,6 +138,8 @@ const stockClickedHandler = (stock) => {
 
     // TODO: Chapter 4.1
     window.location.href = `http://${window.location.host}/stocks/details/index.html`;
+
+    // TODO: Chapter 7.2
 };
 
 const start = async () => {
@@ -163,6 +165,8 @@ const start = async () => {
     // TODO: Chapter 6.2
 
     // TODO: Chapter 6.3
+
+    // TODO: Chapter 7.3
 };
 
 start().catch(console.error);

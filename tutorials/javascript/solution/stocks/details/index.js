@@ -37,7 +37,7 @@ const toggleGlueAvailable = () => {
     const span = document.getElementById('glueSpan');
     span.classList.remove('label-warning');
     span.classList.add('label-success');
-    span.textContent = 'Glue is available';
+    span.textContent = 'Glue42 is available';
 };
 
 const updateClientStatus = (client, stock) => {

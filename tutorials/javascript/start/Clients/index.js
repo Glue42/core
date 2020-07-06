@@ -47,6 +47,8 @@ const clientClickedHandler = (client) => {
     // TODO: Chapter 5.1
 
     // TODO: Chapter 6.3
+
+    // TODO: Chapter 7.3
 };
 
 const start = async () => {

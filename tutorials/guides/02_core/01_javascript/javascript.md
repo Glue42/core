@@ -670,29 +670,13 @@ glue.channels.subscribe();
 
 ## 7. Application Management
 
-While we wait for our users' feedback on v1 we need to take a step back to address some of the tech debt that was accumulated during the v1 sprint.
+Up until now the **Stocks** app had to use the Window Management API to open the **Stock Details** application when the user clicks on a stock. This works fine for small projects, but does not scale well for larger ones, because this way each app has to know all details (URL, start position, initial context, etc.) about every application it needs to start. In this chapter you will replace the Window Management API with the [Application Management API](../../../reference/core/latest/appmanager/index.html) which will allow you to predefine the applications in the [Glue42 Environment](../../../core/core-concepts/environment/overview/index.html). The **Stocks** app will be decoupled from the **Stock Details** - it will need only the name of the **Stock Details** app to be able to start it.
 
-### 7.1. Overview
+### 7.1. Application Configuration
 
-Up until now we used the Windows API to open the details application whenever a stock row inside of the stocks application is clicked. This works fine for small projects, but it doesn't scale well, because each application needs to know all details like url, start position, initial context, etc. about every other application it needs to start. In this chapter we will replace the Windows API with the AppManager API. It will allow us to predefine our applications inside the Glue42 Core environment, decoupling the stocks application from knowing anything about the details application besides its name.
+To take advantage of the [Application Management API](../../../reference/core/latest/appmanager/index.html), you need to define configurations for your applications in the `glue.config.json` file of your project and enable the Application Management API by passing a [`Config`](../../../reference/core/latest/glue42%20web/index.html#!Config) object during the initialization of the [Glue42 Web](../../../reference/core/latest/glue42%20web/index.html) library in each application.
 
-### 7.2. Configuring applications
-
-To take advantage of the AppManager API we first need to initialize the API by passing `{ appManager: true }` together with the application name to the GlueWeb (@glue42/web) factory function like this:
-
-```javascript
-// In `start()`.
-
-await window.GlueWeb({
-    channels: true,
-    appManager: true,
-    application: 'Clients'
-});
-```
-
-Do this for all three applications, passing in the correct application name. The application name is used by the platform to map it to an application definition that is then accessible using `glue.appManager.myInstance.application`. For the mapping to work when the application is accessed directly using the URL and not Glue42 Core's APIs it is important that the application name provided to `GlueWeb` is the same as the application name defined inside the local/remote application definition of the application!
-
-Additionally we need to predefine our applications inside our Glue42 Core environment. We do this by adding the following configuration to the `glue.config.json`. After adding it restart the `gluec` by quitting it and running `gluec serve` again for the changes to take effect:
+First, open the `glue.config.json` and add the following application configurations using the `appManager` top-level key. Restart the Glue42 CLI by quitting it and running the `gluec serve` command again for the changes to take effect:
 
 ```json
 {
@@ -718,7 +702,7 @@ Additionally we need to predefine our applications inside our Glue42 Core enviro
                 }
             },
             {
-                "name": "Details",
+                "name": "Stock Details",
                 "details": {
                     "url": "http://localhost:4242/stocks/details",
                     "left": 100,
@@ -732,72 +716,75 @@ Additionally we need to predefine our applications inside our Glue42 Core enviro
 }
 ```
 
-Well done. Тhe GlueWeb factory function will now initialize the AppManager API inside of our applications.
+After that enable the Application Management API by passing `{ appManager: true }` and the application name to the `GlueWeb()` factory function:
 
-### 7.3. Application starting
+```javascript
+// In `start()`.
+const config = {
+    channels: true,
+    appManager: true,
+    application: "Clients"
+}
 
-To open the details application inside of the stocks application we will now switch from using the Windows API to using the AppManager API. After getting the Application using `glue.appManager.application("Details")` we can simply call `detailsApplication.start()` like this:
+window.glue = await GlueWeb(config);
+```
+
+Do this for all three applications, passing in the correct application name. The application name is used by the platform to map it to the respective local/remote application definition that is then accessible through `glue.appManager.myInstance.application`. For the mapping to work, it is important that the application name provided to `GlueWeb()` is the same as the application name defined in the local/remote application configuration.
+
+### 7.2. Starting Applications
+
+Go to the **Stocks** app and find the `TODO: Chapter 7.2` comment. Comment out or delete the code that uses the Window Management API to open the **Stock Details** app. Now use the `glue.appManager.application()` method to get the **Stock Details** app and call the `start()` method on the application object to start it. The `start()` method also accepts a context object as first parameter that will be passed as context to the started application instance:
 
 ```javascript
 // In `stockClickedHandler()`.
 
-const detailsApplication = window.glue.appManager.application('Details');
+const detailsApplication = glue.appManager.application("Stock Details");
+
+// Start the app and pass the `stock` as context.
 detailsApplication.start(stock).catch(console.error);
 ```
 
-To receive and to set the stock inside of the details application:
+To get the `stock` from the starting context in the **Stock Details** application:
 
 ```javascript
 // In `start()`.
 
-const stock = window.glue.appManager.myInstance.context;
+const stock = glue.appManager.myInstance.context;
 
 setFields(stock);
 ```
 
-Great work! Everything should work as before.
+Now everything should work as before, the difference being that the apps now use the Application Management API instead of the Window Management API.
 
-### 7.4. Application instances
+### 7.3. Application Instances
 
-Let's use the AppManager API to add new functionality to the clients application. Each Application from the AppManager API has an `app.instances` property that allows us to get the running instances of an application. Whenever a client is selected we can check whether or not we have a running instance of the stocks application and if we don't we can start one using the AppManager API like this:
+Next, you will use the Application Management API to add new functionality to the **Clients** application. When the user selects a client, you can check whether there is a running instance of the **Stocks** app, and if there isn't one, you will start the **Stocks** app. You will also pass the current channel as context to the started instance of the **Stocks** app. Each application object has an `instances` property that allows you to get the running instances of the application.
 
-```javascript
-// In `clientClickedHandler()`.
-
-const isStocksRunning = window.glue.appManager.application('Stocks').instances.length > 0;
-
-if (!isStocksRunning) {
-    window.glue.appManager.application('Stocks').start().catch(console.error);
-}
-```
-
-Like with the Windows API we can pass initial context to an application started using `start()`. Let's pass the current channel of the clients application to the stocks application as context on start like this:
+Go the the **Clients** app, find the `TODO: Chapter 7.3` comment, check for running instances of the **Stocks** app and if there aren't any, start one. Pass the current channel as context to the started instance:
 
 ```javascript
 // In `clientClickedHandler()`.
 
-const myChannel = window.glue.channels.my();
-
-const isStocksRunning = window.glue.appManager.application('Stocks').instances.length > 0;
+const isStocksRunning = glue.appManager.application("Stocks").instances.length > 0;
 
 if (!isStocksRunning) {
-    window.glue.appManager.application('Stocks').start({ channel: myChannel }).catch(console.error);
-}
+    glue.appManager.application("Stocks").start({ channel: currentChannel }).catch(console.error);
+};
 ```
 
-Now inside the stocks application to receive and to join the channel:
+Now go to the **Stocks** application, find the `TODO: Chapter 7.3` comment and use the following to receive and join the channel:
 
 ```javascript
 // In `start()`.
 
-const channelToJoin = window.glue.appManager.myInstance.context.channel;
+const channelToJoin = glue.appManager.myInstance.context.channel;
 
 if (channelToJoin) {
-    window.glue.channels.join(channelToJoin);
-}
+    glue.channels.join(channelToJoin);
+};
 ```
 
-This won't, however, rerender the Channel Selector Widget with the newly, programmatically joined channel. To have the Channel Selector Widget react to call to `join()` and `leave()` we need to rerender it like this:
+This, however, will not re-render the Channel Selector widget in the **Stocks** app with the newly programmatically joined channel. To make the Channel Selector react to calls to `join()` and `leave()`, you need to define a method which will re-render the widget every time the current channel has changed:
 
 ```javascript
 // In `start()`.
@@ -808,20 +795,15 @@ const updateChannelSelectorWidget = createChannelSelectorWidget(
     onChannelSelected
 );
 
-// Whenever a channel is joined or left rerender the channels.
-window.glue.channels.onChanged((channelName) => {
+// Re-render the Channel Selector each time the channel changes.
+const handleChannelChanges = (channelName) => {
     updateChannelSelectorWidget(channelName);
-});
+};
 
-const channelToJoin = window.glue.appManager.myInstance.context.channel;
-
-if (channelToJoin) {
-    window.glue.channels.join(channelToJoin);
-}
+glue.channels.onChanged(handleChannelChanges);
 ```
 
-Well done! We got rid of the accumulated, over the past 6 chapters, tech debt and you learned about the AppManager API!
-
+Now when the user clicks on a client in the **Clients** app and there is no running instance of the **Stocks** app, the **Stocks** app will be started, showing the portfolio of the selected client, and it will also join the channel that the **Clients** app is currently on.
 
 ## Congratulations!
 
