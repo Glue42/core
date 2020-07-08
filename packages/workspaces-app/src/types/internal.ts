@@ -12,7 +12,7 @@ export interface WorkspaceItem {
     children: Array<RowItem | ColumnItem | GroupItem | WindowItem>;
     config?: {
         context?: object;
-        [k: string]: any;
+        [k: string]: object;
     };
 }
 
@@ -21,7 +21,7 @@ export interface GroupItem {
     type: "group";
     children: WindowItem[];
     config?: {
-        [k: string]: any;
+        [k: string]: object;
     };
 }
 
@@ -35,7 +35,6 @@ export interface WindowItem {
         isMaximized: boolean;
         isLoaded: boolean;
         isFocused: boolean;
-        [k: string]: any;
     };
 }
 
@@ -44,7 +43,7 @@ export interface RowItem {
     type: "row";
     children: Array<RowItem | ColumnItem | GroupItem | WindowItem>;
     config?: {
-        [k: string]: any;
+        [k: string]: object;
     };
 }
 
@@ -53,7 +52,7 @@ export interface ColumnItem {
     type: "column";
     children: Array<RowItem | ColumnItem | GroupItem | WindowItem>;
     config?: {
-        [k: string]: any;
+        [k: string]: object;
     };
 }
 
@@ -100,8 +99,8 @@ export interface FrameSummary {
 
 export interface WorkspaceSnapshot {
     id: string;
-    config: any;
-    children: any;
+    config: object;
+    children: object;
     frameSummary: FrameSummary;
 }
 
@@ -139,7 +138,7 @@ export interface Workspace {
 
 export interface FrameLayoutConfig {
     workspaceLayout: GoldenLayout.Config;
-    workspaceConfigs: Array<{ id: string, config: GoldenLayout.Config }>;
+    workspaceConfigs: Array<{ id: string; config: GoldenLayout.Config }>;
     frameId: string;
 }
 
@@ -156,3 +155,6 @@ export interface StartupConfig {
     workspaceNames?: string[];
     context?: object;
 }
+
+export type WorkspaceOptionsWithTitle = GoldenLayout.WorkspacesOptions & { title?: string };
+export type LayoutWithMaximizedItem = GoldenLayout & { _maximizedItem?: GoldenLayout.ContentItem };

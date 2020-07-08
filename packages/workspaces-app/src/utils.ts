@@ -8,7 +8,7 @@ export const getAllWindowsFromConfig = (contents: GoldenLayout.ItemConfig[] = []
             return currItem.id ? [currItem] : [];
         }
 
-        return currItem.content.reduce((acc: any, currContent: any) => {
+        return currItem.content.reduce((acc: GoldenLayout.ItemConfig[], currContent: GoldenLayout.ItemConfig) => {
             acc = [...acc, ...recursiveElementTraversal(currContent)];
             return acc;
         }, []);
@@ -20,7 +20,7 @@ export const getAllWindowsFromConfig = (contents: GoldenLayout.ItemConfig[] = []
 };
 
 export const getElementBounds = (element: Element | Container | JQuery<Element>) => {
-    const rawBounds = ($(element) as any)[0].getBoundingClientRect();
+    const rawBounds = ($(element) as JQuery)[0].getBoundingClientRect();
     return {
         x: Math.round(rawBounds.x),
         y: Math.round(rawBounds.y),
@@ -33,8 +33,8 @@ export const getElementBounds = (element: Element | Container | JQuery<Element>)
 
 
 export const createWaitFor = (signalsToWait: number, timeout?: number) => {
-    let resolve: (result?: any) => void;
-    let reject: (error?: any) => void;
+    let resolve: (result?: object) => void;
+    let reject: (error?: Error) => void;
     let signals = 0;
 
     const t = setTimeout(() => {
@@ -42,7 +42,7 @@ export const createWaitFor = (signalsToWait: number, timeout?: number) => {
     }, timeout || 10000);
 
     const signal = () => {
-        signals++
+        signals++;
         if (signals >= signalsToWait) {
             clearTimeout(t);
             resolve();

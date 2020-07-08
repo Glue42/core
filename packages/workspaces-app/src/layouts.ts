@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// TODO remove when the layouts api is ready ^
 import GoldenLayout from "golden-layout";
 import { Workspace, FrameLayoutConfig, WorkspaceItem } from "./types/internal";
 import storage from "./storage";
@@ -7,7 +9,7 @@ import scReader from "./config/startupReader";
 import factory from "./config/factory";
 import { generate } from "shortid";
 
-declare var window: Window & { glue: any }
+declare const window: Window & { glue: any };
 
 export class LayoutsManager {
     private _initialWorkspaceConfig: GoldenLayout.Config;
@@ -17,7 +19,7 @@ export class LayoutsManager {
     public async getInitialConfig(): Promise<FrameLayoutConfig> {
         // Preset initial config
         if (this._initialWorkspaceConfig) {
-            return configFactory.generateInitialConfig([this._initialWorkspaceConfig]);;
+            return configFactory.generateInitialConfig([this._initialWorkspaceConfig]);
         }
 
         const startupConfig = scReader.config;
@@ -62,7 +64,7 @@ export class LayoutsManager {
             this.addWorkspaceIds(wc);
             this.addWindowIds(wc);
             return configConverter.convertToRendererConfig(wc);
-        })
+        });
         return rendererFriendlyFrameConfig;
     }
 
@@ -72,7 +74,7 @@ export class LayoutsManager {
         return workspaceLayouts.map((wl: any) => wl.name);
     }
 
-    public async export(): Promise<any> {
+    public async export() {
         return window.glue.layouts.export(this._layoutsType);
     }
 
@@ -144,7 +146,7 @@ export class LayoutsManager {
             if (config.type !== "component" && config.content) {
                 config.content.forEach((i) => addRecursive(i));
             }
-        }
+        };
 
         addRecursive(configToPopulate);
     }
@@ -161,7 +163,7 @@ export class LayoutsManager {
             if (config.type !== "component" && config.content) {
                 config.content.forEach((i) => addRecursive(i));
             }
-        }
+        };
 
         addRecursive(configToPopulate);
     }
@@ -173,14 +175,14 @@ export class LayoutsManager {
             }
 
             if (config?.type === "component") {
-                config.componentName = `placeHolderId`;
-                config.title = `placeHolderId`;
+                config.componentName = "placeHolderId";
+                config.title = "placeHolderId";
             }
 
             if (config.type !== "component" && config.content) {
                 config.content.forEach((i) => removeRecursive(i));
             }
-        }
+        };
 
         removeRecursive(configToClean);
     }
@@ -193,10 +195,10 @@ export class LayoutsManager {
             } else {
                 configToTraverse.content.forEach((i) => applyWindowLayoutStateRecursive(i));
             }
-        }
+        };
         await Promise.all(config.content.map(async (ic) => {
             await applyWindowLayoutStateRecursive(ic);
-        }))
+        }));
     }
 
     private async getWindowLayoutState(windowId: string) {

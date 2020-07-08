@@ -183,7 +183,7 @@ class LayoutStateResolver {
         if (glConfig.type === "component") {
             return;
         }
-        if (glConfig.type === "stack" || glConfig.type === "row" || glConfig.type === "row") {
+        if (glConfig.type === "stack" || glConfig.type === "row" || glConfig.type === "column") {
             const summary = this.getContainerSummary(glConfig.id);
             glConfig.workspacesConfig = glConfig.workspacesConfig || {};
             glConfig.workspacesConfig = { ...glConfig.workspacesConfig, ...summary.config };
@@ -191,7 +191,7 @@ class LayoutStateResolver {
         (_a = glConfig.content) === null || _a === void 0 ? void 0 : _a.map((c) => this.transformParentsToContainerSummary(c));
     }
     waitForWindowContentItem(windowId) {
-        return new Promise((res, rej) => {
+        return new Promise((res) => {
             const unsub = this._layoutEventEmitter.onContentComponentCreated((component) => {
                 if (component.config.id === windowId) {
                     unsub();

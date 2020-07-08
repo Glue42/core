@@ -4,7 +4,7 @@ import facade from "./interop/facade";
 import jquery = require("jquery");
 import GlueWeb,{Glue42Web} from "@glue42/web";
 
-declare var window: Window & { glue: Glue42Web.API, $: JQueryStatic };
+declare const window: Window & { glue: Glue42Web.API; $: JQueryStatic };
 
 const config = {
     application: "Workspaces",
@@ -20,4 +20,3 @@ GlueWeb(config).then((glue) => {
     return facade.init(window.glue.agm.instance.peerId);
 // tslint:disable-next-line: no-console
 }).catch(console.warn);
-

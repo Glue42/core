@@ -66,7 +66,7 @@ class WorkspacesManager {
         }
         else if (name === "new") {
             const id = factory_2.default.getId();
-            const defaultWorkspaceConfig = factory_1.default.getDefaultWorkspaceConfig(id);
+            const defaultWorkspaceConfig = factory_1.default.getDefaultWorkspaceConfig();
             await this._controller.addWorkspace(id, defaultWorkspaceConfig);
             return id;
         }
@@ -149,7 +149,9 @@ class WorkspacesManager {
             if (!windowId) {
                 rej(`The window id of ${itemId} is missing`);
             }
-            let unsub = () => { };
+            let unsub = () => {
+                // safety
+            };
             const timeout = setTimeout(() => {
                 rej(`Could not load window ${windowId} for 5000ms`);
                 unsub();

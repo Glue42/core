@@ -1,14 +1,15 @@
 import { Bounds } from "./types/internal";
 import callbackRegistry from "callback-registry";
 import { generate } from "shortid";
+import { Glue42Web } from "@glue42/web";
 
-declare var window: Window & { glue: any };
+declare const window: Window & { glue: Glue42Web.API };
 
 export class IFrameController {
     private readonly _registry = callbackRegistry();
     private _idToFrame: { [k: string]: HTMLIFrameElement } = {}
 
-    public async startFrame(id: string, url: string, layoutState?: object, context?: object, windowId?: string) {
+    public async startFrame(id: string, url: string, layoutState?: object, context?: object, windowId?: string): Promise<HTMLIFrameElement> {
         windowId = windowId || generate();
         if (this._idToFrame[id]) {
             return this._idToFrame[id];
@@ -29,14 +30,14 @@ export class IFrameController {
 
                 frameDocument.onclick = () => {
                     this._registry.execute("frame-content-clicked", {});
-                }
+                };
 
                 if (layoutState) {
-                    this.sendLayoutState(id, layoutState);
+                    // this.sendLayoutState(id, layoutState);
                 }
 
-                const target = frameDocument.querySelector('title');
-                const observer = new MutationObserver((_) => {
+                const target = frameDocument.querySelector("title");
+                const observer = new MutationObserver(() => {
                     this._registry.execute("window-title-changed", id, frameDocument.title);
                 });
 
@@ -58,8 +59,6 @@ export class IFrameController {
         frame.setAttribute("id", id);
         $(frame).css("position", "absolute");
 
-        this.initGlue0Window(frame, context);
-
         this._idToFrame[id] = frame;
         await this.waitForWindow(windowId);
         return frame;
@@ -79,7 +78,7 @@ export class IFrameController {
     public selectionChanged(toFront: string[], toBack: string[]) {
         toBack.forEach(id => {
             $(this._idToFrame[id]).css("z-index", "-1");
-        })
+        });
 
         toFront.forEach(id => {
             if ($(this._idToFrame[id]).hasClass("maximized-active-tab")) {
@@ -87,7 +86,7 @@ export class IFrameController {
             } else {
                 $(this._idToFrame[id]).css("z-index", "19");
             }
-        })
+        });
     }
 
     public maximizeTab(id: string) {
@@ -102,7 +101,7 @@ export class IFrameController {
         toBack.forEach(id => {
             // The numbers is based on the z index of golden layout elements
             $(this._idToFrame[id]).css("z-index", "-1");
-        })
+        });
 
         toFront.forEach(id => {
             if ($(this._idToFrame[id]).hasClass("maximized-active-tab")) {
@@ -112,7 +111,7 @@ export class IFrameController {
                 // The numbers is based on the z index of golden layout elements
                 $(this._idToFrame[id]).css("z-index", "19");
             }
-        })
+        });
     }
 
     public bringToFront(id: string) {
@@ -140,22 +139,19 @@ export class IFrameController {
 
     public onWindowTitleChanged(callback: (id: string, newTitle: string) => void) {
         return this._registry.add("window-title-changed", callback);
-    };
-
-    private sendLayoutState(id: string, layoutState: object): Promise<void> {
-        // to be implemented
-        return Promise.resolve();
     }
 
     private waitForWindow(windowId: string) {
         return new Promise((res, rej) => {
-            let unsub = () => { };
+            let unsub = () => {
+                // safety
+            };
             const timeout = setTimeout(() => {
                 rej(`Window with id ${windowId} did not appear in 5000ms`);
                 unsub();
             }, 5000);
 
-            unsub = window.glue.windows.onWindowAdded((w: any) => {
+            unsub = window.glue.windows.onWindowAdded((w) => {
                 if (w.id === windowId) {
                     unsub();
                     res();
@@ -163,7 +159,7 @@ export class IFrameController {
                 }
             });
 
-            const glueWindow = window.glue.windows.list().find((w: any) => w.id === windowId);
+            const glueWindow = window.glue.windows.list().find((w) => w.id === windowId);
             if (glueWindow) {
                 res();
                 unsub();
@@ -172,14 +168,4 @@ export class IFrameController {
         });
 
     }
-
-    private initGlue0Window(frame: HTMLIFrameElement, context?: object) {
-        const contentWindow: any = frame.contentWindow
-
-        // contentWindow.glue0 = {
-        //     ...contentWindow.glue0,
-        //     context,
-        // }
-    }
-
 }

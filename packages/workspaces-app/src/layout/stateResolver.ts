@@ -26,7 +26,7 @@ export class LayoutStateResolver {
         return this.getWindowSummaryCore(windowContentItem, windowId);
     }
 
-    public getWorkspaceConfig(workspaceId: string): any {
+    public getWorkspaceConfig(workspaceId: string): GoldenLayout.Config {
         const workspace = store.getById(workspaceId);
 
         if (!workspace) {
@@ -139,9 +139,9 @@ export class LayoutStateResolver {
     }
 
     private findElementInConfig(elementId: string, config: GoldenLayout.Config): GoldenLayout.ItemConfig {
-        const search = (glConfig: GoldenLayout.Config | GoldenLayout.ItemConfig): any => {
+        const search = (glConfig: GoldenLayout.Config | GoldenLayout.ItemConfig): Array<GoldenLayout.ItemConfig> => {
             if (glConfig.id === elementId) {
-                return [glConfig];
+                return [glConfig as GoldenLayout.ItemConfig];
             }
 
             const contentToTraverse = glConfig.type !== "component" ? glConfig.content : [];
@@ -196,10 +196,10 @@ export class LayoutStateResolver {
         }
 
         if (contentItem.parent.config.workspacesConfig.wrapper) {
-            return this.getUserFriendlyParent(contentItem.parent as any);
+            return this.getUserFriendlyParent(contentItem.parent as GoldenLayout.ContentItem);
         }
 
-        return contentItem.parent as any;
+        return contentItem.parent as GoldenLayout.ContentItem;
     }
 
     private transformComponentsToWindowSummary(glConfig: GoldenLayout.ItemConfig) {
@@ -213,26 +213,26 @@ export class LayoutStateResolver {
             glConfig.workspacesConfig = { ...glConfig.workspacesConfig, ...summary.config };
             return;
         }
-        glConfig.content?.map((c: any) => this.transformComponentsToWindowSummary(c));
+        glConfig.content?.map((c) => this.transformComponentsToWindowSummary(c));
     }
 
-    private transformParentsToContainerSummary(glConfig: any) {
+    private transformParentsToContainerSummary(glConfig: GoldenLayout.ItemConfig) {
         if (glConfig.type === "component") {
             return;
         }
 
-        if (glConfig.type === "stack" || glConfig.type === "row" || glConfig.type === "row") {
+        if (glConfig.type === "stack" || glConfig.type === "row" || glConfig.type === "column") {
             const summary = this.getContainerSummary(glConfig.id);
 
             glConfig.workspacesConfig = glConfig.workspacesConfig || {};
             glConfig.workspacesConfig = { ...glConfig.workspacesConfig, ...summary.config };
         }
 
-        glConfig.content?.map((c: any) => this.transformParentsToContainerSummary(c));
+        glConfig.content?.map((c) => this.transformParentsToContainerSummary(c));
     }
 
     private waitForWindowContentItem(windowId: string) {
-        return new Promise((res, rej) => {
+        return new Promise((res) => {
             const unsub = this._layoutEventEmitter.onContentComponentCreated((component) => {
                 if (component.config.id === windowId) {
                     unsub();

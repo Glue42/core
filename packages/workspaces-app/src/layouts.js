@@ -16,7 +16,6 @@ class LayoutsManager {
         // Preset initial config
         if (this._initialWorkspaceConfig) {
             return factory_1.default.generateInitialConfig([this._initialWorkspaceConfig]);
-            ;
         }
         const startupConfig = startupReader_1.default.config;
         // From workspace names
@@ -147,8 +146,8 @@ class LayoutsManager {
                 delete config.id;
             }
             if ((config === null || config === void 0 ? void 0 : config.type) === "component") {
-                config.componentName = `placeHolderId`;
-                config.title = `placeHolderId`;
+                config.componentName = "placeHolderId";
+                config.title = "placeHolderId";
             }
             if (config.type !== "component" && config.content) {
                 config.content.forEach((i) => removeRecursive(i));

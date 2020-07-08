@@ -43,7 +43,7 @@ class WorkspaceStore {
         return this._idToLayout[id] || this.getByContainerIdCore(id);
     }
 
-    public getWorkspaceTitle(workspaceId: string): any {
+    public getWorkspaceTitle(workspaceId: string): string {
         const workspacesContentItem = this.workspaceLayout.root.getItemsById(workspaceId)[0] as GoldenLayout.Component;
         return workspacesContentItem.tab.titleElement[0].innerText;
     }

@@ -1,3 +1,4 @@
+/*eslint indent: [2, 4, {"SwitchCase": 1}]*/
 import {
     ControlArguments,
     OpenWorkspaceArguments,
@@ -6,7 +7,6 @@ import {
     OpenWorkspaceResult,
     GetWorkspaceSnapshotResult,
     ItemSelector,
-    GetAllWorkspacesSummariesArguments,
     CloseItemResult,
     RestoreItemResult,
     MaximizeItemResult,
@@ -29,8 +29,9 @@ import configFactory from "../config/factory";
 import GoldenLayout, { RowConfig, ColumnConfig } from "golden-layout";
 import { idAsString } from "../utils";
 import converter from "../config/converter";
+import { Glue42Web } from "@glue42/web";
 
-declare var window: Window & { glue: any };
+declare const window: Window & { glue: Glue42Web.API };
 
 class GlueFacade {
     private readonly _workspacesWindowStream = "T42.Workspaces.Stream.Window";
@@ -40,19 +41,19 @@ class GlueFacade {
     private readonly _workspacesControlMethod = "T42.Workspaces.Control";
 
     private _frameId: string;
-    private _frameStream: any;
-    private _workspaceStream: any;
-    private _containerStream: any;
-    private _windowStream: any;
+    private _frameStream: Glue42Web.Interop.Stream;
+    private _workspaceStream: Glue42Web.Interop.Stream;
+    private _containerStream: Glue42Web.Interop.Stream;
+    private _windowStream: Glue42Web.Interop.Stream;
 
-    public async init(frameId: string) {
+    public async init(frameId: string): Promise<void> {
         this._frameId = frameId;
         if (window.glue) {
             await this.registerAgmMethods();
         }
     }
 
-    private async registerAgmMethods() {
+    private async registerAgmMethods(): Promise<void> {
         await window.glue.agm.registerAsync({
             name: this._workspacesControlMethod
         }, this.handleControl);
@@ -74,7 +75,7 @@ class GlueFacade {
         }, { subscriptionRequestHandler: this.handleSubscriptionRequested });
     }
 
-    private handleControl = async (args: ControlArguments, caller: object, successCallback: (result: any) => void, errorCallback: (error: any) => void) => {
+    private handleControl = async (args: ControlArguments, caller: object, successCallback: (result: object) => void, errorCallback: (error: string) => void) => {
         try {
             // tslint:disable-next-line: no-console
             console.log("Received control message", args.operation, args.operationArguments);
@@ -95,25 +96,30 @@ class GlueFacade {
                     successCallback(await this.handleOpenWorkspace(args.operationArguments));
                     break;
                 case "saveLayout":
-                    successCallback(await this.handleSaveLayout(args.operationArguments));
+                    await this.handleSaveLayout(args.operationArguments);
+                    successCallback(undefined);
                     break;
                 case "exportAllLayouts":
-                    successCallback(await this.handleExportAllLayouts(args.operationArguments));
+                    successCallback(await this.handleExportAllLayouts());
                     break;
                 case "deleteLayout":
-                    successCallback(this.handleDeleteLayout(args.operationArguments));
+                    this.handleDeleteLayout(args.operationArguments);
+                    successCallback(undefined);
                     break;
                 case "getAllWorkspacesSummaries":
-                    successCallback(this.handleGetAllWorkspaceSummaries(args.operationArguments));
+                    successCallback(this.handleGetAllWorkspaceSummaries());
                     break;
                 case "maximizeItem":
-                    successCallback(this.handleMaximizeItem(args.operationArguments));
+                    this.handleMaximizeItem(args.operationArguments);
+                    successCallback(undefined);
                     break;
                 case "restoreItem":
-                    successCallback(this.handleRestoreItem(args.operationArguments));
+                    this.handleRestoreItem(args.operationArguments);
+                    successCallback(undefined);
                     break;
                 case "closeItem":
-                    successCallback(await this.handleCloseItem(args.operationArguments));
+                    await this.handleCloseItem(args.operationArguments);
+                    successCallback(undefined);
                     break;
                 case "setItemTitle":
                     await this.handleSetItemTitle(args.operationArguments);
@@ -131,10 +137,11 @@ class GlueFacade {
                     successCallback(await this.handleCreateWorkspace(args.operationArguments));
                     break;
                 case "forceLoadWindow":
-                    successCallback(await this.handleForceLoadWindow(args.operationArguments));
+                    await this.handleForceLoadWindow(args.operationArguments);
+                    successCallback(undefined);
                     break;
                 case "focusItem":
-                    this.handleFocusItem(args.operationArguments)
+                    this.handleFocusItem(args.operationArguments);
                     successCallback(undefined);
                     break;
                 case "bundleWorkspace":
@@ -145,10 +152,11 @@ class GlueFacade {
                     successCallback(await this.handleGetFrameSummary(args.operationArguments));
                     break;
                 case "moveFrame":
-                    successCallback(await this.handleMoveFrame(args.operationArguments));
+                    await this.handleMoveFrame(args.operationArguments);
+                    successCallback(undefined);
                     break;
                 case "getFrameSnapshot":
-                    successCallback(await this.handleGetFrameSnapshot(args.operationArguments));
+                    successCallback(await this.handleGetFrameSnapshot());
                     break;
                 case "getSnapshot":
                     successCallback(await this.handleGetSnapshot(args.operationArguments));
@@ -158,7 +166,7 @@ class GlueFacade {
                     successCallback(undefined);
                     break;
                 default:
-                    errorCallback(`Invalid operation - ${(args as any).operation}`);
+                    errorCallback(`Invalid operation - ${((args as unknown) as { operation: string }).operation}`);
             }
 
         } catch (error) {
@@ -181,11 +189,11 @@ class GlueFacade {
         };
     }
 
-    private async handleExportAllLayouts(operationArguments: {}): Promise<any> {
+    private async handleExportAllLayouts() {
         const layouts = await manager.exportAllLayouts();
         return {
             layouts
-        }
+        };
     }
 
     private async handleSaveLayout(operationArguments: SaveLayoutArguments): Promise<void> {
@@ -210,7 +218,7 @@ class GlueFacade {
         };
     }
 
-    private handleGetAllWorkspaceSummaries(operationArguments: GetAllWorkspacesSummariesArguments) {
+    private handleGetAllWorkspaceSummaries() {
         const summaries = store.layouts.map((w) => {
             const summary: WorkspaceSummary = manager.stateResolver.getWorkspaceSummary(w.id);
 
@@ -219,7 +227,7 @@ class GlueFacade {
 
         return {
             summaries
-        }
+        };
     }
 
     private async handleCloseItem(operationArguments: ItemSelector): Promise<CloseItemResult> {
@@ -243,13 +251,13 @@ class GlueFacade {
             content: rendererFriendlyConfig.content,
             type: rendererFriendlyConfig.type,
             workspacesConfig: rendererFriendlyConfig.workspacesConfig
-        }
+        };
         const itemId = await manager.addContainer(containerDefinition,
             operationArguments.parentId);
 
         return {
             itemId
-        }
+        };
     }
 
     private async handleAddWindow(operationArguments: AddWindowArguments): Promise<AddItemResult> {
@@ -261,9 +269,9 @@ class GlueFacade {
         });
 
         if (operationArguments.definition.windowId) {
-            const win = window.glue.windows.list().find((w: any) => w.id === operationArguments.definition.windowId);
+            const win = window.glue.windows.list().find((w) => w.id === operationArguments.definition.windowId);
             const url = await win.getURL();
-            operationArguments.definition.appName = win.control.interop.instance.applicationName
+            // operationArguments.definition.appName = win.control.interop.instance.applicationName
             windowConfig.componentState.url = url;
         }
 
@@ -294,8 +302,7 @@ class GlueFacade {
             itemConfig = {
                 type: "row",
                 children: operationArguments.children
-            }
-
+            };
         }
         const convertedConfig = configConverter.convertToRendererConfig(itemConfig);
         await manager.addContainer(convertedConfig as RowConfig | ColumnConfig, operationArguments.workspaceId);
@@ -349,7 +356,7 @@ class GlueFacade {
         await manager.move(operationArguments.location);
     }
 
-    private handleGetFrameSnapshot(operationArguments: ItemSelector) {
+    private handleGetFrameSnapshot() {
         return manager.stateResolver.getFrameSnapshot();
     }
 
@@ -362,59 +369,59 @@ class GlueFacade {
         return manager.moveWindowTo(operationArguments.itemId, operationArguments.containerId);
     }
 
-    private subscribeForEvents() {
-        manager.workspacesEventEmitter.onFrameEvent((action, payload) => {
-            const frameBranchKey = `frame_${payload.frameSummary.id}`;
-            const branchesToStream = [
-                ...this.getBranchesToStream(this._frameStream, [frameBranchKey]),
-            ];
+    // private subscribeForEvents() {
+    //     manager.workspacesEventEmitter.onFrameEvent((action, payload) => {
+    //         const frameBranchKey = `frame_${payload.frameSummary.id}`;
+    //         const branchesToStream = [
+    //             ...this.getBranchesToStream(this._frameStream, [frameBranchKey]),
+    //         ];
 
-            branchesToStream.forEach((b) => {
-                b.push({ action, payload });
-            });
-        });
+    //         branchesToStream.forEach((b) => {
+    //             b.push({ action, payload });
+    //         });
+    //     });
 
-        manager.workspacesEventEmitter.onWindowEvent((action, payload) => {
-            const windowBranchKey = `window_${payload.windowSummary.itemId}`;
-            const workspaceBranchKey = `workspace_${payload.windowSummary.config.workspaceId}`;
-            const frameBranchKey = `frame_${payload.windowSummary.config.frameId}`;
-            const branchesToStream = [
-                ...this.getBranchesToStream(this._windowStream, [windowBranchKey, workspaceBranchKey, frameBranchKey]),
-            ];
+    //     manager.workspacesEventEmitter.onWindowEvent((action, payload) => {
+    //         const windowBranchKey = `window_${payload.windowSummary.itemId}`;
+    //         const workspaceBranchKey = `workspace_${payload.windowSummary.config.workspaceId}`;
+    //         const frameBranchKey = `frame_${payload.windowSummary.config.frameId}`;
+    //         const branchesToStream = [
+    //             ...this.getBranchesToStream(this._windowStream, [windowBranchKey, workspaceBranchKey, frameBranchKey]),
+    //         ];
 
-            branchesToStream.forEach((b) => {
-                b.push({ action, payload });
-            });
-        });
+    //         branchesToStream.forEach((b) => {
+    //             b.push({ action, payload });
+    //         });
+    //     });
 
-        manager.workspacesEventEmitter.onWorkspaceEvent((action, payload) => {
-            const workspaceBranchKey = `workspace_${payload.workspaceSummary.id}`;
-            const frameBranchKey = `frame_${payload.frameSummary.id}`;
-            const branchesToStream = [
-                ...this.getBranchesToStream(this._workspaceStream, [workspaceBranchKey, frameBranchKey]),
-            ];
+    //     manager.workspacesEventEmitter.onWorkspaceEvent((action, payload) => {
+    //         const workspaceBranchKey = `workspace_${payload.workspaceSummary.id}`;
+    //         const frameBranchKey = `frame_${payload.frameSummary.id}`;
+    //         const branchesToStream = [
+    //             ...this.getBranchesToStream(this._workspaceStream, [workspaceBranchKey, frameBranchKey]),
+    //         ];
 
-            branchesToStream.forEach((b) => {
-                b.push({ action, payload });
-            });
-        });
+    //         branchesToStream.forEach((b) => {
+    //             b.push({ action, payload });
+    //         });
+    //     });
 
-        manager.workspacesEventEmitter.onContainerEvent((action, payload) => {
-            const workspaceBranchKey = `workspace_${payload.containerSummary.config.workspaceId}`;
-            const frameBranchKey = `frame_${payload.containerSummary.config.frameId}`;
-            const branchesToStream = [
-                ...this.getBranchesToStream(this._containerStream, [workspaceBranchKey, frameBranchKey]),
-            ];
+    //     manager.workspacesEventEmitter.onContainerEvent((action, payload) => {
+    //         const workspaceBranchKey = `workspace_${payload.containerSummary.config.workspaceId}`;
+    //         const frameBranchKey = `frame_${payload.containerSummary.config.frameId}`;
+    //         const branchesToStream = [
+    //             ...this.getBranchesToStream(this._containerStream, [workspaceBranchKey, frameBranchKey]),
+    //         ];
 
-            branchesToStream.forEach((b) => {
-                b.push({ action, payload });
-            });
-        });
-    }
+    //         branchesToStream.forEach((b) => {
+    //             b.push({ action, payload });
+    //         });
+    //     });
+    // }
 
-    private getBranchesToStream(stream: any, branchKeys: string[]): any {
+    private getBranchesToStream(stream: Glue42Web.Interop.Stream, branchKeys: string[]) {
         const globalBranch = stream.branches("global");
-        const branches = (stream.branches() as any).filter((b: any) => branchKeys.some((el) => el === b.key));
+        const branches = stream.branches().filter((b) => branchKeys.some((el) => el === b.key));
         const result = [];
 
         if (globalBranch) {
@@ -425,11 +432,11 @@ class GlueFacade {
             result.push(...branches);
         }
 
-        return result as any;
+        return result;
     }
 
-    private handleSubscriptionRequested = (request: any) => {
-        const requestArgs = request.arguments as any;
+    private handleSubscriptionRequested = (request: Glue42Web.Interop.SubscriptionRequest) => {
+        const requestArgs = request.arguments;
         if (requestArgs && requestArgs.branch) {
             if (!this.isBranchKeyValid(requestArgs.branch)) {
                 request.reject("The branch key was not in the expected format");

@@ -60,7 +60,7 @@ describe("createApiWindow() Should", () => {
     });
 
     it("return the correct window object with loaded false when the id is string and all optional args without windowId are present", () => {
-        const expectedResult = {
+        const expectedResult: object = {
             id: mockId,
             type: "window",
             config: {

@@ -27,10 +27,10 @@ class IFrameController {
                     this._registry.execute("frame-content-clicked", {});
                 };
                 if (layoutState) {
-                    this.sendLayoutState(id, layoutState);
+                    // this.sendLayoutState(id, layoutState);
                 }
-                const target = frameDocument.querySelector('title');
-                const observer = new MutationObserver((_) => {
+                const target = frameDocument.querySelector("title");
+                const observer = new MutationObserver(() => {
                     this._registry.execute("window-title-changed", id, frameDocument.title);
                 });
                 const config = {
@@ -47,7 +47,6 @@ class IFrameController {
         this._registry.execute("frameLoaded", id);
         frame.setAttribute("id", id);
         $(frame).css("position", "absolute");
-        this.initGlue0Window(frame, context);
         this._idToFrame[id] = frame;
         await this.waitForWindow(windowId);
         return frame;
@@ -115,14 +114,11 @@ class IFrameController {
     onWindowTitleChanged(callback) {
         return this._registry.add("window-title-changed", callback);
     }
-    ;
-    sendLayoutState(id, layoutState) {
-        // to be implemented
-        return Promise.resolve();
-    }
     waitForWindow(windowId) {
         return new Promise((res, rej) => {
-            let unsub = () => { };
+            let unsub = () => {
+                // safety
+            };
             const timeout = setTimeout(() => {
                 rej(`Window with id ${windowId} did not appear in 5000ms`);
                 unsub();
@@ -141,13 +137,6 @@ class IFrameController {
                 clearTimeout(timeout);
             }
         });
-    }
-    initGlue0Window(frame, context) {
-        const contentWindow = frame.contentWindow;
-        // contentWindow.glue0 = {
-        //     ...contentWindow.glue0,
-        //     context,
-        // }
     }
 }
 exports.IFrameController = IFrameController;

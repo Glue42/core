@@ -27,7 +27,7 @@ class WorkspacesConfigurationFactory {
         };
     }
 
-    public createGDWindowConfig(args: { windowId: string, id?: string, appName?: string, url?: string }): GoldenLayout.ComponentConfig {
+    public createGDWindowConfig(args: { windowId: string; id?: string; appName?: string; url?: string }): GoldenLayout.ComponentConfig {
         const baseConfiguration = this.createWindowConfigurationCore(args.id);
         return {
             ...baseConfiguration,
@@ -43,7 +43,7 @@ class WorkspacesConfigurationFactory {
         };
     }
 
-    public createApiWindow(args: { id: string | string[], windowId: string, isMaximized: boolean, isFocused: boolean, appName?: string, url?: string }) {
+    public createApiWindow(args: { id: string | string[]; windowId: string; isMaximized: boolean; isFocused: boolean; appName?: string; url?: string }) {
         return {
             id: Array.isArray(args.id) ? args.id[0] : args.id,
             type: "window",
@@ -75,12 +75,12 @@ class WorkspacesConfigurationFactory {
             mode: "default",
             showCloseIcon: false,
             showPopoutIcon: true
-        }
+        };
     }
 
     public getDefaultFrameConfig(): FrameLayoutConfig {
         const workspaceId = generate();
-        const workspaceConfig: GoldenLayout.Config = this.getDefaultWorkspaceConfig(workspaceId);
+        const workspaceConfig: GoldenLayout.Config = this.getDefaultWorkspaceConfig();
 
         const workspacesConfig: GoldenLayout.Config = {
             settings: this._defaultWorkspaceLayoutSettings,
@@ -100,7 +100,7 @@ class WorkspacesConfigurationFactory {
                     workspacesConfig: {}
                 }
             ]
-        }
+        };
 
         return {
             frameId: undefined,
@@ -109,10 +109,10 @@ class WorkspacesConfigurationFactory {
                 config: workspaceConfig
             }],
             workspaceLayout: workspacesConfig
-        }
+        };
     }
 
-    public getDefaultWorkspaceConfig(workspaceId: string): GoldenLayout.Config {
+    public getDefaultWorkspaceConfig(): GoldenLayout.Config {
         return undefined;
     }
 
@@ -131,12 +131,12 @@ class WorkspacesConfigurationFactory {
                             componentName: this.getWorkspaceLayoutComponentName(idAsString(wcc?.id) || defaultId),
                             componentState: {},
                             title: wcc?.workspacesOptions?.name || this.getWorkspaceTitle(store.workspaceIds),
-                        }
+                        };
                     }),
                     workspacesConfig: {}
                 }
             ]
-        }
+        };
 
         return {
             frameId: undefined,
@@ -149,10 +149,10 @@ class WorkspacesConfigurationFactory {
                 return {
                     id,
                     config: wcc
-                }
+                };
             }),
             workspaceLayout: workspacesConfig
-        }
+        };
     }
 
     private createWindowConfigurationCore(id?: string): GoldenLayout.ComponentConfig {

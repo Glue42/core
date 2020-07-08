@@ -2,7 +2,7 @@ import GoldenLayout = require("golden-layout");
 import registryFactory from "callback-registry";
 const ResizeObserver = require("resize-observer-polyfill").default;
 import { idAsString, getAllWindowsFromConfig, createWaitFor, getElementBounds } from "../utils";
-import { Workspace, Window, FrameLayoutConfig, StartupConfig, ComponentState } from "../types/internal";
+import { Workspace, Window, FrameLayoutConfig, StartupConfig, ComponentState, LayoutWithMaximizedItem } from "../types/internal";
 import { LayoutEventEmitter } from "./eventEmitter";
 import store from "../store";
 import configFactory from "../config/factory";
@@ -57,7 +57,7 @@ export class LayoutController {
             return;
         }
 
-        const maximizedItem = (workspace.layout as any)._maximizedItem as GoldenLayout.ContentItem;
+        const maximizedItem = (workspace.layout as LayoutWithMaximizedItem)._maximizedItem as GoldenLayout.ContentItem;
         if (maximizedItem) {
             maximizedItem.toggleMaximise();
         }
@@ -73,7 +73,7 @@ export class LayoutController {
 
         const { placementId, windowId, url, appName } = this.getWindowInfoFromConfig(config);
 
-        this.registerWindowComponent(workspace.layout, idAsString(placementId), windowId);
+        this.registerWindowComponent(workspace.layout, idAsString(placementId));
 
         const emptyVisibleWindow = contentItem.getComponentsByName(this._emptyVisibleWindowName)[0];
 
@@ -82,9 +82,9 @@ export class LayoutController {
             appName,
             url,
             windowId
-        }, workspace.id)
+        }, workspace.id);
 
-        return new Promise<void>((res, rej) => {
+        return new Promise<void>((res) => {
             const unsub = this.emitter.onContentComponentCreated((component) => {
                 if (component.config.id === placementId) {
                     unsub();
@@ -94,7 +94,7 @@ export class LayoutController {
 
             // if the root element is a stack you must add the window to the stack
             if (workspace.layout.root.contentItems[0].type === "stack" && config.type !== "component") {
-                config = getAllWindowsFromConfig([config])[0]
+                config = getAllWindowsFromConfig([config])[0];
             }
 
             if (emptyVisibleWindow) {
@@ -118,7 +118,7 @@ export class LayoutController {
             return idAsString(containerId);
         }
 
-        const maximizedItem = (workspace.layout as any)._maximizedItem as GoldenLayout.ContentItem;
+        const maximizedItem = (workspace.layout as LayoutWithMaximizedItem)._maximizedItem as GoldenLayout.ContentItem;
         if (maximizedItem) {
             maximizedItem.toggleMaximise();
         }
@@ -145,13 +145,13 @@ export class LayoutController {
 
         if (config.content) {
             getAllWindowsFromConfig(config.content).forEach((w: GoldenLayout.ComponentConfig) => {
-                this.registerWindowComponent(workspace.layout, idAsString(w.id), w.componentState.windowId);
+                this.registerWindowComponent(workspace.layout, idAsString(w.id));
                 store.addWindow({
                     id: idAsString(w.id),
                     appName: w.componentState.appName,
                     url: w.componentState.url,
                     windowId: w.componentState.windowId,
-                }, workspace.id)
+                }, workspace.id);
             });
         }
 
@@ -165,7 +165,9 @@ export class LayoutController {
         const hasGroupWrapperAPlaceholder = (groupWrapperChild?.contentItems[0] as GoldenLayout.Component)?.config.componentName === this._emptyVisibleWindowName;
 
         return new Promise((res, rej) => {
-            let unsub: () => void;
+            let unsub: () => void = () => {
+                // safety
+            };
             const timeout = setTimeout(() => {
                 unsub();
                 rej(`Component with id ${config.id} could not be created in 10000ms`);
@@ -256,8 +258,8 @@ export class LayoutController {
                 htmlElement.classList.add(themeName);
             }
         }
-        const lightLink = $('link[href="./dist/glue42-light-theme.css"]');
-        const link = lightLink.length === 0 ? $('link[href="./dist/glue42-dark-theme.css"]') : lightLink;
+        const lightLink = $("link[href='./dist/glue42-light-theme.css']");
+        const link = lightLink.length === 0 ? $("link[href='./dist/glue42-dark-theme.css']") : lightLink;
         link.attr("href", `./dist/glue42-${themeName}-theme.css`);
     }
 
@@ -272,7 +274,7 @@ export class LayoutController {
 
         if (!dragElement) {
             const observer = new MutationObserver((mutations) => {
-                let targetElement: any;
+                let targetElement: JQuery;
                 Array.from(mutations).forEach((m) => {
                     const newItems = $(m.addedNodes);
                     if (!targetElement) {
@@ -404,7 +406,7 @@ export class LayoutController {
                         workspacesConfig: {}
                     }
                 ]
-            }
+            };
         }
         if (config.type !== "component" && config.content[0].type === "stack") {
             // Wrap the component in a column when your top element is stack;
@@ -425,7 +427,7 @@ export class LayoutController {
         this.registerEmptyWindowComponent(layout, id);
 
         getAllWindowsFromConfig((config as GoldenLayout.Config).content).forEach((element: GoldenLayout.ComponentConfig) => {
-            this.registerWindowComponent(layout, idAsString(element.id), element.componentState.windowId);
+            this.registerWindowComponent(layout, idAsString(element.id));
         });
 
         const layoutContainer = $(`#nestHere${id}`);
@@ -477,7 +479,7 @@ export class LayoutController {
                         windowWithChangedSize.bounds = getElementBounds(item.element);
                     }
                     const itemId = item.config.id;
-                    this.emitter.raiseEvent("content-item-resized", { target: (item.element as any)[0], id: idAsString(itemId) });
+                    this.emitter.raiseEvent("content-item-resized", { target: (item.element.getElement())[0], id: idAsString(itemId) });
                 });
 
                 if (item.config.componentName === this._emptyVisibleWindowName || item.parent?.config.workspacesConfig.wrapper) {
@@ -520,13 +522,13 @@ export class LayoutController {
                 maximizeButton.removeClass("lm_restore");
                 maximizeButton.attr("title", this._stackMaximizeLabel);
                 this.emitter.raiseEvent("stack-restored", { stack });
-            })
+            });
 
             if (!this._options.disableCustomButtons) {
                 stack.header.controlsContainer.prepend($(button));
             }
 
-            stack.on("activeContentItemChanged", (tab: GoldenLayout.Tab) => {
+            stack.on("activeContentItemChanged", () => {
                 const activeItem = stack.getActiveContentItem();
                 if (!activeItem.isComponent) {
                     return;
@@ -550,7 +552,7 @@ export class LayoutController {
                             windowId: contentItemConfig.componentState.windowId,
                             appName: contentItemConfig.componentState.appName,
                             url: contentItemConfig.componentState.url,
-                        }
+                        };
 
                         acc.push(win);
                     }
@@ -590,7 +592,7 @@ export class LayoutController {
 
         layout.on("tabCloseRequested", (tab: GoldenLayout.Tab) => {
             this.emitter.raiseEvent("tab-close-requested", { item: tab.contentItem });
-        })
+        });
 
         layout.on("componentCreated", (component: GoldenLayout.ContentItem) => {
             const result = this.emitter.raiseEvent("content-component-created", { component, workspaceId: id });
@@ -633,7 +635,7 @@ export class LayoutController {
                 res();
             });
 
-            store.workspaceLayout.on("stackCreated", (stack: any) => {
+            store.workspaceLayout.on("stackCreated", (stack: GoldenLayout.Stack) => {
                 const closeButton = stack.header.controlsContainer.children(".lm_close")[0];
                 if (closeButton) {
                     closeButton.onclick = () => {
@@ -654,7 +656,7 @@ export class LayoutController {
                     stack.header.workspaceControlsContainer.prepend($(button));
                 }
 
-                stack.on("activeContentItemChanged", async (tab: GoldenLayout.Tab) => {
+                stack.on("activeContentItemChanged", async () => {
                     if (store.workspaceIds.length === 0) {
                         return;
                     }
@@ -662,7 +664,7 @@ export class LayoutController {
                     const activeItem = stack.getActiveContentItem();
                     const activeWorkspaceId = activeItem.config.id;
 
-                    await this.waitForLayout(activeWorkspaceId);
+                    await this.waitForLayout(idAsString(activeWorkspaceId));
 
                     // don't ignore the windows from the currently selected workspace because the event
                     // which adds the workspacesFrame hasn't still added the new workspace and the active item status the last tab
@@ -691,7 +693,7 @@ export class LayoutController {
                 saveButton.onclick = (e) => {
                     e.stopPropagation();
                     this.emitter.raiseEvent("workspace-save-requested", { workspaceId: idAsString(tab.contentItem.config.id) });
-                }
+                };
                 if (!this._options.disableCustomButtons) {
                     tab.element[0].prepend(saveButton);
                 }
@@ -700,7 +702,7 @@ export class LayoutController {
             store.workspaceLayout.on("tabCloseRequested", (tab: GoldenLayout.Tab) => {
                 this.emitter.raiseEvent("workspace-tab-close-requested",
                     { workspace: store.getById(tab.contentItem.config.id) });
-            })
+            });
 
             store.workspaceLayout.init();
         });
@@ -721,7 +723,7 @@ export class LayoutController {
         }, id);
     }
 
-    private registerWindowComponent(layout: GoldenLayout, placementId: string, windowId: string) {
+    private registerWindowComponent(layout: GoldenLayout, placementId: string) {
         this.registerComponent(layout, `app${placementId}`, (container) => {
             const div = document.createElement("div");
             div.setAttribute("style", "height:100%;");
@@ -758,7 +760,7 @@ export class LayoutController {
     }
 
     private registerWorkspaceComponent(workspaceId: string) {
-        this.registerComponent(store.workspaceLayout, configFactory.getWorkspaceLayoutComponentName(workspaceId), (container: GoldenLayout.Container, componentState: any) => {
+        this.registerComponent(store.workspaceLayout, configFactory.getWorkspaceLayoutComponentName(workspaceId), (container: GoldenLayout.Container) => {
 
             const div = document.createElement("div");
             div.setAttribute("style", "height:calc(100% - 1px); width:calc(100% - 1px);");
@@ -801,7 +803,7 @@ export class LayoutController {
     }
 
     private waitForLayout(id: string) {
-        return new Promise((res, rej) => {
+        return new Promise((res) => {
             const unsub = this._registry.add(`content-layout-initialised-${id}`, () => {
                 res();
                 unsub();
@@ -815,7 +817,7 @@ export class LayoutController {
     }
 
     private waitForWindowContainer(placementId: string) {
-        return new Promise((res, rej) => {
+        return new Promise((res) => {
             const unsub = this.emitter.onContentComponentCreated((component) => {
                 if (component.config.id === placementId) {
                     res();
@@ -830,7 +832,7 @@ export class LayoutController {
         });
     }
 
-    private getWindowInfoFromConfig(config: GoldenLayout.ItemConfig): { windowId: string, url: string, appName: string, placementId: string } {
+    private getWindowInfoFromConfig(config: GoldenLayout.ItemConfig): { windowId: string; url: string; appName: string; placementId: string } {
         if (config.type !== "component") {
             return this.getWindowInfoFromConfig(config.content[0]);
         }
@@ -839,6 +841,6 @@ export class LayoutController {
             windowId: config.componentState.windowId,
             appName: config.componentState.appName,
             url: config.componentState.url
-        }
+        };
     }
 }

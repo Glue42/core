@@ -153,7 +153,7 @@ export interface SaveLayoutArguments {
     workspaceId?: string;
 }
 
-interface RestoreWorkspaceConfig {
+export interface RestoreWorkspaceConfig {
     title?: string;
     context?: object;
 }
@@ -177,6 +177,7 @@ export interface AddWorkspaceChildrenArguments {
 
 export interface CreateWorkspaceArguments extends WorkspaceItem {
     // add the save config
+    saveConfig: object;
 }
 
 export interface MoveFrameArguments {

@@ -73,7 +73,7 @@ class WorkspacesConfigurationFactory {
     }
     getDefaultFrameConfig() {
         const workspaceId = shortid_1.generate();
-        const workspaceConfig = this.getDefaultWorkspaceConfig(workspaceId);
+        const workspaceConfig = this.getDefaultWorkspaceConfig();
         const workspacesConfig = {
             settings: this._defaultWorkspaceLayoutSettings,
             content: [
@@ -102,7 +102,7 @@ class WorkspacesConfigurationFactory {
             workspaceLayout: workspacesConfig
         };
     }
-    getDefaultWorkspaceConfig(workspaceId) {
+    getDefaultWorkspaceConfig() {
         return undefined;
     }
     generateInitialConfig(workspaceContentConfigs) {

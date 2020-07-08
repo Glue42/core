@@ -1,7 +1,8 @@
 import { Bounds, Size } from "./types/internal";
-import { AddApplicationPopupPayload, OpenWorkspacePopupPayload, SaveWorkspacePopupPayload } from "./types/popups";
+import { AddApplicationPopupPayload, BasePopupPayload, SaveWorkspacePopupPayload, PopupContentWindow } from "./types/popups";
+import { Glue42Web } from "@glue42/web";
 
-declare var window: Window & { glue: any };
+declare const window: Window & { glue: Glue42Web.API };
 
 export class PopupManager {
     private _popup: HTMLIFrameElement;
@@ -9,10 +10,6 @@ export class PopupManager {
     private readonly _openWorkspaceType = "openWorkspace";
     private readonly _saveWorkspaceType = "saveWorkspace";
     private readonly _showPopupMethod = "T42.Workspaces.ShowPopup";
-    private readonly _addWindowPopupTemplate = `
-    <iframe id="popup" src="/glue/workspaces/popups/index.html" class="popup">
-    </iframe>
-    `;
 
     constructor() {
         this.initPopup();
@@ -28,7 +25,7 @@ export class PopupManager {
         this.showElement(this._popup, targetBounds, popupSize);
     }
 
-    public async showOpenWorkspacePopup(targetBounds: Bounds, payload: OpenWorkspacePopupPayload) {
+    public async showOpenWorkspacePopup(targetBounds: Bounds, payload: BasePopupPayload) {
         this.hidePopup();
 
         const popupSize: Size = await this.getPopupSize(this._openWorkspaceType, payload);
@@ -59,7 +56,7 @@ export class PopupManager {
         document.body.append(...nodes);
 
         this._popup = document.getElementById("popup") as HTMLIFrameElement;
-        (this._popup.contentWindow as any).frameTarget = window.glue.agm.instance.instance
+        (this._popup.contentWindow as PopupContentWindow).frameTarget = window.glue.agm.instance.instance;
 
         $(document).click(() => {
             this.hidePopup();
@@ -73,11 +70,11 @@ export class PopupManager {
             .css("left", `${targetBounds.left}px`);
 
         if (elementSize.height) {
-            $(element).css("height", `${elementSize.height}px`)
+            $(element).css("height", `${elementSize.height}px`);
         }
 
         if (elementSize.width) {
-            $(element).css("width", `${elementSize.width}px`)
+            $(element).css("width", `${elementSize.width}px`);
         }
 
         const elementBounds = element.getBoundingClientRect();
@@ -97,11 +94,11 @@ export class PopupManager {
     private resizePopup(size: Size) {
         const popup = $(this._popup);
         if (size.height) {
-            popup.css("height", `${size.height}px`)
+            popup.css("height", `${size.height}px`);
         }
 
         if (size.width) {
-            popup.css("width", `${size.width}px`)
+            popup.css("width", `${size.width}px`);
         }
 
         const elementBounds = this._popup.getBoundingClientRect();
@@ -124,13 +121,13 @@ export class PopupManager {
 
     private async getPopupSize(type: string, payload: object) {
         const peerId = this.getPopupInteropId();
-        const instance = window.glue.agm.servers().find((i: any) => i.peerId === peerId);
+        const instance = window.glue.agm.servers().find((i) => i.peerId === peerId);
 
         return (await window.glue.agm.invoke(this._showPopupMethod, { type, payload }, instance)).returned;
     }
 
     private registerHideMethod() {
-        window.glue.agm.register("T42.Workspaces.HidePopup", (args: { type: string }) => {
+        window.glue.agm.register("T42.Workspaces.HidePopup", () => {
             this.hidePopup();
         });
     }
@@ -143,7 +140,7 @@ export class PopupManager {
 
     private getPopupInteropId() {
         try {
-            return (this._popup.contentWindow as any).interopId || "best";
+            return (this._popup.contentWindow as PopupContentWindow).interopId || "best";
         } catch (error) {
             // tslint:disable-next-line: no-console
             console.warn("Could not get the popup interop id using best");

@@ -5,7 +5,7 @@ class Storage {
         return JSON.parse(localStorage.getItem(key));
     }
 
-    public set(key: string, value: any) {
+    public set(key: string, value: object) {
         localStorage.setItem(key, JSON.stringify(value));
     }
 }

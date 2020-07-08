@@ -1,7 +1,7 @@
 import configConverter from "../../../src/config/converter";
-import { ColumnItem, RowItem, GroupItem, WindowItem, WorkspaceItem } from "../../../src/types/internal";
+import { ColumnItem, RowItem, GroupItem, WindowItem, WorkspaceItem, ParentItem } from "../../../src/types/internal";
 import { expect } from "chai";
-import * as sinon from "sinon";
+import Sinon, * as sinon from "sinon";
 import * as shortid from "shortid";
 
 describe("convertToRendererConfig() Should", () => {
@@ -29,7 +29,7 @@ describe("convertToRendererConfig() Should", () => {
             showPopoutIcon: true
         }
     };
-    let stub;
+    let stub: Sinon.SinonStub;
 
     before(() => {
         stub = sinon.stub(shortid, "generate").returns(mockId);
@@ -41,7 +41,7 @@ describe("convertToRendererConfig() Should", () => {
 
     Array.from(["row", "column"]).forEach((type: "row" | "column") => {
         it(`return the golden layout config with a placeholder window when the config is an empty ${type} config`, () => {
-            const column = {
+            const column: ParentItem = {
                 children: [],
                 type,
                 config: {},
@@ -66,7 +66,7 @@ describe("convertToRendererConfig() Should", () => {
                             }
                         ]
                     }
-                ] as any[],
+                ] as object[],
                 type,
                 workspacesOptions: {}
             };
@@ -156,7 +156,7 @@ describe("convertToRendererConfig() Should", () => {
                             }
                         ]
                     }
-                ] as any[]
+                ] as object[]
             };
 
             const actualResult = configConverter.convertToRendererConfig(container);
@@ -328,7 +328,7 @@ describe("convertToRendererConfig() Should", () => {
             config: {},
         };
 
-        const expectedResult = {
+        const expectedResult: object = {
             type: "stack",
             workspacesOptions: {},
             content: [
@@ -540,7 +540,7 @@ describe("convertToRendererConfig() Should", () => {
             config: {},
         };
 
-        const expectedResult = {
+        const expectedResult: object = {
             ...workspaceSettings,
             workspacesOptions: {},
             content: [

@@ -94,7 +94,8 @@ class LayoutEventEmitter {
     }
     raiseEvent(name, data) {
         const result = this._registry.execute(name, ...Object.values(data));
-        if ((Array.isArray(result) && result.some((r) => r && r.then)) || (result && !Array.isArray(result) && result.then)) {
+        if ((Array.isArray(result) && result.some((r) => r && r.then)) ||
+            (result && !Array.isArray(result) && result.then)) {
             return result;
         }
         return Promise.resolve(result);

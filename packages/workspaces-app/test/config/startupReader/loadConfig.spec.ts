@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import startupReader from "../../../src/config/startupReader";
 import { expect } from "chai";
 
-declare var global: any;
+declare const global: any;
 
 describe("loadConfig() Should", () => {
     afterEach(() => {
@@ -17,7 +18,9 @@ describe("loadConfig() Should", () => {
                 pathname: "/core/"
             },
             history: {
-                replaceState: () => { }
+                replaceState: () => {
+                    // do nothing
+                }
             }
         };
         global.document = {
@@ -37,7 +40,9 @@ describe("loadConfig() Should", () => {
                 pathname: "/core/"
             },
             history: {
-                replaceState: () => { }
+                replaceState: () => {
+                    // do nothing
+                }
             }
         };
         global.document = {
@@ -56,7 +61,9 @@ describe("loadConfig() Should", () => {
                 pathname: "/core/"
             },
             history: {
-                replaceState: () => { }
+                replaceState: () => {
+                    // do nothing
+                }
             }
         };
         global.document = {
@@ -76,7 +83,9 @@ describe("loadConfig() Should", () => {
                 pathname: "/core/"
             },
             history: {
-                replaceState: () => { }
+                replaceState: () => {
+                    // do nothing
+                }
             }
         };
         global.document = {
@@ -96,7 +105,9 @@ describe("loadConfig() Should", () => {
                 pathname: "/core/"
             },
             history: {
-                replaceState: () => { }
+                replaceState: () => {
+                    // do nothing
+                }
             }
         };
         global.document = {
@@ -118,7 +129,9 @@ describe("loadConfig() Should", () => {
                 pathname: "/core/"
             },
             history: {
-                replaceState: () => { }
+                replaceState: () => {
+                    // do nothing
+                }
             }
         };
         global.document = {
@@ -142,7 +155,9 @@ describe("loadConfig() Should", () => {
                 pathname: "/core/"
             },
             history: {
-                replaceState: () => { }
+                replaceState: () => {
+                    // do nothing
+                }
             }
         };
         global.document = {
@@ -169,7 +184,9 @@ describe("loadConfig() Should", () => {
                 pathname: "/core/"
             },
             history: {
-                replaceState: () => { }
+                replaceState: () => {
+                    // do nothing
+                }
             }
         };
         global.document = {
@@ -196,7 +213,9 @@ describe("loadConfig() Should", () => {
                 pathname: "/core/"
             },
             history: {
-                replaceState: () => { }
+                replaceState: () => {
+                    // do nothing
+                }
             }
         };
         global.document = {
@@ -211,12 +230,14 @@ describe("loadConfig() Should", () => {
     it("have context as null when the context isn't passed", () => {
         global.window = {
             location: {
-                search: ``,
+                search: "",
                 origin: "https://glue42.com",
                 pathname: "/core/"
             },
             history: {
-                replaceState: () => { }
+                replaceState: () => {
+                    // do nothing
+                }
             }
         };
         global.document = {

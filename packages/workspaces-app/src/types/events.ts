@@ -43,7 +43,7 @@ export interface WorkspaceEventPayload {
             title: string;
             positionIndex: number;
             name: string;
-        }
+        };
     };
     frameSummary: {
         id: string;
@@ -66,7 +66,7 @@ export interface WindowEventPayload {
             isMaximized: boolean;
             isLoaded: boolean;
             isFocused: boolean;
-        }
+        };
     };
 }
 
@@ -89,8 +89,8 @@ export interface ContainerEventData {
                 frameId: string;
                 workspaceId: string;
                 positionIndex: number;
-            }
-        }
+            };
+        };
     };
 }
 

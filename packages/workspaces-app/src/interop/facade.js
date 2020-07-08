@@ -34,25 +34,30 @@ class GlueFacade {
                         successCallback(await this.handleOpenWorkspace(args.operationArguments));
                         break;
                     case "saveLayout":
-                        successCallback(await this.handleSaveLayout(args.operationArguments));
+                        await this.handleSaveLayout(args.operationArguments);
+                        successCallback(undefined);
                         break;
                     case "exportAllLayouts":
-                        successCallback(await this.handleExportAllLayouts(args.operationArguments));
+                        successCallback(await this.handleExportAllLayouts());
                         break;
                     case "deleteLayout":
-                        successCallback(this.handleDeleteLayout(args.operationArguments));
+                        this.handleDeleteLayout(args.operationArguments);
+                        successCallback(undefined);
                         break;
                     case "getAllWorkspacesSummaries":
-                        successCallback(this.handleGetAllWorkspaceSummaries(args.operationArguments));
+                        successCallback(this.handleGetAllWorkspaceSummaries());
                         break;
                     case "maximizeItem":
-                        successCallback(this.handleMaximizeItem(args.operationArguments));
+                        this.handleMaximizeItem(args.operationArguments);
+                        successCallback(undefined);
                         break;
                     case "restoreItem":
-                        successCallback(this.handleRestoreItem(args.operationArguments));
+                        this.handleRestoreItem(args.operationArguments);
+                        successCallback(undefined);
                         break;
                     case "closeItem":
-                        successCallback(await this.handleCloseItem(args.operationArguments));
+                        await this.handleCloseItem(args.operationArguments);
+                        successCallback(undefined);
                         break;
                     case "setItemTitle":
                         await this.handleSetItemTitle(args.operationArguments);
@@ -70,7 +75,8 @@ class GlueFacade {
                         successCallback(await this.handleCreateWorkspace(args.operationArguments));
                         break;
                     case "forceLoadWindow":
-                        successCallback(await this.handleForceLoadWindow(args.operationArguments));
+                        await this.handleForceLoadWindow(args.operationArguments);
+                        successCallback(undefined);
                         break;
                     case "focusItem":
                         this.handleFocusItem(args.operationArguments);
@@ -84,10 +90,11 @@ class GlueFacade {
                         successCallback(await this.handleGetFrameSummary(args.operationArguments));
                         break;
                     case "moveFrame":
-                        successCallback(await this.handleMoveFrame(args.operationArguments));
+                        await this.handleMoveFrame(args.operationArguments);
+                        successCallback(undefined);
                         break;
                     case "getFrameSnapshot":
-                        successCallback(await this.handleGetFrameSnapshot(args.operationArguments));
+                        successCallback(await this.handleGetFrameSnapshot());
                         break;
                     case "getSnapshot":
                         successCallback(await this.handleGetSnapshot(args.operationArguments));
@@ -153,7 +160,7 @@ class GlueFacade {
             }
         };
     }
-    async handleExportAllLayouts(operationArguments) {
+    async handleExportAllLayouts() {
         const layouts = await manager_1.default.exportAllLayouts();
         return {
             layouts
@@ -178,7 +185,7 @@ class GlueFacade {
             }
         };
     }
-    handleGetAllWorkspaceSummaries(operationArguments) {
+    handleGetAllWorkspaceSummaries() {
         const summaries = store_1.default.layouts.map((w) => {
             const summary = manager_1.default.stateResolver.getWorkspaceSummary(w.id);
             return summary;
@@ -222,7 +229,7 @@ class GlueFacade {
         if (operationArguments.definition.windowId) {
             const win = window.glue.windows.list().find((w) => w.id === operationArguments.definition.windowId);
             const url = await win.getURL();
-            operationArguments.definition.appName = win.control.interop.instance.applicationName;
+            // operationArguments.definition.appName = win.control.interop.instance.applicationName
             windowConfig.componentState.url = url;
         }
         await manager_1.default.addWindow(windowConfig, operationArguments.parentId);
@@ -289,7 +296,7 @@ class GlueFacade {
     async handleMoveFrame(operationArguments) {
         await manager_1.default.move(operationArguments.location);
     }
-    handleGetFrameSnapshot(operationArguments) {
+    handleGetFrameSnapshot() {
         return manager_1.default.stateResolver.getFrameSnapshot();
     }
     async handleGetSnapshot(operationArguments) {
@@ -299,48 +306,48 @@ class GlueFacade {
     async handleMoveWindowTo(operationArguments) {
         return manager_1.default.moveWindowTo(operationArguments.itemId, operationArguments.containerId);
     }
-    subscribeForEvents() {
-        manager_1.default.workspacesEventEmitter.onFrameEvent((action, payload) => {
-            const frameBranchKey = `frame_${payload.frameSummary.id}`;
-            const branchesToStream = [
-                ...this.getBranchesToStream(this._frameStream, [frameBranchKey]),
-            ];
-            branchesToStream.forEach((b) => {
-                b.push({ action, payload });
-            });
-        });
-        manager_1.default.workspacesEventEmitter.onWindowEvent((action, payload) => {
-            const windowBranchKey = `window_${payload.windowSummary.itemId}`;
-            const workspaceBranchKey = `workspace_${payload.windowSummary.config.workspaceId}`;
-            const frameBranchKey = `frame_${payload.windowSummary.config.frameId}`;
-            const branchesToStream = [
-                ...this.getBranchesToStream(this._windowStream, [windowBranchKey, workspaceBranchKey, frameBranchKey]),
-            ];
-            branchesToStream.forEach((b) => {
-                b.push({ action, payload });
-            });
-        });
-        manager_1.default.workspacesEventEmitter.onWorkspaceEvent((action, payload) => {
-            const workspaceBranchKey = `workspace_${payload.workspaceSummary.id}`;
-            const frameBranchKey = `frame_${payload.frameSummary.id}`;
-            const branchesToStream = [
-                ...this.getBranchesToStream(this._workspaceStream, [workspaceBranchKey, frameBranchKey]),
-            ];
-            branchesToStream.forEach((b) => {
-                b.push({ action, payload });
-            });
-        });
-        manager_1.default.workspacesEventEmitter.onContainerEvent((action, payload) => {
-            const workspaceBranchKey = `workspace_${payload.containerSummary.config.workspaceId}`;
-            const frameBranchKey = `frame_${payload.containerSummary.config.frameId}`;
-            const branchesToStream = [
-                ...this.getBranchesToStream(this._containerStream, [workspaceBranchKey, frameBranchKey]),
-            ];
-            branchesToStream.forEach((b) => {
-                b.push({ action, payload });
-            });
-        });
-    }
+    // private subscribeForEvents() {
+    //     manager.workspacesEventEmitter.onFrameEvent((action, payload) => {
+    //         const frameBranchKey = `frame_${payload.frameSummary.id}`;
+    //         const branchesToStream = [
+    //             ...this.getBranchesToStream(this._frameStream, [frameBranchKey]),
+    //         ];
+    //         branchesToStream.forEach((b) => {
+    //             b.push({ action, payload });
+    //         });
+    //     });
+    //     manager.workspacesEventEmitter.onWindowEvent((action, payload) => {
+    //         const windowBranchKey = `window_${payload.windowSummary.itemId}`;
+    //         const workspaceBranchKey = `workspace_${payload.windowSummary.config.workspaceId}`;
+    //         const frameBranchKey = `frame_${payload.windowSummary.config.frameId}`;
+    //         const branchesToStream = [
+    //             ...this.getBranchesToStream(this._windowStream, [windowBranchKey, workspaceBranchKey, frameBranchKey]),
+    //         ];
+    //         branchesToStream.forEach((b) => {
+    //             b.push({ action, payload });
+    //         });
+    //     });
+    //     manager.workspacesEventEmitter.onWorkspaceEvent((action, payload) => {
+    //         const workspaceBranchKey = `workspace_${payload.workspaceSummary.id}`;
+    //         const frameBranchKey = `frame_${payload.frameSummary.id}`;
+    //         const branchesToStream = [
+    //             ...this.getBranchesToStream(this._workspaceStream, [workspaceBranchKey, frameBranchKey]),
+    //         ];
+    //         branchesToStream.forEach((b) => {
+    //             b.push({ action, payload });
+    //         });
+    //     });
+    //     manager.workspacesEventEmitter.onContainerEvent((action, payload) => {
+    //         const workspaceBranchKey = `workspace_${payload.containerSummary.config.workspaceId}`;
+    //         const frameBranchKey = `frame_${payload.containerSummary.config.frameId}`;
+    //         const branchesToStream = [
+    //             ...this.getBranchesToStream(this._containerStream, [workspaceBranchKey, frameBranchKey]),
+    //         ];
+    //         branchesToStream.forEach((b) => {
+    //             b.push({ action, payload });
+    //         });
+    //     });
+    // }
     getBranchesToStream(stream, branchKeys) {
         const globalBranch = stream.branches("global");
         const branches = stream.branches().filter((b) => branchKeys.some((el) => el === b.key));

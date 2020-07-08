@@ -33,7 +33,7 @@ class StartupReader {
         }
 
         if (workspaceNameParam) {
-            workspaceNamesArr.push(workspaceNameParam)
+            workspaceNamesArr.push(workspaceNameParam);
         }
 
         const result = {
@@ -41,7 +41,7 @@ class StartupReader {
             disableCustomButtons: disableCustomButtons != null && disableCustomButtons !== undefined,
             workspaceNames: workspaceNamesArr,
             context
-        }
+        };
 
         this._config = result;
         this.cleanUpUrl();

@@ -28,23 +28,16 @@ describe("convertToRendererConfig() Should", () => {
         }
     };
 
-    before(() => {
-        // sinon.stub(shortid, "generate").returns(mockId);
-    });
-
-    after(() => {
-    });
-
     Array.from(["row", "column"]).forEach((type: "row" | "column") => {
         it(`return the ${type} API config without placeholder elements when the config is a ${type} with placeholder`, () => {
-            const expectedResult = {
+            const expectedResult: object = {
                 children: [],
                 type,
                 config: {},
                 id: undefined
             };
 
-            const container: any = {
+            const container: object = {
                 content: [
                     {
                         type: "stack",
@@ -63,7 +56,7 @@ describe("convertToRendererConfig() Should", () => {
                             }
                         ]
                     }
-                ] as any[],
+                ] as object[],
                 type,
                 workspacesOptions: {}
             };
@@ -86,7 +79,7 @@ describe("convertToRendererConfig() Should", () => {
                 id: undefined
             };
 
-            const container: any = {
+            const container: object = {
                 type,
                 workspacesOptions: {},
                 content: [
@@ -153,7 +146,7 @@ describe("convertToRendererConfig() Should", () => {
                             }
                         ]
                     }
-                ] as any[]
+                ] as object[]
             };
 
             const actualResult = configConverter.convertToAPIConfig(container);
@@ -206,7 +199,7 @@ describe("convertToRendererConfig() Should", () => {
                     }
                 ]
             };
-            const container: any = {
+            const container: object = {
                 type,
                 workspacesOptions: {},
                 content: [
@@ -283,7 +276,7 @@ describe("convertToRendererConfig() Should", () => {
                 ]
             };
 
-            const container: any = {
+            const container: object = {
                 type,
                 workspacesOptions: {},
                 content: [
@@ -306,7 +299,7 @@ describe("convertToRendererConfig() Should", () => {
             id: undefined
         };
 
-        const group: any = {
+        const group: object = {
             type: "stack",
             workspacesOptions: {},
             content: [
@@ -338,7 +331,7 @@ describe("convertToRendererConfig() Should", () => {
             id: undefined
         };
 
-        const group: any = {
+        const group: object = {
             type: "stack",
             workspacesOptions: {},
             content: [
@@ -415,7 +408,7 @@ describe("convertToRendererConfig() Should", () => {
             ]
         };
 
-        const workspace: any = {
+        const workspace: object = {
             ...workspaceSettings,
             workspacesOptions: {},
             content: [
@@ -463,7 +456,7 @@ describe("convertToRendererConfig() Should", () => {
             ]
         };
 
-        const workspace: any = {
+        const workspace: object = {
             ...workspaceSettings,
             workspacesOptions: {},
             content: [
@@ -509,7 +502,7 @@ describe("convertToRendererConfig() Should", () => {
             ]
         };
 
-        const workspace: any = {
+        const workspace: object = {
             ...workspaceSettings,
             workspacesOptions: {},
             content: [
@@ -565,7 +558,7 @@ describe("convertToRendererConfig() Should", () => {
             id: undefined
         };
 
-        const workspace: any = {
+        const workspace: object = {
             ...workspaceSettings,
             workspacesOptions: {},
             content: [

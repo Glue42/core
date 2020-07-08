@@ -56,7 +56,7 @@ class LayoutController {
             contentItem = workspace.layout.root.getItemsByFilter((ci) => ci.isStack)[0];
         }
         const { placementId, windowId, url, appName } = this.getWindowInfoFromConfig(config);
-        this.registerWindowComponent(workspace.layout, utils_1.idAsString(placementId), windowId);
+        this.registerWindowComponent(workspace.layout, utils_1.idAsString(placementId));
         const emptyVisibleWindow = contentItem.getComponentsByName(this._emptyVisibleWindowName)[0];
         store_1.default.addWindow({
             id: utils_1.idAsString(placementId),
@@ -64,7 +64,7 @@ class LayoutController {
             url,
             windowId
         }, workspace.id);
-        return new Promise((res, rej) => {
+        return new Promise((res) => {
             const unsub = this.emitter.onContentComponentCreated((component) => {
                 if (component.config.id === placementId) {
                     unsub();
@@ -116,7 +116,7 @@ class LayoutController {
         }
         if (config.content) {
             utils_1.getAllWindowsFromConfig(config.content).forEach((w) => {
-                this.registerWindowComponent(workspace.layout, utils_1.idAsString(w.id), w.componentState.windowId);
+                this.registerWindowComponent(workspace.layout, utils_1.idAsString(w.id));
                 store_1.default.addWindow({
                     id: utils_1.idAsString(w.id),
                     appName: w.componentState.appName,
@@ -132,7 +132,9 @@ class LayoutController {
             .find((ci) => ci.type === "stack" && ci.config.workspacesConfig.wrapper === true);
         const hasGroupWrapperAPlaceholder = ((_a = groupWrapperChild === null || groupWrapperChild === void 0 ? void 0 : groupWrapperChild.contentItems[0]) === null || _a === void 0 ? void 0 : _a.config.componentName) === this._emptyVisibleWindowName;
         return new Promise((res, rej) => {
-            let unsub;
+            let unsub = () => {
+                // safety
+            };
             const timeout = setTimeout(() => {
                 unsub();
                 rej(`Component with id ${config.id} could not be created in 10000ms`);
@@ -205,8 +207,8 @@ class LayoutController {
                 htmlElement.classList.add(themeName);
             }
         }
-        const lightLink = $('link[href="./dist/glue42-light-theme.css"]');
-        const link = lightLink.length === 0 ? $('link[href="./dist/glue42-dark-theme.css"]') : lightLink;
+        const lightLink = $("link[href='./dist/glue42-light-theme.css']");
+        const link = lightLink.length === 0 ? $("link[href='./dist/glue42-dark-theme.css']") : lightLink;
         link.attr("href", `./dist/glue42-${themeName}-theme.css`);
     }
     getDragElement() {
@@ -341,7 +343,7 @@ class LayoutController {
         store_1.default.addOrUpdate(id, []);
         this.registerEmptyWindowComponent(layout, id);
         utils_1.getAllWindowsFromConfig(config.content).forEach((element) => {
-            this.registerWindowComponent(layout, utils_1.idAsString(element.id), element.componentState.windowId);
+            this.registerWindowComponent(layout, utils_1.idAsString(element.id));
         });
         const layoutContainer = $(`#nestHere${id}`);
         layout.on("initialised", () => {
@@ -385,7 +387,7 @@ class LayoutController {
                         windowWithChangedSize.bounds = utils_1.getElementBounds(item.element);
                     }
                     const itemId = item.config.id;
-                    this.emitter.raiseEvent("content-item-resized", { target: item.element[0], id: utils_1.idAsString(itemId) });
+                    this.emitter.raiseEvent("content-item-resized", { target: (item.element.getElement())[0], id: utils_1.idAsString(itemId) });
                 });
                 if (item.config.componentName === this._emptyVisibleWindowName || ((_a = item.parent) === null || _a === void 0 ? void 0 : _a.config.workspacesConfig.wrapper)) {
                     item.tab.header.position(false);
@@ -424,7 +426,7 @@ class LayoutController {
             if (!this._options.disableCustomButtons) {
                 stack.header.controlsContainer.prepend($(button));
             }
-            stack.on("activeContentItemChanged", (tab) => {
+            stack.on("activeContentItemChanged", () => {
                 const activeItem = stack.getActiveContentItem();
                 if (!activeItem.isComponent) {
                     return;
@@ -527,13 +529,13 @@ class LayoutController {
                     };
                     stack.header.workspaceControlsContainer.prepend($(button));
                 }
-                stack.on("activeContentItemChanged", async (tab) => {
+                stack.on("activeContentItemChanged", async () => {
                     if (store_1.default.workspaceIds.length === 0) {
                         return;
                     }
                     const activeItem = stack.getActiveContentItem();
                     const activeWorkspaceId = activeItem.config.id;
-                    await this.waitForLayout(activeWorkspaceId);
+                    await this.waitForLayout(utils_1.idAsString(activeWorkspaceId));
                     // don't ignore the windows from the currently selected workspace because the event
                     // which adds the workspacesFrame hasn't still added the new workspace and the active item status the last tab
                     const allOtherWindows = store_1.default.workspaceIds.reduce((acc, id) => {
@@ -581,7 +583,7 @@ class LayoutController {
             }
         }, id);
     }
-    registerWindowComponent(layout, placementId, windowId) {
+    registerWindowComponent(layout, placementId) {
         this.registerComponent(layout, `app${placementId}`, (container) => {
             const div = document.createElement("div");
             div.setAttribute("style", "height:100%;");
@@ -613,7 +615,7 @@ class LayoutController {
         });
     }
     registerWorkspaceComponent(workspaceId) {
-        this.registerComponent(store_1.default.workspaceLayout, factory_1.default.getWorkspaceLayoutComponentName(workspaceId), (container, componentState) => {
+        this.registerComponent(store_1.default.workspaceLayout, factory_1.default.getWorkspaceLayoutComponentName(workspaceId), (container) => {
             const div = document.createElement("div");
             div.setAttribute("style", "height:calc(100% - 1px); width:calc(100% - 1px);");
             div.id = `nestHere${workspaceId}`;
@@ -650,7 +652,7 @@ class LayoutController {
         }
     }
     waitForLayout(id) {
-        return new Promise((res, rej) => {
+        return new Promise((res) => {
             const unsub = this._registry.add(`content-layout-initialised-${id}`, () => {
                 res();
                 unsub();
@@ -662,7 +664,7 @@ class LayoutController {
         });
     }
     waitForWindowContainer(placementId) {
-        return new Promise((res, rej) => {
+        return new Promise((res) => {
             const unsub = this.emitter.onContentComponentCreated((component) => {
                 if (component.config.id === placementId) {
                     res();

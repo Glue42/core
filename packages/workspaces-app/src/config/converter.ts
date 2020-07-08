@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { WorkspaceItem, ParentItem, AnyItem } from "../types/internal";
 import GoldenLayout, { StackConfig, ColumnConfig, RowConfig, Config } from "golden-layout";
 import { EmptyVisibleWindowName } from "../constants";
@@ -36,6 +37,7 @@ class ConfigConverter {
         if (config.type === "workspace" || !config.type) {
             const workspaceItem: WorkspaceItem = config as WorkspaceItem;
             const { children } = workspaceItem;
+
             if (children.length > 1 && children.every((c) => c.type === "column")) {
                 glConfig.content.push(this.wrap(children.map((c) => this.convertToRendererConfigCore(c, workspaceItem)), "row"));
             } else if (children.length > 1 && children.every((c) => c.type === "row")) {
@@ -46,7 +48,7 @@ class ConfigConverter {
 
             return glConfig;
         } else if (config.type === "column" || config.type === "row") {
-            glConfig.content.push(...config.children.map((c) => this.convertToRendererConfigCore(c, config)));
+            (glConfig as ColumnConfig).content.push(...config.children.map((c) => this.convertToRendererConfigCore(c, config)));
             if (glConfig.content.length === 0) {
                 glConfig.content.push(this.getGroupWithEmptyVisibleWindow());
             }
@@ -108,7 +110,7 @@ class ConfigConverter {
         };
     }
 
-    private flat = (arr: any[]) => arr.reduce((acc, i) => [...acc, ...(Array.isArray(i) ? i : [i])], []);
+    private flat = <T>(arr: T[]) => arr.reduce((acc, i) => [...acc, ...(Array.isArray(i) ? i : [i])], []);
 
     private wrap(content: GoldenLayout.ComponentConfig[], wrapper: "stack" | "row" | "column") {
         return {

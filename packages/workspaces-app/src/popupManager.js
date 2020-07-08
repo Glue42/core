@@ -7,10 +7,6 @@ class PopupManager {
         this._openWorkspaceType = "openWorkspace";
         this._saveWorkspaceType = "saveWorkspace";
         this._showPopupMethod = "T42.Workspaces.ShowPopup";
-        this._addWindowPopupTemplate = `
-    <iframe id="popup" src="/glue/workspaces/popups/index.html" class="popup">
-    </iframe>
-    `;
         this.initPopup();
         this.registerHideMethod();
         this.registerResizeMethod();
@@ -97,7 +93,7 @@ class PopupManager {
         return (await window.glue.agm.invoke(this._showPopupMethod, { type, payload }, instance)).returned;
     }
     registerHideMethod() {
-        window.glue.agm.register("T42.Workspaces.HidePopup", (args) => {
+        window.glue.agm.register("T42.Workspaces.HidePopup", () => {
             this.hidePopup();
         });
     }

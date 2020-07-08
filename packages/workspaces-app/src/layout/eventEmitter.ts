@@ -21,7 +21,7 @@ export class LayoutEventEmitter {
         return this._registry.add("outer-layout-container-resized", callback);
     }
 
-    public onContentContainerResized(callback: (target: any, id?: string) => void, id?: string): () => void {
+    public onContentContainerResized(callback: (target: GoldenLayout.ContentItem, id?: string) => void, id?: string): () => void {
         if (id) {
             return this._registry.add(`workspace-content-container-resized-${id}`, callback);
         }
@@ -77,7 +77,7 @@ export class LayoutEventEmitter {
         return this._registry.add("tab-element-mouse-down", callback);
     }
 
-    public onSelectionChanged(callback: (toBack: Array<{ id: string, bounds: Bounds }>, toFront: Array<{ id: string, bounds: Bounds }>) => void) {
+    public onSelectionChanged(callback: (toBack: Array<{ id: string; bounds: Bounds }>, toFront: Array<{ id: string; bounds: Bounds }>) => void) {
         return this._registry.add("selection-changed", callback);
     }
 
@@ -93,7 +93,7 @@ export class LayoutEventEmitter {
         return this._registry.add("workspace-tab-close-requested", callback);
     }
 
-    public onAddButtonClicked(callback: (args: { laneId: string, workspaceId: string, bounds: Bounds, parentType: string }) => void): () => void {
+    public onAddButtonClicked(callback: (args: { laneId: string; workspaceId: string; bounds: Bounds; parentType: string }) => void): () => void {
         return this._registry.add("add-button-clicked", callback);
     }
 
@@ -127,31 +127,32 @@ export class LayoutEventEmitter {
 
     public raiseEvent(name: "stack-maximized" | "stack-restored", data: { stack: GoldenLayout.ContentItem }): Promise<void> | Array<Promise<void>>;
     public raiseEvent(name: "workspace-save-requested", data: { workspaceId: string }): Promise<void> | Array<Promise<void>>;
-    public raiseEvent(name: "workspace-selection-changed", data: { workspace: Workspace, toBack: Window[] }): Promise<void> | Array<Promise<void>>;
-    public raiseEvent(name: "content-item-created", data: { workspaceId: string, item: GoldenLayout.ContentItem }): Promise<void> | Array<Promise<void>>;
-    public raiseEvent(name: "content-component-created", data: { component: GoldenLayout.ContentItem, workspaceId: string }): Promise<void> | Array<Promise<void>>;
+    public raiseEvent(name: "workspace-selection-changed", data: { workspace: Workspace; toBack: Window[] }): Promise<void> | Array<Promise<void>>;
+    public raiseEvent(name: "content-item-created", data: { workspaceId: string; item: GoldenLayout.ContentItem }): Promise<void> | Array<Promise<void>>;
+    public raiseEvent(name: "content-component-created", data: { component: GoldenLayout.ContentItem; workspaceId: string }): Promise<void> | Array<Promise<void>>;
     public raiseEvent(name: "content-layout-state-changed", data: { layoutId: string }): Promise<void> | Array<Promise<void>>;
-    public raiseEvent(name: "add-button-clicked", data: { args: { laneId: string, workspaceId: string, bounds: Bounds, parentType?: string } }): Promise<void> | Array<Promise<void>>;
+    public raiseEvent(name: "add-button-clicked", data: { args: { laneId: string; workspaceId: string; bounds: Bounds; parentType?: string } }): Promise<void> | Array<Promise<void>>;
     public raiseEvent(name: "workspace-tab-close-requested" | "workspace-added", data: { workspace: Workspace }): Promise<void> | Array<Promise<void>>;
-    public raiseEvent(name: "selection-changed", data: { toBack: Window[], toFront: Window[] }): Promise<void> | Array<Promise<void>>;
+    public raiseEvent(name: "selection-changed", data: { toBack: Window[]; toFront: Window[] }): Promise<void> | Array<Promise<void>>;
     public raiseEvent(name: "tab-drag-start" | "tab-drag" | "tab-drag-end" | "tab-element-mouse-down", data: { tab: GoldenLayout.Tab }): Promise<void> | Array<Promise<void>>;
     public raiseEvent(name: "tab-close-requested" | "eject-requested", data: { item: GoldenLayout.ContentItem }): Promise<void> | Array<Promise<void>>;
-    public raiseEvent(name: "content-item-resized", data: { target: Element, id: string }): Promise<void> | Array<Promise<void>>;
-    public raiseEvent(name: "workspace-content-container-resized", data: { target: any, id?: string }): Promise<void> | Array<Promise<void>>;
+    public raiseEvent(name: "content-item-resized", data: { target: Element; id: string }): Promise<void> | Array<Promise<void>>;
+    public raiseEvent(name: "workspace-content-container-resized", data: { target: GoldenLayout.ContentItem; id?: string }): Promise<void> | Array<Promise<void>>;
     public raiseEvent(name: "outer-layout-container-resized" | "move-area-changed", data: { target: Element }): Promise<void> | Array<Promise<void>>;
     public raiseEvent(name: "content-layout-init", data: { layout: GoldenLayout }): Promise<void> | Array<Promise<void>>;
     public raiseEvent(name: "workspace-layout-initialised" | "close-frame" | "restore-frame" | "maximize-frame" | "minimize-frame" | "workspace-add-button-clicked", data: {}): Promise<void> | Array<Promise<void>>;
-    public raiseEvent(name: string, data: any): Promise<void> | Array<Promise<void>> {
-        const result: any = this._registry.execute(name, ...Object.values(data));
+    public raiseEvent(name: string, data: object): Promise<void> | Array<Promise<void>> {
+        const result = this._registry.execute(name, ...Object.values(data));
 
-        if ((Array.isArray(result) && result.some((r) => r && r.then)) || (result && !Array.isArray(result) && result.then)) {
-            return result;
+        if ((Array.isArray(result) && result.some((r) => r && (r as Promise<object>).then)) ||
+            (result && !Array.isArray(result) && (result as Promise<object>).then)) {
+            return (result as Array<Promise<unknown>>) as Array<Promise<void>>;
         }
 
-        return Promise.resolve(result);
+        return (Promise.resolve(result) as Promise<unknown>) as Promise<void>;
     }
 
-    public raiseEventWithDynamicName(name: string, ...args: any) {
+    public raiseEventWithDynamicName(name: string, ...args: object[]) {
         this._registry.execute(name, ...args);
     }
 }
