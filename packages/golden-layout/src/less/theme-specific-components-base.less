@@ -1,0 +1,249 @@
+// ".lm_dragging" is applied to BODY tag during Drag and is also directly applied to the root of the object being dragged
+// Entire GoldenLayout Container, if a background is set, it is visible as color of "pane header" and "splitters" (if these latest has opacity very low)
+.lm_goldenlayout {
+  background-color: @glue42-light-bg;
+}
+
+// Single Pane content (area in which final dragged content is contained)
+.lm_content {
+  background-color: @glue42-dark-bg;
+}
+
+// Single Pane content during Drag (style of moving window following mouse)
+.lm_dragProxy {
+  .lm_content {
+    border: 1px solid @glue42-primary-color; //@glue42-border-color;
+  }
+}
+
+// Placeholder Container of target position
+.lm_dropTargetIndicator {
+  //border: 2px solid @glue42-drop-border;
+  background-color: @glue42-mid-bg; //fade(@glue42-primary-color, 25%);
+  border: 2px solid @glue42-primary-color;
+  overflow: hidden;
+
+  // Inner Placeholder
+
+  .lm_inner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    span {
+      display: block;
+      width: 16px;
+      height: 16px;
+      border-bottom: 2px solid @glue42-muted-color;
+      border-right: 2px solid @glue42-muted-color;
+      transform: rotate(45deg);
+      margin: -12px -8px -8px;
+      animation: animate 1s infinite;
+    }
+    span:nth-child(2) {
+      animation-delay: -0.2s;
+    }
+    span:nth-child(3) {
+      animation-delay: -0.4s;
+    }
+  }
+
+}
+// Drop animation arrow 
+@keyframes animate {
+  0% {
+    opacity: 0;
+    transform: rotate(45deg) translate(-20px, -20px);
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(45deg) translate(20px, 20px);
+  }
+}
+
+
+
+// Separator line (handle to change pane size)
+.lm_splitter {
+  background: @glue42-mid-bg;
+
+  &.lm_horizontal {
+    border-left: @glue42-border;
+    border-right: @glue42-border;
+  }
+
+  &.lm_vertical {
+    border-top: @glue42-border;
+    border-bottom: @glue42-border;
+  }
+
+  // When hovered by mouse...
+  &:hover,
+  &.lm_dragging {
+    background: @glue42-light-bg;
+  }
+}
+
+// Pane Header (container of Tabs for each pane)
+.lm_header {
+  background-color: @glue42-mid-bg;
+  &.lm_selectable {
+    background-color: @glue42-dark-bg;
+    &::before {
+      background-image: @icon-glue42-logo;
+    }
+  }
+
+  // Single Tab container. A single Tab is set for each pane, a group of Tabs are contained in ".lm_header"
+  .lm_title {
+    color: @glue42-muted-color;
+  }
+  .lm_tab {
+    background-color: @glue42-mid-bg;
+    &:after {
+      background-color: @glue42-border-color;
+    }
+    .lm_saveButton {
+      &:before {
+        color: @glue42-muted-color;
+      }
+      &:hover {
+        background-color: @glue42-border-color;
+        &::before {
+          color: @glue42-active-color;
+        }
+      }
+    }
+    .lm_close_tab {
+      &:before,
+      &:after {
+        color: @glue42-muted-color;
+        background-color: @glue42-muted-color;
+      }
+      &:hover {
+        background-color: @glue42-border-color;
+        &::before,
+        &:after {
+          color: @glue42-active-color;
+          background-color : @glue42-active-color;
+        }
+      }
+    }
+    &:hover {
+      &:before {
+        background-color: @glue42-border-color;
+      }
+    }
+    &.lm_active {
+      background-color: @glue42-dark-bg;
+      &:before {
+        background-color: @glue42-primary-color;
+      }
+      .lm_title {
+        color: @glue42-active-color;
+      }
+    }
+  }
+}
+
+// Pane controls (popout, maximise, minimize, close)
+.lm_controls {
+  // All Pane controls shares these
+  li {
+    &:before,
+    &::after {
+      color: @glue42-muted-color;
+    }
+    &:hover {
+      background-color: @glue42-mid-bg;
+      &:before,
+      &:after {
+        color: @glue42-active-color;
+      }
+    }
+  }
+
+  // Icon to PopOut Pane, so move it to a different Browser Window
+  .lm_popout {
+    background-image: linear-gradient(-45deg, fade(@glue42-muted-color, 0%) 49%, @glue42-muted-color 50%, fade(@glue42-muted-color, 0%) 51%);
+    &:before{
+      background: linear-gradient(to left, currentColor 1px, @glue42-muted-color 0) no-repeat top left / 6px 1px,
+                  linear-gradient(to left, currentColor 1px, @glue42-muted-color 0) no-repeat bottom right / 1px 6px;
+    }
+    &:hover {
+      background-image: linear-gradient(-45deg, fade(@glue42-active-color, 0%) 49%, @glue42-active-color 50%, fade(@glue42-active-color, 0%) 51%);
+      &:before{
+        background: linear-gradient(to left, currentColor 1px, @glue42-active-color 0) no-repeat top left / 6px 1px,
+                    linear-gradient(to left, currentColor 1px, @glue42-active-color 0) no-repeat bottom right / 1px 6px;
+      }
+    }    
+  }
+
+  .lm_close {
+    &:before,
+    &:after {
+      background-color: @glue42-muted-color;
+    }
+    &:hover {
+      background-color: @glue42-danger-color;
+      &::before,
+      &:after {
+        background-color : @glue42-active-color;
+      }
+    }
+  }
+}
+
+// If a specific Pane is Popped Out, so move it to a different Browser Window, Icon to restore original position is:
+.lm_popin {
+  cursor: pointer;
+
+  // Icon to Restore original position in Golden Layout Container
+  .lm_icon {
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAJCAYAAADpeqZqAAAAWklEQVR4nJWOyw3AIAxDHcQC7L8jbwT3AlJBfNp3SiI7dtRaLSlKKeoA1oEsKSQZCEluexw8Tm3ohk+E7bnOUHUGcNh+HwbBygw4AZ7FN/Lt84p0l+yTflV8AKQyLdcCRJi/AAAAAElFTkSuQmCC);
+    border-left: @glue42-border;
+    border-top: @glue42-border;
+  }
+}
+.lm_items {
+  &:before {
+    background-color: @glue42-border-color;
+  }
+}
+.lm_row {
+  background-color: @glue42-mid-bg;
+}
+.empty-container-background {
+  background-color: @glue42-dark-bg;
+}
+
+//Add new workspace
+.lm_add_button,
+.add-button,
+.lm_minimise {
+  &:before,
+  &:after {
+    color: @glue42-muted-color;
+    background-color: @glue42-muted-color;
+  }
+  &:hover {
+    &::before,
+    &:after {
+      color: @glue42-active-color;
+      background-color : @glue42-active-color;
+    }
+  }
+}
+
+//Save icon
+.lm_saveButton {
+  &:before {
+    filter: @save-layout-color;
+  }
+  &:hover::before {
+    filter: @save-layout-hover-color;
+  }
+}
