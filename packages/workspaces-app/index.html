@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" class="dark" style="height: 100%;">
+
+<head>
+    <title>Workspaces</title>
+    <meta charset="UTF-8" />
+    <meta name="author" content="Tick42" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+</head>
+
+<body style="height: 100%; overflow: hidden; margin: 0px; max-height: 100vh;">
+    <div id="outter-layout-container" style="overflow: hidden; width: 100%; height: calc(100% - 0px);">
+
+    </div>
+    <script>
+        const getHtml = (htmlAsString) => {
+            const template = document.createElement('template');
+            template.innerHTML = htmlAsString;
+            return template.content.children[0];
+        };
+
+        const workspacesIndexInPath = location.pathname.lastIndexOf("/workspaces/");
+        const workspacesPath = location.pathname.substr(0, workspacesIndexInPath);
+
+        const path = `${location.origin}${workspacesPath}/workspaces/`;
+        const loadcss = () => {
+            const createLinkElement = (path) => {
+                return getHtml(`<link type="text/css" rel="stylesheet" href="${path}" />`);
+            }
+            const index = createLinkElement(`${path}assets/css/index.css`);
+            const glueDarkTheme = createLinkElement(`${path}assets/css/glue42-dark-theme.css`);
+            const goldenLayoutBase = createLinkElement(`${path}assets/css/goldenlayout-base.css`);
+
+            document.head.appendChild(index);
+            document.head.appendChild(glueDarkTheme);
+            document.head.appendChild(goldenLayoutBase);
+        }
+
+        const loadManifest = () => {
+            const manifestLink = getHtml(`<link rel="manifest" href="${path}manifest.webmanifest">`);
+
+            document.head.appendChild(manifestLink);
+        }
+
+        const loadScript = () => {
+            const createScriptElement = (path) => {
+                const scriptTag = document.createElement("script");
+                scriptTag.src = path;
+                return scriptTag;
+            };
+
+            const glueWeb = createScriptElement(`${path}lib/web.umd.js`);
+            const script = createScriptElement(`${path}dist/index.js`);
+            document.body.appendChild(glueWeb);
+            glueWeb.onload = () => {
+                document.body.appendChild(script);
+            }
+        }
+
+        loadcss();
+        loadManifest();
+        loadScript();
+    </script>
+
+</body>
+
+</html>

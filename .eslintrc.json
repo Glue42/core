@@ -16,6 +16,7 @@
         "tutorials/*",
         "packages/web/**/*.js",
         "packages/core/**/*.js",
+        "packages/workspaces-app/**/*.js",
         "docs/*",
         "e2e/*"
     ],

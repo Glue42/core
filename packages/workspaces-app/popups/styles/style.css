@@ -1,0 +1,38 @@
+.add-workspace,
+.add-application,
+.save-workspace {
+    background: #252525;
+    max-width: 20rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.application-icon {
+    background: center / 80% no-repeat url("./../images/icon-coverage.svg");
+    height: 1.25rem;
+    width: 1.25rem;
+}
+.applications,
+.workspaces {
+    max-height: 16.5rem;
+    overflow-y: auto;
+}
+.workspace-icon {
+    width: 2rem;
+    background: center / 80% no-repeat url("./../images/icon-layout.svg");
+}
+
+.icon-search {
+    background: center / 80% no-repeat url("./../images/icon-search.svg");
+    height: 1.25rem;
+    position: absolute;
+    right: 0.875rem;
+    top: 0.313rem;
+    width: 1.25rem;
+    z-index: 0;
+}
+.dark .nav-link {
+    padding: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.dark .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
