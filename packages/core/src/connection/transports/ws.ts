@@ -8,7 +8,9 @@ import { Glue42Core } from "../../../glue";
 import Utils from "../../utils/utils";
 import { PromiseWrapper } from "../../utils/pw";
 
-const WebSocketConstructor = Utils.isNode() ? require("ws") : window.WebSocket;
+const dummyRequire = (): any => undefined;
+const requireFunc: any = Utils.isNode() ? require : dummyRequire;
+const WebSocketConstructor = Utils.isNode() ? requireFunc("ws") : window.WebSocket;
 
 export default class WS implements Transport {
     private ws: WebSocket | undefined;

@@ -1,63 +1,66 @@
 {
-  "name": "@glue42/golden-layout",
-  "version": "0.0.0",
-  "author": {
-    "name": "Glue42",
-    "url": "https://www.glue42.com"
-  },
-  "license": "MIT",
-  "description": "Glue42's version of golden-layout",
-  "main": "./dist/goldenlayout.js",
-  "typings": "./index.d.ts",
-  "files": [
-    "dist",
-    "index.d.ts"
-  ],
-  "dependencies": {
-    "jquery": "*"
-  },
-  "scripts": {
-    "test": "",
-    "tslint": "tslint \"**/*.ts\" -e \"node_modules/**\" -e \"typings/**\"",
-    "format:check": "prettier --check ./{.,src/less/**,src/less{.,less/**}}/*.{css,less}",
-    "format:fix": "npm run format:check -- --write",
-    "build": "npm run build:min && npm run build:less",
-    "build:min": "gulp build",
-    "build:less": "grunt less"
-  },
-  "devDependencies": {
-    "grunt": "^1.0.4",
-    "grunt-contrib-less": "^1.4.1",
-    "grunt-contrib-watch": "0.5.3",
-    "grunt-gulp": "^1.0.1",
-    "grunt-karma": "^2.0.0",
-    "grunt-release": "0.13.*",
-    "gulp": "^4.0.2",
-    "gulp-concat": "^2.6.0",
-    "gulp-continuous-concat": "^0.1.1",
-    "gulp-insert": "^0.5.0",
-    "gulp-uglify": "^1.5.3",
-    "gulp-watch": "^4.3.5",
-    "karma": "0.13.*",
-    "karma-chrome-launcher": "~0.1.4",
-    "karma-coverage": "0.2.4",
-    "karma-firefox-launcher": "^1.0.0",
-    "karma-ie-launcher": "~0.1.5",
-    "karma-jasmine": "~0.1.5",
-    "karma-phantomjs-launcher": "^1.0.2",
-    "tslint": "^3.7.3",
-    "tslint-config-typings": "^0.2.2",
-    "typescript": "^1.8.9",
-    "walker": "1.0.6",
-    "prettier": "^1.19.1",
-    "handlebars": "2.0.0-alpha.2"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Glue42/core"
-  },
-  "bugs": {
-    "url": "https://github.com/Glue42/core/issues"
-  },
-  "homepage": "https://www.glue42.com"
+    "name": "@glue42/golden-layout",
+    "version": "0.0.0",
+    "author": {
+        "name": "Glue42",
+        "url": "https://www.glue42.com"
+    },
+    "license": "MIT",
+    "description": "Glue42's version of golden-layout",
+    "main": "./dist/goldenlayout.js",
+    "typings": "./index.d.ts",
+    "files": [
+        "dist",
+        "index.d.ts"
+    ],
+    "dependencies": {
+        "jquery": "*"
+    },
+    "scripts": {
+        "test": "",
+        "tslint": "tslint \"**/*.ts\" -e \"node_modules/**\" -e \"typings/**\"",
+        "format:check": "prettier --check ./{.,src/less/**,src/less{.,less/**}}/*.{css,less}",
+        "format:fix": "npm run format:check -- --write",
+        "build": "npm run build:min && npm run build:less",
+        "build:min": "gulp build",
+        "build:less": "grunt less",
+        "audit": "node ../../scripts/audit/index.js",
+        "preversion": "npm run build && npm run test && npm run audit",
+        "version": "npm run build"
+    },
+    "devDependencies": {
+        "grunt": "^1.0.4",
+        "grunt-contrib-less": "^1.4.1",
+        "grunt-contrib-watch": "0.5.3",
+        "grunt-gulp": "^1.0.1",
+        "grunt-karma": "^2.0.0",
+        "grunt-release": "0.13.*",
+        "gulp": "^4.0.2",
+        "gulp-concat": "^2.6.0",
+        "gulp-continuous-concat": "^0.1.1",
+        "gulp-insert": "^0.5.0",
+        "gulp-uglify": "^1.5.3",
+        "gulp-watch": "^4.3.5",
+        "karma": "0.13.*",
+        "karma-chrome-launcher": "~0.1.4",
+        "karma-coverage": "0.2.4",
+        "karma-firefox-launcher": "^1.0.0",
+        "karma-ie-launcher": "~0.1.5",
+        "karma-jasmine": "~0.1.5",
+        "karma-phantomjs-launcher": "^1.0.2",
+        "tslint": "^3.7.3",
+        "tslint-config-typings": "^0.2.2",
+        "typescript": "^1.8.9",
+        "walker": "1.0.6",
+        "prettier": "^1.19.1",
+        "handlebars": "2.0.0-alpha.2"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Glue42/core"
+    },
+    "bugs": {
+        "url": "https://github.com/Glue42/core/issues"
+    },
+    "homepage": "https://www.glue42.com"
 }

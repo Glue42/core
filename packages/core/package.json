@@ -32,7 +32,7 @@
     },
     "license": "MIT",
     "dependencies": {
-        "callback-registry": "^2.5.2",
+        "callback-registry": "^2.6.0",
         "shortid": "2.2.6",
         "ws": "7.1.2"
     },
