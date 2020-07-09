@@ -1,5 +1,5 @@
 var concat = require( 'gulp-concat' );
-var uglify = require( 'gulp-uglify' );
+var terser = require( 'gulp-terser' );
 var insert = require( 'gulp-insert' );
 
 /* global require */
@@ -62,7 +62,7 @@ module.exports = function( grunt ) {
 					options: {
 						tasks: function( stream ) {
 							return basicGulpStream( stream )
-								.pipe( uglify() )
+								.pipe( terser() )
 								.pipe( concat( 'goldenlayout.min.js' ) );
 						}
 					},
@@ -70,24 +70,6 @@ module.exports = function( grunt ) {
 					dest: 'dist/goldenlayout.min.js'
 				}
 			},
-
-			/***********************
-			 * KARMA
-			 ***********************/
-			karma: {
-				unit: {
-					configFile: 'karma.conf.js',
-					background: true,
-					singleRun: false
-				}
-				,
-				travis: {
-					configFile: 'karma.conf.js',
-					singleRun: true,
-					browsers: [ 'PhantomJS' ]
-				}
-			},
-
 		less: {
 			development: {
 				options: {
@@ -108,10 +90,6 @@ module.exports = function( grunt ) {
 	);
 
 	grunt.loadNpmTasks( 'grunt-contrib-less' );
-	grunt.loadNpmTasks( 'grunt-contrib-watch' );
-	grunt.loadNpmTasks( 'grunt-release' );
-	grunt.loadNpmTasks( 'grunt-karma' );
-	grunt.loadNpmTasks( 'grunt-gulp' );
 
 	// Default task(s).
 	grunt.registerTask( 'default', [ 'watch' ] );
