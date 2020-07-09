@@ -4,10 +4,10 @@ var insert = require( 'gulp-insert' );
 
 /* global require */
 module.exports = function( grunt ) {
-	grunt.registerTask( 'build', require( './build/task' ) );
+	grunt.registerTask( 'build', require( './buildScripts/task' ) );
 
 	var sources = [
-		'./build/ns.js',
+		'./buildScripts/ns.js',
 		'./src/js/utils/utils.js',
 		'./src/js/utils/EventEmitter.js',
 		'./src/js/utils/DragListener.js',

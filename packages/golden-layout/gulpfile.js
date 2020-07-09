@@ -9,7 +9,7 @@ var watch = require('gulp-watch');
 gulp.task( 'dev', function() {
 	return gulp
 	.src([
-		'./build/ns.js',
+		'./buildScripts/ns.js',
 		'./src/js/utils/utils.js',
 		'./src/js/utils/EventEmitter.js',
 		'./src/js/utils/DragListener.js',
@@ -24,7 +24,7 @@ gulp.task( 'dev', function() {
 gulp.task( 'build', function() {
 	return gulp
 	.src([
-		'./build/ns.js',
+		'./buildScripts/ns.js',
 		'./src/js/utils/utils.js',
 		'./src/js/utils/EventEmitter.js',
 		'./src/js/utils/DragListener.js',

@@ -1000,6 +1000,11 @@ lm.utils.copy(lm.LayoutManager.prototype, {
 			return;
 		}
 
+		// this.container[0].parentElement.parentElement.parentElement.offsetWidth true width for workspaceContents
+		if (!this.container.is(":visible")) {
+			return;
+		}
+
 		// Prevent updates while it is already happening.
 		this._updatingColumnsResponsive = true;
 
