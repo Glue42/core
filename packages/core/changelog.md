@@ -1,3 +1,7 @@
+5.0.8
+chore: upgraded callback-registry to 2.6.0
+fix: better timeout error message
+fix: try to fool webpack when requiring ws module
 5.0.7
 fix: extra check for running in browser or node
 5.0.6

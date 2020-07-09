@@ -17,6 +17,7 @@
         "packages/web/**/*.js",
         "packages/core/**/*.js",
         "packages/workspaces-app/**/*.js",
+        "packages/golden-layout/*",
         "docs/*",
         "e2e/*"
     ],

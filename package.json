@@ -9,8 +9,7 @@
     "bootstrap": "lerna bootstrap",
     "build": "lerna run build",
     "test": "npm run test:scripts && lerna run test",
-    "e2e-server": "gluec serve --cwd=./e2e/config",
-    "e2e": "karma start ./e2e/config/karma.conf.js",
+    "e2e": "node ./e2e/index.js",
     "release": "gulp release",
     "test:scripts": "mocha ./scripts/test/**/*spec.js",
     "lint:fix": "./node_modules/.bin/eslint --ignore-path .gitignore . --fix",
@@ -48,5 +47,8 @@
     "*.{js,ts}": [
       "./node_modules/.bin/eslint --ignore-path .gitignore ."
     ]
+  },
+  "dependencies": {
+    "tree-kill": "^1.2.2"
   }
 }
