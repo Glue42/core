@@ -1,4 +1,4 @@
-import GoldenLayout = require("golden-layout");
+import GoldenLayout = require("@glue42/golden-layout");
 import registryFactory from "callback-registry";
 const ResizeObserver = require("resize-observer-polyfill").default;
 import { idAsString, getAllWindowsFromConfig, createWaitFor, getElementBounds } from "../utils";
@@ -479,7 +479,7 @@ export class LayoutController {
                         windowWithChangedSize.bounds = getElementBounds(item.element);
                     }
                     const itemId = item.config.id;
-                    this.emitter.raiseEvent("content-item-resized", { target: (item.element.getElement())[0], id: idAsString(itemId) });
+                    this.emitter.raiseEvent("content-item-resized", { target: (item.element as any)[0], id: idAsString(itemId) });
                 });
 
                 if (item.config.componentName === this._emptyVisibleWindowName || item.parent?.config.workspacesConfig.wrapper) {

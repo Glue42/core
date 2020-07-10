@@ -1,6 +1,6 @@
 import { WindowSummary, WorkspaceSummary, ContainerSummary } from "../types/internal";
 import store from "../store";
-import GoldenLayout from "golden-layout";
+import GoldenLayout from "@glue42/golden-layout";
 import { LayoutEventEmitter } from "./eventEmitter";
 import { idAsString } from "../utils";
 import { EmptyVisibleWindowName } from "../constants";

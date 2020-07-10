@@ -1,5 +1,5 @@
 import { Workspace, Window } from "./types/internal";
-import GoldenLayout from "golden-layout";
+import GoldenLayout from "@glue42/golden-layout";
 import { idAsString } from "./utils";
 
 class WorkspaceStore {

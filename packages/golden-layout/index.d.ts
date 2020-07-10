@@ -1,7 +1,7 @@
 // Type definitions for GoldenLayout v1.5.x
 // Project: https://golden-layout.com/
 
-declare module 'golden-layout' {
+declare module '@glue42/golden-layout' {
     class GoldenLayout implements GoldenLayout.EventEmitter {
         /**
          * The topmost item in the layout item tree. In browser terms: Think of the GoldenLayout instance as window

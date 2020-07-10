@@ -1,4 +1,4 @@
-import GoldenLayout from "golden-layout";
+import GoldenLayout from "@glue42/golden-layout";
 
 export type ComponentState = GoldenLayout.Component["config"]["componentState"];
 

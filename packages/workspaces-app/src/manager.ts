@@ -6,7 +6,7 @@ import { PopupManager } from "./popupManager";
 import store from "./store";
 import registryFactory from "callback-registry";
 import configFactory from "./config/factory";
-import GoldenLayout from "golden-layout";
+import GoldenLayout from "@glue42/golden-layout";
 import { LayoutsManager } from "./layouts";
 import { LayoutStateResolver } from "./layout/stateResolver";
 import scReader from "./config/startupReader";

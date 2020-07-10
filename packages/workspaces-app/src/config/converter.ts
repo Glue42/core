@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { WorkspaceItem, ParentItem, AnyItem } from "../types/internal";
-import GoldenLayout, { StackConfig, ColumnConfig, RowConfig, Config } from "golden-layout";
+import GoldenLayout, { StackConfig, ColumnConfig, RowConfig, Config } from "@glue42/golden-layout";
 import { EmptyVisibleWindowName } from "../constants";
 import factory from "./factory";
 import { idAsString } from "../utils";

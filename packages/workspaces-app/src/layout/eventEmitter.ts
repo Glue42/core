@@ -1,4 +1,4 @@
-import GoldenLayout from "golden-layout";
+import GoldenLayout from "@glue42/golden-layout";
 import { Bounds, Workspace, Window } from "../types/internal";
 import { CallbackRegistry } from "callback-registry";
 

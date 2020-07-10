@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // TODO remove when the layouts api is ready ^
-import GoldenLayout from "golden-layout";
+import GoldenLayout from "@glue42/golden-layout";
 import { Workspace, FrameLayoutConfig, WorkspaceItem } from "./types/internal";
 import storage from "./storage";
 import configFactory from "./config/factory";

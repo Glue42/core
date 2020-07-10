@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LayoutController = void 0;
-const GoldenLayout = require("golden-layout");
+const GoldenLayout = require("@glue42/golden-layout");
 const callback_registry_1 = require("callback-registry");
 const ResizeObserver = require("resize-observer-polyfill").default;
 const utils_1 = require("../utils");
@@ -387,7 +387,7 @@ class LayoutController {
                         windowWithChangedSize.bounds = utils_1.getElementBounds(item.element);
                     }
                     const itemId = item.config.id;
-                    this.emitter.raiseEvent("content-item-resized", { target: (item.element.getElement())[0], id: utils_1.idAsString(itemId) });
+                    this.emitter.raiseEvent("content-item-resized", { target: item.element[0], id: utils_1.idAsString(itemId) });
                 });
                 if (item.config.componentName === this._emptyVisibleWindowName || ((_a = item.parent) === null || _a === void 0 ? void 0 : _a.config.workspacesConfig.wrapper)) {
                     item.tab.header.position(false);

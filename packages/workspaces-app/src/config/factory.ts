@@ -1,4 +1,4 @@
-import GoldenLayout from "golden-layout";
+import GoldenLayout from "@glue42/golden-layout";
 import { generate } from "shortid";
 import { FrameLayoutConfig } from "../types/internal";
 import { TitleGenerator } from "./titleGenerator";

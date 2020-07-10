@@ -26,7 +26,7 @@ import store from "../store";
 import { WorkspaceSummary, ColumnItem, RowItem } from "../types/internal";
 import configConverter from "../config/converter";
 import configFactory from "../config/factory";
-import GoldenLayout, { RowConfig, ColumnConfig } from "golden-layout";
+import GoldenLayout, { RowConfig, ColumnConfig } from "@glue42/golden-layout";
 import { idAsString } from "../utils";
 import converter from "../config/converter";
 import { Glue42Web } from "@glue42/web";

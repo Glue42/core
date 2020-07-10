@@ -1,4 +1,4 @@
-import GoldenLayout, { Container } from "golden-layout";
+import GoldenLayout, { Container } from "@glue42/golden-layout";
 
 export const idAsString = (id: string | string[]) => Array.isArray(id) ? id[0] : id;
 
