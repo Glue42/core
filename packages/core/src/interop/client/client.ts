@@ -342,13 +342,15 @@ export default class Client {
             const invokePromises: Array<Promise<InvokeResultMessage>> = serversMethodMap.map(
                 (serversMethodPair) => {
                     const invId = random();
-                    const invokePromise = this.protocol.client.invoke(invId, serversMethodPair.methods[0], argumentObj, serversMethodPair.server, additionalOptionsCopy);
+                    const method = serversMethodPair.methods[0];
+                    const server = serversMethodPair.server;
+                    const invokePromise = this.protocol.client.invoke(invId, method, argumentObj, server, additionalOptionsCopy);
 
                     return Promise.race([
                         invokePromise,
                         rejectAfter(timeout, {
                             invocationId: invId,
-                            message: `Invocation timeout (${timeout} ms) reached`,
+                            message: `Invocation timeout (${timeout} ms) reached for method name: ${method?.name}, target instance: ${JSON.stringify(server.instance)}, options: ${JSON.stringify(additionalOptionsCopy)}`,
                             status: InvokeStatus.Error,
                         })
                     ]);

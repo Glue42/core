@@ -106,6 +106,14 @@ export namespace Glue42Core {
          *  If `true`, an App system will be created, and all metrics will live on top level.
          */
         disableAutoAppSystem?: boolean;
+
+        pagePerformanceMetrics: PagePerformanceMetricsConfig;
+    }
+
+    export interface PagePerformanceMetricsConfig {
+        enabled: boolean;
+        initialPublishTimeout: number;
+        publishInterval: number;
     }
 
     export interface Extension {
@@ -1605,14 +1613,22 @@ export namespace Glue42Core {
             gwToken: string,
             isOwner: boolean
         };
+        metrics?: {
+            pagePerformanceMetrics: {
+                enabled: boolean;
+                initialPublishTimeout: number;
+                publishInterval: number;
+            }
+        };
+        consoleLogLevel: Glue42Core.LogLevel | undefined;
         updatePerfData: (perf: object) => void;
-        getGWToken(): Promise<string>;
-        getWindowInfo(id: string): {
+        getMetricsPublishingEnabled: () => boolean;
+        getGWToken: () => Promise<string>;
+        getWindowInfo: (id: string) => {
             applicationName: string;
             activityId?: string;
             activityWindowId?: string;
         };
-        getMetricsPublishingEnabled: () => boolean;
     }
 
     export interface LoggerConfig {

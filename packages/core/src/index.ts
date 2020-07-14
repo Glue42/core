@@ -1,11 +1,11 @@
-import metrics, { addFAVSupport } from "./metrics/main";
+import metrics from "./metrics/main";
 import Connection from "./connection/connection";
 import { Logger } from "./logger/logger";
 import { Glue42Core } from "../glue";
 import prepareConfig from "./config";
-import timer from "./utils/timer";
+import timer, { getAllTimers } from "./utils/timer";
 import Utils from "./utils/utils";
-import { Timer, GDObject } from "./types";
+import { Timer } from "./types";
 import { ContextsModule } from "./contexts/contextsModule";
 import { ContextMessageReplaySpec } from "./contexts/contextMessageReplaySpec";
 import { InteropSettings } from "./interop/types";
@@ -16,7 +16,7 @@ import shortid from "shortid";
 
 const GlueCore = (userConfig?: Glue42Core.Config, ext?: Glue42Core.Extension): Promise<Glue42Core.GlueCore> => {
     const gdVersion: number | undefined = Utils.getGDMajorVersion();
-    let glue42gd: GDObject | undefined;
+    let glue42gd: Glue42Core.GDObject | undefined;
     let preloadPromise: Promise<any> = Promise.resolve();
 
     if (gdVersion) {
@@ -28,7 +28,7 @@ const GlueCore = (userConfig?: Glue42Core.Config, ext?: Glue42Core.Extension): P
         }
     }
 
-    const glueInitTimer = timer();
+    const glueInitTimer = timer("glue");
 
     userConfig = userConfig || {};
     ext = ext || {};
@@ -55,7 +55,10 @@ const GlueCore = (userConfig?: Glue42Core.Config, ext?: Glue42Core.Extension): P
         const done = () => {
             inner.initTime = t.stop();
             inner.initEndTime = t.endTime;
-            _logger.trace(`${name} is ready`);
+            inner.marks = t.marks;
+            if (_allowTrace) {
+                _logger.trace(`${name} is ready - ${t.endTime - t.startTime}`);
+            }
         };
 
         inner.initStartTime = t.startTime;
@@ -78,7 +81,7 @@ const GlueCore = (userConfig?: Glue42Core.Config, ext?: Glue42Core.Extension): P
     }
 
     function setupConnection(): Promise<object> {
-        const initTimer = timer();
+        const initTimer = timer("connection");
         _connection = new Connection(internalConfig.connection, _logger.subLogger("connection"));
 
         let authPromise: Promise<any> = Promise.resolve(internalConfig.auth);
@@ -86,13 +89,13 @@ const GlueCore = (userConfig?: Glue42Core.Config, ext?: Glue42Core.Extension): P
         // no auth - what we do in different protocol versions
         if (internalConfig.connection && !internalConfig.auth) {
             if (glue42gd) {
-                _logger.trace(`trying to get gw token...`);
-                authPromise = glue42gd.getGWToken().then((token) => {
-                    _logger.trace(`got GW token ${token?.substring(token.length - 10)}`);
-                    return {
-                        gatewayToken: token
-                    };
-                });
+                authPromise = glue42gd.getGWToken()
+                    .then((token) => {
+                        // initTimer.mark("got-gw-token");
+                        return {
+                            gatewayToken: token
+                        };
+                    });
             } else {
                 // assign to auth promise so we ca cleanup the connection
                 authPromise = Promise.reject("You need to provide auth information");
@@ -101,6 +104,7 @@ const GlueCore = (userConfig?: Glue42Core.Config, ext?: Glue42Core.Extension): P
 
         return authPromise
             .then((authConfig) => {
+                initTimer.mark("auth-promise-resolved");
                 // convert the authConfig to AuthRequest object
                 let authRequest: Glue42Core.Auth;
                 if (Object.prototype.toString.call(authConfig) === "[object Object]") {
@@ -125,48 +129,44 @@ const GlueCore = (userConfig?: Glue42Core.Config, ext?: Glue42Core.Extension): P
 
     function setupLogger(): Promise<void> {
         // Logger
-        const initTimer = timer();
+        const initTimer = timer("logger");
         _logger = new Logger(`${internalConfig.connection.identity?.application}`, undefined, internalConfig.customLogger);
         _logger.consoleLevel(internalConfig.logger.console);
         _logger.publishLevel(internalConfig.logger.publish);
 
+        if (_logger.canPublish("debug")) {
+            _logger.debug("initializing glue...");
+        }
         registerLib("logger", _logger, initTimer);
 
         return Promise.resolve(undefined);
     }
 
     function setupMetrics(): Promise<void> {
-        const initTimer = timer();
+        const initTimer = timer("metrics");
         const config = internalConfig.metrics;
 
         const metricsPublishingEnabledFunc = glue42gd?.getMetricsPublishingEnabled;
         const identity = internalConfig.connection.identity;
         const canUpdateMetric = metricsPublishingEnabledFunc ? metricsPublishingEnabledFunc : () => true;
-
-        const rootMetrics = metrics({
+        const disableAutoAppSystem: boolean = (typeof config !== "boolean" && config.disableAutoAppSystem) ?? false;
+        _metrics = metrics({
             connection: config ? _connection : undefined,
             logger: _logger.subLogger("metrics"),
             canUpdateMetric,
             system: "Glue42",
             service: identity?.service ?? "metrics-service",
             instance: identity?.instance ?? identity?.windowId ?? shortid(),
+            disableAutoAppSystem,
+            pagePerformanceMetrics: typeof config !== "boolean" ? config?.pagePerformanceMetrics : undefined
         });
-
-        let rootSystem = rootMetrics;
-        if (typeof config !== "boolean" && config.disableAutoAppSystem) {
-            rootSystem = rootMetrics;
-        } else {
-            rootSystem = rootMetrics.subSystem("App");
-        }
-
-        _metrics = addFAVSupport(rootSystem);
 
         registerLib("metrics", _metrics, initTimer);
         return Promise.resolve();
     }
 
     function setupInterop(): Promise<void> {
-        const initTimer = timer();
+        const initTimer = timer("interop");
 
         const agmConfig: InteropSettings = {
             connection: _connection,
@@ -183,7 +183,7 @@ const GlueCore = (userConfig?: Glue42Core.Config, ext?: Glue42Core.Extension): P
         const hasActivities = ((internalConfig as any).activities && _connection.protocolVersion === 3);
         const needsContexts = internalConfig.contexts || hasActivities;
         if (needsContexts) {
-            const initTimer = timer();
+            const initTimer = timer("contexts");
 
             _contexts = new ContextsModule({
                 connection: _connection,
@@ -213,7 +213,7 @@ const GlueCore = (userConfig?: Glue42Core.Config, ext?: Glue42Core.Extension): P
             return Promise.resolve();
         }
 
-        const initTimer = timer();
+        const initTimer = timer("bus");
         _bus = new MessageBus(_connection, _logger.subLogger("bus"));
         registerLib("bus", _bus, initTimer);
         return Promise.resolve();
@@ -232,7 +232,7 @@ const GlueCore = (userConfig?: Glue42Core.Config, ext?: Glue42Core.Extension): P
     }
 
     function setupExternalLib(name: string, createCallback: (core: any) => any) {
-        const initTimer = timer();
+        const initTimer = timer(name);
         const lib = createCallback(libs);
         if (lib) {
             registerLib(name, lib, initTimer);
@@ -299,30 +299,15 @@ const GlueCore = (userConfig?: Glue42Core.Config, ext?: Glue42Core.Extension): P
                 return (window as any).performance.memory;
             },
             get initTimes() {
-                const result = Object.keys(glue)
-                    .filter((key) => {
-                        if (key === "initTimes" || key === "agm") {
-                            return false;
-                        }
-                        return glue[key]?.initTime;
-                    })
-                    .map((key) => {
-                        return {
-                            name: key,
-                            time: glue[key].initTime,
-                            startTime: glue[key].initStartTime,
-                            endTime: glue[key].initEndTime
-                        };
-                    });
-                // add glue
-                result.push({
-                    name: "glue",
-                    startTime: glueInitTimer.startTime,
-                    endTime: glueInitTimer.endTime,
-                    time: glueInitTimer.period
+                const all = getAllTimers();
+                return Object.keys(all).map((key) => {
+                    const t = all[key];
+                    return {
+                        name: key,
+                        duration: t.endTime - t.startTime,
+                        marks: t.marks
+                    };
                 });
-
-                return result;
             }
         };
 
@@ -352,6 +337,24 @@ const GlueCore = (userConfig?: Glue42Core.Config, ext?: Glue42Core.Extension): P
 
         if (glue42gd && glue42gd.updatePerfData) {
             glue42gd.updatePerfData(glue.performance);
+        }
+
+        if (glue.agm) {
+            const deprecatedDecorator = (fn: any, wrong: string, proper: string) => {
+                // tslint:disable-next-line:only-arrow-functions
+                return function () {
+                    // tslint:disable-next-line:no-console
+                    console.warn(`glue.js - 'glue.agm.${wrong}' method is deprecated, use 'glue.interop.${proper}' instead.`);
+                    fn.apply(glue.agm, arguments);
+                };
+            };
+            // extend glue.agm with legacy support
+            const agmAny: any = glue.agm;
+            agmAny.method_added = deprecatedDecorator(glue.agm.methodAdded, "method_added", "methodAdded");
+            agmAny.method_removed = deprecatedDecorator(glue.agm.methodRemoved, "method_removed", "methodRemoved");
+            agmAny.server_added = deprecatedDecorator(glue.agm.serverAdded, "server_added", "serverAdded");
+            agmAny.server_method_aded = deprecatedDecorator(glue.agm.serverMethodAdded, "server_method_aded", "serverMethodAdded");
+            agmAny.server_method_removed = deprecatedDecorator(glue.agm.serverMethodRemoved, "server_method_removed", "serverMethodRemoved");
         }
         return glue;
     }

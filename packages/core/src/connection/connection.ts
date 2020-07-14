@@ -16,6 +16,7 @@ import SharedWorkerTransport from "./transports/worker";
 import WS from "./transports/ws";
 import GW3ProtocolImpl from "./protocols/gw3";
 import { MessageReplayerImpl } from "./replayer";
+import timer from "../utils/timer";
 
 /**
  * A template for gateway connections - this is extended from specific protocols and transports.
@@ -136,7 +137,9 @@ export default class Connection implements Glue42Core.Connection.API {
     public async login(authRequest: Glue42Core.Auth, reconnect?: boolean): Promise<Identity> {
         // open the protocol in case it was closed by explicity logout
         await this.transport.open();
+        timer("connection").mark("transport-opened");
         const identity = this.protocol.login(authRequest, reconnect);
+        timer("connection").mark("protocol-logged-in");
         return identity;
     }
 

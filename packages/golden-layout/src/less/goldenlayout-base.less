@@ -1,0 +1,656 @@
+// Width variables (appears count calculates by raw css)
+@width0: 100%;
+@width1: 20px;
+@width2: 100px;
+@width3: 14px;
+@width4: 18px;
+@width5: 15px;
+@width6: 2px;
+@width7: 10px;
+@width8: 32px;
+
+// Height variables (appears count calculates by raw css)
+@height0: 100%;
+@height1: 20px;
+@height2: 14px;
+@height3: 10px;
+@height4: 19px;
+@height5: 18px;
+@height6: 15px;
+@height7: 10px;
+@height8: 32px;
+
+@glue42-transition: all 0.3s ease;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+.lm_root {
+  position: relative;
+}
+
+.lm_row > .lm_item {
+  float: left;
+}
+
+// Single Pane content (area in which final dragged content is contained)
+.lm_content {
+  overflow: hidden;
+  position: relative;
+}
+
+// ".lm_dragging" is applied to BODY tag during Drag and is also directly applied to the root of the object being dragged
+.lm_dragging,
+.lm_dragging * {
+  cursor: move !important;
+  user-select: none;
+}
+
+// If a specific Pane is maximized
+.lm_maximised {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 40;
+}
+
+.lm_maximise_placeholder {
+  display: none;
+}
+
+// Separator line (handle to change pane size)
+.lm_splitter {
+  position: relative;
+  z-index: 20;
+  transition: background 0.3s ease;
+
+  // When hovered by mouse...
+  &:hover,
+  &.lm_dragging {
+    background: orange;
+  }
+
+  &.lm_vertical {
+    .lm_drag_handle {
+      width: @width0;
+      position: absolute;
+      cursor: ns-resize;
+    }
+  }
+
+  &.lm_horizontal {
+    float: left;
+    height: @height0;
+
+    .lm_drag_handle {
+      height: @height0;
+      position: absolute;
+      cursor: ew-resize;
+    }
+  }
+}
+
+// Pane Header (container of Tabs for each pane)
+.lm_header {
+  position: relative;
+  display: flex;
+  overflow: visible;
+  user-select: none;
+
+  &.lm_selectable {
+    padding-left: 48px;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: 48px;
+      background: no-repeat center center / 24px transparent;
+    }
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+  }
+
+  .lm_workspace_controls {
+    display: flex;
+    align-items: center;
+  }
+
+  .lm_tabs {
+    flex-shrink: 0;
+  }
+
+  // Single Tab container. A single Tab is set for each pane, a group of Tabs are contained in ".lm_header"
+  .lm_tab {
+    position: relative;
+    min-width: 160px;
+    max-width: 240px;
+    height: @height0;
+    padding: 8px 26px 8px 8px;
+    display: flex;
+    cursor: pointer;
+    float: left;
+    align-items: center;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    white-space: nowrap;
+    transition: @glue42-transition;
+
+    &:after {
+      transition: @glue42-transition;
+      width: 1px;
+      height: 100%;
+      position: absolute;
+      right: 0;
+    }
+
+    &:before {
+      transition: @glue42-transition;
+      width: 0;
+      height: 2px;
+      position: absolute;
+      top: 0;
+      left: 50%;
+    }
+
+    &:hover,
+    &.lm_active {
+      &:before {
+        width: 100%;
+        transform: translateX(-50%);
+      }
+    }
+
+    &.lm_active {
+      border-right: 0;
+    }
+
+    i {
+      width: @width6;
+      height: @height4;
+      position: absolute;
+
+      &.lm_left {
+        top: 0;
+        left: -2px;
+      }
+
+      &.lm_right {
+        top: 0;
+        right: -2px;
+      }
+    }
+
+    .lm_title {
+      display: inline-block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: @glue42-transition;
+    }
+  }
+}
+
+// Butons
+.lm_add_button,
+.add-button,
+.lm_tabdropdown,
+.lm_popout,
+.lm_maximise,
+.lm_minimise,
+.lm_close,
+.lm_close_tab,
+.lm_tab,
+.lm_saveButton {
+  &:before,
+  &:after {
+    content: "";
+  }
+}
+
+.lm_tabdropdown_list {
+  position: absolute;
+  top: 32px;
+  right: 0;
+  z-index: 5;
+  overflow: hidden;
+
+  .lm_tab {
+    clear: both;
+    padding-right: 10px;
+    margin: 0;
+
+    .lm_title {
+      max-width: 130px;
+    }
+  }
+  .lm_close_tab {
+    display: none !important;
+  }
+}
+
+.lm_workspace_controls,
+.lm_controls {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  overflow: hidden;
+
+  li {
+    position: relative;
+    width: 2.5rem;
+    height: 2.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    cursor: pointer;
+    transition: @glue42-transition;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+}
+
+.lm_add_button,
+.add-button {
+  padding-bottom: 0.063rem;
+
+  &::before {
+    position: relative;
+    width: 0.688rem;
+    height: 0.063rem;
+  }
+
+  &::after {
+    box-sizing: border-box;
+    border-radius: 0.625rem;
+    position: absolute;
+    width: 0.063rem;
+    height: 0.688rem;
+  }
+}
+
+.lm_popout {
+  background-clip: content-box;
+  padding: 11px 0 17px 0;
+
+  &:before {
+    width: 13px;
+    height: 13px;
+    border-left: 1px solid;
+    border-bottom: 1px solid;
+    border-radius: 3px;
+    margin-bottom: -5px;
+  }
+
+  &:after {
+    width: 4px;
+    height: 4px;
+    border-top: 1px solid;
+    border-right: 1px solid;
+    margin: -3px 0 0 6px;
+    position: absolute;
+  }
+}
+
+.lm_minimise:before {
+  margin-top: 0.75rem;
+  width: 0.813rem;
+  height: 0.063rem;
+  border-radius: 0.625rem;
+}
+
+.lm_maximise {
+  &::before,
+  &::after {
+    position: absolute;
+  }
+
+  &:before {
+    width: 10px;
+    height: 10px;
+    border: 0px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-radius: 1px;
+    box-shadow: 0 0 0 1px, inset 0 -1px 0 0;
+  }
+}
+
+.lm_restore.lm_maximise::after {
+  width: 12px;
+  height: 12px;
+  border-right: 1px solid;
+  border-top: 1px solid;
+  margin: -3px 0 0 3px;
+  border-radius: 2px;
+}
+
+.lm_tabdropdown {
+  &::before {
+    width: 8px;
+    height: 8px;
+    transform: rotate(-45deg);
+    border-left: 1px solid;
+    border-bottom: 1px solid;
+    margin-top: -4px;
+  }
+}
+
+.lm_close_tab,
+.lm_saveButton {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-left: 6px;
+  transition: @glue42-transition;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lm_saveButton {
+  margin-right: 6px;
+
+  &:before {
+    background-image: url(data:image/svg+xml;base64,PHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48dGl0bGU+PC90aXRsZT48ZyBpZD0iaWNvbW9vbi1pZ25vcmUiPiAgICA8bGluZSBzdHJva2Utd2lkdGg9IjEiIHgxPSIxNiIgeTE9IjAiIHgyPSIxNiIgeTI9IjUxMiIgc3Ryb2tlPSIjNDQ5RkRCIiBvcGFjaXR5PSIwLjMiPjwvbGluZT4gICAgPGxpbmUgc3Ryb2tlLXdpZHRoPSIxIiB4MT0iMzIiIHkxPSIwIiB4Mj0iMzIiIHkyPSI1MTIiIHN0cm9rZT0iIzQ0OUZEQiIgb3BhY2l0eT0iMSI+PC9saW5lPiAgICA8bGluZSBzdHJva2Utd2lkdGg9IjEiIHgxPSI0OCIgeTE9IjAiIHgyPSI0OCIgeTI9IjUxMiIgc3Ryb2tlPSIjNDQ5RkRCIiBvcGFjaXR5PSIwLjMiPjwvbGluZT4gICAgPGxpbmUgc3Ryb2tlLXdpZHRoPSIxIiB4MT0iNjQiIHkxPSIwIiB4Mj0iNjQiIHkyPSI1MTIiIHN0cm9rZT0iIzQ0OUZEQiIgb3BhY2l0eT0iMSI+PC9saW5lPiAgICA8bGluZSBzdHJva2Utd2lkdGg9IjEiIHgxPSI4MCIgeTE9IjAiIHgyPSI4MCIgeTI9IjUxMiIgc3Ryb2tlPSIjNDQ5RkRCIiBvcGFjaXR5PSIwLjMiPjwvbGluZT4gICAgPGxpbmUgc3Ryb2tlLXdpZHRoPSIxIiB4MT0iOTYiIHkxPSIwIiB4Mj0iOTYiIHkyPSI1MTIiIHN0cm9rZT0iIzQ0OUZEQiIgb3BhY2l0eT0iMSI+PC9saW5lPiAgICA8bGluZSBzdHJva2Utd2lkdGg9IjEiIHgxPSIxMTIiIHkxPSIwIiB4Mj0iMTEyIiB5Mj0iNTEyIiBzdHJva2U9IiM0NDlGREIiIG9wYWNpdHk9IjAuMyI+PC9saW5lPiAgICA8bGluZSBzdHJva2Utd2lkdGg9IjEiIHgxPSIxMjgiIHkxPSIwIiB4Mj0iMTI4IiB5Mj0iNTEyIiBzdHJva2U9IiM0NDlGREIiIG9wYWNpdHk9IjEiPjwvbGluZT4gICAgPGxpbmUgc3Ryb2tlLXdpZHRoPSIxIiB4MT0iMTQ0IiB5MT0iMCIgeDI9IjE0NCIgeTI9IjUxMiIgc3Ryb2tlPSIjNDQ5RkRCIiBvcGFjaXR5PSIwLjMiPjwvbGluZT4gICAgPGxpbmUgc3Ryb2tlLXdpZHRoPSIxIiB4MT0iMTYwIiB5MT0iMCIgeDI9IjE2MCIgeTI9IjUxMiIgc3Ryb2tlPSIjNDQ5RkRCIiBvcGFjaXR5PSIxIj48L2xpbmU+ICAgIDxsaW5lIHN0cm9rZS13aWR0aD0iMSIgeDE9IjE3NiIgeTE9IjAiIHgyPSIxNzYiIHkyPSI1MTIiIHN0cm9rZT0iIzQ0OUZEQiIgb3BhY2l0eT0iMC4zIj48L2xpbmU+ICAgIDxsaW5lIHN0cm9rZS13aWR0aD0iMSIgeDE9IjE5MiIgeTE9IjAiIHgyPSIxOTIiIHkyPSI1MTIiIHN0cm9rZT0iIzQ0OUZEQiIgb3BhY2l0eT0iMSI+PC9saW5lPiAgICA8bGluZSBzdHJva2Utd2lkdGg9IjEiIHgxPSIyMDgiIHkxPSIwIiB4Mj0iMjA4IiB5Mj0iNTEyIiBzdHJva2U9IiM0NDlGREIiIG9wYWNpdHk9IjAuMyI+PC9saW5lPiAgICA8bGluZSBzdHJva2Utd2lkdGg9IjEiIHgxPSIyMjQiIHkxPSIwIiB4Mj0iMjI0IiB5Mj0iNTEyIiBzdHJva2U9IiM0NDlGREIiIG9wYWNpdHk9IjEiPjwvbGluZT4gICAgPGxpbmUgc3Ryb2tlLXdpZHRoPSIxIiB4MT0iMjQwIiB5MT0iMCIgeDI9IjI0MCIgeTI9IjUxMiIgc3Ryb2tlPSIjNDQ5RkRCIiBvcGFjaXR5PSIwLjMiPjwvbGluZT4gICAgPGxpbmUgc3Ryb2tlLXdpZHRoPSIxIiB4MT0iMjU2IiB5MT0iMCIgeDI9IjI1NiIgeTI9IjUxMiIgc3Ryb2tlPSIjNDQ5RkRCIiBvcGFjaXR5PSIxIj48L2xpbmU+ICAgIDxsaW5lIHN0cm9rZS13aWR0aD0iMSIgeDE9IjI3MiIgeTE9IjAiIHgyPSIyNzIiIHkyPSI1MTIiIHN0cm9rZT0iIzQ0OUZEQiIgb3BhY2l0eT0iMC4zIj48L2xpbmU+ICAgIDxsaW5lIHN0cm9rZS13aWR0aD0iMSIgeDE9IjI4OCIgeTE9IjAiIHgyPSIyODgiIHkyPSI1MTIiIHN0cm9rZT0iIzQ0OUZEQiIgb3BhY2l0eT0iMSI+PC9saW5lPiAgICA8bGluZSBzdHJva2Utd2lkdGg9IjEiIHgxPSIzMDQiIHkxPSIwIiB4Mj0iMzA0IiB5Mj0iNTEyIiBzdHJva2U9IiM0NDlGREIiIG9wYWNpdHk9IjAuMyI+PC9saW5lPiAgICA8bGluZSBzdHJva2Utd2lkdGg9IjEiIHgxPSIzMjAiIHkxPSIwIiB4Mj0iMzIwIiB5Mj0iNTEyIiBzdHJva2U9IiM0NDlGREIiIG9wYWNpdHk9IjEiPjwvbGluZT4gICAgPGxpbmUgc3Ryb2tlLXdpZHRoPSIxIiB4MT0iMzM2IiB5MT0iMCIgeDI9IjMzNiIgeTI9IjUxMiIgc3Ryb2tlPSIjNDQ5RkRCIiBvcGFjaXR5PSIwLjMiPjwvbGluZT4gICAgPGxpbmUgc3Ryb2tlLXdpZHRoPSIxIiB4MT0iMzUyIiB5MT0iMCIgeDI9IjM1MiIgeTI9IjUxMiIgc3Ryb2tlPSIjNDQ5RkRCIiBvcGFjaXR5PSIxIj48L2xpbmU+ICAgIDxsaW5lIHN0cm9rZS13aWR0aD0iMSIgeDE9IjM2OCIgeTE9IjAiIHgyPSIzNjgiIHkyPSI1MTIiIHN0cm9rZT0iIzQ0OUZEQiIgb3BhY2l0eT0iMC4zIj48L2xpbmU+ICAgIDxsaW5lIHN0cm9rZS13aWR0aD0iMSIgeDE9IjM4NCIgeTE9IjAiIHgyPSIzODQiIHkyPSI1MTIiIHN0cm9rZT0iIzQ0OUZEQiIgb3BhY2l0eT0iMSI+PC9saW5lPiAgICA8bGluZSBzdHJva2Utd2lkdGg9IjEiIHgxPSI0MDAiIHkxPSIwIiB4Mj0iNDAwIiB5Mj0iNTEyIiBzdHJva2U9IiM0NDlGREIiIG9wYWNpdHk9IjAuMyI+PC9saW5lPiAgICA8bGluZSBzdHJva2Utd2lkdGg9IjEiIHgxPSI0MTYiIHkxPSIwIiB4Mj0iNDE2IiB5Mj0iNTEyIiBzdHJva2U9IiM0NDlGREIiIG9wYWNpdHk9IjEiPjwvbGluZT4gICAgPGxpbmUgc3Ryb2tlLXdpZHRoPSIxIiB4MT0iNDMyIiB5MT0iMCIgeDI9IjQzMiIgeTI9IjUxMiIgc3Ryb2tlPSIjNDQ5RkRCIiBvcGFjaXR5PSIwLjMiPjwvbGluZT4gICAgPGxpbmUgc3Ryb2tlLXdpZHRoPSIxIiB4MT0iNDQ4IiB5MT0iMCIgeDI9IjQ0OCIgeTI9IjUxMiIgc3Ryb2tlPSIjNDQ5RkRCIiBvcGFjaXR5PSIxIj48L2xpbmU+ICAgIDxsaW5lIHN0cm9rZS13aWR0aD0iMSIgeDE9IjQ2NCIgeTE9IjAiIHgyPSI0NjQiIHkyPSI1MTIiIHN0cm9rZT0iIzQ0OUZEQiIgb3BhY2l0eT0iMC4zIj48L2xpbmU+ICAgIDxsaW5lIHN0cm9rZS13aWR0aD0iMSIgeDE9IjQ4MCIgeTE9IjAiIHgyPSI0ODAiIHkyPSI1MTIiIHN0cm9rZT0iIzQ0OUZEQiIgb3BhY2l0eT0iMSI+PC9saW5lPiAgICA8bGluZSBzdHJva2Utd2lkdGg9IjEiIHgxPSI0OTYiIHkxPSIwIiB4Mj0iNDk2IiB5Mj0iNTEyIiBzdHJva2U9IiM0NDlGREIiIG9wYWNpdHk9IjAuMyI+PC9saW5lPiAgICA8bGluZSBzdHJva2Utd2lkdGg9IjEiIHgxPSIwIiB5MT0iMTYiIHgyPSI1MTIiIHkyPSIxNiIgc3Ryb2tlPSIjNDQ5RkRCIiBvcGFjaXR5PSIwLjMiPjwvbGluZT4gICAgPGxpbmUgc3Ryb2tlLXdpZHRoPSIxIiB4MT0iMCIgeTE9IjMyIiB4Mj0iNTEyIiB5Mj0iMzIiIHN0cm9rZT0iIzQ0OUZEQiIgb3BhY2l0eT0iMSI+PC9saW5lPiAgICA8bGluZSBzdHJva2Utd2lkdGg9IjEiIHgxPSIwIiB5MT0iNDgiIHgyPSI1MTIiIHkyPSI0OCIgc3Ryb2tlPSIjNDQ5RkRCIiBvcGFjaXR5PSIwLjMiPjwvbGluZT4gICAgPGxpbmUgc3Ryb2tlLXdpZHRoPSIxIiB4MT0iMCIgeTE9IjY0IiB4Mj0iNTEyIiB5Mj0iNjQiIHN0cm9rZT0iIzQ0OUZEQiIgb3BhY2l0eT0iMSI+PC9saW5lPiAgICA8bGluZSBzdHJva2Utd2lkdGg9IjEiIHgxPSIwIiB5MT0iODAiIHgyPSI1MTIiIHkyPSI4MCIgc3Ryb2tlPSIjNDQ5RkRCIiBvcGFjaXR5PSIwLjMiPjwvbGluZT4gICAgPGxpbmUgc3Ryb2tlLXdpZHRoPSIxIiB4MT0iMCIgeTE9Ijk2IiB4Mj0iNTEyIiB5Mj0iOTYiIHN0cm9rZT0iIzQ0OUZEQiIgb3BhY2l0eT0iMSI+PC9saW5lPiAgICA8bGluZSBzdHJva2Utd2lkdGg9IjEiIHgxPSIwIiB5MT0iMTEyIiB4Mj0iNTEyIiB5Mj0iMTEyIiBzdHJva2U9IiM0NDlGREIiIG9wYWNpdHk9IjAuMyI+PC9saW5lPiAgICA8bGluZSBzdHJva2Utd2lkdGg9IjEiIHgxPSIwIiB5MT0iMTI4IiB4Mj0iNTEyIiB5Mj0iMTI4IiBzdHJva2U9IiM0NDlGREIiIG9wYWNpdHk9IjEiPjwvbGluZT4gICAgPGxpbmUgc3Ryb2tlLXdpZHRoPSIxIiB4MT0iMCIgeTE9IjE0NCIgeDI9IjUxMiIgeTI9IjE0NCIgc3Ryb2tlPSIjNDQ5RkRCIiBvcGFjaXR5PSIwLjMiPjwvbGluZT4gICAgPGxpbmUgc3Ryb2tlLXdpZHRoPSIxIiB4MT0iMCIgeTE9IjE2MCIgeDI9IjUxMiIgeTI9IjE2MCIgc3Ryb2tlPSIjNDQ5RkRCIiBvcGFjaXR5PSIxIj48L2xpbmU+ICAgIDxsaW5lIHN0cm9rZS13aWR0aD0iMSIgeDE9IjAiIHkxPSIxNzYiIHgyPSI1MTIiIHkyPSIxNzYiIHN0cm9rZT0iIzQ0OUZEQiIgb3BhY2l0eT0iMC4zIj48L2xpbmU+ICAgIDxsaW5lIHN0cm9rZS13aWR0aD0iMSIgeDE9IjAiIHkxPSIxOTIiIHgyPSI1MTIiIHkyPSIxOTIiIHN0cm9rZT0iIzQ0OUZEQiIgb3BhY2l0eT0iMSI+PC9saW5lPiAgICA8bGluZSBzdHJva2Utd2lkdGg9IjEiIHgxPSIwIiB5MT0iMjA4IiB4Mj0iNTEyIiB5Mj0iMjA4IiBzdHJva2U9IiM0NDlGREIiIG9wYWNpdHk9IjAuMyI+PC9saW5lPiAgICA8bGluZSBzdHJva2Utd2lkdGg9IjEiIHgxPSIwIiB5MT0iMjI0IiB4Mj0iNTEyIiB5Mj0iMjI0IiBzdHJva2U9IiM0NDlGREIiIG9wYWNpdHk9IjEiPjwvbGluZT4gICAgPGxpbmUgc3Ryb2tlLXdpZHRoPSIxIiB4MT0iMCIgeTE9IjI0MCIgeDI9IjUxMiIgeTI9IjI0MCIgc3Ryb2tlPSIjNDQ5RkRCIiBvcGFjaXR5PSIwLjMiPjwvbGluZT4gICAgPGxpbmUgc3Ryb2tlLXdpZHRoPSIxIiB4MT0iMCIgeTE9IjI1NiIgeDI9IjUxMiIgeTI9IjI1NiIgc3Ryb2tlPSIjNDQ5RkRCIiBvcGFjaXR5PSIxIj48L2xpbmU+ICAgIDxsaW5lIHN0cm9rZS13aWR0aD0iMSIgeDE9IjAiIHkxPSIyNzIiIHgyPSI1MTIiIHkyPSIyNzIiIHN0cm9rZT0iIzQ0OUZEQiIgb3BhY2l0eT0iMC4zIj48L2xpbmU+ICAgIDxsaW5lIHN0cm9rZS13aWR0aD0iMSIgeDE9IjAiIHkxPSIyODgiIHgyPSI1MTIiIHkyPSIyODgiIHN0cm9rZT0iIzQ0OUZEQiIgb3BhY2l0eT0iMSI+PC9saW5lPiAgICA8bGluZSBzdHJva2Utd2lkdGg9IjEiIHgxPSIwIiB5MT0iMzA0IiB4Mj0iNTEyIiB5Mj0iMzA0IiBzdHJva2U9IiM0NDlGREIiIG9wYWNpdHk9IjAuMyI+PC9saW5lPiAgICA8bGluZSBzdHJva2Utd2lkdGg9IjEiIHgxPSIwIiB5MT0iMzIwIiB4Mj0iNTEyIiB5Mj0iMzIwIiBzdHJva2U9IiM0NDlGREIiIG9wYWNpdHk9IjEiPjwvbGluZT4gICAgPGxpbmUgc3Ryb2tlLXdpZHRoPSIxIiB4MT0iMCIgeTE9IjMzNiIgeDI9IjUxMiIgeTI9IjMzNiIgc3Ryb2tlPSIjNDQ5RkRCIiBvcGFjaXR5PSIwLjMiPjwvbGluZT4gICAgPGxpbmUgc3Ryb2tlLXdpZHRoPSIxIiB4MT0iMCIgeTE9IjM1MiIgeDI9IjUxMiIgeTI9IjM1MiIgc3Ryb2tlPSIjNDQ5RkRCIiBvcGFjaXR5PSIxIj48L2xpbmU+ICAgIDxsaW5lIHN0cm9rZS13aWR0aD0iMSIgeDE9IjAiIHkxPSIzNjgiIHgyPSI1MTIiIHkyPSIzNjgiIHN0cm9rZT0iIzQ0OUZEQiIgb3BhY2l0eT0iMC4zIj48L2xpbmU+ICAgIDxsaW5lIHN0cm9rZS13aWR0aD0iMSIgeDE9IjAiIHkxPSIzODQiIHgyPSI1MTIiIHkyPSIzODQiIHN0cm9rZT0iIzQ0OUZEQiIgb3BhY2l0eT0iMSI+PC9saW5lPiAgICA8bGluZSBzdHJva2Utd2lkdGg9IjEiIHgxPSIwIiB5MT0iNDAwIiB4Mj0iNTEyIiB5Mj0iNDAwIiBzdHJva2U9IiM0NDlGREIiIG9wYWNpdHk9IjAuMyI+PC9saW5lPiAgICA8bGluZSBzdHJva2Utd2lkdGg9IjEiIHgxPSIwIiB5MT0iNDE2IiB4Mj0iNTEyIiB5Mj0iNDE2IiBzdHJva2U9IiM0NDlGREIiIG9wYWNpdHk9IjEiPjwvbGluZT4gICAgPGxpbmUgc3Ryb2tlLXdpZHRoPSIxIiB4MT0iMCIgeTE9IjQzMiIgeDI9IjUxMiIgeTI9IjQzMiIgc3Ryb2tlPSIjNDQ5RkRCIiBvcGFjaXR5PSIwLjMiPjwvbGluZT4gICAgPGxpbmUgc3Ryb2tlLXdpZHRoPSIxIiB4MT0iMCIgeTE9IjQ0OCIgeDI9IjUxMiIgeTI9IjQ0OCIgc3Ryb2tlPSIjNDQ5RkRCIiBvcGFjaXR5PSIxIj48L2xpbmU+ICAgIDxsaW5lIHN0cm9rZS13aWR0aD0iMSIgeDE9IjAiIHkxPSI0NjQiIHgyPSI1MTIiIHkyPSI0NjQiIHN0cm9rZT0iIzQ0OUZEQiIgb3BhY2l0eT0iMC4zIj48L2xpbmU+ICAgIDxsaW5lIHN0cm9rZS13aWR0aD0iMSIgeDE9IjAiIHkxPSI0ODAiIHgyPSI1MTIiIHkyPSI0ODAiIHN0cm9rZT0iIzQ0OUZEQiIgb3BhY2l0eT0iMSI+PC9saW5lPiAgICA8bGluZSBzdHJva2Utd2lkdGg9IjEiIHgxPSIwIiB5MT0iNDk2IiB4Mj0iNTEyIiB5Mj0iNDk2IiBzdHJva2U9IiM0NDlGREIiIG9wYWNpdHk9IjAuMyI+PC9saW5lPjwvZz48cGF0aCBkPSJNNDg5LjQ3MiAwaC00NjYuOTQ0Yy0xMi44IDAtMjIuNTI4IDkuNzI4LTIyLjUyOCAyMi41Mjh2NDY2Ljk0NGMwIDEyLjggOS43MjggMjIuNTI4IDIyLjUyOCAyMi41MjhoNDY2Ljk0NGMxMi44IDAgMjIuNTI4LTkuNzI4IDIyLjUyOC0yMi41Mjh2LTQ2Ni45NDRjMC0xMi44LTkuNzI4LTIyLjUyOC0yMi41MjgtMjIuNTI4ek0zMi4yNTYgNDgwLjI1NnYtMzIwLjUxMmgyMDcuODcydjMyMC41MTJoLTIwNy44NzJ6TTQ4MC4yNTYgNDgwLjI1NmgtMTkydi0zMjAuNTEyaDE5MnYzMjAuNTEyek00ODAuMjU2IDEyOGgtNDQ4di05Ni4yNTZoNDQ4djk2LjI1NnoiPjwvcGF0aD48L3N2Zz4=);
+    width: 0.75rem;
+    height: 0.75rem;
+    background-size: contain;
+  }
+}
+
+.lm_close_tab {
+  position: absolute;
+  right: 6px;
+}
+
+.lm_close_tab,
+.lm_close {
+  width: 1.375rem;
+  height: 1.375rem;
+  border: 0.125rem solid transparent;
+  border-radius: 2.5rem;
+}
+
+.lm_close_tab,
+.lm_close {
+  &:after,
+  &:before {
+    box-sizing: border-box;
+    position: absolute;
+    width: 0.625rem;
+    height: 0.063rem;
+    transform: rotate(45deg);
+    border-radius: 5px;
+  }
+
+  &:after {
+    transform: rotate(-45deg);
+  }
+}
+
+.lm_close {
+  border-radius: 0;
+
+  &:after,
+  &:before {
+    border-radius: 0;
+    top: initial;
+    left: initial;
+    width: 0.875rem;
+  }
+}
+
+.lm_items {
+  position: relative;
+
+  &:before {
+    position: absolute;
+    content: "";
+    width: 100%;
+    height: 0.063rem;
+    top: 0;
+    left: 0;
+  }
+
+  .lm_header {
+    height: 2.25rem;
+  }
+}
+
+// Headers positions
+
+.lm_dragProxy.lm_left,
+.lm_dragProxy.lm_right,
+.lm_stack.lm_left,
+.lm_stack.lm_right {
+  .lm_header {
+    width: 20px;
+    float: left;
+    vertical-align: top;
+
+    .lm_tabs {
+      transform-origin: left top;
+      top: 0;
+      width: 1000px; /*hack*/
+    }
+
+  }
+
+  .lm_items {
+    float: left;
+  }
+}
+
+.lm_dragProxy.lm_left,
+.lm_stack.lm_left {
+  .lm_header {
+    .lm_tabs {
+      transform: rotate(-90deg) scaleX(-1);
+      left: 0;
+
+      .lm_tab {
+        transform: scaleX(-1);
+        margin-top: 1px;
+      }
+    }
+
+    .lm_tabdropdown_list {
+      top: initial;
+      right: initial;
+      left: 20px;
+    }
+  }
+}
+
+.lm_dragProxy.lm_right .lm_content {
+  float: left;
+}
+
+.lm_dragProxy.lm_right,
+.lm_stack.lm_right {
+  .lm_header {
+    .lm_tabs {
+      transform: rotate(90deg) scaleX(1);
+      left: 100%;
+      margin-left: 0;
+    }
+    .lm_controls {
+      left: 3px;
+    }
+    .lm_tabdropdown_list {
+      top: initial;
+      right: 20px;
+    }
+  }
+}
+
+.lm_dragProxy.lm_bottom,
+.lm_stack.lm_bottom {
+  .lm_header {
+    .lm_tab {
+      margin-top: 0;
+      border-top: none;
+    }
+    .lm_tabdropdown_list {
+      top: initial;
+      bottom: 20px;
+    }
+  }
+}
+
+.lm_drop_tab_placeholder {
+  float: left;
+  width: @width2;
+  height: @height3;
+  visibility: hidden;
+}
+
+/***********************************
+* Drag Proxy
+***********************************/
+
+// Single Pane content during Drag (style of moving window following mouse)
+.lm_dragProxy {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 30;
+
+  .lm_header {
+    border-bottom: 0;
+  }
+
+  .lm_content {
+    border-top: none;
+    overflow: hidden;
+    outline: none;
+  }
+}
+
+// Placeholder Container of target position
+.lm_dropTargetIndicator {
+  display: none;
+  position: absolute;
+  z-index: 20;
+  transition: @glue42-transition;
+
+  // Inner Placeholder
+  .lm_inner {
+    width: @width0;
+    height: @height0;
+    position: relative;
+    top: 0;
+    left: 0;
+  }
+}
+
+.lm_transition_indicator {
+  display: none;
+  width: @width1;
+  height: @height1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 20;
+}
+
+// If a specific Pane is Popped Out, so move it to a different Browser Window, Icon to restore original position is:
+.lm_popin {
+  width: @width1;
+  height: @height1;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  z-index: 9999;
+
+  > * {
+    width: @width0;
+    height: @height0;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  .lm_bg {
+    opacity: 0.7;
+    z-index: 10;
+  }
+
+  .lm_icon {
+    background-position: center center;
+    background-repeat: no-repeat;
+    opacity: 0.7;
+    z-index: 20;
+  }
+
+  &:hover {
+    .lm_icon {
+      opacity: 1;
+    }
+  }
+}
+
+.move_area {
+  width: 100%;
+  cursor: move;
+}
+
+.empty-container-background {
+  height: 100%;
+  width: 100%;
+}
+
+.add-button {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: none;
+  outline: none;
+  left: 50%;
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  transition: @glue42-transition;
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  animation: puls 1s infinite;
+
+  &:before {
+    width: 1.563rem;
+  }
+
+  &:after {
+    height: 1.563rem;
+  }
+
+  &:hover {
+    cursor: pointer;
+    animation: none;
+  }
+}
+
+@keyframes puls {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.5);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}

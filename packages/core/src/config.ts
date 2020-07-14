@@ -1,12 +1,12 @@
 import { Glue42Core } from "../glue";
-import { InternalConfig, GDObject, GDStaringContext } from "./types";
+import { InternalConfig, GDStaringContext } from "./types";
 import generate from "shortid";
 import Utils from "./utils/utils";
 import { ContextMessageReplaySpec } from "./contexts/contextMessageReplaySpec";
 import { version as pjsonVersion } from "../package.json";
 import { ConnectionSettings } from "./connection/types";
 
-export default function (configuration: Glue42Core.Config, ext: Glue42Core.Extension, glue42gd: GDObject | undefined): InternalConfig {
+export default function (configuration: Glue42Core.Config, ext: Glue42Core.Extension, glue42gd: Glue42Core.GDObject | undefined): InternalConfig {
 
     let nodeStartingContext: GDStaringContext;
     if (Utils.isNode()) {
@@ -160,12 +160,18 @@ export default function (configuration: Glue42Core.Config, ext: Glue42Core.Exten
             config = defaultLevel;
         }
 
+        // console level can be overridden by a gd setting
+        let gdConsoleLevel: Glue42Core.LogLevel | undefined;
+        if (glue42gd) {
+            gdConsoleLevel = glue42gd.consoleLogLevel;
+        }
+
         if (typeof config === "string") {
-            return { console: config, publish: defaultLevel };
+            return { console: gdConsoleLevel ?? config, publish: defaultLevel };
         }
 
         return {
-            console: config.console ?? defaultLevel,
+            console: gdConsoleLevel ?? config.console ?? defaultLevel,
             publish: config.publish ?? defaultLevel
         };
     }

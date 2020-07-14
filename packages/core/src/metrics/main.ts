@@ -3,8 +3,9 @@ import gw3 from "./protocols/gw3/gw3";
 import { Repository } from "./repository";
 import { Protocol, MetricsSettings } from "./types";
 import { NullProtocol } from "./protocols/null/null";
+import { PerfTracker } from "./pertTracker";
 
-export default (options: MetricsSettings): Glue42Core.Metrics.System => {
+export default (options: MetricsSettings): Glue42Core.Metrics.API => {
 
     let protocol: Protocol;
     if (!options.connection || typeof options.connection !== "object") {
@@ -14,10 +15,38 @@ export default (options: MetricsSettings): Glue42Core.Metrics.System => {
     }
 
     const repo = new Repository(options, protocol);
-    return repo.root;
+    let rootSystem = repo.root;
+    if (!options.disableAutoAppSystem) {
+        rootSystem = rootSystem.subSystem("App");
+    }
+
+    // add FAV support
+    const api = addFAVSupport(rootSystem);
+    // initialize page performance
+    initPerf(api, options.pagePerformanceMetrics);
+
+    return api;
 };
 
-export function addFAVSupport(system: Glue42Core.Metrics.System): Glue42Core.Metrics.API {
+let perf: PerfTracker;
+function initPerf(api: Glue42Core.Metrics.API, config?: Glue42Core.PagePerformanceMetricsConfig) {
+    if (typeof window === "undefined") {
+        return;
+    }
+
+    // allow Glue42 Enterprise to override
+    const perfConfig = window?.glue42gd?.metrics?.pagePerformanceMetrics;
+    if (perfConfig) {
+        // allow Glue42 Enterprise to override
+        config = perfConfig;
+    }
+
+    if (config?.enabled) {
+        perf = new PerfTracker(api, config.initialPublishTimeout, config.publishInterval);
+    }
+}
+
+function addFAVSupport(system: Glue42Core.Metrics.System): Glue42Core.Metrics.API {
     // Creating subsystem for reporting and feature metric
     const reportingSystem: Glue42Core.Metrics.System = system.subSystem("reporting");
     const def = {

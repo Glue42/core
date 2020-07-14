@@ -1,0 +1,36 @@
+{
+    "extends": "tslint:recommended",
+    "linterOptions": {
+        "exclude": [
+            "bin",
+            "test/**/*.ts"
+        ]
+    },
+    "rules": {
+        "radix": false,
+        "no-empty": false,
+        "no-empty-interface": false,
+        "array-type": false,
+        "no-var-requires": false,
+        "interface-name": [
+            true,
+            "never-prefix"
+        ],
+        "variable-name": [
+            true,
+            "ban-keywords",
+            "check-format",
+            "allow-leading-underscore",
+            "allow-pascal-case"
+        ],
+        "object-literal-sort-keys": false,
+        "ordered-imports": [
+            false
+        ],
+        "trailing-comma": [
+            false
+        ],
+        "max-line-length": false,
+        "space-before-function-paren": false
+    }
+}

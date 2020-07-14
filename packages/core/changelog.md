@@ -1,3 +1,12 @@
+5.1.1
+fix: logger can try to invoke before interop is ready
+5.1.0
+feat: extra performance metrics
+feat: respect log level coming from Enterprise configuration
+fix: better timeout error message
+fix: try to fool webpack when requiring ws module
+fix: add legacy methods to glue.agm
+chore: upgraded callback-registry to 2.6.0
 5.0.7
 fix: extra check for running in browser or node
 5.0.6

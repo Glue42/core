@@ -1,0 +1,55 @@
+{
+    "name": "@glue42/workspaces-app",
+    "version": "1.0.0",
+    "description": "Glue42's PWA implementation of Workspaces",
+    "browser": "dist/index.js",
+    "scripts": {
+        "build": "tsc -p ./tsconfig.json && npm run test && webpack --config ./webpack.prod.config.js",
+        "build:dev": " tsc -p ./ && webpack --config ./webpack.config.js",
+        "test": "cross-env TS_NODE_PROJECT=./tsconfig.test.json mocha -r ts-node/register test/**/*.spec.ts",
+        "audit": "node ../../scripts/audit/index.js",
+        "preversion": "npm run build && npm run test && npm run audit",
+        "version": "npm run build"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "author": {
+        "name": "Glue42",
+        "url": "https://www.glue42.com"
+    },
+    "files": [
+        "assets",
+        "dist",
+        "popups",
+        "index.html",
+        "manifest.webmanifest"
+    ],
+    "license": "MIT",
+    "dependencies": {
+        "@glue42/golden-layout": "^1.0.1",
+        "@glue42/web": "^1.2.1",
+        "callback-registry": "^2.5.2",
+        "jquery": "~3.5.1",
+        "resize-observer-polyfill": "^1.5.1",
+        "shortid": "^2.2.15"
+    },
+    "devDependencies": {
+        "@types/chai": "^4.2.11",
+        "@types/jquery": "^3.3.31",
+        "@types/json-stable-stringify": "^1.0.32",
+        "@types/mocha": "^7.0.2",
+        "@types/node": "^12.12.21",
+        "@types/shortid": "0.0.29",
+        "@types/sinon": "^9.0.4",
+        "chai": "^4.2.0",
+        "cross-env": "^7.0.2",
+        "mocha": "^8.0.1",
+        "sinon": "^9.0.2",
+        "ts-node": "^8.10.2",
+        "tslint": "^6.1.2",
+        "typescript": "^3.9.5",
+        "webpack": "^4.41.4",
+        "webpack-cli": "^3.3.10"
+    }
+}

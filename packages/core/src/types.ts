@@ -4,51 +4,11 @@ import { ConnectionSettings } from "./connection/types";
 declare global {
     interface Window {
         glueDesktop?: GlueDesktopObject;
-        glue42gd?: GDObject;
-        gdPreloadPromise: Promise<GDObject>;
+        glue42gd?: Glue42Core.GDObject;
+        gdPreloadPromise: Promise<Glue42Core.GDObject>;
         WebSocket: any;
         XDomainRequest?: any;
     }
-}
-
-/** @ignore */
-export interface GDObject {
-    /** Id of the window */
-    windowId: string;
-    /** Name of the application running in the window */
-    appName: string;
-    /** Name of the application running in the window */
-    applicationName: string;
-    application: string;
-    /** Instance of the application running in the window */
-    appInstanceId: string;
-    gwURL: string;
-    pid: number;
-    env: {
-        env: string;
-        machineName: string;
-        region: string;
-        windowsUserDomain: string;
-        windowsUserId: string;
-        windowsUserName: string;
-    };
-    activityInfo: {
-        activityId: string,
-        activityType: string,
-        windowType: string,
-        windowName: string,
-        gwToken: string,
-        isOwner: boolean
-    };
-
-    getMetricsPublishingEnabled: () => boolean;
-    updatePerfData: (perf: object) => void;
-    getGWToken(): Promise<string>;
-    getWindowInfo(id: string): {
-        applicationName: string;
-        activityId?: string;
-        activityWindowId?: string;
-    };
 }
 
 /** @ignore */
@@ -56,11 +16,19 @@ export interface GlueDesktopObject {
     version: string;
 }
 
+export interface Mark {
+    name: string;
+    time: number;
+    diff: number;
+}
+
 export interface Timer {
     startTime: number;
     endTime: number;
     period: number;
+    marks: Mark[];
     stop: () => number;
+    mark(name: string): void;
 }
 
 export interface InternalConfig {
