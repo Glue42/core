@@ -1,12 +1,16 @@
-const testConfig = require('../config.json');
+const testConfig = require('../config.js');
 
 let folderGlob;
 if (testConfig.run.length === 0) {
     throw new Error('Please specify folder names containing .spec.js files');
 } else if (testConfig.run.length > 1) {
-    folderGlob = `{${testConfig.run.join(',')}}`;
+    const groupNames = [];
+    testConfig.run.forEach(folderToRun => {
+        groupNames.push(folderToRun.groupName);
+    });
+    folderGlob = `{${groupNames.join(',')}}`;
 } else {
-    folderGlob = testConfig.run[0];
+    folderGlob = testConfig.run[0].groupName;
 }
 
 module.exports = function (config) {
