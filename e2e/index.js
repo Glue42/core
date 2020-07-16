@@ -2,13 +2,46 @@ const { spawn } = require('child_process');
 const kill = require('tree-kill');
 const path = require('path');
 const os = require('os');
-const http = require('http');
+
+const basePolling = require('./ready-conditions/base-polling');
+const testConfig = require('./config');
 
 const gluecConfigPath = path.resolve(process.cwd(), 'e2e', 'config');
 const karmaConfigPath = path.resolve(process.cwd());
 const npxCommand = os.type() === 'Windows_NT' ? 'npx.cmd' : 'npx';
 let controllerProcessExitCode = 0;
 
+const processPIDQueue = [];
+
+const extractProcessNames = testConfig => {
+    return testConfig.run.reduce((processesNames, folderToRun) => {
+        if (folderToRun.processes) {
+            processesNames.push(...folderToRun.processes);
+        }
+        return processesNames;
+    }, []);
+}
+
+const removeDuplicateNames = processesNames => {
+    const processNamesSeen = {};
+    return processesNames.filter(processName => {
+        if (!processNamesSeen[processName]) {
+            processNamesSeen[processName] = true;
+            return processName;
+        }
+    });
+}
+
+const sortProcessesByNamesOrder = (processesDefinition, processNames) => {
+    return processNames.reduce((processesToSpawn, processName) => {
+        const processToSpawn = processesDefinition.find(processDefinition => processDefinition.name === processName);
+        if (processToSpawn === undefined) {
+            throw new Error(`Process definition not found for process name: ${processName}`);
+        }
+        processesToSpawn.push(processToSpawn);
+        return processesToSpawn;
+    }, []);
+}
 
 const spawnGluecServer = () => {
     const gluec = spawn(npxCommand, ['gluec', 'serve'], {
@@ -21,43 +54,58 @@ const spawnGluecServer = () => {
     }
 
     gluec.on('exit', () => process.exit(controllerProcessExitCode));
-    gluec.on('error', () => process.exit(1));
+    gluec.on('error', () => {
+        console.log('proccess exit 1 because of gluec error');
+        process.exit(1)
+    });
 
     return gluec;
 }
 
-const waitForGluecServer = () => {
-
-    const MAX_REQUESTS = 50;
-    let reqCounter = 0;
-
-    const options = {
+const runGluecServer = async () => {
+    const gluec = spawnGluecServer();
+    const gluecReadyCondition = basePolling({
         hostname: 'localhost',
         port: 4242,
         path: '/glue/worker.js',
-        method: 'GET'
-    }
-
-    return new Promise((resolve, reject) => {
-        const pingServer = () => {
-            if (reqCounter >= MAX_REQUESTS) {
-                reject('Could not connect to glue-cli server');
-            }
-            const req = http.request(options, res => {
-                if (res.statusCode === 200) {
-                    return resolve();
-                }
-                reject(`Server responded with status code: ${res.statusCode}`);
-            });
-            req.on('error', () => {
-                console.log('Request timeout...');
-                ++reqCounter;
-                setTimeout(pingServer, 100);
-            });
-            req.end();
-        }
-        pingServer();
+        method: 'GET',
+        pollingInterval: 100,
+        pollingTimeout: 5000
     });
+    await gluecReadyCondition();
+    return gluec;
+}
+
+const runConfigProcesses = async () => {
+    const processNames = extractProcessNames(testConfig);
+    const uniqueProcessNames = removeDuplicateNames(processNames);
+    const processDefinitions = sortProcessesByNamesOrder(testConfig.processes, uniqueProcessNames);
+    while (processDefinitions.length) {
+        const currentProcessDef = processDefinitions.shift();
+        let currentProcessArgs = [];
+        if (currentProcessDef.args) {
+            currentProcessArgs = currentProcessDef.args;
+        }
+        if (!currentProcessDef.path) {
+            throw new Error(`The processes ${currentProcessDef.name} does not have a path`);
+        }
+        const spawnedProcess = spawn('node', [`${path.resolve(__dirname, currentProcessDef.path)}`, ...currentProcessArgs], {
+            stdio: 'inherit'
+        });
+        if (spawnedProcess.pid === undefined) {
+            throw new Error(`Could not spawn process ${currentProcessDef.name}`);
+        }
+        spawnedProcess.on('error', () => {
+            console.log('we have an error with one of the spawned processes');
+            process.exit(1);
+        });
+        try {
+            await currentProcessDef.readyCondition();
+        } catch (e) {
+            throw e;
+        }
+        processPIDQueue.push(spawnedProcess.pid);
+    }
 }
 
 const spawnKarmaServer = gluec => {
@@ -71,12 +119,17 @@ const spawnKarmaServer = gluec => {
     }
     karma.on('exit', code => {
         controllerProcessExitCode = code;
+        processPIDQueue.forEach(pid => kill(pid));
         kill(gluec.pid);
     });
     karma.on('error', () => {
         if (gluec && !gluec.killed) {
-            return kill(gluec.pid, () => process.exit(1));
+            return kill(gluec.pid, () => {
+                console.log('exxiting with 1 in karma error gluec is alive');
+                process.exit(1)
+            });
         }
+        console.log('exxiting with 1 in karma error');
         process.exit(1);
     });
     return karma;
@@ -84,8 +137,10 @@ const spawnKarmaServer = gluec => {
 
 const startProcessController = async () => {
     try {
-        const gluec = spawnGluecServer();
-        await waitForGluecServer();
+        const gluec = await runGluecServer();
+
+        await runConfigProcesses();
+        
         spawnKarmaServer(gluec);
     } catch (error) {
         console.log(error);
