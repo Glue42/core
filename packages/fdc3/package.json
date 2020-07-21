@@ -1,0 +1,44 @@
+{
+    "name": "@glue42/fdc3",
+    "version": "1.3.0",
+    "description": "Glue42 implementation of the FDC3 standard",
+    "main": "./dist/fdc3-glue42.js",
+    "module": "./dist/fdc3-glue42.js",
+    "types": "./types.d.ts",
+    "keywords": [
+        "glue",
+        "glue42",
+        "fdc3",
+        "desktop",
+        "context",
+        "channel",
+        "intents"
+    ],
+    "homepage": "https://glue42.com/",
+    "scripts": {
+        "build": "npm run tslint && tsc -p ./tsconfig.json && rollup -c",
+        "tslint": "tslint -t codeFrame ./src/**/*.ts"
+    },
+    "author": {
+        "name": "Glue42",
+        "url": "https://glue42.com"
+    },
+    "license": "MIT",
+    "dependencies": {
+        "@glue42/desktop": "^5.1.4",
+        "@glue42/web": "^1.2.1"
+    },
+    "devDependencies": {
+        "@rollup/plugin-commonjs": "^14.0.0",
+        "@rollup/plugin-json": "^4.1.0",
+        "@rollup/plugin-node-resolve": "^8.4.0",
+        "rollup": "^2.22.1",
+        "rollup-plugin-terser": "^5.1.3",
+        "rollup-plugin-typescript2": "^0.27.1",
+        "tslint": "^6.1.2",
+        "typescript": "^3.7.3"
+    },
+    "publishConfig": {
+        "registry": "https://registry.npmjs.com"
+    }
+}

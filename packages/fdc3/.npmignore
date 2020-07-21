@@ -1,0 +1,6 @@
+*
+!dist/**/*.js
+!package.json
+!*.md
+!types.d.ts
+!license.md
