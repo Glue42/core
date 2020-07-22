@@ -6,9 +6,17 @@
 
 This guide explains how to run an FDC3 compliant app inside of **Glue42 Core**. For a detailed information on the FDC3 API itself, see the [FDC3 documentation](https://fdc3.finos.org/docs/next/api/overview).
 
+### Configuration
+
+To get your app to run inside of **Glue42 Core** you will first need to setup and configure the **Glue42 Core environment**.
+
+To do this you can either use our CLI assistant `@glue42/cli-core` package (recommended) or, alternatively, you can configure the environment manually.
+
+You can find step by step guides for both inside of the [**Glue42 Environment: Setup**](../../core-concepts/environment/setup/index.html) section.
+
 ### Initialization
 
-Reference `@glue42/fdc3`. This is our FDC3 implementation. It will internally initialize `@glue42/web` or `@glue42/desktop` depending on your environment.
+Reference `@glue42/fdc3`. This is our FDC3 implementation. It will internally initialize `@glue42/web`.
 
 There is no need to call a factory function. The FDC3 API entry point `fdc3` is available globally as a property of the `window` object.
 
