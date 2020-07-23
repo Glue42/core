@@ -56,7 +56,7 @@ const colourStyles = {
     singleValue: (styles, { data }) => ({ ...styles, ...dot(data.color) })
 };
 
-function ChannelSelectorWidget({ channelNamesAndColors = [], onChannelSelected }) {
+function ChannelSelectorWidget({ channelNamesAndColors = [], onChannelSelected = () => {}, onDefaultChannelSelected = () => {} }) {
     // The default channel that will always be part of the channel selector widget.
     const defaultChannel = {
         value: NO_CHANNEL_VALUE,
@@ -70,12 +70,18 @@ function ChannelSelectorWidget({ channelNamesAndColors = [], onChannelSelected }
             color
         }))
     ];
+
+    const onChange = target => {
+        if (target.value === NO_CHANNEL_VALUE) onDefaultChannelSelected(target);
+        else onChannelSelected(target);
+    };
+
     return (
         <Select
             defaultValue={defaultChannel}
             options={options}
             styles={colourStyles}
-            onChange={onChannelSelected}
+            onChange={onChange}
             isSearchable={false}
         />
     );

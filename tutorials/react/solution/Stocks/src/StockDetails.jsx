@@ -8,11 +8,10 @@ import {
 
 function StockDetails() {
     const [{ clientId, clientName, portfolio }, setClient] = useState({});
-    const [{ Bid, Ask }, setPrices] = useState({});
     const glue = useContext(GlueContext);
-    const windowContext = useGlue(getMyWindowContext);
-    const { symbol: { RIC, BPOD, Bloomberg, Description, Exchange, Venues } = {} } =
-        windowContext || {};
+    const windowContext = useGlue(getMyWindowContext) || {};
+    const { symbol: { RIC, BPOD, Bloomberg, Description, Exchange, Venues } = {} } = windowContext;
+    const [{ Bid, Ask }, setPrices] = useState({ Bid: windowContext.Bid, Ask: windowContext.Ask });
     useGlue(subscribeForInstrumentStream(setPrices), [RIC]);
     useGlue(subscribeForSharedContext(setClient));
     // useGlue(subscribeForChannels(setClient));

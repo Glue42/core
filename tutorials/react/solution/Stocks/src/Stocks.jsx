@@ -18,6 +18,7 @@ function Stocks() {
     const [portfolio, setPortfolio] = useState([]);
     const [prices, setPrices] = useState({});
     const [{ clientId, clientName }, setClient] = useState({});
+    const setDefaultClient = () => setClient({ clientId: "", clientName: "" });
     const [channelWidgetState, setChannelWidgetState] = useState(false);
     // useGlue(registerSetClientMethod(setClient));
     // useGlue(subscribeForSharedContext(setClient));
@@ -79,6 +80,7 @@ function Stocks() {
                         key={channelWidgetState}
                         channelNamesAndColors={channelNamesAndColors}
                         onChannelSelected={onChannelSelected}
+                        onDefaultChannelSelected={setDefaultClient}
                     />
                 </div>
             </div>
@@ -87,7 +89,7 @@ function Stocks() {
                 className="mb-3 btn btn-primary"
                 onClick={() => {
                     setChannelWidgetState(!channelWidgetState);
-                    setClient({ clientId: '', clientName: '' });
+                    setDefaultClient();
                 }}
             >
                 Show All

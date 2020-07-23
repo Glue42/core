@@ -1,8 +1,8 @@
 import React from 'react';
 
 function StockDetails() {
-    const { RIC, BPOD, Bloomberg, Description, Exchange, Venues, Bid, Ask } =
-        JSON.parse(sessionStorage.getItem('stock')) || {};
+    const stockData = JSON.parse(sessionStorage.getItem('stock')) || {};
+    const { RIC, BPOD, Bloomberg, Description, Exchange, Venues, Bid, Ask } = stockData;
 
     return (
         <div className="container-fluid">

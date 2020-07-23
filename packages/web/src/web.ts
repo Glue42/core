@@ -15,6 +15,7 @@ import { restoreAutoSavedLayout } from "./layouts/autoRestore";
 import { initStartupContext } from "./windows/startup";
 import { LocalWebWindow } from "./windows/my";
 import { LocalInstance } from "./app-manager/my";
+import { promisePlus } from "./shared/promise-plus";
 
 const hookCloseEvents = (api: Glue42Web.API, config: Glue42Web.Config, control: Control): void => {
     // hook up page close event's, so we can cleanup properly
@@ -139,7 +140,12 @@ export const createFactoryFunction = (coreFactoryFunction: GlueCoreFactoryFuncti
             application: builtCoreConfig.glue?.application
         };
 
-        const core = await coreFactoryFunction(coreConfig, ext) as Glue42Web.API;
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+        if (isWebEnvironment && !(window as any).SharedWorker) {
+            throw new Error("Cannot initialize Glue Web, because this environment does not support Shared Workers");
+        }
+
+        const core = await promisePlus<Glue42Web.API>(() => coreFactoryFunction(coreConfig, ext) as Promise<Glue42Web.API>, 10000, "Glue Web initialization timed out");
         // start control component
         control.start(core.interop, core.logger.subLogger("control"));
         if (isWebEnvironment) {

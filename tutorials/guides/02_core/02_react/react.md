@@ -578,15 +578,16 @@ return (
 
 Now you should see the stock prices (last 2 columns) update at regular intervals.
 
-Finally, create a stream subscription in the **Stock Details** app as well by passing the `setPrices` method as a handler for the new stream data and the `RIC` to target the stock for which to get the prices: 
+Finally, extract `Bid` and `Ask` to **Stock Details**' state (`setPrices`) and create a stream subscription there as well by passing the `setPrices` method as a handler for the new stream data and the `RIC` to target the stock for which to get the prices. 
 
 ```javascript
 import { subscribeForInstrumentStream } from "./glue";
 
 function StockDetails() {
-    ...
-    const [{ Bid, Ask }, setPrices] = useState({});
-    
+    const stockData = JSON.parse(sessionStorage.getItem('stock')) || {};
+    const { RIC, BPOD, Bloomberg, Description, Exchange, Venues } = stockData;
+    const [{ Bid, Ask }, setPrices] = useState({ Bid: stockData.Bid, Ask: stockData: Ask});
+
     useGlue(subscribeForInstrumentStream(setPrices), [RIC]);    
     ...
 };
@@ -603,6 +604,8 @@ Now, you will extend the **Stocks** and **Stock Details** apps with new function
 First, go to the `glue.js` file of the **Stocks** app and define a function that will open the **Stock Details** app in a new window. Use the `glue.windows.open()` method and pass a name and a URL for the new window. The name must be unique.
 
 ```javascript
+let windowId = 0;
+
 export const openStockDetails = (glue) => (symbol) => {
     const name = `StockDetailsReact${++windowId}`;
     const URL = `http://${window.location.host}/details`;
@@ -729,14 +732,28 @@ export const setClientPortfolioSharedContext = (glue) => (
 };
 ```
 
-Go to the **Clients** app and replace the `setClientPortfolioInterop()` handler for selecting a client with the `setClientPortfolioSharedContext()` one:
+Go to the **Clients** app and replace the `setClientPortfolioInterop()` handler for selecting a client with the `setClientPortfolioSharedContext()` one. Pass `portfolio` to `onClick` when calling it.
 
 ```javascript
 import { setClientPortfolioSharedContext } from "./glue";
 
 function Clients() {
     const onClick = useGlue(setClientPortfolioSharedContext);
-};
+
+    ...
+
+    return (
+        ...
+        {clients.map(({ name, pId, gId, accountManager, portfolio }) => (
+            <tr
+                key={pId}
+                onClick={() => onClick({ clientId: gId, clientName: name, portfolio })}
+            >
+            ...
+        ))}
+        ...
+    );
+  }
 ```
 
 Go to the **Stocks** app and define a handler for updating the shared context with the `useGlue()` hook. Also, add a "Show All" button in the `return` statement of the component that will invoke the handler on button click:
@@ -917,7 +934,7 @@ The `GlueProvider` will initialize internally the [**Glue42 Web**](../../../refe
 
 The users have to be able to navigate through the channels for which they will need some sort of user interface. You can create your own channel selector widget by using the Channels API, but for the purpose of the tutorial there is a `ChannelSelectorWidget` component provided. To add it to the **Stocks** and **Clients** apps, follow these steps:
 
-1.Import the Channel Selector widget in the `Clients.jsx` and `Stocks.jsx` components:
+1. Import the Channel Selector widget in the `Clients.jsx` and `Stocks.jsx` components:
 
 ```javascript
 import ChannelSelectorWidget from "./ChannelSelectorWidget";
@@ -1007,7 +1024,7 @@ return (
 );
 ```
 
-4. Go to the **Stocks** app to set up the channels functionalities.
+4. Go to the **Stocks** app to set up the channels functionalities. Create a `setDefaultClient()` callback for handling the default state where no client has been selected.
 
 ```javascript
 import {
@@ -1019,6 +1036,7 @@ function Stocks() {
     ...
     const channelNamesAndColors = useGlue(getChannelNamesAndColors);
     const onChannelSelected = useGlue(joinChannel);
+    const setDefaultClient = () => setClient({ clientId: "", clientName: "" });
     ...
 };
 ```
@@ -1037,6 +1055,7 @@ return (
                 <ChannelSelectorWidget
                     channelNamesAndColors={channelNamesAndColors}
                     onChannelSelected={onChannelSelected}
+                    onDefaultChannelSelected={setDefaultClient}
                 />
             </div>
             ...
@@ -1061,7 +1080,7 @@ function Stocks() {
             className="mb-3 btn btn-primary"
             onClick={() => {
                 setChannelWidgetState(!channelWidgetState);
-                setClient({ clientId: "", clientName: "" });
+                setDefaultClient();
             }}
         >
             Show All
