@@ -16,7 +16,13 @@ You can find step by step guides for both inside of the [**Glue42 Environment: S
 
 ### Initialization
 
-Reference `@glue42/fdc3`. This is our FDC3 implementation. It will internally initialize `@glue42/web`.
+Reference `@glue42/fdc3`:
+
+```html
+<script src="./lib/fdc3-glue42.js"></script>
+```
+
+This is our FDC3 implementation. It will internally initialize `@glue42/web`.
 
 There is no need to call a factory function. The FDC3 API entry point `fdc3` is available globally as a property of the `window` object.
 

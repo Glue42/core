@@ -1,21 +1,12 @@
 {
+    "extends": "../../tsconfig.json",
     "compilerOptions": {
-        "noImplicitAny": true,
-        "sourceMap": true,
-        "module": "ESNext",
-        "moduleResolution": "node",
-        "resolveJsonModule": true,
-        "esModuleInterop": true,
-        "declaration": false,
-        "target": "ES5",
-        "pretty": true,
         "strict": true,
         "noImplicitThis": true,
         "strictNullChecks": true,
         "strictPropertyInitialization": true,
         "strictBindCallApply": true,
         "strictFunctionTypes": true,
-        "removeComments": true,
         "lib": [
             "dom",
             "es5",
@@ -28,7 +19,7 @@
         ]
     },
     "include": [
-        "./src/**/*"
+        "./src/**/*.ts"
     ],
     "exclude": [
         "node_modules",

@@ -3,6 +3,7 @@ import { Glue42 } from "@glue42/desktop";
 import { Glue42Web } from "@glue42/web";
 import createChannelsApi from "./channels/channels";
 import { isGlue42Core } from "./utils";
+import { WindowType } from "./windowtype";
 
 const GLUE42_CORE_FDC3_INTENTS_METHOD_PREFIX = "Tick42.FDC3.Intents.";
 
@@ -12,7 +13,7 @@ const convertGlue42IntentToFDC3AppIntent = (glueIntent: Glue42.Intents.Intent): 
     const appIntent: FDC3.AppIntent = {
         intent: { name, displayName: handlers[0].displayName },
         apps: glueIntent.handlers.map((handler) => {
-            const app = window.glue.appManager.application(handler.applicationName);
+            const app = (window as WindowType).glue.appManager.application(handler.applicationName);
 
             return {
                 name: app.name,
@@ -29,7 +30,7 @@ const convertGlue42IntentToFDC3AppIntent = (glueIntent: Glue42.Intents.Intent): 
 };
 
 const getGlue42CoreIntents = async (): Promise<{ intent: FDC3.Intent | undefined; apps: Glue42Web.AppManager.Application[] }[]> => {
-    const apps = await (window.glue as Glue42Web.API).appManager.applications();
+    const apps = await ((window as WindowType).glue as Glue42Web.API).appManager.applications();
     const appIntents: { intent: FDC3.Intent; app: Glue42Web.AppManager.Application }[] = apps.flatMap((app: Glue42Web.AppManager.Application) => {
         return (app.userProperties.intents.map((intent: FDC3.Intent) => {
             return {
@@ -65,7 +66,7 @@ const getGlue42CoreIntents = async (): Promise<{ intent: FDC3.Intent | undefined
 };
 
 const getGlue42CoreIntentsByContext = async (context: FDC3.Context): Promise<{ intent: FDC3.Intent; app: Glue42Web.AppManager.Application }[]> => {
-    const apps = await (window.glue as Glue42Web.API).appManager.applications();
+    const apps = await ((window as WindowType).glue as Glue42Web.API).appManager.applications();
     const appIntents: { intent: FDC3.Intent; app: Glue42Web.AppManager.Application }[] = apps.flatMap((app: Glue42Web.AppManager.Application) => {
         return (app.userProperties.intents.map((intent: FDC3.Intent) => {
             return {
@@ -102,7 +103,7 @@ const startAppAndWaitForIntentMethod = async (app: Glue42.AppManager.Application
             reject(`Raise intent ${intent} target ${app.name} application did not call addIntentListener after being started.`);
         }, 3000);
 
-        const unsub = window.glue.interop.serverMethodAdded((info) => {
+        const unsub = (window as WindowType).glue.interop.serverMethodAdded((info) => {
             if (info.method.name === `${GLUE42_CORE_FDC3_INTENTS_METHOD_PREFIX}${intent}`) {
                 clearTimeout(timeout);
                 unsub();
@@ -116,7 +117,7 @@ const startAppAndWaitForIntentMethod = async (app: Glue42.AppManager.Application
 
 const createCoreDesktopAgent = (): Partial<FDC3.DesktopAgent> => {
     const open = async (name: string, context?: FDC3.Context): Promise<void> => {
-        const app = window.glue.appManager.application(name);
+        const app = (window as WindowType).glue.appManager.application(name);
         if (!app) {
             throw new Error(FDC3.OpenError.AppNotFound);
         }
@@ -130,7 +131,7 @@ const createCoreDesktopAgent = (): Partial<FDC3.DesktopAgent> => {
 
     return {
         open: async (...props): Promise<void> => {
-            await window.gluePromise;
+            await (window as WindowType).gluePromise;
             return open(...props);
         }
     };
@@ -174,13 +175,13 @@ const createGlue42CoreDesktopAgent = (): Partial<FDC3.DesktopAgent> => {
         const methodName = `${GLUE42_CORE_FDC3_INTENTS_METHOD_PREFIX}${intent}`;
 
         if (target) {
-            const appTarget = (window.glue as Glue42Web.API).appManager.application(target);
+            const appTarget = ((window as WindowType).glue as Glue42Web.API).appManager.application(target);
 
             if (!appTarget) {
                 throw new Error(FDC3.OpenError.AppNotFound);
             }
 
-            instancesToTarget = (window.glue as Glue42Web.API).appManager.instances().filter((appInstance) => {
+            instancesToTarget = ((window as WindowType).glue as Glue42Web.API).appManager.instances().filter((appInstance) => {
                 return appInstance.application.name === target;
             }).map((appInstance) => {
                 return appInstance.agm;
@@ -190,14 +191,14 @@ const createGlue42CoreDesktopAgent = (): Partial<FDC3.DesktopAgent> => {
                 instancesToTarget = [await startAppAndWaitForIntentMethod(appTarget, intent)];
             }
         } else {
-            const methods = window.glue.interop.methods().filter((method) => {
+            const methods = (window as WindowType).glue.interop.methods().filter((method) => {
                 return method.name === methodName;
             });
 
             instancesToTarget = methods[0]?.getServers();
 
             if (!instancesToTarget || instancesToTarget.length === 0) {
-                const appTarget = (window.glue as Glue42Web.API).appManager.applications().find((application) => {
+                const appTarget = ((window as WindowType).glue as Glue42Web.API).appManager.applications().find((application) => {
                     return application.userProperties.intents?.some((appIntent: FDC3.Intent) => {
                         return appIntent.name === intent;
                     });
@@ -211,7 +212,7 @@ const createGlue42CoreDesktopAgent = (): Partial<FDC3.DesktopAgent> => {
             }
         }
 
-        invocationResult = (await window.glue.interop.invoke(methodName, context, instancesToTarget[0] || "best")).all_return_values;
+        invocationResult = (await (window as WindowType).glue.interop.invoke(methodName, context, instancesToTarget[0] || "best")).all_return_values;
 
         if (invocationResult) {
             return {
@@ -233,16 +234,16 @@ const createGlue42CoreDesktopAgent = (): Partial<FDC3.DesktopAgent> => {
 
         const methodName = `${GLUE42_CORE_FDC3_INTENTS_METHOD_PREFIX}${intent}`;
 
-        window.gluePromise
+        (window as WindowType).gluePromise
             .then(() => {
-                return window.glue.windows.my().getContext();
+                return (window as WindowType).glue.windows.my().getContext();
             })
             .then((glueContext) => {
                 initialContext = glueContext?.intentContext;
 
-                return window.glue.interop.register(methodName, handler);
+                return (window as WindowType).glue.interop.register(methodName, handler);
             }).then(() => {
-                unsub = (): void => window.glue.interop.unregister(methodName);
+                unsub = (): void => (window as WindowType).glue.interop.unregister(methodName);
 
                 if (initialContext) {
                     handler(initialContext);
@@ -256,15 +257,15 @@ const createGlue42CoreDesktopAgent = (): Partial<FDC3.DesktopAgent> => {
 
     return {
         findIntent: async (...props): Promise<FDC3.AppIntent> => {
-            await window.gluePromise;
+            await (window as WindowType).gluePromise;
             return findIntent(...props);
         },
         findIntentsByContext: async (...props): Promise<FDC3.AppIntent[]> => {
-            await window.gluePromise;
+            await (window as WindowType).gluePromise;
             return findIntentsByContext(...props);
         },
         raiseIntent: async (...props): Promise<FDC3.IntentResolution> => {
-            await window.gluePromise;
+            await (window as WindowType).gluePromise;
             return raiseIntent(...props);
         },
         addIntentListener
@@ -273,7 +274,7 @@ const createGlue42CoreDesktopAgent = (): Partial<FDC3.DesktopAgent> => {
 
 const createGlue42EnterpriseDesktopAgent = (): Partial<FDC3.DesktopAgent> => {
     const findIntent = async (intent: string, context?: FDC3.Context): Promise<FDC3.AppIntent> => {
-        const glueIntent = await (window.glue as Glue42.Glue).intents.find({ name: intent, contextType: context?.type });
+        const glueIntent = await ((window as WindowType).glue as Glue42.Glue).intents.find({ name: intent, contextType: context?.type });
 
         if (!glueIntent) {
             throw new Error(FDC3.ResolveError.NoAppsFound);
@@ -287,7 +288,7 @@ const createGlue42EnterpriseDesktopAgent = (): Partial<FDC3.DesktopAgent> => {
         if (!context.type) {
             throw new Error("Only filtering by context.type is supported.");
         }
-        const glueIntents = await (window.glue as Glue42.Glue).intents.findByContext(context.type);
+        const glueIntents = await ((window as WindowType).glue as Glue42.Glue).intents.findByContext(context.type);
 
         if (!glueIntents || glueIntents.length === 0) {
             throw new Error(FDC3.ResolveError.NoAppsFound);
@@ -298,7 +299,7 @@ const createGlue42EnterpriseDesktopAgent = (): Partial<FDC3.DesktopAgent> => {
 
 
     const raiseIntent = async (intent: string, context: FDC3.Context, target?: string): Promise<FDC3.IntentResolution> => {
-        const glueIntentResult = await (window.glue as Glue42.Glue).intents.raise({ intent, context, target });
+        const glueIntentResult = await ((window as WindowType).glue as Glue42.Glue).intents.raise({ intent, context, target });
 
         if (!glueIntentResult) {
             throw new Error(`No intent resolution for ${intent}, context: ${JSON.stringify(context)}, target: ${target}`);
@@ -315,15 +316,15 @@ const createGlue42EnterpriseDesktopAgent = (): Partial<FDC3.DesktopAgent> => {
         let unsub: () => void;
         let initialContext: FDC3.Context;
 
-        window.gluePromise
+        (window as WindowType).gluePromise
             .then(() => {
-                return window.glue.windows.my().getContext();
+                return (window as WindowType).glue.windows.my().getContext();
             })
             .then((glueContext) => {
                 initialContext = glueContext?.intentContext;
 
                 // Fixed in @glue42/desktop@5.2.0.
-                unsub = (window.glue as Glue42.Glue).intents.addIntentListener(intent, handler as (context: object) => void) as unknown as () => {};
+                unsub = ((window as WindowType).glue as Glue42.Glue).intents.addIntentListener(intent, handler as (context: object) => void) as unknown as () => {};
 
                 if (initialContext) {
                     handler(initialContext);
@@ -337,15 +338,15 @@ const createGlue42EnterpriseDesktopAgent = (): Partial<FDC3.DesktopAgent> => {
 
     return {
         findIntent: async (...props): Promise<FDC3.AppIntent> => {
-            await window.gluePromise;
+            await (window as WindowType).gluePromise;
             return findIntent(...props);
         },
         findIntentsByContext: async (...props): Promise<FDC3.AppIntent[]> => {
-            await window.gluePromise;
+            await (window as WindowType).gluePromise;
             return findIntentsByContext(...props);
         },
         raiseIntent: async (...props): Promise<FDC3.IntentResolution> => {
-            await window.gluePromise;
+            await (window as WindowType).gluePromise;
             return raiseIntent(...props);
         },
         addIntentListener

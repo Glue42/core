@@ -1,5 +1,6 @@
 import { FDC3 } from "../../types";
 import { Glue42 } from "@glue42/desktop";
+import { WindowType } from "../windowtype";
 
 export class SystemChannel implements FDC3.Channel {
     id: string;
@@ -12,11 +13,11 @@ export class SystemChannel implements FDC3.Channel {
     }
 
     broadcast(context: FDC3.Context): Promise<void> {
-        return window.glue.channels.publish(context, this.id);
+        return (window as WindowType).glue.channels.publish(context, this.id);
     }
 
     async getCurrentContext(contextType?: string): Promise<FDC3.Context | null> {
-        const channel = await window.glue.channels.get(this.id);
+        const channel = await (window as WindowType).glue.channels.get(this.id);
 
         const { data } = channel;
 
@@ -52,7 +53,7 @@ export class SystemChannel implements FDC3.Channel {
             }
         };
 
-        const unsubPromise = window.glue.channels.subscribeFor(this.id, subIgnoringReplay);
+        const unsubPromise = (window as WindowType).glue.channels.subscribeFor(this.id, subIgnoringReplay);
 
         return {
             unsubscribe(): void {
@@ -62,11 +63,11 @@ export class SystemChannel implements FDC3.Channel {
     }
 
     join(): Promise<void> {
-        return window.glue.channels.join(this.id);
+        return (window as WindowType).glue.channels.join(this.id);
     }
 
     leave(): Promise<void> {
-        return window.glue.channels.leave();
+        return (window as WindowType).glue.channels.leave();
     }
 }
 
@@ -77,11 +78,11 @@ export class AppChannel implements FDC3.Channel {
     }
 
     broadcast(context: FDC3.Context): Promise<void> {
-        return window.glue.contexts.update(this.id, context);
+        return (window as WindowType).glue.contexts.update(this.id, context);
     }
 
     async getCurrentContext(contextType?: string): Promise<FDC3.Context | null> {
-        const context = await window.glue.contexts.get(this.id);
+        const context = await (window as WindowType).glue.contexts.get(this.id);
 
         const { data } = context;
 
@@ -110,7 +111,7 @@ export class AppChannel implements FDC3.Channel {
             }
         };
 
-        const unsubPromise = window.glue.contexts.subscribe(this.id, callback);
+        const unsubPromise = (window as WindowType).glue.contexts.subscribe(this.id, callback);
 
         return {
             unsubscribe: (): void => {
