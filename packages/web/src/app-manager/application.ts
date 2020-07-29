@@ -8,9 +8,16 @@ export class Application implements Glue42Web.AppManager.Application {
     private _registry: CallbackRegistry = CallbackRegistryFactory();
 
     constructor(private _appManager: Glue42Web.AppManager.API, private _props: AppProps, private _windows: Windows) {
-        const url = typeof _props?.userProperties?.manifest !== "undefined" ? JSON.parse(_props?.userProperties.manifest).url : _props?.userProperties?.details.url;
+        if (typeof _props?.userProperties?.manifest === "undefined") {
+            // Glue42 Core application definition.
+            this._url = _props?.userProperties?.details?.url;
+        } else {
+            // FDC3 application definition.
+            const parsedManifest = JSON.parse(_props.userProperties.manifest);
 
-        this._url = url;
+            // Allow for details.url ("Glue42" manifestType) as well as top level url.
+            this._url = parsedManifest.details?.url || parsedManifest.url;
+        }
 
         _appManager.onInstanceStarted((instance) => {
             if (instance.application.name === this.name) {

@@ -32,7 +32,7 @@ const convertGlue42IntentToFDC3AppIntent = (glueIntent: Glue42.Intents.Intent): 
 const getGlue42CoreIntents = async (): Promise<{ intent: FDC3.Intent | undefined; apps: Glue42Web.AppManager.Application[] }[]> => {
     const apps = await ((window as WindowType).glue as Glue42Web.API).appManager.applications();
     const appIntents: { intent: FDC3.Intent; app: Glue42Web.AppManager.Application }[] = apps.flatMap((app: Glue42Web.AppManager.Application) => {
-        return (app.userProperties.intents.map((intent: FDC3.Intent) => {
+        return (app.userProperties.intents?.map((intent: FDC3.Intent) => {
             return {
                 intent,
                 app: {
@@ -68,7 +68,7 @@ const getGlue42CoreIntents = async (): Promise<{ intent: FDC3.Intent | undefined
 const getGlue42CoreIntentsByContext = async (context: FDC3.Context): Promise<{ intent: FDC3.Intent; app: Glue42Web.AppManager.Application }[]> => {
     const apps = await ((window as WindowType).glue as Glue42Web.API).appManager.applications();
     const appIntents: { intent: FDC3.Intent; app: Glue42Web.AppManager.Application }[] = apps.flatMap((app: Glue42Web.AppManager.Application) => {
-        return (app.userProperties.intents.map((intent: FDC3.Intent) => {
+        return (app.userProperties.intents?.map((intent: FDC3.Intent) => {
             return {
                 intent,
                 app: {
@@ -123,9 +123,9 @@ const createCoreDesktopAgent = (): Partial<FDC3.DesktopAgent> => {
         }
 
         try {
-            await app?.start(context);
-        } catch (e) {
-            throw new Error(FDC3.OpenError.ErrorOnLaunch);
+            await app.start(context);
+        } catch (error) {
+            // `start()` is expected to reject as the started application needs to pass in application name to `GlueWeb()`
         }
     };
 

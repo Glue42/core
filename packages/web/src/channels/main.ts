@@ -171,7 +171,7 @@ export class Channels implements Glue42Web.Channels.API {
 
         const context: Glue42Web.Channels.ChannelContext = {
             name: info.name,
-            meta: info.meta || {},
+            meta: info.meta,
             data: info.data || {}
         };
 

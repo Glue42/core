@@ -19,7 +19,7 @@ You can find step by step guides for both inside of the [**Glue42 Environment: S
 Reference `@glue42/fdc3`:
 
 ```html
-<script src="./lib/fdc3-glue42.js"></script>
+<script src="https://unpkg.com/@glue42/fdc3@latest/dist/fdc3-glue42.js"></script>
 ```
 
 This is our FDC3 implementation. It will internally initialize `@glue42/web`.
@@ -70,7 +70,7 @@ You can read more inside of our [AppManager documentation](../application-manage
 - `displayName` - The human readable name of the intent. Can be used in context menus, etc., to visualize the intent;
 - `contexts` - Required. The type of predefined data structures that the application can work with (see [FDC3 Contexts](https://fdc3.finos.org/docs/next/context/overview)).
 
-Glue42Core supports both Glue42 Core as well as FDC3 App Directory local application definitions. The only requirement (besides the required `appId`, `name`, `manifest` and `manifestType` fields) for the FDC3 App Directory application definitions is that they have a `url` top level property inside of the `manifest` JSON string.
+Glue42 Core supports both Glue42 Core as well as FDC3 App Directory local application definitions. The only requirement (besides the required `appId`, `name`, `manifest` and `manifestType` fields) for the FDC3 App Directory application definitions is that they have a `details.url` or a `url` top level property inside of their `manifest` JSON string. Inside of [the App Directory section](#app-directory) you can find an example definition.
 
 *For more information on using intents, see the [FDC3 Intents API](https://fdc3.finos.org/docs/next/intents/overview).*
 
@@ -124,6 +124,33 @@ To configure **Glue42 Core** to retrieve application definitions from remote app
 
 You can use the [Glue42 Environment: Configuration File](../../core-concepts/environment/overview/index.html#configuration_file) section for reference.
 
-Note that the remote sources can supply both Glue42 Core as well as FDC3 App Directory application definitions. Glue42 Core has support for both. The only requirement (besides the required `appId`, `name`, `manifest` and `manifestType` fields) for the FDC3 App Directory application definitions is that they have a `url` top level property inside of the `manifest` JSON string.
+Note that the remote sources can supply both Glue42 Core as well as FDC3 App Directory application definitions. Glue42 Core has support for both. The only requirement (besides the required `appId`, `name`, `manifest` and `manifestType` fields) for the FDC3 App Directory application definitions is that they have a `details.url` or a `url` top level property inside of their `manifest` JSON string. Here is an example:
+
+```json
+{
+    "glue": ...,
+    "gateway": ...,
+    "channels": ...,
+    "appManager": {
+        "localApplications": [
+            {
+                "name": "Clients",
+                "appId": "clients",
+                "manifestType": "Glue42",
+                "manifest": "{\"details\":{\"url\":\"http://localhost:4242/clients\"}}",
+                "intents": [
+                    {
+                        "name": "ShowClientInfo",
+                        "displayName": "Client Info",
+                        "contexts": [
+                            "ClientName"
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
+```
 
 *For more information on using App Directory, see the [FDC3 App Directory documentation](https://fdc3.finos.org/docs/next/app-directory/overview).*
