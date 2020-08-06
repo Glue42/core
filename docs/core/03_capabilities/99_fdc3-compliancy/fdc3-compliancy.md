@@ -155,9 +155,9 @@ Note that the remote sources can supply both Glue42 Core as well as FDC3 App Dir
 
 *For more information on using App Directory, see the [FDC3 App Directory documentation](https://fdc3.finos.org/docs/next/app-directory/overview).*
 
-### Publish and Subscribe
+### Demo
 
-You can find an example of the `broadcast` and `addContextListener` API calls implemented by `@glue42/fdc3` at https://fdc3-demo.glue42.com
+You can find an example of the `broadcast` and `addContextListener` API calls implemented by `@glue42/fdc3` [here](https://fdc3-demo.glue42.com).
 
 The demo consists of a Chart and a Blotter application. Searching and selecting a ticker inside the Chart application adds it to the Blotter application as long as the two applications are on the same channel (use the channel selector widget to navigate between channels).
 
