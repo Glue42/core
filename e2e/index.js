@@ -44,7 +44,7 @@ const sortProcessesByNamesOrder = (processesDefinition, processNames) => {
 }
 
 const spawnGluecServer = () => {
-    const gluec = spawn(npxCommand, ['gluec', 'serve'], {
+    const gluec = spawn(npxCommand, ['@glue42/cli-core', 'serve'], {
         cwd: gluecConfigPath,
         stdio: 'inherit'
     });
@@ -69,8 +69,8 @@ const runGluecServer = async () => {
         port: 4242,
         path: '/glue/worker.js',
         method: 'GET',
-        pollingInterval: 100,
-        pollingTimeout: 5000
+        pollingInterval: 5 * 1000,
+        pollingTimeout: 60 * 1000
     });
     await gluecReadyCondition();
     return gluec;
@@ -140,7 +140,7 @@ const startProcessController = async () => {
         const gluec = await runGluecServer();
 
         await runConfigProcesses();
-        
+
         spawnKarmaServer(gluec);
     } catch (error) {
         console.log(error);

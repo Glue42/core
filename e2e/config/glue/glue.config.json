@@ -12,6 +12,43 @@
     "gateway": {
         "location": "./gateway.js"
     },
+    "channels": [
+        {
+            "name": "Red",
+            "meta": {
+                "color": "red"
+            },
+            "data": {}
+        },
+        {
+            "name": "Green",
+            "meta": {
+                "color": "green"
+            },
+            "data": {}
+        },
+        {
+            "name": "Blue",
+            "meta": {
+                "color": "blue"
+            },
+            "data": {}
+        },
+        {
+            "name": "Pink",
+            "meta": {
+                "color": "pink"
+            },
+            "data": {}
+        },
+        {
+            "name": "Yellow",
+            "meta": {
+                "color": "yellow"
+            },
+            "data": {}
+        }
+    ],
     "appManager": {
         "localApplications": [
             {

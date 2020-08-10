@@ -17,12 +17,27 @@ const gtfReady = new Promise((resolve) => {
     const getWindowName = (prefix) => {
         windowNameCounter++;
         return `${prefix}.${Date.now()}.${windowNameCounter}`;
-    }
+    };
+
+    const getGlueConfigJson = async (url = 'http://localhost:9999/glue/glue.config.json') => {
+        const data = await (await fetch(url)).json();
+
+        return data;
+    };
+
+    const getChannelNames = async () => {
+        const channelContexts = (await getGlueConfigJson()).channels;
+
+        return channelContexts.map((channelContext) => channelContext.name);
+    };
 
     // wait for init;
     window.gtf = {
         waitFor,
-        getWindowName
+        getWindowName,
+        getGlueConfigJson,
+        getChannelNames
     };
+
     resolve();
 });

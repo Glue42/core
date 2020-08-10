@@ -10,7 +10,7 @@ module.exports = {
             groupName: "Play"
         },
         {
-            groupName: "Workspaces"
+            groupName: "channels"
         }
     ],
     processes: [
@@ -28,4 +28,4 @@ module.exports = {
             })
         }
     ]
-}
+};
