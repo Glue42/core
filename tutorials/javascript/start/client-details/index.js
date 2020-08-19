@@ -24,7 +24,11 @@ const toggleGlueAvailable = () => {
 };
 
 const start = async () => {
+    // TODO: Chapter 8.3
 
+    toggleGlueAvailable();
+
+    // TODO: Chapter 8.5
 };
 
 start().catch(console.error);

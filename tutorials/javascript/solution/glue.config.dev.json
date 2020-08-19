@@ -23,13 +23,13 @@
             {
                 "route": "/clients",
                 "file": {
-                    "path": "./Clients/"
+                    "path": "./clients/"
                 }
             },
             {
                 "route": "/stocks",
                 "file": {
-                    "path": "./Stocks/"
+                    "path": "./stocks/"
                 }
             },
             {

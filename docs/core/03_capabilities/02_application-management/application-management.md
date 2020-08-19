@@ -16,6 +16,8 @@ To define application configurations you have to use the `appManager` top-level 
 
 *For more detailed explanations on the available properties for configuring applications, see the [Glue42 Environment: Configuration File](../../core-concepts/environment/overview/index.html#configuration_file) section.*
 
+*The supported application definition formats (local and remote) are **Glue42 Core** and [FDC3](https://fdc3.finos.org/schemas/next/app-directory#tag/Application). The only requirement for an FDC3 application definition to be usable in **Glue42 Core** is to have a valid `details.url` or a `url` top-level property in its `manifest` JSON string property. You can see an example FDC3 application definition in the [FDC3 Compliancy: App Directory](../fdc3-compliancy/index.html#fdc3_for_glue42_core-app_directory) section.*
+
 - #### Local Application Definitions
 
 Use the `localApplications` property of the `appManager` top-level key to define applications directly inside the `glue.config.json` file. Below is an example configuration for two applications: 

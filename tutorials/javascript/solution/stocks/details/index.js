@@ -53,7 +53,7 @@ const updateClientStatus = (client, stock) => {
 const start = async () => {
     window.glue = await window.GlueWeb({
         appManager: true,
-        application: 'Details'
+        application: 'Stock Details'
     });
     toggleGlueAvailable();
 

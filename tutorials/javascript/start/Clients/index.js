@@ -66,6 +66,8 @@ const start = async () => {
     // TODO: Chapter 2
 
     // TODO: Chapter 6.2
+
+    // TODO: Chapter 8.3
 };
 
 start().catch(console.error);

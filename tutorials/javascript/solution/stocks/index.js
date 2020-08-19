@@ -136,14 +136,14 @@ const newPricesHandler = (priceUpdate) => {
 const stockClickedHandler = async (stock) => {
     // window.glue.windows.open(`${stock.BPOD} Details`, 'http://localhost:4242/stocks/details/', openConfig).catch(console.error);
 
-    // const detailsApplication = window.glue.appManager.application('Details');
+    // const detailsApplication = window.glue.appManager.application('Stock Details');
     // detailsApplication.start(stock).catch(console.error);
 
     let detailsGdWindow;
 
     const myWorkspace = await glue.workspaces.getMyWorkspace();
 
-    let detailsWorkspaceWindow = myWorkspace.getWindow((win) => win.appName === "Details");
+    let detailsWorkspaceWindow = myWorkspace.getWindow((win) => win.appName === "Stock Details");
 
     if (detailsWorkspaceWindow) {
         detailsGdWindow = detailsWorkspaceWindow.getGdWindow();
@@ -155,7 +155,7 @@ const stockClickedHandler = async (stock) => {
 
         const group = await myImmediateParent.parent.addGroup();
 
-        detailsWorkspaceWindow = await group.addWindow({ appName: "Details" });
+        detailsWorkspaceWindow = await group.addWindow({ appName: "Stock Details" });
 
         await detailsWorkspaceWindow.forceLoad();
 

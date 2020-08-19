@@ -55,6 +55,7 @@ const start = async () => {
     // TODO: Chapter 4.3
     const stock = JSON.parse(sessionStorage.getItem('stock')) || {};
 
+    // TODO: Chapter 8.6
     setFields(stock);
 
     // TODO: Chapter 2

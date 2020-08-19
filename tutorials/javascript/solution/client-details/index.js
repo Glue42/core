@@ -26,7 +26,7 @@ const toggleGlueAvailable = () => {
 const start = async () => {
     window.glue = await window.GlueWeb({
         appManager: true,
-        application: 'ClientDetails',
+        application: 'Client Details',
         libraries: [window.GlueWorkspaces]
     });
 
