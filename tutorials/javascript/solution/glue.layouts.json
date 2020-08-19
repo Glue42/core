@@ -21,8 +21,8 @@
                                                     {
                                                         "type": "window",
                                                         "config": {
-                                                            "appName": "ClientDetails",
-                                                            "title": "ClientDetails"
+                                                            "appName": "Client Details",
+                                                            "title": "Client Details"
                                                         }
                                                     }
                                                 ],
