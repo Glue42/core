@@ -800,7 +800,7 @@ Now when the user clicks on a client in the **Clients** app and there is no runn
 
 ## 8. Workspaces
 
-The latest feedback from the users is that their desktops very quickly become cluttered with multiple floating windows. The Glue42 Core [Workspaces](../../../core/capabilities/workspaces/index.html) feature solves exactly that problem.
+The latest feedback from the users is that their desktops very quickly become cluttered with multiple floating windows. The **Glue42 Core** [Workspaces](../../../core/capabilities/workspaces/index.html) feature solves exactly that problem.
 
 The new requirement is that when a user clicks on a client in the **Clients** application, a new Workspace should open displaying detailed information about the selected client in one app and his stocks portfolio in another. When the user clicks on a stock, a third application should appear in the same Workspace displaying more details about the selected stock. You will use the **Client Details** application for displaying information about the selected client.
 
@@ -818,13 +818,13 @@ gluec workspaces init
 
 This command will add the necessary Workspaces packages to your project and set up the Workspaces default settings in your configuration files.
 
-*Note that this command only works if the current directory has already been initialized with the `gluec init` command. In case of a brand new **Glue42 Core** project, you have to use the `gluec init -w` command to set up the basic **Glue42 Core** files and Workspaces at once.*
+*Note that this command only works if the current directory has already been initialized with the `gluec init` command. In case of a brand new **Glue42 Core** project, you have to use the `gluec init -w` command to set up the basic **Glue42 Core** files and Workspaces at the same time.*
 
 ### 8.2. Workspace Layouts
 
 Next, you need to build a Workspace layout which will be the blueprint of the Workspace that the **Clients** app will restore when the user clicks on a client. This layout should contain the **Client Details** and **Stocks** apps.
 
-Define the **Client Details** app in the `glue.config.dev.json` file so that the Glue42 CLI will be able to serve it:
+Define the **Client Details** app in the `glue.config.dev.json` file so that the [**Glue42 CLI**](../../../core/core-concepts/cli/index.html) will be able to serve it:
 
 ```json
 {
@@ -868,7 +868,7 @@ Define the **Client Details** app as a **Glue42 Core** application in the `glue.
 
 *Note that you have to define all apps that will be used in the Workspace in the `glue.config.json` file. Also, you have to specify the application name in the [`applications`](../../../reference/core/latest/glue42%20web/index.html#!Config-application) property of the configuration object when initializing them as [Glue42 Clients](../../../core/core-concepts/glue42-client/overview/index.html). This is necessary in order for the applications to become available in the "Add Application" menu of the [Workspaces App](../../../core/capabilities/workspaces/index.html#workspaces_concepts-frame).*
 
-The Glue42 CLI offers access to a [Workspace Builder](../../../core/capabilities/workspaces/index.html#creating_workspace_layouts) which you can use to compose and save a Workspace layout:
+The [**Glue42 CLI**](../../../core/core-concepts/cli/index.html) offers access to a [Workspace Builder](../../../core/capabilities/workspaces/index.html#creating_workspace_layouts) which you can use to compose and save a Workspace layout:
 
 ```cmd
 gluec workspaces build
@@ -876,9 +876,9 @@ gluec workspaces build
 
 *Note that in order for this command to work, the Glue42 development server must be running.*
 
-This will open the Workspace Builder in your default browser. Add the **Client Details** app by clicking on the `+` icon in the center and then add the **Stocks** app by clicking the `+` icon in the top right corner of the newly formed group. You should have both apps open next to each other in the new workspace.
+This will open the Workspace Builder in your default browser. Add the **Client Details** app by clicking on the `+` icon in the center and then add the **Stocks** app by clicking the `+` icon in the top right corner of the newly formed group. You should have both apps open next to each other in the new Workspace.
 
-Save the Workspace layout by clicking the "Save" icon on the left of the Workspace title and name it (e.g., `client-space`). Next, click the "Download" button and save the `.txt` file in the project directory. Copy the contents of the downloaded `.txt` file and paste it in the `workspaces` array of the `glue.layouts.json` file.
+Save the Workspace layout by clicking the "Save" icon on the left of the Workspace title and name it (e.g., "client-space"). Next, click the "Download" button and save the `.txt` file in the project directory. Copy the contents of the downloaded `.txt` file and paste it in the `workspaces` array of the `glue.layouts.json` file.
 
 Now this Workspace layout can be restored by name using the [Workspaces API](../../../reference/core/latest/workspaces/index.html).
 
@@ -894,7 +894,7 @@ The Workspaces script attaches the `GlueWorkspaces()` factory function to the gl
 
 ```javascript
 // In `start()`.
-s
+
 const config = {
     appManager: true,
     application: "Client Details",
@@ -908,7 +908,7 @@ window.glue = await GlueWeb(config);
 
 ### 8.4. Opening Workspaces
 
-Next, you have to implement opening a new Workspace when the user clicks on a client in the **Clients** app. Go to the `clientClickedHandler` function and restore by name the Workspace layout you created earlier and pass the selected client as a starting context. The specified context will be attached as a window context to all windows participating in the Workspace:
+Next, you have to implement opening a new Workspace when the user clicks on a client in the **Clients** app. Go to the `clientClickedHandler` function in the **Clients** app, restore by name the Workspace layout you created earlier and pass the selected client as a starting context. The specified context will be attached as a window context to all windows participating in the Workspace:
 
 ```javascript
 const clientClickedHandler = (client) => {
@@ -926,7 +926,7 @@ If everything is correct, a new Workspace should now open every time you click a
 
 The windows of the **Client Details** and **Stocks** apps participating in the new Workspace will have a starting context attached to them. You have to handle this starting context in order to display the relevant client data when the user selects a client from the **Clients** app.
 
-To get the starting window context, you have to subscribe to the [`onContextUpdated()`](../../../reference/core/latest/windows/index.html#!WebWindow-onContextUpdated) event of the current window using the [Window Management API](../../../reference/core/latest/windows/index.html). When the window context has been updated and if it contains a `client` property, you have to handle the client data in the respective application and also set the Workspace title to the selected client.
+To get the starting window context, you have to subscribe for updates to the context of the current window using the [Window Management API](../../../reference/core/latest/windows/index.html). When the window context has been updated and if it contains a `client` property, you have to handle the client data in the respective application and also set the Workspace title to the name of the selected client.
 
 Go to the **Client Details** app, find the `TODO: Chapter 8.5` comment in the `start()` function and use the [`onContextUpdated()`](../../../reference/core/latest/windows/index.html#!WebWindow-onContextUpdated) method of the current window to subscribe for updates of the window context. Invoke the `setFields()` function passing the `client` property of the updated context and set the title of the Workspace to the name of the selected client:
 
@@ -947,7 +947,7 @@ glue.windows.my().onContextUpdated((context) => {
 });
 ```
 
-Go to the **Stocks** app, find the `TODO: Chapter 8.5` comment and subscribe to the [`onContextUpdated()`](../../../reference/core/latest/windows/index.html#!WebWindow-onContextUpdated) event and set up the stocks for the selected client:
+Go to the **Stocks** app, find the `TODO: Chapter 8.5` comment, subscribe to the [`onContextUpdated()`](../../../reference/core/latest/windows/index.html#!WebWindow-onContextUpdated) event and set up the stocks for the selected client:
 
 ```javascript
 // In `start()`.
@@ -970,11 +970,11 @@ Next, you have to make the **Stock Details** app appear in the same Workspace as
 
 *To achieve this functionality, you will have to manipulate a Workspace and its elements. It is recommended that you familiarize yourself with the Workspaces terminology to fully understand the concepts and steps below. You can use the available documentation about [Workspaces Concepts](../../../core/capabilities/workspaces/index.html#workspaces_concepts), [Workspace Box Elements](../../../glue42-concepts/windows/workspaces/javascript/index.html#box_elements) and the [Workspaces API](../../../reference/core/latest/workspaces/index.html).*
 
-The **Stocks** app is a [`WorkspaceWindow`](../../../reference/core/latest/workspaces/index.html#!WorkspaceWindow) that is the only child of a [`Group`](../../../reference/core/latest/workspaces/index.html#!Group) element. If you add the **Stock Details** app as a child to that `Group`, it will be added as a second tab window and the user will have to manually switch between both apps. The **Stock Details** has to be a sibling of the **Stocks** app, but both apps have to be visible within the same parent element. That is why, you have to add a new `Group` element as a sibling of the existing `Group` containing the **Stocks** app and then load the **Stock Details** app in it.
+The **Stocks** app is a [`WorkspaceWindow`](../../../reference/core/latest/workspaces/index.html#!WorkspaceWindow) that is the only child of a [`Group`](../../../reference/core/latest/workspaces/index.html#!Group) element. If you add the **Stock Details** app as a child to that `Group`, it will be added as a second tab window and the user will have to manually switch between both apps. The **Stock Details** has to be a sibling of the **Stocks** app, but both apps have to be visible within the same parent element. That is why, you have to add a new `Group` element as a sibling of the existing `Group` that contains the **Stocks** app, and then load the **Stock Details** app in it.
 
-After the **Stocks Details** app has been opened in the Workspace as a [`WorkspaceWindow`](../../../reference/core/latest/workspaces/index.html#!WorkspaceWindow), you have to pass the selected stock as its context. To do that, get a reference to the underlying [Glue42 Window](../../../reference/core/latest/windows/index.html#!WebWindow) object using the [`getGdWindow()`](../../../reference/core/latest/workspaces/index.html#!WorkspaceWindow-getGdWindow) method of the [`WorkspaceWindow`](../../../reference/core/latest/workspaces/index.html#!WorkspaceWindow) instance and update its context with the [`updateContext()`](../../../reference/core/latest/windows/index.html#!WebWindow-updateContext) method.
+After the **Stocks Details** app has been opened in the Workspace as a [`WorkspaceWindow`](../../../reference/core/latest/workspaces/index.html#!WorkspaceWindow), you have to pass the selected stock as its context. To do that, get a reference to the underlying [Glue42 Window](../../../reference/core/latest/windows/index.html#!WebWindow) object of the **Stock Details** window using the [`getGdWindow()`](../../../reference/core/latest/workspaces/index.html#!WorkspaceWindow-getGdWindow) method of the [`WorkspaceWindow`](../../../reference/core/latest/workspaces/index.html#!WorkspaceWindow) instance and update its context with the [`updateContext()`](../../../reference/core/latest/windows/index.html#!WebWindow-updateContext) method.
 
-Go to the `stockClickedHandler()` function of the **Stocks** app, find the `TODO: Chapter 8.6` comment and comment out or delete the code for starting the **Stock Details** app with the Application Management API and add the following:
+Go to the `stockClickedHandler()` function of the **Stocks** app, find the `TODO: Chapter 8.6` comment, comment out or delete the code for starting the **Stock Details** app with the Application Management API and add the following:
 
 ```javascript
 // In `stockClickedHandler()`.
