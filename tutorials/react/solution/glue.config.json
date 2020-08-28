@@ -71,5 +71,41 @@
                 "color": "#80f3ff"
             }
         }
-    ]
+    ],
+    "appManager": {
+        "localApplications": [
+            {
+                "name": "Clients",
+                "details": {
+                    "url": "http://localhost:4242/clients"
+                }
+            },
+            {
+                "name": "Stocks",
+                "details": {
+                    "url": "http://localhost:4242/stocks",
+                    "left": 0,
+                    "top": 0,
+                    "width": 860,
+                    "height": 600
+                }
+            },
+            {
+                "name": "Stock Details",
+                "details": {
+                    "url": "http://localhost:4242/details",
+                    "left": 100,
+                    "top": 100,
+                    "width": 400,
+                    "height": 400
+                }
+            },
+            {
+                "name": "Client Details",
+                "details": {
+                    "url": "http://localhost:4242/client-details"
+                }
+            }
+        ]
+    }
 }

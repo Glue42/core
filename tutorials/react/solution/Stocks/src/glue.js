@@ -1,21 +1,9 @@
 import {
-    SET_CLIENT_METHOD, SET_PRICES_STREAM, SHARED_CONTEXT_NAME, NO_CHANNEL_VALUE
+    SET_PRICES_STREAM, 
+    NO_CHANNEL_VALUE
 } from './constants';
 
-let windowId = 0;
-export const openStockDetails = glue => symbol => {
-    glue.windows.open(
-        `StockDetailsReact${++windowId}`,
-        `http://${window.location.host}/details`,
-        { top: 100, left: 100, height: 660, width: 660, context: { symbol } }
-    );
-};
-
-export const getMyWindowContext = glue => glue.windows.my().context;
-
-export const registerSetClientMethod = setClient => glue => {
-    glue.interop.register(SET_CLIENT_METHOD, setClient);
-};
+export const getMyWindowContext = glue => glue.appManager.myInstance.context;
 
 export const createInstrumentStream = glue =>
     glue.interop.createStream(SET_PRICES_STREAM).then(publishInstrumentPrice);
@@ -92,18 +80,6 @@ export const subscribeForInstrumentStream = handler => async (glue, symbol) => {
     }
 };
 
-export const setClientPortfolioSharedContext = glue => ({
-    clientId = '',
-    clientName = '',
-    portfolio = '',
-}) => {
-    glue.contexts.update(SHARED_CONTEXT_NAME, { clientId, clientName, portfolio });
-};
-
-export const subscribeForSharedContext = handler => glue => {
-    glue.contexts.subscribe(SHARED_CONTEXT_NAME, handler);
-};
-
 // Get the channel names and colors using the Channels API.
 export const getChannelNamesAndColors = async glue => {
     const channelContexts = await glue.channels.list();
@@ -129,3 +105,28 @@ export const joinChannel = glue => ({ value: channelName }) => {
 export const subscribeForChannels = handler => glue => {
     glue.channels.subscribe(handler);
 };
+
+export const setClientFromWorkspace = setClient => glue => {
+    glue.windows.my().onContextUpdated(context => {
+        if (context) {
+            setClient({ clientId: context.clientId, clientName: context.clientName });
+        }
+    });
+}
+
+export const openStockDetailsInWorkspace = glue => async stock => {
+    let detailsGlue42Window;
+    const myWorkspace = await glue.workspaces.getMyWorkspace();
+    let detailsWorkspaceWindow = myWorkspace.getWindow(window => window.appName === 'Stock Details');
+    if (detailsWorkspaceWindow) {
+        detailsGlue42Window = detailsWorkspaceWindow.getGdWindow();
+    } else {
+        const myId = glue.windows.my().id;
+        const myImmediateParent = myWorkspace.getWindow(window => window.id === myId).parent;
+        const group = await myImmediateParent.parent.addGroup();
+        detailsWorkspaceWindow = await group.addWindow({ appName: 'Stock Details' });
+        await detailsWorkspaceWindow.forceLoad();
+        detailsGlue42Window = detailsWorkspaceWindow.getGdWindow();
+    }
+    detailsGlue42Window.updateContext({ stock });
+}

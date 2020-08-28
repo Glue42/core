@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "@glue42/gateway-web": "^3.0.8",
-    "@glue42/worker-web": "^1.0.0"
+    "@glue42/worker-web": "^1.0.0",
+    "@glue42/workspaces-app": "^1.1.4"
   }
 }

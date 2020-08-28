@@ -56,12 +56,18 @@ const colourStyles = {
     singleValue: (styles, { data }) => ({ ...styles, ...dot(data.color) })
 };
 
-function ChannelSelectorWidget({ channelNamesAndColors = [], onChannelSelected = () => {}, onDefaultChannelSelected = () => {} }) {
+function ChannelSelectorWidget({ channelNamesAndColors = [], onChannelSelected = () => {}, onDefaultChannelSelected = () => {}, startingChannel }) {
     // The default channel that will always be part of the channel selector widget.
     const defaultChannel = {
         value: NO_CHANNEL_VALUE,
         label: NO_CHANNEL_VALUE
     };
+    
+    if (startingChannel) {
+        defaultChannel.value = startingChannel;
+        defaultChannel.label = startingChannel;
+    }
+
     const options = [
         defaultChannel,
         ...channelNamesAndColors.map(({ name, color }) => ({

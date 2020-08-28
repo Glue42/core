@@ -2,6 +2,7 @@ node_modules/
 *.tgz
 .idea/
 .vscode/
+.history/
 *.swp
 dist/
 build/

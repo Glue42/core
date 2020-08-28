@@ -49,3 +49,30 @@ export const setClientPortfolioChannels = glue => ({
         glue.channels.publish({ clientId, clientName, portfolio });
     }
 };
+
+export const startApp = glue => () => {
+    const isStocksRunning = glue.appManager.application('Stocks').instances.length > 0;
+    if (!isStocksRunning) {
+        glue.channels.list().then(channels => {
+            let channel = {};
+            if (glue.channels.my()) {
+                const channelDefinition = channels.find(channel => channel.name === glue.channels.my());
+                channel = {
+                    name: channelDefinition.name,
+                    label: channelDefinition.name,
+                    color: channelDefinition.meta.color
+                };
+            } else {
+                channel = {
+                    name: NO_CHANNEL_VALUE,
+                    label: NO_CHANNEL_VALUE
+                }
+            }
+            glue.appManager.application('Stocks').start({ channel });
+        });
+    }
+}
+
+export const startAppWithWorkspace = glue => client => {
+    glue.workspaces.restoreWorkspace("example", { context: client });
+}

@@ -1164,6 +1164,866 @@ function Stocks() {
 
 Now, you can open multiple instances of the **Stocks** app and keep them on different colored channels. The **Clients** app will update only the context of the channel it is currently on and only the instance of the **Stocks** app that is on the same channel will update accordingly.
 
+## 7. Application Management
+
+Up until now the **Stocks** app had to use the Window Management API to open the **Stock Details** application when the user clicks on a stock. This works fine for small projects, but does not scale well for larger ones, because this way each app has to know all details (URL, start position, initial context, etc.) about every application it needs to start. In this chapter you will replace the Window Management API with the [Application Management API](../../../reference/core/latest/appmanager/index.html) which will allow you to predefine the applications in the [Glue42 Environment](../../../core/core-concepts/environment/overview/index.html). The **Stocks** app will be decoupled from the **Stock Details** - it will need only the name of the **Stock Details** app to be able to start it.
+
+### 7.1. Application configuration
+
+To take advantage of the [Application Management API](../../../reference/core/latest/appmanager/index.html), you need to define configurations for your applications in the `glue.config.json` file of your project and enable the Application Management API by passing a [`Config`](../../../reference/core/latest/glue42%20web/index.html#!Config) object during the initialization of the [Glue42 Web](../../../reference/core/latest/glue42%20web/index.html) library in each application.
+
+First, open the `glue.config.json` and add the following application configurations using the `appManager` top-level key. Restart the Glue42 CLI by quitting it and running the `gluec serve` command again for the changes to take effect:
+
+```json
+{
+    "glue": ...,
+    "gateway": ...,
+    "channels": ...,
+    "appManager": {
+        "localApplications": [
+            {
+                "name": "Clients",
+                "details": {
+                    "url": "http://localhost:4242/clients"
+                }
+            },
+            {
+                "name": "Stocks",
+                "details": {
+                    "url": "http://localhost:4242/stocks",
+                    "left": 0,
+                    "top": 0,
+                    "width": 860,
+                    "height": 600
+                }
+            },
+            {
+                "name": "Stock Details",
+                "details": {
+                    "url": "http://localhost:4242/details",
+                    "left": 100,
+                    "top": 100,
+                    "width": 400,
+                    "height": 400
+                }
+            }
+        ]
+    }
+}
+```
+
+### 7.2. Creating a new react project
+
+Because the `Stocks` project contains both `Stocks.jsx` and `StockDetails.jsx`, we need to separate them in order to use the Application Management API to open stocks and stock details as different applications.
+
+### 7.2.1 Initialize the Stock Details project
+
+Run the following command inside the `start` folder:
+
+```cmd
+    npx create-react-app stock-details
+```
+
+This will generate a new react project in which we will move the code of `StockDetails.jsx`.
+
+### 7.2.2. Setup the stock-details project
+
+Copy the file `StockDetails.jsx` from `Stocks/src/StockDetails.jsx` into `stock-details/src/StockDetails.jsx`. Create a new file nammed `.env` inside the `stock-details` folder and paste the following lines:
+
+```cmd
+SKIP_PREFLIGHT_CHECK=true
+PORT=3002
+```
+
+Go to the `package.json` file of the `stock-details` project and paste the following line below the `eslintConfig` property:
+
+```json
+  "homepage": "/details/",
+```
+
+Install the following dependencies:
+
+```cmd
+npm i --save @glue42/react-hooks@1.0.7 react-select@3.1.0 bootstrap@4.4.1 react-app-rewired@2.1.5 chroma-js@2.1.0
+```
+
+Change the `start`, `build`, and `test` `scripts` to the following:
+
+```json
+"start": "react-app-rewired start --scripts-version react-scripts",
+"build": "react-app-rewired build --scripts-version react-scripts",
+"test": "react-app-rewired test --scripts-version react-scripts",
+```
+
+Copy the file `Stocks/config-overrides.js` from the root directory of the `Stocks` project into the root directory of `stock-details`
+
+Copy the files `Stocks/src/glue.js` and `Stocks/src/constants.js` into `stock-details/src`
+
+Open the file `stock-details/src/index.js` and delete the `App` import and the `<App/>` component and add the following code in addition to the code that is already there. Add the settings `appManager:ture` and `application: 'Stock Details`, because we want to use the application with the Application Management API:
+
+```javascript
+import GlueWeb from "@glue42/web";
+import { GlueProvider } from '@glue42/react-hooks';
+import 'bootstrap/dist/css/bootstrap.css';
+import StockDetails from './StockDetails';
+
+ReactDOM.render(
+    <GlueProvider config={{ channels: true, appManager: true, application: 'Stock Details' }} glueFactory={GlueWeb}>
+        <StockDetails />
+    </GlueProvider>,
+    document.getElementById('root')
+);
+```
+
+Now we need to tell `gluec` about the new project. Go to `glue.config.dev.json` inside the root `start` directory and add the folowing lines under the `server.app` array:
+
+```json
+{
+    "route": "/details",
+    "localhost": {
+        "port": 3002
+    }
+}
+```
+Go inside `stock-details` and run:
+
+```cmd 
+npm start
+```
+
+Next, we will fix `Stocks.jsx`, because we have moved `StockDetails.jsx` out of the `src` folder and the import will not work anymore. Go inside `Stocks/src/index.js` and comment out the line checking the browser's URL. We extracted `StockDetails.jsx` from the project into it's own application and we do not need it anymore. Then change the line `<App/>` to `<Stocks/>` and delete the `StockDetails` import.
+
+```javascript
+// const { href } = window.location;
+
+// const App = href.includes('details') ? StockDetails : Stocks;
+
+ReactDOM.render(
+    <GlueProvider config={{ channels: true }} glueFactory={GlueWeb}>
+        <Stocks />
+    </GlueProvider>,
+    document.getElementById('root')
+);
+```
+
+Go inside the `start` directory and restart `gluec`. This will start the new `StockDetails` application and the updated `Stocks` application.
+
+### 7.2.3. Enable Application Management API in Clients and Stocks
+
+After configuritng `StockDetails` to be a separate application, enable the Application Management API in `Clients` and `Stocks` by passing `{ appManager: true }` and the application name to the `config` property of the `<GlueProvider/>` wrapper component in the `index.js` files of `Clients` react app and `Stocks` react app:
+
+```javascript
+// Stocks/src/index.js
+ReactDOM.render(
+    <GlueProvider config={{ channels: true, appManager: true, application: 'Stocks' }} glueFactory={GlueWeb}>
+        <Stocks />
+    </GlueProvider>,
+    document.getElementById('root')
+);
+```
+
+```javascript
+// Clients/src/index.js
+ReactDOM.render(
+    <GlueProvider config={{ channels: true, appManager: true, application: 'Clients' }} glueFactory={GlueWeb}>
+        <Clients />
+    </GlueProvider>,
+    document.getElementById('root')
+);
+```
+
+### 7.3. Starting Applications
+
+Opening the `StockDetails.jsx` application using the Application Manager requires very simple changes. Go inside `Stocks/src/glue.js` and change the `openStockDetails` function to the following one. You can also delete the `windowId` variable as it is no longer needed. The application manager handles opening and closing the windows of the applications for you:
+
+```javascript
+// Stocks/src/glue.js
+export const openStockDetails = glue => symbol => {
+    glue.appManager.application('Stock Details').start({symbol});
+}
+```
+We need to make another small change. Right now, in `StockDetails.jsx`, we are getting the context from the Windows API through `glue.windows.my().context`. We also need make the change in `Stocks.jsx`. We need to get it using the Application Management API. Change the code in the function `getMyWindowContext` to the following:
+
+```javascript
+// StocksDetails/src/glue.js and Stocks/src/glue.js
+export const getMyWindowContext = glue => glue.appManager.myInstance.context;
+```
+
+We have created and configured the new application! We can now open the `StockDetails` application using the Application Management API.
+
+### 7.4. Application Instances
+
+Next, you will use the Application Management API to add new functionality to the **Clients** application. When the user selects a client, you can check whether there is a running instance of the **Stocks** app, and if there isn't one, you will start the **Stocks** app. You will also pass the current channel as context to the started instance of the **Stocks** app. Each application object has an `instances` property that allows you to get the running instances of the application.
+
+Let's start with the `Clients` application. We want to pass in the current channel as context. Because not every channel color can be used by name, for example `Dark Yellow`, some need to be subscribed to by hex value, for example `#aef359` (limegreen), we must find the channel that the `Clients` applicaiton is currently subscribed to and use the values of the properties `name` and `meta.color` to pass a proper definition of the channel to the `Stocks` application. Go inside `Clients/src/glue.js` and add the following function:
+
+```javascript
+// Clients/src/glue.js
+export const startApp = glue => () => {
+    const isStocksRunning = glue.appManager.application('Stocks').instances.length > 0;
+    if (!isStocksRunning) {
+        glue.channels.list().then(channels => {
+            let channel = {};
+            if (glue.channels.my()) {
+                const channelDefinition = channels.find(channel => channel.name === glue.channels.my());
+                channel = {
+                    name: channelDefinition.name,
+                    label: channelDefinition.name,
+                    color: channelDefinition.meta.color
+                };
+            } else {
+                channel = {
+                    name: NO_CHANNEL_VALUE,
+                    label: NO_CHANNEL_VALUE
+                }
+            }
+            glue.appManager.application('Stocks').start({ channel });
+        });
+    }
+}
+```
+
+Now import it in the `Clients.jsx` file:
+
+```javascript
+import { startApp } from './glue.js';
+```
+
+Create a `startStocksApp` callback and pass it to the on click handler of the client's row:
+
+```javascript
+function Clients() {
+    // ...
+    const startStocksApp = useGlue(startApp);
+    // ...
+    return (
+        {/* some jsx */}
+        <tbody>
+            {clients.map(({ name, pId, gId, accountManager, portfolio }) => (
+                <tr
+                    key={pId}
+                    onClick={() => {
+                            onClickContext({ clientId: gId, clientName: name, portfolio })
+                            onClick({ clientId: gId, clientName: name, portfolio })
+                            startStocksApp();
+                        }
+                    }
+                >
+                    <td>{name}</td>
+                    <td>{pId}</td>
+                    <td>{gId}</td>
+                    <td>{accountManager}</td>
+                </tr>
+            ))}
+        </tbody>
+        {/* some more jsx */}
+    )
+}
+```
+
+Let's move onto the `Stocks` application. We are going to use the `getWindowContext` function from `glue.js` in order to get the channel passed from the `Clients` application. We also need the constant `NO_CHANNEL_VALUE` from `constants.js`, in case the `Clients` application does not pass a channel value, because we need to control the `value` property of the `ChannelSelectorWidget`. Import the function in `Stocks.jsx`:
+
+```javascript
+// Stocks/src/Stocks.jsx
+import { getMyWindowContext } from './glue';
+import { NO_CHANNEL_VALUE } from './constants';
+```
+
+Next, we will store the window context in a variable called `windowContext` and we will use the `useState` react hook to create it. We also want to create a `useEffect` hook for when the `Clients` application passes the channel context to the `Stocks` application. Add the following code in `Stocks.jsx`:
+
+```javascript
+//Stocks/src/Stocks.jsx
+function Stocks() {
+    // javascript code
+    const windowContext = useGlue(getMyWindowContext) || {};
+    useEffect(() => {
+        if (windowContext.channel) {
+            setCurrentChannel(windowContext.channel);
+            if (onChannelSelected) {
+                onChannelSelected({ value: windowContext.channel.name });
+            }
+        } else {
+            setCurrentChannel({ value: NO_CHANNEL_VALUE, label: NO_CHANNEL_VALUE });
+        }
+    }, [windowContext.channel, onChannelSelected]);
+    // javascript and jsx code
+}
+```
+
+We will change the `<ChannelSelectorWidget/>` in the render method by adding a `value` property and adding another function in the `onChannelSelected` callback property:
+
+```javascript
+function Stocks() {
+    // ...
+    return (
+        {/* some jsx */}
+        <div className="col-md-2 align-self-center">
+            <ChannelSelectorWidget
+                value={currentChannel}
+                key={channelWidgetState}
+                channelNamesAndColors={channelNamesAndColors}
+                onChannelSelected={channel => {
+                    onChannelSelected(channel);
+                    setCurrentChannel(channel);
+                }}
+                onDefaultChannelSelected={channel => {
+                    setDefaultClient();
+                    onChannelSelected(channel);
+                    setCurrentChannel({ value: NO_CHANNEL_VALUE, label: NO_CHANNEL_VALUE });
+                }}
+            />
+        </div>
+        {/* more jsx */}
+    )
+}
+```
+
+We are done! The `onChannelSelected` function handles the management of channels in `Glue42 Core` and the `setCurrentChannel` function handles the visualisation of the current channel inside the component.
+
+## 8. Workspaces
+
+The latest feedback from the users is that their desktops very quickly become cluttered with multiple floating windows. The Glue42 Core Workspaces feature solves exactly that problem.
+
+The new requirement is that when a user clicks on a client in the Clients application, a new Workspace should open displaying detailed information about the selected client in one app and his stocks portfolio in another. When the user clicks on a stock, a third application should appear in the same Workspace displaying more details about the selected stock. You will use the Client Details application for displaying information about the selected client.
+
+Go to the `Stocks/src/index.js`and ``Clients/src/index.js`` files of the Clients and Stocks apps and comment out all logic and references related to Channels, introduced in a previous chapter. Instead, you will use Workspaces to allow the users to work with multiple clients at once and organize their desktop at the same time. Channels and Workspaces can, of course, be used together to provide extremely enhanced user experience, but in order to focus entirely on working with Workspaces, the Channels functionality will be ignored.
+
+Use the [Workspaces API](../../../reference/core/latest/workspaces/index.html) documentation as a reference when working on this chapter.
+
+## 8.1. Setup
+
+Configure your current development environment for Workspaces by running the following command in the Glue42 CLI, in the Glue42 root `start` directory of all your projects:
+
+```cmd
+gluec workspaces init
+```
+
+This command will add the necessary Workspaces packages to your project and set up the Workspaces default settings in your configuration files.
+
+**Note** that this command only works if the current directory has already been initialized with the gluec init command. In case of a brand new Glue42 Core project, you have to use the `gluec init -w` command to set up the basic Glue42 Core files and Workspaces at the same time.
+
+## 8.1.1. Creating the Client Details application
+
+We will create a new react application which will display the information of a single client. Go to the root `start` directory and run the following command:
+
+```cmd
+npx create-react-app client-details
+```
+
+Create a `.env` file in the `client-details` folder containing the following:
+
+```cmd
+SKIP_PREFLIGHT_CHECK=true
+PORT=3003
+```
+
+Go to the `package.json` file of the `client-details` project and paste the following line below the `eslintConfig` property:
+
+```json
+  "homepage": "/client-details/",
+```
+
+Install the following dependencies inside the `clients-details` project:
+
+```cmd
+npm i --save @glue42/react-hooks@1.0.7 react-select@3.1.0 bootstrap@4.4.1 react-app-rewired@2.1.5 chroma-js@2.1.0
+```
+
+Go inside the `package.json` file and change the `start`, `build`, and `test` scripts to the following:
+
+```json
+"start": "react-app-rewired start --scripts-version react-scripts",
+"build": "react-app-rewired build --scripts-version react-scripts",
+"test": "react-app-rewired test --scripts-version react-scripts",
+```
+
+Copy the file `Stocks/config-overrides.js` from the root directory of the `Stocks` project into the root directory of `client-details`.
+
+Now we need to create the `ClientDetails.jsx` file. Go inside `client-details/src` and create a new file named `ClientDetails.jsx` and paste the following code:
+
+```javascript
+import React, { useState } from 'react';
+
+function ClientDetails() {
+    const [client, setClient] = useState({});
+    return (
+        <div className="container-fluid">
+            <div className="row">
+                <div className="col-md-2">
+                    <span id="glueSpan" className="label label-warning">Glue42 is unavailable</span>
+                </div>
+                <div className="col-md-10">
+                    <h1 className="text-center">Client Details</h1>
+                </div>
+            </div>
+            <div className="row">
+                <div className="col-md-12">
+                    <h3 id="clientStatus"></h3>
+                </div>
+            </div>
+            <div className="row">
+                <table id="clientsTable" className="table table-hover">
+                    <tbody>
+                        <tr>
+                            <th>Full Name</th>
+                            <td data-name>{client && client.clientName}</td>
+                        </tr>
+                        <tr>
+                            <th>Address</th>
+                            <td data-address>{client && client.address}</td>
+                        </tr>
+                        <tr>
+                            <th>Phone Number</th>
+                            <td data-phone>{client && client.contactNumbers}</td>
+                        </tr>
+                        <tr>
+                            <th>Email</th>
+                            <td data-email>{client && client.email}</td>
+                        </tr>
+                        <tr>
+                            <th>Account Manager</th>
+                            <td data-manager>{client && client.accountManager}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+}
+
+export default ClientDetails;
+```
+
+Open the file `client-details/src/index.js` and delete the `App` import and the `<App/>` component and add the following code in addition to the code that is already there. Add the settings `appManager:ture` and `application: 'Client Details`, because we want to use the application with the Application Management API:
+
+```javascript
+import GlueWeb from "@glue42/web";
+import { GlueProvider } from '@glue42/react-hooks';
+import 'bootstrap/dist/css/bootstrap.css';
+import ClientDetails from './ClientDetails';
+
+ReactDOM.render(
+    <GlueProvider config={{ channels: true, appManager: true, application: 'Client Details' }} glueFactory={GlueWeb}>
+        <ClientDetails />
+    </GlueProvider>,
+    document.getElementById('root')
+);
+```
+
+We have to tell `gluec` that we have created a new application and that we would like to use it. Go to `glue.config.dev.json` inside the root `start` directory and add the folowing lines under the `server.app` array:
+
+```json
+{
+    "route": "/client-details",
+    "localhost": {
+        "port": 3003
+    }
+}
+```
+
+We have to register the application with the **Application Management API**. Open the `glue.config.json` and add the following configurations in the `"localApplications"` array under the `"appManager"` property:
+
+```javascript
+{
+    "name": "Client Details",
+    "details": {
+        "url": "http://localhost:4242/client-details"
+    }
+}
+```
+
+Restart `gluec` and go to the `http://localhost:4242/client-details` route to check if everything is setup correctly. 
+
+**Note**: If you get a blank screen or an error in the console, try going over the steps again or see the file in the `solution` directory.
+
+## 8.2. Workspace Layouts
+
+Next, you need to build a Workspace layout which will be the blueprint of the Workspace that the Clients app will restore when the user clicks on a client. This layout should contain the Client Details and Stocks apps.
+
+**Note**: you have to define all apps that will be used in the Workspace in the glue.config.json file. Also, you have to specify the application name in the applications property of the configuration object when initializing them as Glue42 Clients. This is necessary in order for the applications to become available in the "Add Application" menu of the Workspaces App. If you have followed the tutorial thus far, you have already configured everything. Run the following command in the root `start` directory:
+
+```cmd
+gluec workspaces build
+```
+
+**Note**: in order for this command to work, the Glue42 development server **must** be running.
+
+This will open the Workspace Builder in your default browser. Add the `ClientDetails` app by clicking on the + icon in the center and then add the `Stocks` app by clicking the + icon in the top right corner of the newly formed group. You should have both apps open next to each other in the new Workspace.
+
+Save the Workspace layout by clicking the "Save" icon on the left of the Workspace title and name it (e.g., "example"). Next, click the "Download" button and save the .txt file in the project directory. Copy the contents of the downloaded .txt file and paste it in the workspaces array of the glue.layouts.json file.
+
+Now this Workspace layout can be restored by name using the [Workspaces API](../../../reference/core/latest/workspaces/index.html).
+
+## 8.3. Initializing Workspaces
+To be able to use Workspaces functionalities, you need to initialize the [Workspaces API](../../../reference/core/latest/workspaces/index.html) in the Clients, Client Details and Stocks apps. The Stock Details app will participate in the Workspace, but will not need to use any Workspaces functionality. Go inside `Clients`, `Stocks`, `Stock Details`, and `Client Details` application folders and run the following command inside each one of them:
+
+```cmd
+npm i --save @glue42/workspaces-api
+```
+
+Next, go inside the `index.js` file of each application and import the `GlueWorkspaces` library and pass it to the config property of the `<GlueProvider/>` component:
+
+```javascript
+// Clients/src/index.js
+import GlueWorkspaces from '@glue42/workspaces-api';
+
+ReactDOM.render(
+    <GlueProvider config={{ channels: true, appManager: true, application: 'Clients', libraries: [GlueWorkspaces] }} glueFactory={GlueWeb}>
+        <Clients />
+    </GlueProvider>,
+    document.getElementById('root')
+);
+```
+
+```javascript
+// Stocks/src/index.js
+import GlueWorkspaces from '@glue42/workspaces-api';
+
+ReactDOM.render(
+    <GlueProvider config={{ channels: true, appManager: true, application: 'Stocks', libraries: [GlueWorkspaces] }} glueFactory={GlueWeb}>
+        <Stocks />
+    </GlueProvider>,
+    document.getElementById('root')
+);
+```
+
+```javascript
+// StockDetails/src/index.js
+import GlueWorkspaces from '@glue42/workspaces-api';
+
+ReactDOM.render(
+    <GlueProvider config={{ channels: true, appManager: true, application: 'Stock Details', libraries: [GlueWorkspaces] }} glueFactory={GlueWeb}>
+        <StockDetails />
+    </GlueProvider>,
+    document.getElementById('root')
+);
+```
+
+```javascript
+// ClientDetails/src/index.js
+import GlueWorkspaces from '@glue42/workspaces-api';
+
+ReactDOM.render(
+    <GlueProvider config={{ channels: true, appManager: true, application: 'Client Details', libraries: [GlueWorkspaces] }} glueFactory={GlueWeb}>
+        <ClientDetails />
+    </GlueProvider>,
+    document.getElementById('root')
+);
+```
+
+## 8.4. Opening Workspaces
+
+Next, you have to implement opening a new Workspace when the user clicks on a client in the Clients app. Go to the clientClickedHandler function in the Clients app, restore by name the Workspace layout you created earlier and pass the selected client as a starting context. The specified context will be attached as a window context to all windows participating in the Workspace. 
+
+Go inside the `glue.js` file in `Clients/src` and add the following code:
+
+```javascript
+export const startAppWithWorkspace = glue => client => {
+    glue.workspaces.restoreWorkspace("example", { context: client });
+}
+```
+
+Import the function in `Clients.jsx` and create a new callback to be passed to the onClick handler of the `<tr>` element:
+
+```javascript
+import { startAppWithWorkspace } from './glue';
+
+function Clients() {
+    // ...
+    const openWorkspace = useGlue(startAppWithWorkspace);
+    // ...
+}
+```
+
+Delete all the code from the onClick handler of the `<tr>` element and replace it with the following code:
+
+```javascript
+<tbody>
+    {clients.map(({ name, pId, gId, accountManager, portfolio, ...rest }) => (
+        <tr
+            key={pId}
+            onClick={() => {
+                    openWorkspace({ clientId: gId, clientName: name, accountManager, portfolio, ...rest });
+                }
+            }
+        >
+            <td>{name}</td>
+            <td>{pId}</td>
+            <td>{gId}</td>
+            <td>{accountManager}</td>
+        </tr>
+    ))}
+</tbody>
+```
+If everything is correct, a new Workspace should now open every time you click a client.
+
+## 8.5. Starting Context
+
+The windows of the Client Details and Stocks apps participating in the new Workspace will have a starting context attached to them. You have to handle this starting context in order to display the relevant client data when the user selects a client from the Clients app.
+
+To get the starting window context, you have to subscribe for updates to the context of the current window using the Window Management API. When the window context has been updated and if it contains a client property, you have to handle the client data in the respective application and also set the Workspace title to the name of the selected client.
+
+Create a new file named `glue.js` inside `client-details/src` and add the following code to it:
+
+```javascript
+// client-details/src/glue.js
+export const setClientFromWorkspace = setClient => glue => {
+    glue.windows.my().onContextUpdated(context => {
+        if (context) {
+            setClient(context);
+        }
+    });
+}
+```
+
+Import the function in `ClientDetails.jsx` and set it up using the `useGlue` react hook:
+
+```javascript
+import { getClient } from './glue';
+
+function ClientDetails() {
+    // ...
+    useGlue(getClient(setClient));
+    // ...
+}
+```
+
+Next, we need to update the `Stocks.jsx` application to show the stocks of the currently selected client, the one that is being displayed inside the `client-details` application. Go inside the `glue.js` file in `Stocks/src` folder and add the following code at the end of the file:
+
+```javascript
+// Stocks/src/glue.js
+export const setClientFromWorkspace = setClient => glue => {
+    glue.windows.my().onContextUpdated(context => {
+        if (context) {
+            setClient({ clientId: context.clientId, clientName: context.clientName });
+        }
+    });
+}
+```
+
+Import the function in `Stocks.jsx` and set it up using the `useGlue` react hook:
+
+```javascript
+import { setClientFromWorkspace } from './glue';
+
+function Stocks() {
+    // ...
+    useGlue(setClientFromWorkspace(setClient));
+    // ...
+}
+```
+
+Now when you select a client in the Clients app, a new Workspace should open with the Client Details and Stocks apps showing the relevant client information.
+
+## 8.6. Modifying Workspaces
+
+Next, you have to make the Stock Details app appear in the same Workspace as a sibling of the Stocks app when the user clicks on a stock. You have to check whether the Stock Details app has already been added to the Workspace, and if not - add it and update its context with the selected stock, otherwise - only update its context.
+
+To achieve this functionality, you will have to manipulate a Workspace and its elements. It is recommended that you familiarize yourself with the Workspaces terminology to fully understand the concepts and steps below. You can use the available documentation about Workspaces Concepts, Workspace Box Elements and the Workspaces API.
+
+The Stocks app is a WorkspaceWindow that is the only child of a Group element. If you add the Stock Details app as a child to that Group, it will be added as a second tab window and the user will have to manually switch between both apps. The Stock Details has to be a sibling of the Stocks app, but both apps have to be visible within the same parent element. That is why, you have to add a new Group element as a sibling of the existing Group that contains the Stocks app, and then load the Stock Details app in it.
+
+After the Stocks Details app has been opened in the Workspace as a WorkspaceWindow, you have to pass the selected stock as its context. To do that, get a reference to the underlying Glue42 Window object of the Stock Details window using the getGdWindow() method of the WorkspaceWindow instance and update its context with the updateContext() method.
+
+Firstly, go inside the `glue.js` in `Stocks/src` and create the following function:
+
+```javascript
+// Stocks/src/glue.js
+export const openStockDetailsInWorkspace = glue => async stock => {
+    let detailsGlue42Window;
+    const myWorkspace = await glue.workspaces.getMyWorkspace();
+    let detailsWorkspaceWindow = myWorkspace.getWindow(window => window.appName === 'Stock Details');
+    if (detailsWorkspaceWindow) {
+        detailsGlue42Window = detailsWorkspaceWindow.getGdWindow();
+    } else {
+        const myId = glue.windows.my().id;
+        const myImmediateParent = myWorkspace.getWindow(window => window.id === myId).parent;
+        const group = await myImmediateParent.parent.addGroup();
+        detailsWorkspaceWindow = await group.addWindow({ appName: 'Stock Details' });
+        await detailsWorkspaceWindow.forceLoad();
+        detailsGlue42Window = detailsWorkspaceWindow.getGdWindow();
+    }
+    detailsGlue42Window.updateContext({ stock });
+}
+```
+
+Import the function in `Stocks.jsx`, comment out the `onClick` callback created by using the funcion `openStockDetails` and repalce it with the newly created `openStockDetailsInWorkspace` function:
+
+```javascript
+import { openStockDetailsInWorkspace } from './glue';
+
+function Stocks() {
+    // ...
+    // const onClick = useGlue(openStockDetails);
+    const onClick = useGlue(openStockDetailsInWorkspace);
+    // ...
+}
+```
+
+We can now open the `Stock Details` application using the Workspaces API, but the stock details are not being displayed right now, because we need to use the API in the `Stock Details` application to get the information about the stock.
+
+Go inside the `glue.js` file in `stock-details/src/` folder and change the `getMyWindowContext` to the following:
+
+```javascript
+// stock-details/src/glue.js
+export const getMyWindowContext = setWindowContext => glue => {
+    glue.windows.my().onContextUpdated(context => {
+        if (context.stock) {
+            setWindowContext({ symbol: context.stock });
+        }
+    })
+}
+```
+
+Import the function in the file `StockDetails.jsx` and extract the `windowContext` variable to a react hooks state variable. We will track the changes to the `windowContext` variable using the `onContextUpdated` method, instead of getting it one time from the context:
+
+```javascript
+import { getMyWindowContext } from './glue';
+
+function StockDetails() {
+    // ...
+    const [windowContext, setWindowContext] = useState({});
+    // const windowContext = useGlue(getMyWindowContext) || {};
+    useGlue(getMyWindowContext(setWindowContext));
+    // ...
+}
+
+```
+
+## 9. Deployment
+
+With the fully developed app, it is time to deploy it to an environment. We will give examples of how to do deploy and app created using `create-react-app`, using `webpack`.
+
+### 9.1. Deploying using webpack. Ejecting application from create-react-app
+
+If you are using a scaffolding tool to build your react enabled applications, you will need to perfom aditional steps to reach the `webpack.config.js` file. There are to ways to go about doing this. You cloud eject your project or you can override the configuration of `create-react-app`. We will show both ways for completeion.
+
+Regardless of wheter you choose to eject a project or override it's configuration, you will need the module `CopyWebpackPlugin`. Go to the root directory of the project and run:
+
+```cmd
+    npm install copy-webpack-plugin --save-dev
+```
+
+Ejecting a project created using `create-react-app`:
+
+If you are using a scaffolding tool to build your react enabled applications, you will need to eject your project so that you can access the `webpack.config.js` file. Go to the root of the `create-react-app` project and run:
+
+**Note: this is a one-way operation. Once you eject, you can’t go back!!!**
+
+```cmd
+    npm run eject
+```
+ 
+ You should now have access to `webpack.config.js` in the newly created `./config` folder. Place the following code inside the `webpack.config.js` file, in the `plugins` array:
+
+ ```javascript
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+
+module.exports =  () => {
+
+  // some config
+
+  return {
+    // more config
+
+    plugins: [
+      // even more config
+
+      new CopyWebpackPlugin({
+        patterns: [
+          { from: '../node_modules/@glue42/gateway-web/web/gateway-web.js', to: '../build/glue/' },
+          { from: '../node_modules/@glue42/worker-web/dist/worker.js', to: '../build/glue/' },
+          { from: '../glue.config.json', to: '../build/glue/' },
+       ]
+     })
+    ]
+  };
+};
+ ```
+Inside the root of your project, run:
+
+```cmd
+    node ./scripts/build.js
+```
+
+### 9.2. Deploying using webpack. Without ejecting application from create-react-app
+
+Modifying `create-react-app` without ejecting, using `react-app-rewired`. This options does not require ejecting the project and maintains most of the benefist of having `create-react-app` managing your project's configuration:
+
+**Note: If you've build your application on top of the already provides Stocks, StockDetails, and Client applications from the tutorial, they already have react-app-rewired installed!!!**
+
+In the root of the `create-react-app` project, run the following command:
+
+```cmd
+ npm install react-app-rewired --save-dev
+```
+
+Again, in the root directory create `config-overrides.js` file and add the following code to it:
+
+```javascript
+    const CopyWebpackPlugin = require('copy-webpack-plugin');
+
+    module.exports = config => {
+        config.plugins.push(new CopyWebpackPlugin({
+            patterns: [
+                { from: '../node_modules/@glue42/gateway-web/web/gateway-web.js', to: '../build/glue/' },
+                { from: '../node_modules/@glue42/worker-web/dist/worker.js', to: '../build/glue/' },
+                { from: '../glue.config.json', to: '../build/glue/' },
+            ]
+        }));
+        return config;
+    }
+```
+
+You need to go the `package.json` file inside of your root directory and change some of the `create-react-app` script commands: Replace the `start`, `build`, and `test` commands with:
+
+```json
+    {
+        "scripts": {
+            "start": "react-app-rewired start",
+            "build": "react-app-rewired build",
+            "test": "react-app-rewired test --env=jsdom",
+        }
+    }
+```
+
+Inside the root of your project, run:
+
+```cmd
+npm run build
+```
+
+### 9.3. Deploying using webpack. Project not created using create-react-app or other scaffolding tools
+
+Go inside the `webpack.config.js` file and add this code to the `plugins` array.
+
+ ```javascript
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+
+module.exports =  () => {
+
+  // some config
+
+  return {
+    // more config
+
+    plugins: [
+      // even more config
+
+      new CopyWebpackPlugin({
+        patterns: [
+          { from: '../node_modules/@glue42/gateway-web/web/gateway-web.js', to: '../build/glue/' },
+          { from: '../node_modules/@glue42/worker-web/dist/worker.js', to: '../build/glue/' },
+          { from: '../glue.config.json', to: '../build/glue/' },
+       ]
+     })
+    ]
+  };
+};
+ ```
+
+Then build your project.
+
 ## Congratulations
 
 You have successfully completed the **Glue42 Core** React tutorial! See also the [JavaScript](../javascript/index.html) and [Angular](../angular/index.html) tutorials for **Glue42 Core**.
