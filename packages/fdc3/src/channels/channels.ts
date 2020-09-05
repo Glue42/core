@@ -2,6 +2,7 @@ import { FDC3 } from "../../types";
 import { Glue42 } from "@glue42/desktop";
 import { SystemChannel, AppChannel } from "./channel";
 import { WindowType } from "../windowtype";
+import { getChannelsList, isGlue42Core } from "../utils";
 
 const Listener = (actualUnsub:
     (() => void)
@@ -82,23 +83,28 @@ const createChannelsApi = (): FDC3.ChannelsAPI => {
     };
 
     const init = async (): Promise<void> => {
-        const glue = await (window as WindowType).gluePromise;
+        await (window as WindowType).gluePromise;
 
-        (await glue.channels.list()).map((channelContext) => {
+        const channelContents: Array<Glue42.Channels.ChannelContext> = await getChannelsList();
+
+        channelContents.map((channelContext) => {
             channels[channelContext.name] = mapToFDC3SystemChannel(channelContext);
         });
 
-        systemChannels = await glue.channels.all();
+        systemChannels = await (window as WindowType).glue.channels.all();
 
         const current = await (window as WindowType).glue.channels.current();
 
-        if (current) {
-            handleSwitchChannelUI(current);
-        }
+        // In Glue42 Core the channel selector widget needs to use the FDC3 Channels API instead of the Glue42 Channels API to navigate between the channels.
+        if (!isGlue42Core) {
+            if (current) {
+                handleSwitchChannelUI(current);
+            }
 
-        glue.channels.changed((channelId) => {
-            handleSwitchChannelUI(channelId);
-        });
+            (window as WindowType).glue.channels.changed((channelId: string) => {
+                handleSwitchChannelUI(channelId);
+            });
+        }
     };
 
     const initDone = init();
@@ -112,6 +118,8 @@ const createChannelsApi = (): FDC3.ChannelsAPI => {
     };
 
     const getOrCreateAppChannel = async (channelId: FDC3.ChannelId): Promise<FDC3.Channel> => {
+        await initDone;
+
         const exists = await doesAppChannelExist(channelId);
 
         if (!exists) {
@@ -128,6 +136,8 @@ const createChannelsApi = (): FDC3.ChannelsAPI => {
     };
 
     const tryGetAppChannel = async (channelId: string): Promise<FDC3.Channel> => {
+        await initDone;
+
         const exists = await doesAppChannelExist(channelId);
 
         if (!exists) {
@@ -159,13 +169,23 @@ const createChannelsApi = (): FDC3.ChannelsAPI => {
         setCurrentChannel(channel);
     };
 
-    const leaveCurrentChannel = (): void => {
+    const getCurrentChannel = async (): Promise<FDC3.Channel> => {
+        await initDone;
+
+        return currentChannel as FDC3.Channel;
+    };
+
+    const leaveCurrentChannel = async (): Promise<void> => {
+        await initDone;
+
         tryLeaveSystem();
 
         setCurrentChannel(null);
     };
 
     const broadcast = async (context: FDC3.Context): Promise<void> => {
+        await initDone;
+
         if (!currentChannel) {
             // tslint:disable-next-line:no-console
             console.error("You must join a channel first.");
@@ -241,16 +261,6 @@ const createChannelsApi = (): FDC3.ChannelsAPI => {
         if (pendingSubscription) {
             const { contextType, handler, setActualUnsub } = pendingSubscription;
 
-            const replay = async (): Promise<void> => {
-                const data = await newChannel?.getCurrentContext();
-
-                if (data) {
-                    handler(data);
-                }
-            };
-
-            replay();
-
             const listener = addContextListener(contextType, handler);
 
             setActualUnsub(listener.unsubscribe);
@@ -260,30 +270,12 @@ const createChannelsApi = (): FDC3.ChannelsAPI => {
     };
 
     return {
-        getSystemChannels: async (...props): Promise<FDC3.Channel[]> => {
-            await (window as WindowType).gluePromise;
-            return getSystemChannels(...props);
-        },
-        getOrCreateChannel: async (...props): Promise<FDC3.Channel> => {
-            await (window as WindowType).gluePromise;
-            return getOrCreateAppChannel(...props);
-        },
-        joinChannel: async (...props): Promise<void> => {
-            await (window as WindowType).gluePromise;
-            return joinChannel(...props);
-        },
-        getCurrentChannel: async (): Promise<FDC3.Channel> => {
-            await (window as WindowType).gluePromise;
-            return currentChannel as FDC3.Channel;
-        },
-        leaveCurrentChannel: async (): Promise<void> => {
-            await (window as WindowType).gluePromise;
-            return leaveCurrentChannel();
-        },
-        broadcast: async (...props): Promise<void> => {
-            await (window as WindowType).gluePromise;
-            return broadcast(...props);
-        },
+        getSystemChannels,
+        getOrCreateChannel: getOrCreateAppChannel,
+        joinChannel,
+        getCurrentChannel,
+        leaveCurrentChannel,
+        broadcast,
         addContextListener,
     };
 };

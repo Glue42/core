@@ -1,12 +1,13 @@
 import createDesktopAgent from "./agent";
 import Glue, { Glue42 } from "@glue42/desktop";
 import GlueWebFactory from "@glue42/web";
-import { isGlue42Core, decorateContextApi } from "./utils";
+import { decorateContextApi, getChannelsList, isEmptyObject, isGlue42Core } from "./utils";
 import { version } from "../package.json";
 import { FDC3 } from "../types";
 import { WindowType } from "./windowtype";
 
 const defaultGlueConfig = {
+    application: (window as WindowType).fdc3AppName,
     appManager: true,
     context: true,
     intents: true,
@@ -14,16 +15,12 @@ const defaultGlueConfig = {
     agm: true
 };
 
-const isEmptyObject = (obj: object): boolean => {
-    return Object.keys(obj).length === 0 && obj.constructor === Object;
-};
-
 const patchSharedContexts = (): Promise<void> => {
     return new Promise((resolve) => {
         let interval: any;
 
         const callback = async (): Promise<void> => {
-            const channels = await (window as WindowType).glue.channels.list();
+            const channels = await getChannelsList();
 
             if (channels.length === 0 || !isEmptyObject(channels[0])) {
                 clearInterval(interval);
@@ -66,7 +63,11 @@ const setupGlue = (clientGlueConfig?: Glue42.Config): void => {
         });
 
         (window as WindowType).gluePromise = waitGlue42GD
-            .then(() => Glue(clientGlueConfig || defaultGlueConfig))
+            .then(() => {
+                const GlueFactory = (window as WindowType).Glue || Glue;
+
+                return GlueFactory(clientGlueConfig || defaultGlueConfig);
+            })
             .then((g) => {
                 const glue = decorateContextApi(g);
                 (window as WindowType).glue = glue;

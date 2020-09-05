@@ -63,6 +63,15 @@ In **Glue42 Core**, Intents are defined in the application definitions in the `g
 - `displayName` - The human readable name of the Intent. Can be used in context menus, etc., to visualize the Intent;
 - `contexts` - **Required**. The type of predefined data structures that the application can work with (see [FDC3 Contexts](https://fdc3.finos.org/docs/next/context/overview)).
 
+In order to be able to properly target applications with `raiseIntent()` the applications need to pass their application name to `@glue42/fdc3`. This is needed by the implementation so it can check whether there is a running instance of the targeted application or a new instance has to be started. Because the FDC3 specification doesn't specify any initialization logic, `@glue42/fdc3` relies on a global variable called `fdc3AppName` being present prior to importing `@glue42/fdc3`:
+
+```html
+<script>
+    window.fdc3AppName = "TradingView Blotter";
+</script>
+<script src="https://unpkg.com/@glue42/fdc3@latest/dist/fdc3-glue42.js"></script>
+```
+
 *For more information on using intents, see the [FDC3 Intents API](https://fdc3.finos.org/docs/next/intents/overview).*
 
 ### Channels
@@ -86,6 +95,10 @@ All system defined Channels in **Glue42 Core** can be found in the `glue.config.
     ]
 }
 ```
+
+All Glue42 Core channels are available as FDC3 system channels.
+
+Glue42 Core applications can interact with FDC3 app channels by using the [Shared Contexts API](../shared-contexts/index.html). For each FDC3 app channel there is a shard context with the same name. You can use the `get()`, `set()`, `update()` and `subscribe()` methods to interact with it.
 
 *For a sample Channel Selector widget implementation, see the [**Channels: Channel Selector UI**](../channels/index.html#channel_selector_ui) section. There you can see example implementations for the most popular JavaScript frameworks. Note that internally the examples use the **Glue42 Core** Channels API and not the FDC3 Channels API.*
 
@@ -150,10 +163,12 @@ Below is an example FDC3 application definition:
 
 ### Demo
 
-Example of the `broadcast()` and `addContextListener()` API calls implemented by `@glue42/fdc3` are available in [this demo](https://fdc3-demo.glue42.com).
+Example of the `broadcast()` and `addContextListener()`, `findIntentsByContext()` and `raiseIntent()` API calls implemented by `@glue42/fdc3` are available in [this demo](https://fdc3-demo.glue42.com).
 
 The demo consists of a Chart and a Blotter application. Searching and selecting a ticker inside the Chart application adds it to the Blotter application as long as the two applications are on the same Channel (use the Channel Selector widget to navigate between Channels):
 
 ![FDC3 Demo](../../../images/fdc3/fdc3-demo.gif)
+
+Right-clicking on an instrument inside the Blotter opens up a context menu with the intents that can be raised for the instrument. When the chart application is running it would update its context and when there are no instances of the Chart application running it will start a new instance with the given context.
 
 You can use the [code of the demo](https://github.com/Glue42/fdc3-demos/tree/configure-for-glue42-core) as a reference when adapting your own applications.

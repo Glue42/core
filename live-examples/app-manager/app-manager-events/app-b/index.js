@@ -15,14 +15,15 @@ function subscribeToAppManagerEvents() {
 
   glue.appManager.onInstanceStarted(instance => {
     const instanceId = instance.id;
+    const appName = instance.application.name;
 
     // When it is my window - do not log. Keep the logs list clean.
     if (!isMyInstance(instanceId)) {
-      logger.info(`Instance with id "${instanceId}" started.`);
+      logger.info(`Instance of app ${appName} with id "${instanceId}" started.`);
     }
   });
 
   glue.appManager.onInstanceStopped(instance => {
-    logger.info(`Instance with id "${instance.id}" stopped.`);
+    logger.info(`Instance of app ${appName} with id "${instance.id}" stopped.`);
   });
 }
