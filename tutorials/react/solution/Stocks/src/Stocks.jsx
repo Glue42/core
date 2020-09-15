@@ -1,27 +1,18 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useGlue, GlueContext } from '@glue42/react-hooks';
-import { REQUEST_OPTIONS, NO_CHANNEL_VALUE } from './constants';
+import { REQUEST_OPTIONS } from './constants';
 import {
     createInstrumentStream,
     subscribeForInstrumentStream,
-    getChannelNamesAndColors,
-    joinChannel,
-    subscribeForChannels,
-    getMyWindowContext,
     setClientFromWorkspace,
     openStockDetailsInWorkspace
 } from './glue';
-import ChannelSelectorWidget from './ChannelSelectorWidget';
 
 function Stocks() {
     const [portfolio, setPortfolio] = useState([]);
     const [prices, setPrices] = useState({});
     const [{ clientId, clientName }, setClient] = useState({});
-    const [currentChannel, setCurrentChannel] = useState({});
     const setDefaultClient = () => setClient({ clientId: "", clientName: "" });
-    const [channelWidgetState, setChannelWidgetState] = useState(false);
-    const windowContext = useGlue(getMyWindowContext) || {};
-    useGlue(subscribeForChannels(setClient));
     useGlue(createInstrumentStream);
     const subscription = useGlue(
         (glue, portfolio) => {
@@ -49,21 +40,7 @@ function Stocks() {
 
     const glue = useContext(GlueContext);
     useGlue(setClientFromWorkspace(setClient));
-    // Get the channel names and colors and pass them as props to the ChannelSelectorWidget component.
-    const channelNamesAndColors = useGlue(getChannelNamesAndColors);
-    // The callback that will join the newly selected channel. Pass it as props to the ChannelSelectorWidget component to be called whenever a channel is selected.
-    const onChannelSelected = useGlue(joinChannel); 
-    useEffect(() => {
-        if (windowContext.channel) {
-            setCurrentChannel(windowContext.channel);
-            if (onChannelSelected) {
-                onChannelSelected({ value: windowContext.channel.name });
-            }
-        } else {
-            setCurrentChannel({ value: NO_CHANNEL_VALUE, label: NO_CHANNEL_VALUE });
-        }
-    }, [windowContext.channel, onChannelSelected]);
-    return (
+     return (
         <div className="container-fluid">
             <div className="row">
                 <div className="col-md-2">
@@ -83,28 +60,11 @@ function Stocks() {
                         Stocks
                     </h1>
                 </div>
-                <div className="col-md-2 align-self-center">
-                    <ChannelSelectorWidget
-                        value={currentChannel}
-                        key={channelWidgetState}
-                        channelNamesAndColors={channelNamesAndColors}
-                        onChannelSelected={channel => {
-                            onChannelSelected(channel);
-                            setCurrentChannel(channel);
-                        }}
-                        onDefaultChannelSelected={channel => {
-                            setDefaultClient();
-                            onChannelSelected(channel);
-                            setCurrentChannel({ value: NO_CHANNEL_VALUE, label: NO_CHANNEL_VALUE });
-                        }}
-                    />
-                </div>
             </div>
             <button
                 type="button"
                 className="mb-3 btn btn-primary"
                 onClick={() => {
-                    setChannelWidgetState(!channelWidgetState);
                     setDefaultClient();
                 }}
             >

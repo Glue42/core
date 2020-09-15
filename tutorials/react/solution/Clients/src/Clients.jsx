@@ -2,8 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import { useGlue, GlueContext } from '@glue42/react-hooks';
 import { REQUEST_OPTIONS } from './constants';
 // eslint-disable-next-line no-unused-vars
-import { setClientPortfolioInterop, setClientPortfolioSharedContext, getChannelNamesAndColors, joinChannel, setClientPortfolioChannels, startApp, startAppWithWorkspace } from './glue';
-import ChannelSelectorWidget from './ChannelSelectorWidget';
+import { startAppWithWorkspace } from './glue';
 
 function Clients() {
     const [clients, setClients] = useState([]);
@@ -20,18 +19,6 @@ function Clients() {
         fetchClients();
     }, []);
 
-    // Get the channel names and colors and pass them as props to the ChannelSelectorWidget component.
-    const channelNamesAndColors = useGlue(getChannelNamesAndColors);
-    // The callback that will join the newly selected channel. Pass it as props to the ChannelSelectorWidget component to be called whenever a channel is selected.
-    const onChannelSelected = useGlue(joinChannel);
-    
-    // const onClick = useGlue(setClientPortfolioInterop);
-
-    const onClickContext = useGlue(setClientPortfolioSharedContext);
-
-    const onClick = useGlue(setClientPortfolioChannels);
-
-    const startStocksApp = useGlue(startApp);
     const glue = useContext(GlueContext);
     const openWorkspace = useGlue(startAppWithWorkspace);
 
@@ -52,13 +39,6 @@ function Clients() {
                 </div>
                 <div className="col-md-8">
                     <h1 className="text-center">Clients</h1>
-                </div>
-                <div className="col-md-2 align-self-center">
-                    <ChannelSelectorWidget
-                        channelNamesAndColors={channelNamesAndColors}
-                        onChannelSelected={onChannelSelected}
-                        onDefaultChannelSelected={onChannelSelected}
-                    />
                 </div>
             </div>
             <div className="row">

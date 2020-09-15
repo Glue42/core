@@ -1771,6 +1771,8 @@ export const setClientFromWorkspace = setClient => glue => {
     glue.windows.my().onContextUpdated(context => {
         if (context) {
             setClient(context);
+            glue.workspaces.getMyWorkspace()
+                .then(workspace => workspace.setTitle(context.clientName));
         }
     });
 }
@@ -1889,140 +1891,6 @@ function StockDetails() {
 }
 
 ```
-
-## 9. Deployment
-
-With the fully developed app, it is time to deploy it to an environment. We will give examples of how to do deploy and app created using `create-react-app`, using `webpack`.
-
-### 9.1. Deploying using webpack. Ejecting application from create-react-app
-
-If you are using a scaffolding tool to build your react enabled applications, you will need to perfom aditional steps to reach the `webpack.config.js` file. There are to ways to go about doing this. You cloud eject your project or you can override the configuration of `create-react-app`. We will show both ways for completeion.
-
-Regardless of wheter you choose to eject a project or override it's configuration, you will need the module `CopyWebpackPlugin`. Go to the root directory of the project and run:
-
-```cmd
-    npm install copy-webpack-plugin --save-dev
-```
-
-Ejecting a project created using `create-react-app`:
-
-If you are using a scaffolding tool to build your react enabled applications, you will need to eject your project so that you can access the `webpack.config.js` file. Go to the root of the `create-react-app` project and run:
-
-**Note: this is a one-way operation. Once you eject, you can’t go back!!!**
-
-```cmd
-    npm run eject
-```
- 
- You should now have access to `webpack.config.js` in the newly created `./config` folder. Place the following code inside the `webpack.config.js` file, in the `plugins` array:
-
- ```javascript
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-
-module.exports =  () => {
-
-  // some config
-
-  return {
-    // more config
-
-    plugins: [
-      // even more config
-
-      new CopyWebpackPlugin({
-        patterns: [
-          { from: '../node_modules/@glue42/gateway-web/web/gateway-web.js', to: '../build/glue/' },
-          { from: '../node_modules/@glue42/worker-web/dist/worker.js', to: '../build/glue/' },
-          { from: '../glue.config.json', to: '../build/glue/' },
-       ]
-     })
-    ]
-  };
-};
- ```
-Inside the root of your project, run:
-
-```cmd
-    node ./scripts/build.js
-```
-
-### 9.2. Deploying using webpack. Without ejecting application from create-react-app
-
-Modifying `create-react-app` without ejecting, using `react-app-rewired`. This options does not require ejecting the project and maintains most of the benefist of having `create-react-app` managing your project's configuration:
-
-**Note: If you've build your application on top of the already provides Stocks, StockDetails, and Client applications from the tutorial, they already have react-app-rewired installed!!!**
-
-In the root of the `create-react-app` project, run the following command:
-
-```cmd
- npm install react-app-rewired --save-dev
-```
-
-Again, in the root directory create `config-overrides.js` file and add the following code to it:
-
-```javascript
-    const CopyWebpackPlugin = require('copy-webpack-plugin');
-
-    module.exports = config => {
-        config.plugins.push(new CopyWebpackPlugin({
-            patterns: [
-                { from: '../node_modules/@glue42/gateway-web/web/gateway-web.js', to: '../build/glue/' },
-                { from: '../node_modules/@glue42/worker-web/dist/worker.js', to: '../build/glue/' },
-                { from: '../glue.config.json', to: '../build/glue/' },
-            ]
-        }));
-        return config;
-    }
-```
-
-You need to go the `package.json` file inside of your root directory and change some of the `create-react-app` script commands: Replace the `start`, `build`, and `test` commands with:
-
-```json
-    {
-        "scripts": {
-            "start": "react-app-rewired start",
-            "build": "react-app-rewired build",
-            "test": "react-app-rewired test --env=jsdom",
-        }
-    }
-```
-
-Inside the root of your project, run:
-
-```cmd
-npm run build
-```
-
-### 9.3. Deploying using webpack. Project not created using create-react-app or other scaffolding tools
-
-Go inside the `webpack.config.js` file and add this code to the `plugins` array.
-
- ```javascript
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-
-module.exports =  () => {
-
-  // some config
-
-  return {
-    // more config
-
-    plugins: [
-      // even more config
-
-      new CopyWebpackPlugin({
-        patterns: [
-          { from: '../node_modules/@glue42/gateway-web/web/gateway-web.js', to: '../build/glue/' },
-          { from: '../node_modules/@glue42/worker-web/dist/worker.js', to: '../build/glue/' },
-          { from: '../glue.config.json', to: '../build/glue/' },
-       ]
-     })
-    ]
-  };
-};
- ```
-
-Then build your project.
 
 ## Congratulations
 
