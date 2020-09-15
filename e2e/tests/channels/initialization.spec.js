@@ -1,6 +1,6 @@
 describe('initialization', () => {
     before(() => {
-        return Promise.all([glueReady, gtfReady]);
+        return coreReady;
     });
 
     const channelsAPIMethods = [

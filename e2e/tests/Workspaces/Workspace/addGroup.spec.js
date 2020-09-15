@@ -15,7 +15,7 @@ describe('addGroup() Should ', function () {
     let workspace = undefined;
 
     before(() => {
-        return Promise.all([glueReady, gtfReady]);
+        return coreReady;
     });
 
     beforeEach(async () => {
@@ -50,7 +50,7 @@ describe('addGroup() Should ', function () {
         const secondContext = {
             second: true
         };
-        
+
         const group = await workspace.addGroup({
             children: [
                 {
@@ -128,11 +128,11 @@ describe('addGroup() Should ', function () {
             const firstContext = {
                 first: true
             };
-    
+
             const secondContext = {
                 second: true
             };
-            
+
             const group = await workspace.addGroup({
                 children: [
                     {
@@ -147,17 +147,17 @@ describe('addGroup() Should ', function () {
                     }
                 ]
             });
-    
+
             await Promise.all(group.children.map((w) => w.forceLoad()));
             await workspace.refreshReference();
-    
+
             const wait = new Promise((r) => setTimeout(r, 3000));
             await wait;
-    
+
             await Promise.all(group.children.map(async (w, i) => {
                 const glueWin = w.getGdWindow();
                 const winContext = await glueWin.getContext();
-    
+
                 if (winContext.first) {
                     expect(winContext).to.eql(firstContext);
                 } else if (winContext.second) {

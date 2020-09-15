@@ -38,7 +38,7 @@ describe("addColumn() Should", () => {
 
     let workspace = undefined;
     before(() => {
-        return Promise.all([glueReady, gtfReady]);
+        return coreReady;
     });
 
     beforeEach(async () => {
@@ -240,11 +240,11 @@ describe("addColumn() Should", () => {
             const firstContext = {
                 first: true
             };
-    
+
             const secondContext = {
                 second: true
             };
-    
+
             const column = await row.addColumn({
                 children: [
                     {
@@ -259,17 +259,17 @@ describe("addColumn() Should", () => {
                     }
                 ]
             });
-    
+
             await Promise.all(column.children.map((w) => w.forceLoad()));
             await workspace.refreshReference();
-    
+
             const wait = new Promise((r) => setTimeout(r, 3000));
             await wait;
-    
+
             await Promise.all(column.children.map(async (w, i) => {
                 const glueWin = w.getGdWindow();
                 const winContext = await glueWin.getContext();
-    
+
                 if (winContext.first) {
                     expect(winContext).to.eql(firstContext);
                 } else if (winContext.second) {

@@ -14,7 +14,7 @@ describe("maximize() Should", () => {
     };
 
     before(() => {
-        return Promise.all([glueReady, gtfReady]);
+        return coreReady;
     });
 
     let workspace;

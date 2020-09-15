@@ -15,13 +15,13 @@ describe('saveLayout() Should ', function () {
     let workspace = undefined;
 
     before(() => {
-        return Promise.all([glueReady, gtfReady]);
+        return coreReady;
     });
 
     beforeEach(async () => {
         workspace = await glue.workspaces.createWorkspace(basicConfig);
     });
-    
+
     afterEach(async () => {
         const summaries = await glue.workspaces.layouts.getSummaries();
 

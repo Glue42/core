@@ -1,6 +1,6 @@
 describe('leave()', () => {
     before(() => {
-        return Promise.all([glueReady, gtfReady]);
+        return coreReady;
     });
 
     it('Should leave the current channel.', async () => {

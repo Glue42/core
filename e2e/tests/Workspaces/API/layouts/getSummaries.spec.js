@@ -13,7 +13,7 @@ describe('getSummaries() Should ', function () {
         ]
     }
     before(() => {
-        return Promise.all([glueReady, gtfReady]);
+        return coreReady;
     });
 
     let layoutsForCleanup = [];

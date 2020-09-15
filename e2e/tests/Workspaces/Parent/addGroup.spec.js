@@ -38,7 +38,7 @@ describe("addGroup() Should", () => {
 
     let workspace = undefined;
     before(() => {
-        return Promise.all([glueReady, gtfReady]);
+        return coreReady;
     });
 
     beforeEach(async () => {
@@ -195,7 +195,7 @@ describe("addGroup() Should", () => {
         const secondContext = {
             second: true
         };
-        
+
         const group = await column.addGroup({
             children: [
                 {

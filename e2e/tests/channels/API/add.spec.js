@@ -1,6 +1,6 @@
 describe('add()', () => {
     before(() => {
-        return Promise.all([glueReady, gtfReady]);
+        return coreReady;
     });
 
     it('Should reject with an error when info isn\'t of type object.', async () => {

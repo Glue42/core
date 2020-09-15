@@ -15,7 +15,7 @@ describe('addRow() Should ', function () {
     let workspace = undefined;
 
     before(() => {
-        return Promise.all([glueReady, gtfReady]);
+        return coreReady;
     });
 
     beforeEach(async () => {
@@ -50,7 +50,7 @@ describe('addRow() Should ', function () {
         const secondContext = {
             second: true
         };
-        
+
         const row = await workspace.addRow({
             children: [
                 {
@@ -127,11 +127,11 @@ describe('addRow() Should ', function () {
             const firstContext = {
                 first: true
             };
-    
+
             const secondContext = {
                 second: true
             };
-            
+
             const row = await workspace.addRow({
                 children: [
                     {
@@ -146,17 +146,17 @@ describe('addRow() Should ', function () {
                     }
                 ]
             });
-    
+
             await Promise.all(row.children.map((w) => w.forceLoad()));
             await workspace.refreshReference();
-    
+
             const wait = new Promise((r) => setTimeout(r, 3000));
             await wait;
-    
+
             await Promise.all(row.children.map(async (w, i) => {
                 const glueWin = w.getGdWindow();
                 const winContext = await glueWin.getContext();
-    
+
                 if (winContext.first) {
                     expect(winContext).to.eql(firstContext);
                 } else if (winContext.second) {

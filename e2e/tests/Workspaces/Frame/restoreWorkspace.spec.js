@@ -19,7 +19,7 @@ describe('restoreWorkspace() Should', function () {
     const layoutName = "layout.integration.tests";
 
     before(() => {
-        return Promise.all([glueReady, gtfReady]);
+        return coreReady;
     });
 
     beforeEach(async () => {

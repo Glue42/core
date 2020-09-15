@@ -21,7 +21,7 @@ describe("getFrame() Should", () => {
     let workspaceThree = undefined;
 
     before(async () => {
-        await Promise.all([glueReady, gtfReady]);
+        await coreReady;
         workspaceOne = await glue.workspaces.createWorkspace(basicConfig);
         workspaceTwo = await glue.workspaces.createWorkspace(basicConfig);
         workspaceThree = await glue.workspaces.createWorkspace(basicConfig);

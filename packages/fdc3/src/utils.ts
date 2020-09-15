@@ -1,5 +1,4 @@
 import { Glue42 } from "@glue42/desktop";
-import { Glue42Web } from "@glue42/web";
 import { WindowType } from "./windowtype";
 
 /**
@@ -7,26 +6,21 @@ import { WindowType } from "./windowtype";
  * 1. Skip updates from myself
  * 2. Ignore initial replay
  */
-export const decorateContextApi = (glue: Glue42.Glue | Glue42Web.API): Glue42.Glue | Glue42Web.API => {
-    const newGlue = { ...glue, contexts: { ...glue.contexts } };
+export const newSubscribe = (id: string, callback: (data: any, delta: any, removed: string[], unsubscribe: () => void, extraData?: any) => void) => {
+    let didReplay = false;
 
-    newGlue.contexts.subscribe = (name: string, callback: (data: any, delta: any, removed: string[], unsubscribe: () => void, extraData?: any) => void): Promise<() => void> => {
-        let didReplay = false;
-        return newGlue.contexts.subscribe(name, (data: any, delta: any, removed: string[], unsubscribe: () => void, extraData?: any) => {
-            if (!didReplay) {
-                didReplay = true;
-                return;
-            }
+    return (window as WindowType).glue.contexts.subscribe(id, (data: any, delta: any, removed: string[], unsubscribe: () => void, extraData?: any) => {
+        if (!didReplay) {
+            didReplay = true;
+            return;
+        }
 
-            const updateFromMe = extraData.updaterId === glue.interop.instance.instance;
+        const updateFromMe = extraData.updaterId === (window as WindowType).glue.interop.instance.instance;
 
-            if (!updateFromMe) {
-                callback(data, delta, removed, unsubscribe, extraData);
-            }
-        });
-    };
-
-    return newGlue as Glue42.Glue | Glue42Web.API;
+        if (!updateFromMe) {
+            callback(data, delta, removed, unsubscribe, extraData);
+        }
+    });
 };
 
 /**

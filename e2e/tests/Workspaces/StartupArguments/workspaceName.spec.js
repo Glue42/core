@@ -34,7 +34,7 @@ describe("Argument workspaceName Should", () => {
     }
 
     before(async () => {
-        await Promise.all([glueReady, gtfReady]);
+        await coreReady;
         const workspace = await glue.workspaces.createWorkspace(basicConfig);
         await workspace.saveLayout(sampleLayoutName);
 

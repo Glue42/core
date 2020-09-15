@@ -38,7 +38,7 @@ describe("addRow() Should", () => {
 
     let workspace = undefined;
     before(() => {
-        return Promise.all([glueReady, gtfReady]);
+        return coreReady;
     });
 
     beforeEach(async () => {
@@ -119,7 +119,7 @@ describe("addRow() Should", () => {
         const secondContext = {
             second: true
         };
-        
+
         const row = await column.addRow({
             children: [
                 {

@@ -39,7 +39,7 @@ describe("getAllRows() Should", () => {
     let workspace = undefined;
     //TODO add predicate tests
     before(async () => {
-        await Promise.all([glueReady, gtfReady]);
+        await coreReady;
         workspace = await glue.workspaces.createWorkspace(basicConfig);
     });
 
@@ -55,7 +55,7 @@ describe("getAllRows() Should", () => {
     });
 
     // Not focused workspae
-    it("return all rows when the workspace is not focused",async () => {
+    it("return all rows when the workspace is not focused", async () => {
         await glue.workspaces.createWorkspace(basicConfig);
         const rows = workspace.getAllRows();
 

@@ -18,7 +18,7 @@ describe("eject() Should", () => {
     let windowsForClosing = [];
 
     before(async () => {
-        await Promise.all([glueReady, gtfReady]);
+        await coreReady;
     });
 
     beforeEach(async () => {
@@ -120,7 +120,7 @@ describe("eject() Should", () => {
         };
         const ejectedWindow = await waitForWindowByName(window.appName);
         const wait = new Promise(r => setTimeout(r, 3000));
-        
+
         await wait;
 
         const contextAfterEject = await ejectedWindow.getContext();

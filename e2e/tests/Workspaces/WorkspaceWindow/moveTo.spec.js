@@ -84,7 +84,7 @@ describe("moveTo() Should", async () => {
     }
 
     before(async () => {
-        await Promise.all([glueReady, gtfReady]);
+        await coreReady;
     });
 
     afterEach(async () => {

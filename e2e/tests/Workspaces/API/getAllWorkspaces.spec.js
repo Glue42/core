@@ -13,7 +13,7 @@ describe('getAllWorkspaces() Should ', function () {
         ]
     }
     before(() => {
-        return Promise.all([glueReady, gtfReady]);
+        return coreReady;
     });
     // TODO add predicate tests
     beforeEach(async () => {

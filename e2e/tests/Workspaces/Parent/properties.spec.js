@@ -43,7 +43,7 @@ describe("properties: ", () => {
     };
     let workspace;
     before(async () => {
-        await Promise.all([glueReady, gtfReady]);
+        await coreReady;
         workspace = await glue.workspaces.createWorkspace(threeContainersConfig);
     });
 
@@ -175,7 +175,7 @@ describe("properties: ", () => {
         let workspace = undefined;
 
         before(async () => {
-            await Promise.all([glueReady, gtfReady]);
+            await coreReady;
             workspace = await glue.workspaces.createWorkspace(basicConfig);
         });
 
@@ -330,7 +330,7 @@ describe("properties: ", () => {
 
         let workspace = undefined;
         before(async () => {
-            await Promise.all([glueReady, gtfReady]);
+            await coreReady;
             await glue.workspaces.createWorkspace(config);
             workspace = await glue.workspaces.createWorkspace(config);
             await glue.workspaces.createWorkspace(config);
@@ -424,7 +424,7 @@ describe("properties: ", () => {
         let workspace = undefined;
 
         before(async () => {
-            await Promise.all([glueReady, gtfReady]);
+            await coreReady;
             workspace = await glue.workspaces.createWorkspace(basicConfig);
         });
 
@@ -484,7 +484,7 @@ describe("properties: ", () => {
         });
     });
 
-    describe("workspace: Should",()=>{
+    describe("workspace: Should", () => {
         const config = {
             children: [
                 {
@@ -524,38 +524,38 @@ describe("properties: ", () => {
                 newFrame: true
             }
         };
-    
+
         let workspace = undefined;
         before(async () => {
-            await Promise.all([glueReady, gtfReady]);
+            await coreReady;
             await glue.workspaces.createWorkspace(config);
             workspace = await glue.workspaces.createWorkspace(config);
             await glue.workspaces.createWorkspace(config);
         });
-    
+
         after(async () => {
             const frames = await glue.workspaces.getAllFrames();
             await Promise.all(frames.map((f) => f.close()));
         });
-    
+
         it("return the correct workspace when the parent is a row", () => {
             const row = workspace.getAllBoxes().find(p => p.type === "row");
             const resultWorkspace = row.workspace;
-    
+
             expect(resultWorkspace.id).to.eql(workspace.id);
         });
-    
+
         it("return the correct workspace when the parent is a column", () => {
             const column = workspace.getAllBoxes().find(p => p.type === "column");
             const resultWorkspace = column.workspace;
-    
+
             expect(resultWorkspace.id).to.eql(workspace.id);
         });
-    
+
         it("return the correct workspace when the parent is a group", () => {
             const group = workspace.getAllBoxes().find(p => p.type === "group");
             const resultWorkspace = group.workspace;
-    
+
             expect(resultWorkspace.id).to.eql(workspace.id);
         });
     });

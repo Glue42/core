@@ -17,7 +17,7 @@ describe("restore() Should", () => {
     let workspace = undefined;
     let window = undefined;
     before(async () => {
-        await Promise.all([glueReady, gtfReady]);
+        await coreReady;
     });
 
     beforeEach(async () => {

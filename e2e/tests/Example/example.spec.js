@@ -1,7 +1,7 @@
 describe('it should work', () => {
 
     before(() => {
-        return Promise.all([glueReady, gtfReady]);
+        return coreReady;
     });
 
     it('should have Glue42 Web version', async () => {

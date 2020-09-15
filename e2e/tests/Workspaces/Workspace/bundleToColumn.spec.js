@@ -16,7 +16,7 @@ describe('bundleToColumn() Should ', function () {
     let workspace = undefined;
 
     before(() => {
-        return Promise.all([glueReady, gtfReady]);
+        return coreReady;
     });
 
     beforeEach(async () => {

@@ -43,7 +43,7 @@ describe("properties: ", () => {
     let workspace;
 
     before(async () => {
-        await Promise.all([glueReady, gtfReady]);
+        await coreReady;
         workspace = await glue.workspaces.createWorkspace(threeContainersConfig);
     });
 
@@ -185,7 +185,7 @@ describe("properties: ", () => {
             expect(typeof window.focused).to.eql("boolean");
         });
     });
-    
+
     describe("appName: ", () => {
         it(`Should be correct`, () => {
             const window = workspace.getAllWindows()[0];

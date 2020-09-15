@@ -38,7 +38,7 @@ describe("addWindow() Should", () => {
 
     let workspace = undefined;
     before(() => {
-        return Promise.all([glueReady, gtfReady]);
+        return coreReady;
     });
 
     beforeEach(async () => {
@@ -135,16 +135,16 @@ describe("addWindow() Should", () => {
                     appName: "dummyApp",
                     context
                 });
-    
+
                 await window.forceLoad();
                 await workspace.refreshReference();
-    
+
                 const wait = new Promise(r => setTimeout(r, 3000));
                 await wait;
-    
+
                 const glueWindow = window.getGdWindow();
                 const windowContext = await glueWindow.getContext();
-    
+
                 expect(windowContext).to.eql(context);
             });
         });

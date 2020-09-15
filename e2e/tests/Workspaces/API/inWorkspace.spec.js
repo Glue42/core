@@ -14,7 +14,7 @@ describe('inWorkspace() Should ', function () {
     }
 
     before(() => {
-        return Promise.all([glueReady, gtfReady]);
+        return coreReady;
     });
 
     beforeEach(async () => {

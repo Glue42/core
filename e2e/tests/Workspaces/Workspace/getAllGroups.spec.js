@@ -43,7 +43,7 @@ describe("getAllGroups() Should", () => {
     let workspace = undefined;
     //TODO add predicate tests
     before(async () => {
-        await Promise.all([glueReady, gtfReady]);
+        await coreReady;
         workspace = await glue.workspaces.createWorkspace(basicConfig);
     });
 
@@ -59,7 +59,7 @@ describe("getAllGroups() Should", () => {
     });
 
     // Not focused workspace
-    it("return all groups when the workspace is not focused", async() => {
+    it("return all groups when the workspace is not focused", async () => {
         await glue.workspaces.createWorkspace(basicConfig);
         const groups = workspace.getAllGroups();
 

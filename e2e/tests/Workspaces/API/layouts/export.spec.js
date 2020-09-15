@@ -16,7 +16,7 @@ describe('export() Should ', function () {
     let layoutsForCleanup = [];
 
     before(() => {
-        return Promise.all([glueReady, gtfReady]);
+        return coreReady;
     });
 
     afterEach(async () => {
@@ -44,7 +44,7 @@ describe('export() Should ', function () {
             await Promise.all(savePromises);
 
             const layouts = await glue.workspaces.layouts.export();
-            const exportedLayouts =layouts.filter(s => s.name.startsWith("layout")); 
+            const exportedLayouts = layouts.filter(s => s.name.startsWith("layout"));
 
             expect(exportedLayouts.length).to.eql(i + 1);
         });

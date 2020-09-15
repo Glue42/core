@@ -1,6 +1,6 @@
 describe('onChanged()', () => {
     before(() => {
-        return Promise.all([glueReady, gtfReady]);
+        return coreReady;
     });
 
     it('Should throw an error when callback isn\'t of type function.', () => {

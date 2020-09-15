@@ -1,6 +1,6 @@
 describe('all()', () => {
     before(() => {
-        return Promise.all([glueReady, gtfReady]);
+        return coreReady;
     });
 
     it('Should return an array with the correct channel names.', async () => {

@@ -1,6 +1,7 @@
 import { FDC3 } from "../../types";
 import { Glue42 } from "@glue42/desktop";
 import { WindowType } from "../windowtype";
+import { newSubscribe } from "../utils";
 
 export class SystemChannel implements FDC3.Channel {
     id: string;
@@ -36,14 +37,7 @@ export class SystemChannel implements FDC3.Channel {
         const contextType = arguments.length === 2 && contextTypeInput;
         const handler = arguments.length === 2 ? handlerInput : contextTypeInput;
 
-        let isReplay = true;
-
-        const subIgnoringReplay = (data: any): void => {
-            if (isReplay) {
-                isReplay = false;
-                return;
-            }
-
+        const subHandler = (data: any): void => {
             if (contextType) {
                 if (data?.type === contextType) {
                     handler(data);
@@ -53,7 +47,7 @@ export class SystemChannel implements FDC3.Channel {
             }
         };
 
-        const unsubPromise = (window as WindowType).glue.channels.subscribeFor(this.id, subIgnoringReplay);
+        const unsubPromise = (window as WindowType).glue.channels.subscribeFor(this.id, subHandler);
 
         return {
             unsubscribe(): void {
@@ -101,7 +95,7 @@ export class AppChannel implements FDC3.Channel {
         const contextType = arguments.length === 2 && contextTypeInput;
         const handler = arguments.length === 2 ? handlerInput : contextTypeInput;
 
-        const callback = (data: any): void => {
+        const subHandler = (data: any): void => {
             if (contextType) {
                 if (data?.type === contextType) {
                     handler(data);
@@ -111,7 +105,7 @@ export class AppChannel implements FDC3.Channel {
             }
         };
 
-        const unsubPromise = (window as WindowType).glue.contexts.subscribe(this.id, callback);
+        const unsubPromise = newSubscribe(this.id, subHandler);
 
         return {
             unsubscribe: (): void => {

@@ -30,7 +30,7 @@ describe('import() Should ', function () {
         ]
     }
     before(async () => {
-        await Promise.all([glueReady, gtfReady]);
+        await coreReady;
         const workspace = await glue.workspaces.createWorkspace(basicConfig);
         await workspace.saveLayout("layout.random.1");
         basicImport = (await glue.workspaces.layouts.export()).find(l => l.name === "layout.random.1");

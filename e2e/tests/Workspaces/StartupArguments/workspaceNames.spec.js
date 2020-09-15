@@ -53,7 +53,7 @@ describe("Argument workspaceNames Should", () => {
     }
 
     before(async () => {
-        await Promise.all([glueReady, gtfReady]);
+        await coreReady;
         const workspaceOne = await glue.workspaces.createWorkspace(basicConfigOne);
         const workspaceTwo = await glue.workspaces.createWorkspace(basicConfigTwo);
 

@@ -42,7 +42,7 @@ describe("getWindow() Should", () => {
     let workspace = undefined;
 
     before(async () => {
-        await Promise.all([glueReady, gtfReady]);
+        await coreReady;
 
         workspace = await glue.workspaces.createWorkspace(basicConfig);
     });

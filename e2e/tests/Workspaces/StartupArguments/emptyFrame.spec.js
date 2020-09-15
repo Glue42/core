@@ -3,7 +3,7 @@ describe("Argument emptyFrame Should", () => {
     let windowsForClosing = [];
 
     before(() => {
-        return Promise.all([glueReady, gtfReady]);
+        return coreReady;
     });
 
     beforeEach(() => {

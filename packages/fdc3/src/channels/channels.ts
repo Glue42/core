@@ -2,7 +2,7 @@ import { FDC3 } from "../../types";
 import { Glue42 } from "@glue42/desktop";
 import { SystemChannel, AppChannel } from "./channel";
 import { WindowType } from "../windowtype";
-import { getChannelsList, isGlue42Core } from "../utils";
+import { getChannelsList, isGlue42Core, newSubscribe, isEmptyObject } from "../utils";
 
 const Listener = (actualUnsub:
     (() => void)
@@ -129,9 +129,20 @@ const createChannelsApi = (): FDC3.ChannelsAPI => {
         return mapToFDC3AppChannel(channelId);
     };
 
-    const tryLeaveSystem = (): void => {
+    const getOrCreateChannel = async (channelId: FDC3.ChannelId): Promise<FDC3.Channel> => {
+        const systemChannels = await getSystemChannels();
+        const channel = systemChannels.find((systemChannel) => systemChannel.id === channelId);
+
+        if (typeof channel === "undefined") {
+            return getOrCreateAppChannel(channelId);
+        } else {
+            return channel;
+        }
+    };
+
+    const tryLeaveSystem = async (): Promise<void> => {
         if (isSystem(currentChannel)) {
-            (currentChannel as SystemChannel).leave();
+            await (currentChannel as SystemChannel).leave();
         }
     };
 
@@ -163,7 +174,7 @@ const createChannelsApi = (): FDC3.ChannelsAPI => {
         if (isSystem(channel)) {
             (channel as SystemChannel).join();
         } else {
-            tryLeaveSystem();
+            await tryLeaveSystem();
         }
 
         setCurrentChannel(channel);
@@ -178,9 +189,9 @@ const createChannelsApi = (): FDC3.ChannelsAPI => {
     const leaveCurrentChannel = async (): Promise<void> => {
         await initDone;
 
-        tryLeaveSystem();
+        await tryLeaveSystem();
 
-        setCurrentChannel(null);
+        currentChannel = null;
     };
 
     const broadcast = async (context: FDC3.Context): Promise<void> => {
@@ -198,8 +209,6 @@ const createChannelsApi = (): FDC3.ChannelsAPI => {
             : (window as WindowType).glue.contexts.update(id, context);
     };
 
-    let isFirstSubscribe = true;
-
     function addContextListener(handler: (context: FDC3.Context) => void): FDC3.Listener;
     function addContextListener(contextType: string, handler: (context: FDC3.Context) => void): FDC3.Listener;
     function addContextListener(contextTypeInput: any, handlerInput?: any): FDC3.Listener {
@@ -211,14 +220,22 @@ const createChannelsApi = (): FDC3.ChannelsAPI => {
             console.warn("You will start receiving broadcasts only after you join a channel !");
             const listener = createPendingListener(contextType, handler);
 
+            // Handle context passed to `fdc3.open()`.
+            (window as WindowType).gluePromise.then(() => {
+                const startupContext = (window as WindowType).glue.appManager.myInstance.context;
+                if (!isEmptyObject(startupContext)) {
+                    handler(startupContext);
+                }
+            });
+
             return listener;
         }
 
         const { id, type } = currentChannel;
 
-        const subscribe = (subHandler: ((data: any, context: Glue42.ChannelContext, updaterId: string) => void) | ((data: any, delta: any, removed: string[], unsubscribe: () => void, extraData?: any) => void)): (() => void) | Promise<() => void> => type === "system"
-            ? (window as WindowType).glue.channels.subscribe(subHandler as (data: any, context: Glue42.ChannelContext, updaterId: string) => void)
-            : (window as WindowType).glue.contexts.subscribe(id, subHandler as (data: any, delta: any, removed: string[], unsubscribe: () => void, extraData?: any) => void);
+        const subscribe = (subHandler: (data: any) => void): (() => void) | Promise<() => void> => type === "system"
+            ? (window as WindowType).glue.channels.subscribe(subHandler)
+            : newSubscribe(id, subHandler);
 
         const onNewData = (data: any): void => {
             if (contextType) {
@@ -230,32 +247,12 @@ const createChannelsApi = (): FDC3.ChannelsAPI => {
             handler(data);
         };
 
-        if (isFirstSubscribe) {
-            isFirstSubscribe = false;
+        const unsubFunc = subscribe(onNewData);
 
-            const sendInitialContextFirst = async (): Promise<void> => {
-                const initialContext = await (window as WindowType).glue.windows.my().getContext();
-
-                if (initialContext && Object.keys(initialContext).length !== 0) {
-                    handler(initialContext);
-                }
-            };
-
-            const sendInitialPromise = (window as WindowType).gluePromise.then(sendInitialContextFirst);
-
-            const unsubFunc = subscribe((data: any) => {
-                sendInitialPromise.then(() => onNewData(data));
-            });
-
-            return Listener(unsubFunc);
-        }
-
-        const unsub = subscribe(onNewData);
-
-        return Listener(unsub);
+        return Listener(unsubFunc);
     }
 
-    const setCurrentChannel = (newChannel: FDC3.Channel | null): void => {
+    const setCurrentChannel = (newChannel: FDC3.Channel): void => {
         currentChannel = newChannel;
 
         if (pendingSubscription) {
@@ -271,7 +268,7 @@ const createChannelsApi = (): FDC3.ChannelsAPI => {
 
     return {
         getSystemChannels,
-        getOrCreateChannel: getOrCreateAppChannel,
+        getOrCreateChannel,
         joinChannel,
         getCurrentChannel,
         leaveCurrentChannel,

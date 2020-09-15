@@ -39,7 +39,7 @@ describe("getAllBoxes() Should", () => {
     let workspace = undefined;
     //TODO add predicate tests
     before(async () => {
-        await Promise.all([glueReady, gtfReady]);
+        await coreReady;
         workspace = await glue.workspaces.createWorkspace(basicConfig);
     });
 

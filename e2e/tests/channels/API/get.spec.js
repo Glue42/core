@@ -1,6 +1,6 @@
 describe('get()', () => {
     before(() => {
-        return Promise.all([glueReady, gtfReady]);
+        return coreReady;
     });
 
     afterEach(async () => {

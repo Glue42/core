@@ -18,7 +18,7 @@ describe("maximize() Should", () => {
     let window = undefined;
 
     before(() => {
-        return Promise.all([glueReady, gtfReady]);
+        return coreReady;
     });
 
     beforeEach(async () => {
