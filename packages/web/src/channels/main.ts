@@ -48,15 +48,17 @@ export class Channels implements Glue42Web.Channels.API {
                 throw new Error("Please provide the name as a string!");
             }
 
-            const context = await this.get(name);
+            if (!this.shared.isChannel(name)) {
+                throw new Error(`A channel with name: ${name} doesn't exist!`);
+            }
 
-            return this.shared.update(context.name, { data });
+            return this.shared.updateData(name, data);
         }
 
         if (!this.currentContext) {
             throw new Error("Not joined to any channel!");
         }
-        return this.shared.update(this.currentContext, { data });
+        return this.shared.updateData(this.currentContext, data);
     }
 
     public all(): Promise<string[]> {
@@ -175,8 +177,7 @@ export class Channels implements Glue42Web.Channels.API {
             data: info.data || {}
         };
 
-        // Note that we use `update` instead of `add` so that if the channel already exists we don't overwrite it.
-        await this.shared.update(info.name, context);
+        await this.shared.updateChannel(info.name, context);
 
         return context;
     }

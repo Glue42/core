@@ -71,16 +71,45 @@ export class SharedContextSubscriber {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    public update(name: string, data: any): Promise<void> {
+    public updateChannel(name: string, data: { name: string, meta: any, data: any }): Promise<void> {
         const contextName = this.createContextName(name);
-        return this.contexts.update(contextName, data);
+        const newData: { name: string, meta: any, data?: any } = {
+            name: data.name,
+            meta: data.meta
+        };
+
+        if (data?.data && !this.isEmptyObject(data.data)) {
+            newData.data = data.data;
+        }
+
+        return this.contexts.update(contextName, newData);
+    }
+
+    public updateData(name: string, data: any) {
+        const contextName = this.createContextName(name);
+        if (this.contexts.setPathSupported) {
+            const pathValues: Glue42Web.Contexts.PathValue[] = Object.keys(data).map((key) => {
+                return {
+                    path: `data.${key}`,
+                    value: data[key]
+                };
+            });
+            return this.contexts.setPaths(contextName, pathValues);
+        } else {
+            // Pre @glue42/core 5.2.0. Note that we update the data property only.
+            return this.contexts.update(contextName, { data });
+        }
+    }
+
+    public isChannel(name: string): boolean {
+        return this.all().some((channelName) => channelName === name);
     }
 
     private createContextName(name: string): string {
-        return CONTEXT_PREFIX + name;
+        return `${CONTEXT_PREFIX}${name}`;
     }
 
-    private isChannel(name: string): boolean {
-        return this.all().some((channelName) => channelName === name);
+    private isEmptyObject(obj: object): boolean {
+        return Object.keys(obj).length === 0 && obj.constructor === Object;
     }
 }
