@@ -345,7 +345,7 @@ export namespace Glue42Web {
 
         export interface CreateOptions extends Settings {
             /** Required. The URL of the app to be loaded in the new window */
-            url: string;
+            url?: string;
         }
 
         export type RelativeDirection = "top" | "left" | "right" | "bottom";
@@ -390,7 +390,7 @@ export namespace Glue42Web {
          * @docmenuorder 1
          */
         export interface API {
-            
+
             /**
              * Fetches a saved layout or returns undefined if a layout with the provided name and type does not exist.
              * @param type Type of the layout to fetch.
@@ -403,13 +403,13 @@ export namespace Glue42Web {
              * @param type Type of the layouts to fetch.
              */
             getAll?(type: LayoutType): Promise<LayoutSummary[]>;
-        
+
             /**
              * Returns all layouts from the provided type.
              * @param type Type of the layouts to export.
              */
             export(layoutType?: LayoutType): Promise<Layout[]>;
-        
+
             /**
              * Stores a full layout.
              * @param layout The layout object to be stored.

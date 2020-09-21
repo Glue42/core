@@ -41,10 +41,11 @@ export class ContextsModule implements Glue42Core.Contexts.API {
      * @param name Name of the context to be updated
      * @param data The object that will be applied to the context
      */
-    public update(name: ContextName, delta: any): Promise<void> {
+    public update(name: ContextName, data: any): Promise<void> {
         this.checkName(name);
+        this.checkData(data);
 
-        return this._bridge.update(name, delta);
+        return this._bridge.update(name, data);
     }
 
     /**
@@ -55,14 +56,20 @@ export class ContextsModule implements Glue42Core.Contexts.API {
      */
     public set(name: ContextName, data: any): Promise<void> {
         this.checkName(name);
+        this.checkData(data);
 
         return this._bridge.set(name, data);
     }
 
     public setPath(name: ContextName, path: string, data: any): Promise<void> {
         this.checkName(name);
+        this.checkPath(path);
+        const isTopLevelPath = path === "";
 
-        if (!path || path === "") {
+        if (isTopLevelPath) {
+            // Check the data only in the case of a top level path as the inner props can be of type any.
+            this.checkData(data);
+
             return this.set(name, data);
         }
 
@@ -71,6 +78,20 @@ export class ContextsModule implements Glue42Core.Contexts.API {
 
     public setPaths(name: ContextName, paths: Glue42Core.Contexts.PathValue[]): Promise<void> {
         this.checkName(name);
+
+        if (!Array.isArray(paths)) {
+            throw new Error("Please provide the paths as an array of PathValues!");
+        }
+
+        for (const { path, value } of paths) {
+            this.checkPath(path);
+            const isTopLevelPath = path === "";
+
+            if (isTopLevelPath) {
+                // Check the value only in the case of a top level path as the inner props can be of type any.
+                this.checkData(value);
+            }
+        }
 
         return this._bridge.setPaths(name, paths);
     }
@@ -92,8 +113,10 @@ export class ContextsModule implements Glue42Core.Contexts.API {
     public subscribe(
         name: ContextName,
         callback: (data: any, delta: any, removed: string[], unsubscribe: () => void, extraData?: any) => void): Promise<() => void> {
-
         this.checkName(name);
+        if (typeof callback !== "function") {
+            throw new Error("Please provide the callback as a function!");
+        }
 
         return this._bridge
             .subscribe(name, (data: any, delta: any, removed: string[], key: ContextSubscriptionKey, extraData?: any) => callback(data, delta, removed, () => this._bridge.unsubscribe(key), extraData))
@@ -108,6 +131,7 @@ export class ContextsModule implements Glue42Core.Contexts.API {
      * Return a context's data
      */
     public get(name: ContextName): Promise<any> {
+        this.checkName(name);
 
         return this._bridge.get(name);
     }
@@ -117,6 +141,8 @@ export class ContextsModule implements Glue42Core.Contexts.API {
     }
 
     public destroy(name: string): Promise<any> {
+        this.checkName(name);
+
         return this._bridge.destroy(name);
     }
 
@@ -125,9 +151,22 @@ export class ContextsModule implements Glue42Core.Contexts.API {
     }
 
     private checkName(name: ContextName) {
-        if (typeof name !== "string" ||
-            name === "") {
-            throw new Error("'name' must be non-empty string, got '" + name + "'");
+        if (typeof name !== "string" || name === "") {
+            throw new Error("Please provide the name as a non-empty string!");
+        }
+    }
+
+    private checkPath(path: string) {
+        if (typeof path !== "string") {
+            throw new Error("Please provide the path as a dot delimited string!");
+        }
+    }
+
+    // TODO: Update the typings everywhere to disallow strings, numbers, etc.
+    private checkData(data: any) {
+        // Allows null.
+        if (typeof data !== "object") {
+            throw new Error("Please provide the data as an object!");
         }
     }
 }

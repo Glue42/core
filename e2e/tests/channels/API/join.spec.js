@@ -60,4 +60,23 @@ describe('join()', () => {
         expect(currentChannel).to.not.equal(firstChannelName);
         expect(currentChannel).to.equal(secondChannelName);
     });
+
+    it('Should set the current channel before calling any subscribe callbacks.', async () => {
+        const [channelName] = await gtf.getChannelNames();
+
+        const subscribeCurrentChannelPromise = new Promise((resolve) => {
+            const unsunbscribe = glue.channels.subscribe(() => {
+                unsunbscribe();
+
+                // The current channel.
+                resolve(glue.channels.current());
+            });
+        });
+
+        // Join the channel.
+        await glue.channels.join(channelName);
+
+        const currentChannel = await subscribeCurrentChannelPromise;
+        expect(currentChannel).to.equal(channelName);
+    });
 });

@@ -116,8 +116,8 @@ export class Channels implements Glue42Web.Channels.API {
             await channelExistsPromise;
         }
 
-        await this.shared.switchChannel(name);
         this.currentContext = name;
+        await this.shared.switchChannel(name);
         this.registry.execute(this.changedKey, name);
     }
 

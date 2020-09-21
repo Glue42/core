@@ -111,7 +111,7 @@ ReactDOM.render(
 
 - #### useGlueInit()
 
-You can also initialize the [**Glue42 Web**](../../../../reference/core/latest/glue42%20web/index.html) library with the `useGlueInit()` hook. Below is an example of conditional rendering of a component based on whether the Glue42 Web API is available or not. 
+You can also initialize the [**Glue42 Web**](../../../../reference/core/latest/glue42%20web/index.html) library with the `useGlueInit()` hook. Below is an example of conditional rendering of a component based on whether the Glue42 Web API is available or not.
 
 ```javascript
 import GlueWeb from "@glue42/web";
@@ -137,7 +137,7 @@ Remember that when you initialize the Glue42 Web library with the `useGlueInit()
 
 ### Consuming Glue42 Web APIs
 
-After the [**Glue42 Web**](../../../../reference/core/latest/glue42%20web/index.html) library has been successfully initialized, you can access the Glue42 Web APIs with the built-in React hook `useContext()` and passing `GlueContext` as its argument, or with the `useGlue()` hook. 
+After the [**Glue42 Web**](../../../../reference/core/latest/glue42%20web/index.html) library has been successfully initialized, you can access the Glue42 Web APIs with the built-in React hook `useContext()` and passing `GlueContext` as its argument, or with the `useGlue()` hook.
 
 **Note** that this library is just a thin wrapper designed to work with both `@glue42/web` and `@glue42/desktop`. For that reason, if you are using react with typescript you should type cast the initialized glue object to the appropriate type, because the default type is `Glue42Web.API | Glue42.Glue`;
 
@@ -151,7 +151,7 @@ import { GlueContext } from "@glue42/react-hooks";
 
 const App = () => {
     const [context, setContext] = useState({});
-    // Access the Glue42 Web APIs by using the `glue` object 
+    // Access the Glue42 Web APIs by using the `glue` object
     // assigned as a value to `GlueContext` by the `GlueProvider` component.
     const glue = useContext(GlueContext);
 
@@ -203,7 +203,7 @@ const App = () => {
 export default App;
 ```
 
-This is an example of using the [Interop](../../../../reference/core/latest/interop/index.html) API to get the window title through an already registered Interop method:  
+This is an example of using the [Interop](../../../../reference/core/latest/interop/index.html) API to get the window title through an already registered Interop method:
 
 ```javascript
 import { useGlue } from "@glue42/react-hooks";
@@ -233,13 +233,13 @@ export default App;
 
 ### Testing
 
-You can use your own factory function for initializing the [**Glue42 Web**](../../../../reference/core/latest/glue42%20web/index.html) library. This is useful in Jest/Enzyme tests when you want to mock the Glue42 library: 
+You can use your own factory function for initializing the [**Glue42 Web**](../../../../reference/core/latest/glue42%20web/index.html) library. This is useful in Jest/Enzyme tests when you want to mock the Glue42 library:
 
 ```javascript
 //index.js
 import "glue42/web";
 import { mount } from "enzyme";
-import { GlueProvider } from "glue42/react-hooks";
+import { GlueProvider } from "@glue42/react-hooks";
 
 // Define a factory function which will mock the Glue42 Web library.
 const glueFactory = () => {
