@@ -15,9 +15,7 @@ describe('export() Should ', function () {
 
     let layoutsForCleanup = [];
 
-    before(() => {
-        return coreReady;
-    });
+    before(() => coreReady);
 
     afterEach(async () => {
         const summaries = await glue.workspaces.layouts.getSummaries();

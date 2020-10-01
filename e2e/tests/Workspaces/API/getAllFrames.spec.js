@@ -17,9 +17,7 @@ describe('getAllFrames() Should ', function () {
     }
     // TODO check the close() case
     // TODO predicate tests
-    before(() => {
-        return coreReady;
-    });
+    before(() => coreReady);
 
     beforeEach(async () => {
         await glue.workspaces.createWorkspace(basicConfig);

@@ -294,9 +294,7 @@ describe("properties: ", () => {
         }
 
 
-        before(() => {
-            return coreReady;
-        });
+        before(() => coreReady);
 
         afterEach(async () => {
             const frames = await glue.workspaces.getAllFrames();
@@ -318,5 +316,76 @@ describe("properties: ", () => {
                 });
             });
         });
-    })
+    });
+
+    describe("layoutName: Should", () => {
+        let workspace = undefined;
+        let layoutName = "sample-layout-name";
+
+        const basicConfig = {
+            children: [
+                {
+                    type: "row",
+                    children: [
+                        {
+                            type: "column",
+                            children: [{
+                                type: "window",
+                                appName: "dummyApp"
+                            }]
+                        },
+                        {
+                            type: "column",
+                            children: [{
+                                type: "group",
+                                children: [{
+                                    type: "window",
+                                    appName: "dummyApp"
+                                }]
+                            }]
+                        },
+                        {
+                            type: "column",
+                            children: [{
+                                type: "row",
+                                children: [{
+                                    type: "window",
+                                    appName: "dummyApp"
+                                }]
+                            }]
+                        },
+                    ]
+                }
+            ]
+        }
+
+        before(async () => {
+            await coreReady;
+            workspace = await glue.workspaces.createWorkspace(basicConfig);
+        });
+
+        after(async () => {
+            const frames = await glue.workspaces.getAllFrames();
+            await Promise.all(frames.map((f) => f.close()));
+
+            const layouts = await glue.workspaces.layouts.getSummaries();
+
+            if (layouts.some(l => l.name === layoutName)) {
+                await glue.workspaces.layouts.delete(layoutName);
+            }
+        });
+
+        it("be equal to the layout name from which the workspace was restored when the workspace is restored", async () => {
+            await workspace.saveLayout(layoutName);
+            await workspace.close();
+
+            const restoredWorkspace = await glue.workspaces.restoreWorkspace(layoutName);
+
+            expect(restoredWorkspace.layoutName).to.eql(layoutName);
+        });
+
+        it("be undefined when the workspace is created", async () => {
+            expect(workspace.layoutName).to.eql(undefined);
+        });
+    });
 });

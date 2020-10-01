@@ -129,8 +129,7 @@ class GlueFacade {
                     successCallback(undefined);
                     break;
                 case "ejectWindow":
-                    await this.handleEject(args.operationArguments);
-                    successCallback(undefined);
+                    successCallback(await this.handleEject(args.operationArguments));
                     break;
                 case "createWorkspace":
                     successCallback(await this.handleCreateWorkspace(args.operationArguments));
@@ -198,7 +197,10 @@ class GlueFacade {
     }
 
     private async handleSaveLayout(operationArguments: SaveLayoutArguments): Promise<WorkspaceLayout> {
-        return await manager.saveWorkspace(operationArguments.name, operationArguments.workspaceId);
+        return await manager.saveWorkspace(
+            operationArguments.name,
+            operationArguments.workspaceId,
+            operationArguments.saveContext);
     }
 
     private handleDeleteLayout(operationArguments: LayoutSelector): void {
@@ -314,7 +316,7 @@ class GlueFacade {
 
     private async handleEject(operationArguments: ItemSelector) {
         const item = store.getWindowContentItem(operationArguments.itemId);
-        await manager.eject(item);
+        return await manager.eject(item);
     }
 
     private async handleCreateWorkspace(operationArguments: CreateWorkspaceArguments) {

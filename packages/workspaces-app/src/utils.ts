@@ -31,7 +31,6 @@ export const getElementBounds = (element: Element | Container | JQuery<Element>)
     };
 };
 
-
 export const createWaitFor = (signalsToWait: number, timeout?: number) => {
     let resolve: (result?: object) => void;
     let reject: (error?: Error) => void;
@@ -63,3 +62,5 @@ export const createWaitFor = (signalsToWait: number, timeout?: number) => {
         promise
     };
 };
+
+export const getWorkspaceContextName = (id: string) => `___workspace___${id}`;

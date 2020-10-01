@@ -12,9 +12,8 @@ describe('getAllWorkspaces() Should ', function () {
             }
         ]
     }
-    before(() => {
-        return coreReady;
-    });
+    before(() => coreReady);
+
     // TODO add predicate tests
     beforeEach(async () => {
         await glue.workspaces.createWorkspace(basicConfig);

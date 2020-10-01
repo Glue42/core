@@ -17,9 +17,7 @@ describe("setTitle() Should", () => {
     // BUG
     let workspace = undefined;
 
-    before(async () => {
-        await coreReady;
-    });
+    before(() => coreReady);
 
     beforeEach(async () => {
         workspace = await glue.workspaces.createWorkspace(basicConfig);

@@ -42,6 +42,9 @@ export namespace Glue42Workspaces {
 
             /** An object containing various element settings. */
             config: any;
+
+            /** An object containing the context of the workspace layout */
+            context: any;
         };
     }
 
@@ -242,6 +245,9 @@ export namespace Glue42Workspaces {
 
         /** The title of the workspace */
         title: string;
+
+        /** The name of the originating layout of the current workspace if any */
+        layoutName: string | undefined;
     }
 
     /** An object describing the basic details of a workspace window */
@@ -463,6 +469,29 @@ export namespace Glue42Workspaces {
         setTitle(title: string): Promise<void>;
 
         /**
+         * Gets the context for this workspace.
+         */
+        getContext(): Promise<any>;
+
+        /**
+         * Sets the context for this workspace. This operation will completely overwrite the existing context.
+         * @param data The new context value.
+         */
+        setContext(data: any): Promise<void>;
+
+        /**
+         * Updated the context for this workspace. This operation will merge the existing context with the provided value.
+         * @param data The context value to update.
+         */
+        updateContext(data: any): Promise<void>;
+
+        /**
+         * Notifies when the context for this workspace was updated.
+         * @param callback Callback function to handle the event.
+         */
+        onContextUpdated(callback: (data: any) => void): Promise<Unsubscribe>;
+
+        /**
          * Updates this workspace reference to reflect the current state of the workspace. 
          */
         refreshReference(): Promise<void>;
@@ -471,7 +500,7 @@ export namespace Glue42Workspaces {
          * Saves the current workspace structure as a layout. In Glue42 Core this will throw an error if the name matches the name of a read-only layout.
          * @param name A string representing the name (also ID) of the new workspace layout.
          */
-        saveLayout(name: string): Promise<void>;
+        saveLayout(name: string, config?: { saveContext?: boolean }): Promise<void>;
 
         /**
          * Returns the first box in this workspace, which satisfies the provided predicate.
@@ -908,6 +937,9 @@ export namespace Glue42Workspaces {
          * A string representing the id of the workspace whose structure should be saved into a layout.
          */
         workspaceId: string;
+
+        /** Toggles whether or not the current workspace context should be saved in the layout */
+        saveContext?: boolean;
     }
 
     /** An object describing the complete state of a frame at the time when the object was created */

@@ -1,8 +1,6 @@
 describe('createWorkspace() ', function () {
 
-    before(() => {
-        return coreReady;
-    });
+    before(() => coreReady);
 
     afterEach(async () => {
         const frames = await glue.workspaces.getAllFrames();

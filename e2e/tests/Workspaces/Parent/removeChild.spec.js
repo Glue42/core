@@ -1,7 +1,6 @@
 describe("removeChild() Should", () => {
-    before(() => {
-        return coreReady;
-    });
+    before(() => coreReady);
+
     afterEach(async () => {
         const frames = await glue.workspaces.getAllFrames();
         await Promise.all(frames.map((f) => f.close()));

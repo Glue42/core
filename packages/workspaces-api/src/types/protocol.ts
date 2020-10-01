@@ -23,6 +23,7 @@ export interface WorkspaceConfigResult {
     title: string;
     name: string;
     positionIndex: number;
+    layoutName: string | undefined;
 }
 
 export interface BaseChildSnapshotConfig {
@@ -38,7 +39,6 @@ export interface ParentSnapshotConfig extends BaseChildSnapshotConfig {
 export interface SwimlaneWindowSnapshotConfig extends BaseChildSnapshotConfig {
     windowId?: string;
     isMaximized: boolean;
-    isLoaded: boolean;
     isFocused: boolean;
     appName?: string;
     title?: string;

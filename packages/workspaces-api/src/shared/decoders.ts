@@ -174,7 +174,8 @@ export const workspaceSummaryDecoder: Decoder<Glue42Workspaces.WorkspaceSummary>
     frameId: nonEmptyStringDecoder,
     positionIndex: number(),
     title: nonEmptyStringDecoder,
-    focused: boolean()
+    focused: boolean(),
+    layoutName: optional(nonEmptyStringDecoder)
 });
 
 export const containerSummaryDecoder: Decoder<Glue42Workspaces.BoxSummary> = object({
@@ -211,7 +212,8 @@ export const workspaceConfigResultDecoder: Decoder<WorkspaceConfigResult> = obje
     frameId: nonEmptyStringDecoder,
     title: nonEmptyStringDecoder,
     positionIndex: nonNegativeNumberDecoder,
-    name: nonEmptyStringDecoder
+    name: nonEmptyStringDecoder,
+    layoutName: optional(nonEmptyStringDecoder)
 });
 
 export const baseChildSnapshotConfigDecoder: Decoder<BaseChildSnapshotConfig> = object({
@@ -227,7 +229,6 @@ export const swimlaneWindowSnapshotConfigDecoder: Decoder<SwimlaneWindowSnapshot
     object({
         windowId: optional(nonEmptyStringDecoder),
         isMaximized: boolean(),
-        isLoaded: boolean(),
         isFocused: boolean(),
         title: optional(string()),
         appName: optional(nonEmptyStringDecoder)
@@ -317,6 +318,7 @@ export const workspaceLayoutDecoder: Decoder<Glue42Workspaces.WorkspaceLayout> =
         type: constant("Workspace"),
         state: object({
             config: anyJson(),
+            context: anyJson(),
             children: array(oneOf<Glue42Workspaces.RowLayoutItem | Glue42Workspaces.ColumnLayoutItem | Glue42Workspaces.GroupLayoutItem | Glue42Workspaces.WindowLayoutItem>(
                 rowLayoutItemDecoder,
                 columnLayoutItemDecoder,
@@ -462,5 +464,6 @@ export const windowStreamDataDecoder: Decoder<WindowStreamData> = object({
 
 export const workspaceLayoutSaveConfigDecoder: Decoder<Glue42Workspaces.WorkspaceLayoutSaveConfig> = object({
     name: nonEmptyStringDecoder,
-    workspaceId: nonEmptyStringDecoder
+    workspaceId: nonEmptyStringDecoder,
+    saveContext: optional(boolean())
 });

@@ -46,6 +46,7 @@ export const workspaceComponentDecoder: Decoder<Glue42Workspaces.WorkspaceCompon
     type: constant("Workspace"),
     state: object({
         config: anyJson(),
+        context: anyJson(),
         children: array(oneOf<Glue42Workspaces.RowLayoutItem | Glue42Workspaces.ColumnLayoutItem | Glue42Workspaces.GroupLayoutItem | Glue42Workspaces.WindowLayoutItem>(
             rowLayoutItemDecoder,
             columnLayoutItemDecoder,

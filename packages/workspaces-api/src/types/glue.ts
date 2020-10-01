@@ -12,6 +12,7 @@ export type LayoutsAPI = {
 
 export type InvocationResult<T> = Glue42Core.Interop.InvocationResult<T>;
 export type InteropAPI = Glue42Core.Interop.API;
+export type ContextsAPI = Glue42Core.Contexts.API;
 export type GDWindow = {
     id: string;
     close(): Promise<GDWindow>;

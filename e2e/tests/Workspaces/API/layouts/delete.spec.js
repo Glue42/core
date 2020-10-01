@@ -13,9 +13,7 @@ describe('delete() Should ', function () {
         ]
     }
 
-    before(() => {
-        return coreReady;
-    });
+    before(() => coreReady);
 
     let layoutsForCleanup = [];
 

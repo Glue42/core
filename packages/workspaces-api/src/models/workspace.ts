@@ -47,6 +47,10 @@ export class Workspace implements Glue42Workspaces.Workspace {
         return getData(this).config.title;
     }
 
+    public get layoutName(): string | undefined {
+        return getData(this).config.layoutName;
+    }
+
     public get children(): Glue42Workspaces.WorkspaceElement[] {
         return getData(this).children;
     }
@@ -95,9 +99,9 @@ export class Workspace implements Glue42Workspaces.Workspace {
         return getData(this).controller.getSnapshot(this.id, "workspace");
     }
 
-    public async saveLayout(name: string): Promise<void> {
+    public async saveLayout(name: string, config?: { saveContext?: boolean }): Promise<void> {
         nonEmptyStringDecoder.runWithException(name);
-        await getData(this).controller.saveLayout({name, workspaceId: this.id});
+        await getData(this).controller.saveLayout({name, workspaceId: this.id, saveContext: config?.saveContext});
     }
 
     public async setTitle(title: string): Promise<void> {
@@ -106,6 +110,26 @@ export class Workspace implements Glue42Workspaces.Workspace {
 
         await controller.setItemTitle(this.id, title);
         await this.refreshReference();
+    }
+
+    public getContext(): Promise<any> {
+        const controller = getData(this).controller;
+        return controller.getWorkspaceContext(this.id);
+    }
+
+    public setContext(data: any): Promise<void> {
+        const controller = getData(this).controller;
+        return controller.setWorkspaceContext(this.id, data);
+    }
+
+    public updateContext(data: any): Promise<void> {
+        const controller = getData(this).controller;
+        return controller.updateWorkspaceContext(this.id, data);
+    }
+
+    public onContextUpdated(callback: (data: any) => void): Promise<Glue42Workspaces.Unsubscribe> {
+        const controller = getData(this).controller;
+        return controller.subscribeWorkspaceContextUpdated(this.id, callback);
     }
 
     public async refreshReference(): Promise<void> {

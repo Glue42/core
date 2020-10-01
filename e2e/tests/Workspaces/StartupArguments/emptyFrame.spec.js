@@ -2,9 +2,7 @@ describe("Argument emptyFrame Should", () => {
 
     let windowsForClosing = [];
 
-    before(() => {
-        return coreReady;
-    });
+    before(() => coreReady);
 
     beforeEach(() => {
         windowsForClosing = [];

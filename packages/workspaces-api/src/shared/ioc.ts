@@ -22,7 +22,7 @@ import { Glue42Workspaces } from "../../workspaces";
 import { CoreController } from "../controllers/core";
 import { WorkspacesController } from "../types/controller";
 import { CoreFrameUtils } from "../communication/core-frame-utils";
-import { InteropAPI, WindowsAPI, LayoutsAPI } from "../types/glue";
+import { InteropAPI, WindowsAPI, LayoutsAPI, ContextsAPI } from "../types/glue";
 import { BaseController } from "../controllers/base";
 
 export class IoC {
@@ -38,12 +38,13 @@ export class IoC {
         private readonly agm: InteropAPI,
         private readonly windows: WindowsAPI,
         private readonly layouts: LayoutsAPI,
+        private readonly contexts: ContextsAPI,
         private readonly assetsBaseLocation: string
     ) { }
 
     public get baseController(): BaseController {
         if (!this._baseController) {
-            this._baseController = new BaseController(this, this.windows);
+            this._baseController = new BaseController(this, this.windows, this.contexts);
         }
 
         return this._baseController;

@@ -14,9 +14,7 @@ describe('saveLayout() Should ', function () {
     }
     let workspace = undefined;
 
-    before(() => {
-        return coreReady;
-    });
+    before(() => coreReady);
 
     beforeEach(async () => {
         workspace = await glue.workspaces.createWorkspace(basicConfig);
@@ -54,6 +52,54 @@ describe('saveLayout() Should ', function () {
         const summariesContainLayout = summaries.some(s => s.name === layoutName);
 
         expect(summariesContainLayout).to.be.true;
+    });
+
+    it("set the layoutName property to the layout name when the workspace is saved", async () => {
+        const layoutName = gtf.getWindowName("layout.integration");
+
+        await workspace.saveLayout(layoutName);
+        await workspace.refreshReference();
+
+        expect(workspace.layoutName).to.eql(layoutName);
+    });
+
+    it("save the layout with a context when saveContext is true", async () => {
+        const savedContext = { test: "42" };
+        const layoutName = gtf.getWindowName("layout.integration");
+
+        await workspace.setContext(savedContext);
+        await workspace.saveLayout(layoutName, { saveContext: true });
+
+        const layouts = await glue.workspaces.layouts.export();
+        const layoutUnderTest = layouts.find(l => l.name === layoutName);
+
+        expect(layoutUnderTest.components[0].state.context).to.eql(savedContext);
+    });
+
+    it("save the layout without context when saveContext is false", async () => {
+        const savedContext = { test: "42" };
+        const layoutName = gtf.getWindowName("layout.integration");
+
+        await workspace.setContext(savedContext);
+        await workspace.saveLayout(layoutName, { saveContext: false });
+
+        const layouts = await glue.workspaces.layouts.export();
+        const layoutUnderTest = layouts.find(l => l.name === layoutName);
+
+        expect(layoutUnderTest.components[0].state.context).to.be.a("object").that.is.empty;
+    });
+
+    it("save the layout without context when the options object is undefined", async () => {
+        const savedContext = { test: "42" };
+        const layoutName = gtf.getWindowName("layout.integration");
+
+        await workspace.setContext(savedContext);
+        await workspace.saveLayout(layoutName);
+
+        const layouts = await glue.workspaces.layouts.export();
+        const layoutUnderTest = layouts.find(l => l.name === layoutName);
+
+        expect(layoutUnderTest.components[0].state.context).to.be.a("object").that.is.empty;
     });
 
     Array.from([[], {}, 42, undefined, null]).forEach((input) => {

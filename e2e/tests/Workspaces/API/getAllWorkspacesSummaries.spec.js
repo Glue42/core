@@ -13,9 +13,7 @@ describe('getAllWorkspacesSummaries() Should ', function () {
         ]
     }
 
-    before(() => {
-        return coreReady;
-    });
+    before(() => coreReady);
 
     beforeEach(async () => {
         await glue.workspaces.createWorkspace(basicConfig);

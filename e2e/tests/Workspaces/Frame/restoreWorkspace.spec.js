@@ -18,9 +18,7 @@ describe('restoreWorkspace() Should', function () {
     let frame;
     const layoutName = "layout.integration.tests";
 
-    before(() => {
-        return coreReady;
-    });
+    before(() => coreReady);
 
     beforeEach(async () => {
         workspace = await glue.workspaces.createWorkspace(basicConfig);
@@ -96,20 +94,36 @@ describe('restoreWorkspace() Should', function () {
         expect(frames.length).to.eql(1);
     });
 
-    it("pass the give context to all windows when a context is passed", async () => {
+    it("set the workspace context to the given context when a context is passed", async () => {
         const context = {
             my: "context"
         };
 
         const secondWorkspace = await frame.restoreWorkspace(layoutName, { context });
-        const windows = secondWorkspace.getAllWindows();
+        const workspaceContext = await secondWorkspace.getContext();
 
-        await Promise.all(windows.map(async w => {
-            await w.forceLoad();
-            const glueWin = w.getGdWindow();
-            const gwContext = await glueWin.getContext();
-            expect(gwContext).to.eql(context);
-        }));
+        expect(workspaceContext).to.eql(context);
+    });
+
+    it("merge the context in the layout and the passed context when the layout contains a context and a context has been passed", async () => {
+        const contextToBeSaved = {
+            the: "context"
+        };
+
+        const secondContext = {
+            test: "42"
+        }
+
+        const workspaceToBeSaved = await glue.workspaces.createWorkspace(basicConfig);
+
+        await workspaceToBeSaved.setContext(contextToBeSaved);
+        await workspaceToBeSaved.saveLayout(layoutName, { saveContext: true });
+        await workspaceToBeSaved.close();
+
+        const restoredWorkspace = await frame.restoreWorkspace(layoutName, { context: secondContext });
+        const restoredWorkspaceContext = await restoredWorkspace.getContext();
+
+        expect(restoredWorkspaceContext).to.eql(Object.assign(secondContext, contextToBeSaved));
     });
 
     it.skip("reuse the specified workspace when the reuseWorkspaceIdOptions is passed", async () => {

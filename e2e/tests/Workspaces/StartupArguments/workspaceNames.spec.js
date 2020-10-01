@@ -101,4 +101,33 @@ describe("Argument workspaceNames Should", () => {
         expect(workspacesCount).to.eql(2);
         expect(windowCount).to.eql(3);
     });
+
+    it("set the layoutName to the workspaceName when a workspace is restored from a query argument", async () => {
+        const winName = gtf.getWindowName("workspaces");
+        const win = await glue.windows.open(winName, `/glue/workspaces?workspaceNames=["${sampleLayoutNameOne}","${sampleLayoutNameTwo}"]`);
+
+        const foundServer = glue.interop.servers().find((server) => {
+            const serverMatch = server.windowId === win.id;
+            const methodMatch = server.getMethods().some((method) => method.name === "T42.Workspaces.Control");
+
+            return serverMatch && methodMatch;
+        });
+
+        if (!foundServer) {
+            await waitForControl(win);
+        }
+
+        const firstWorkspace = (await glue.workspaces.getAllWorkspaces())[0];
+        const secondWorkspace = (await glue.workspaces.getAllWorkspaces())[1];
+
+        if (firstWorkspace.getAllWindows().length === 1) {
+            expect(firstWorkspace.layoutName).to.eql(sampleLayoutNameOne);
+            expect(secondWorkspace.layoutName).to.eql(sampleLayoutNameTwo);
+        } else if (firstWorkspace.getAllWindows().length === 2) {
+            expect(firstWorkspace.layoutName).to.eql(sampleLayoutNameTwo);
+            expect(secondWorkspace.layoutName).to.eql(sampleLayoutNameOne);
+        } else {
+            throw new Error("Invalid window count in the workspace objects");
+        }
+    });
 });

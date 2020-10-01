@@ -49,7 +49,7 @@ export class Window implements Glue42Workspaces.WorkspaceWindow {
     }
 
     public get isLoaded(): boolean {
-        return getData(this).config.isLoaded;
+        return getData(this).controller.checkIsWindowLoaded(this.id);
     }
 
     public get focused(): boolean {
@@ -86,7 +86,6 @@ export class Window implements Glue42Workspaces.WorkspaceWindow {
         const windowId = await controller.forceLoadWindow(itemId);
 
         getData(this).config.windowId = windowId;
-        getData(this).config.isLoaded = true;
     }
 
     public async focus(): Promise<void> {
@@ -135,9 +134,11 @@ export class Window implements Glue42Workspaces.WorkspaceWindow {
         if (!this.isLoaded) {
             throw new Error("Cannot eject this window, because it is not loaded yet");
         }
-        const itemId = getData(this).id;
+        const itemId: string = getData(this).id;
 
-        await getData(this).controller.ejectWindow(itemId);
+        const newWindowId: string = await getData(this).controller.ejectWindow(itemId);
+
+        getData(this).config.windowId = newWindowId;
 
         return this.getGdWindow();
     }

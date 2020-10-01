@@ -156,6 +156,7 @@ export interface OpenWorkspaceArguments {
 export interface SaveLayoutArguments {
     name: string;
     workspaceId?: string;
+    saveContext?: boolean;
 }
 
 export interface RestoreWorkspaceConfig {

@@ -72,6 +72,7 @@ export interface WorkspaceConfig {
     title: string;
     positionIndex: number;
     name: string;
+    layoutName?: string;
 }
 
 export interface WindowSummary {
@@ -185,5 +186,22 @@ export interface APIWIndowSettings {
     positionIndex: number;
 }
 
+export interface SavedConfigWithData {
+    config: GoldenLayout.Config;
+    layoutData: {
+        metadata: object;
+        name: string;
+        context: object;
+    };
+}
+
+export interface SaveWorkspaceConfig {
+    title?: string;
+    workspace: Workspace;
+    name: string;
+    saveContext: boolean;
+}
+
 export type WorkspaceOptionsWithTitle = GoldenLayout.WorkspacesOptions & { title?: string };
+export type WorkspaceOptionsWithLayoutName = GoldenLayout.WorkspacesOptions & { layoutName?: string };
 export type LayoutWithMaximizedItem = GoldenLayout & { _maximizedItem?: GoldenLayout.ContentItem };

@@ -2,7 +2,7 @@ import { Bridge } from "../communication/bridge";
 import { WorkspacesController } from "../types/controller";
 import { Glue42Workspaces } from "../../workspaces";
 import { RefreshChildrenConfig } from "../types/privateData";
-import { AddItemResult, WorkspaceSnapshotResult, FrameSnapshotResult, IsWindowInSwimlaneResult, WorkspaceCreateConfigProtocol, FrameSummaryResult, WorkspaceSummariesResult } from "../types/protocol";
+import { AddItemResult, WorkspaceSnapshotResult, FrameSnapshotResult, IsWindowInSwimlaneResult, WorkspaceCreateConfigProtocol, FrameSummaryResult, WorkspaceSummariesResult, SimpleWindowOperationSuccessResult } from "../types/protocol";
 import { Child } from "../types/builders";
 import { CoreFrameUtils } from "../communication/core-frame-utils";
 import { OPERATIONS } from "../communication/constants";
@@ -17,6 +17,10 @@ export class CoreController implements WorkspacesController {
         private readonly layouts: LayoutsAPI,
         private readonly base: BaseController
     ) { }
+
+    public checkIsWindowLoaded(windowId: string): boolean {
+        return this.base.checkIsWindowLoaded(windowId);
+    }
 
     public async checkIsInSwimlane(windowId: string): Promise<boolean> {
 
@@ -210,13 +214,29 @@ export class CoreController implements WorkspacesController {
 
         const frameInstance = await this.frameUtils.getFrameInstanceByItemId(config.workspaceId);
 
-        return await this.bridge.send<Glue42Workspaces.WorkspaceLayout>(OPERATIONS.saveLayout.name, { name: config.name, workspaceId: config.workspaceId }, frameInstance);
+        return await this.bridge.send<Glue42Workspaces.WorkspaceLayout>(OPERATIONS.saveLayout.name, config, frameInstance);
     }
 
     public async bundleTo(type: "row" | "column", workspaceId: string): Promise<void> {
         const frameInstance = await this.frameUtils.getFrameInstanceByItemId(workspaceId);
 
         return await this.base.bundleTo(type, workspaceId, frameInstance);
+    }
+
+    public getWorkspaceContext(workspaceId: string): Promise<any> {
+        return this.base.getWorkspaceContext(workspaceId);
+    }
+
+    public setWorkspaceContext(workspaceId: string, data: any): Promise<void> {
+        return this.base.setWorkspaceContext(workspaceId, data);
+    }
+
+    public updateWorkspaceContext(workspaceId: string, data: any): Promise<void> {
+        return this.base.updateWorkspaceContext(workspaceId, data);
+    }
+
+    public subscribeWorkspaceContextUpdated(workspaceId: string, callback: (data: any) => void): Promise<import("callback-registry").UnsubscribeFunction> {
+        return this.base.subscribeWorkspaceContextUpdated(workspaceId, callback);
     }
 
     public async restoreItem(itemId: string): Promise<void> {
@@ -279,10 +299,14 @@ export class CoreController implements WorkspacesController {
         return await this.base.forceLoadWindow(itemId, frameInstance);
     }
 
-    public async ejectWindow(itemId: string): Promise<void> {
+    public async ejectWindow(itemId: string): Promise<string> {
         const frameInstance = await this.frameUtils.getFrameInstanceByItemId(itemId);
 
-        return await this.base.ejectWindow(itemId, frameInstance);
+        const windowId: string = (await this.base.ejectWindow(itemId, frameInstance)).windowId;
+
+        await this.base.notifyWindowAdded(windowId);
+
+        return windowId;
     }
 
     public async moveWindowTo(itemId: string, newParentId: string): Promise<void> {

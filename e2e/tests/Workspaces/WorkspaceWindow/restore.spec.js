@@ -16,9 +16,7 @@ describe("restore() Should", () => {
 
     let workspace = undefined;
     let window = undefined;
-    before(async () => {
-        await coreReady;
-    });
+    before(() => coreReady);
 
     beforeEach(async () => {
         workspace = await glue.workspaces.createWorkspace(basicConfig);

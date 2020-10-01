@@ -1,5 +1,5 @@
 import { LayoutController } from "./layout/controller";
-import { Workspace, WorkspaceOptionsWithTitle } from "./types/internal";
+import { Workspace, WorkspaceOptionsWithTitle, WorkspaceOptionsWithLayoutName } from "./types/internal";
 import { LayoutEventEmitter } from "./layout/eventEmitter";
 import { IFrameController } from "./iframeController";
 import { PopupManager } from "./popupManager";
@@ -9,7 +9,7 @@ import GoldenLayout from "@glue42/golden-layout";
 import { LayoutsManager } from "./layouts";
 import { LayoutStateResolver } from "./layout/stateResolver";
 import scReader from "./config/startupReader";
-import { idAsString, getAllWindowsFromConfig, getElementBounds } from "./utils";
+import { idAsString, getAllWindowsFromConfig, getElementBounds, getWorkspaceContextName } from "./utils";
 import factory from "./config/factory";
 import { WorkspacesEventEmitter } from "./eventEmitter";
 import { Glue42Web } from "@glue42/web";
@@ -57,17 +57,29 @@ class WorkspacesManager {
         }
     }
 
-    public async saveWorkspace(name: string, id?: string) {
+    public async saveWorkspace(name: string, id?: string, saveContext?: boolean) {
         const workspace = store.getById(id) || store.getActiveWorkspace();
-        const result = await this._layoutsManager.save(name, workspace, name);
+        const result = await this._layoutsManager.save({
+            name,
+            workspace,
+            title: name,
+            saveContext
+        });
 
+        (workspace.layout.config.workspacesOptions as WorkspaceOptionsWithLayoutName).layoutName = name;
         store.getWorkspaceLayoutItemById(id).setTitle(name);
         return result;
     }
 
     public async openWorkspace(name: string, options?: RestoreWorkspaceConfig): Promise<string> {
-        const savedConfig = await this._layoutsManager.getWorkspaceByName(name);
-        if (options?.context) {
+        const savedConfigWithData = await this._layoutsManager.getWorkspaceByName(name);
+        const savedConfig = savedConfigWithData.config;
+
+        savedConfig.workspacesOptions.context = savedConfigWithData.layoutData.context;
+
+        if (options?.context && savedConfig.workspacesOptions.context) {
+            savedConfig.workspacesOptions.context = Object.assign(savedConfigWithData.layoutData.context, options?.context);
+        } else if (options?.context) {
             savedConfig.workspacesOptions.context = options?.context;
         }
 
@@ -79,6 +91,12 @@ class WorkspacesManager {
             savedConfig.workspacesOptions.name = name;
         }
 
+        if (savedConfig) {
+            savedConfig.workspacesOptions = savedConfig.workspacesOptions || {};
+
+            (savedConfig.workspacesOptions as WorkspaceOptionsWithLayoutName).layoutName = savedConfigWithData.layoutData.name;
+        }
+
         if (!this._isLayoutInitialized) {
             this._layoutsManager.setInitialWorkspaceConfig(savedConfig);
 
@@ -88,7 +106,7 @@ class WorkspacesManager {
         } else if (name) {
             savedConfig.id = factory.getId();
 
-            await this._controller.addWorkspace(savedConfig.id, savedConfig);
+            await this.addWorkspace(savedConfig.id, savedConfig);
 
             return savedConfig.id;
         }
@@ -147,7 +165,7 @@ class WorkspacesManager {
         }
     }
 
-    public async eject(item: GoldenLayout.Component): Promise<void> {
+    public async eject(item: GoldenLayout.Component): Promise<{ windowId: string }> {
         const { appName, url, windowId } = item.config.componentState;
         const workspaceContext = store.getWorkspaceContext(store.getByWindowId(item.config.id).id);
         const webWindow = window.glue.windows.findById(windowId);
@@ -155,7 +173,9 @@ class WorkspacesManager {
 
         await this.closeItem(idAsString(item.config.id));
         const ejectedWindowUrl = this.getUrlByAppName(appName) || url;
-        await window.glue.windows.open(appName, ejectedWindowUrl, { context } as Glue42Web.Windows.CreateOptions);
+        const ejectedWindow = await window.glue.windows.open(appName, ejectedWindowUrl, { context } as Glue42Web.Windows.CreateOptions);
+
+        return { windowId: ejectedWindow.id };
     }
 
     public async createWorkspace(config: GoldenLayout.Config) {
@@ -170,7 +190,7 @@ class WorkspacesManager {
 
         const id = factory.getId();
 
-        await this._controller.addWorkspace(id, config);
+        await this.addWorkspace(id, config);
 
         return id;
     }
@@ -271,6 +291,10 @@ class WorkspacesManager {
         this.subscribeForLayout();
         this.subscribeForEvents();
 
+        await Promise.all(config.workspaceConfigs.map(c => {
+            return window.glue.contexts.set(getWorkspaceContextName(c.id), c.config?.workspacesOptions?.context || {});
+        }));
+
         await this._controller.init({
             frameId: this._frameId,
             workspaceLayout: config.workspaceLayout,
@@ -296,12 +320,10 @@ class WorkspacesManager {
 
             store.addWindow({ id: componentId, bounds: newWindowBounds, windowId }, workspace.id);
 
-            let workspaceContext = component?.layoutManager?.config?.workspacesOptions?.context;
+            const windowContext = component?.config.componentState?.context;
             let url = this.getUrlByAppName(componentState.appName) || componentState.url;
 
             if (component.config.componentState?.context) {
-                workspaceContext = Object.assign(workspaceContext || {}, component.config.componentState.context);
-
                 delete component.config.componentState.context;
             }
 
@@ -316,7 +338,7 @@ class WorkspacesManager {
                 component.setTitle(windowTitle);
             }
             try {
-                const frame = await this._frameController.startFrame(componentId, url, undefined, workspaceContext, windowId);
+                const frame = await this._frameController.startFrame(componentId, url, undefined, windowContext, windowId);
 
                 component.config.componentState.windowId = frame.name;
 
@@ -604,6 +626,11 @@ class WorkspacesManager {
     private closeWorkspace(workspace: Workspace) {
         workspace.windows.forEach(w => this._frameController.remove(w.id));
         this.checkForEmptyWorkspace(workspace);
+    }
+
+    private async addWorkspace(id: string, config: GoldenLayout.Config) {
+        await window.glue.contexts.set(getWorkspaceContextName(id), config?.workspacesOptions?.context || {});
+        await this._controller.addWorkspace(id, config);
     }
 
     private checkForEmptyWorkspace(workspace: Workspace) {

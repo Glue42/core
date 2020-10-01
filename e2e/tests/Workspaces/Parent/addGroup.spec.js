@@ -37,9 +37,7 @@ describe("addGroup() Should", () => {
     };
 
     let workspace = undefined;
-    before(() => {
-        return coreReady;
-    });
+    before(() => coreReady);
 
     beforeEach(async () => {
         await glue.workspaces.createWorkspace(config);

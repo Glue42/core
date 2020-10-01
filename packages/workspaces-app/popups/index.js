@@ -114,8 +114,8 @@ GlueWeb(config).then(async (glue) => {
                 if (rowColRadioButton && rowColRadioButton.classList.contains("active")) {
                     const containerContent = { type: "group", children: [{ type: "window", appName: a.name }] };
                     let targetParent = parent.type ? parent.parent : parent;
-                    if((parent.type==="row" || parent.type==="column") && !parent.children.length){
-                        targetParent =  parent
+                    if ((parent.type === "row" || parent.type === "column") && !parent.children.length) {
+                        targetParent = parent
                     }
                     const rowArguments = { type: "column", children: [containerContent] };
                     const columnArguments = { type: "row", children: [containerContent] };
@@ -196,11 +196,11 @@ GlueWeb(config).then(async (glue) => {
     }
 
     const showSaveWorkspaceFeedback = (message) => {
-        showFeedback(message, "feedback-container");
+        showFeedback(message, "feedbackContainer");
     }
 
     const hideSaveWorkspaceFeedback = () => {
-        hideFeedback("feedback-container");
+        hideFeedback("feedbackContainer");
     }
 
     window.glue = glue;
@@ -299,6 +299,9 @@ GlueWeb(config).then(async (glue) => {
 
         const saveWorkspaceButton = document.getElementById("saveWorkspaceButton");
         const saveWorkspaceName = document.getElementById("saveWorkspaceName");
+        const saveContextCheckbox = document.getElementById("saveContextCheckbox");
+
+        saveContextCheckbox.checked = false;
 
         hideSaveWorkspaceFeedback();
 
@@ -328,7 +331,11 @@ GlueWeb(config).then(async (glue) => {
                         const layout = await invokeGlueAction("generateLayout", { name: workspaceName, workspaceId: payload.workspaceId });
                         exportJson(layout, workspaceName);
                     } else {
-                        await glue.workspaces.layouts.save({ name: workspaceName, workspaceId: payload.workspaceId });
+                        await glue.workspaces.layouts.save({
+                            name: workspaceName,
+                            workspaceId: payload.workspaceId,
+                            saveContext: saveContextCheckbox.checked
+                        });
                     }
                     saveWorkspaceName.value = "";
 

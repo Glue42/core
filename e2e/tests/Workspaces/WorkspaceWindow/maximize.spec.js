@@ -17,9 +17,7 @@ describe("maximize() Should", () => {
     let workspace = undefined;
     let window = undefined;
 
-    before(() => {
-        return coreReady;
-    });
+    before(() => coreReady);
 
     beforeEach(async () => {
         workspace = await glue.workspaces.createWorkspace(basicConfig);

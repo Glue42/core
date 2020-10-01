@@ -37,9 +37,7 @@ describe("addColumn() Should", () => {
     };
 
     let workspace = undefined;
-    before(() => {
-        return coreReady;
-    });
+    before(() => coreReady);
 
     beforeEach(async () => {
         workspace = await glue.workspaces.createWorkspace(config);

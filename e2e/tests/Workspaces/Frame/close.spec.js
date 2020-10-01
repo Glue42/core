@@ -13,9 +13,7 @@ describe("maximize() Should", () => {
         ]
     };
 
-    before(() => {
-        return coreReady;
-    });
+    before(() => coreReady);
 
     let workspace;
 

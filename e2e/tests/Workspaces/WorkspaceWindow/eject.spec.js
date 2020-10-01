@@ -17,9 +17,7 @@ describe("eject() Should", () => {
     let workspace = undefined;
     let windowsForClosing = [];
 
-    before(async () => {
-        await coreReady;
-    });
+    before(() => coreReady);
 
     beforeEach(async () => {
         workspace = await glue.workspaces.createWorkspace(basicConfig);
@@ -77,20 +75,19 @@ describe("eject() Should", () => {
     });
 
     it("don't close the gdWindow when the window is loaded", async () => {
-        const gdWindows = glue.windows.list();
         await workspace.addWindow(windowConfig);
-
         await workspace.refreshReference();
 
         const windows = workspace.getAllWindows();
         const window = windows[0];
         await window.forceLoad();
+        const dummyAppWindows = glue.windows.list().filter(w => w.name === "dummyApp");
 
         windowsForClosing.push(window.getGdWindow());
         await window.eject();
-        const windowsAfterEject = glue.windows.list();
+        const windowsAfterEject = glue.windows.list().filter(w => w.name === "dummyApp");
 
-        expect(windowsAfterEject.length).to.eql(gdWindows.length + 1);
+        expect(windowsAfterEject.length).to.eql(dummyAppWindows.length);
     });
 
     it.skip("preserve the window context", async () => {
@@ -135,15 +132,13 @@ describe("eject() Should", () => {
 
         it("resolve the promise when the workspace is not focused", async () => {
             await workspace.addWindow(windowConfig);
-
             await workspace.refreshReference();
 
             const windows = workspace.getAllWindows();
             const window = windows[0];
+
             await window.forceLoad();
-
             windowsForClosing.push(window.getGdWindow());
-
             await window.eject();
         });
 
@@ -185,19 +180,19 @@ describe("eject() Should", () => {
         });
 
         it("don't close the gdWindow when the window is loaded and the workspace is not focused", async () => {
-            const gdWindows = glue.windows.list();
             await workspace.addWindow(windowConfig);
-
             await workspace.refreshReference();
 
             const windows = workspace.getAllWindows();
             const window = windows[0];
             await window.forceLoad();
+            const dummyWindows = glue.windows.list().filter(w => w.name === "dummyApp");
+
             windowsForClosing.push(window.getGdWindow());
             await window.eject();
-            const windowsAfterEject = glue.windows.list();
+            const windowsAfterEject = glue.windows.list().filter(w => w.name === "dummyApp");
 
-            expect(windowsAfterEject.length).to.eql(gdWindows.length + 1);
+            expect(windowsAfterEject.length).to.eql(dummyWindows.length);
         });
     })
 

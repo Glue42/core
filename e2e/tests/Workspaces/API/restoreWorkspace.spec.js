@@ -17,9 +17,7 @@ describe('restoreWorkspace() Should', function () {
     let workspace;
     const layoutName = "layout.integration.tests";
 
-    before(() => {
-        return coreReady;
-    });
+    before(() => coreReady);
 
     beforeEach(async () => {
         workspace = await glue.workspaces.createWorkspace(basicConfig);
@@ -135,25 +133,57 @@ describe('restoreWorkspace() Should', function () {
     it("restore the layout with the given title when a title is passed", async () => {
         const title = "myNewTitle";
         const secondWorkspace = await glue.workspaces.restoreWorkspace(layoutName, { title });
-        const frames = await glue.workspaces.getAllFrames();
 
         expect(secondWorkspace.title).to.eql(title);
     });
 
-    it("pass the give context to all windows when a context is passed", async () => {
+    it("set the workspace context to the given context when a context is passed", async () => {
         const context = {
             my: "context"
         };
 
         const secondWorkspace = await glue.workspaces.restoreWorkspace(layoutName, { context });
-        const windows = secondWorkspace.getAllWindows();
+        const workspaceContext = await secondWorkspace.getContext();
 
-        await Promise.all(windows.map(async w => {
-            await w.forceLoad();
-            const glueWin = w.getGdWindow();
-            const gwContext = await glueWin.getContext();
-            expect(gwContext).to.eql(context);
-        }));
+        expect(workspaceContext).to.eql(context);
+    });
+
+    it("set the workspace context to the context from the layout when the layout contains a context", async () => {
+        const contextToBeSaved = {
+            the: "context"
+        };
+
+        const workspaceToBeSaved = await glue.workspaces.createWorkspace(basicConfig);
+
+        await workspaceToBeSaved.setContext(contextToBeSaved);
+        await workspaceToBeSaved.saveLayout(layoutName, { saveContext: true });
+        await workspaceToBeSaved.close();
+
+        const restoredWorkspace = await glue.workspaces.restoreWorkspace(layoutName);
+        const restoredWorkspaceContext = await restoredWorkspace.getContext();
+
+        expect(restoredWorkspaceContext).to.eql(contextToBeSaved);
+    });
+
+    it("merge the context in the layout and the passed context when the layout contains a context and a context has been passed", async () => {
+        const contextToBeSaved = {
+            the: "context"
+        };
+
+        const secondContext = {
+            test: "42"
+        }
+
+        const workspaceToBeSaved = await glue.workspaces.createWorkspace(basicConfig);
+
+        await workspaceToBeSaved.setContext(contextToBeSaved);
+        await workspaceToBeSaved.saveLayout(layoutName, { saveContext: true });
+        await workspaceToBeSaved.close();
+
+        const restoredWorkspace = await glue.workspaces.restoreWorkspace(layoutName, { context: secondContext });
+        const restoredWorkspaceContext = await restoredWorkspace.getContext();
+
+        expect(restoredWorkspaceContext).to.eql(Object.assign(secondContext, contextToBeSaved));
     });
 
     it("reject the promise when there isn't a layout with such name", (done) => {

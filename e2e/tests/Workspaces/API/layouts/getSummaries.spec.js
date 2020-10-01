@@ -11,10 +11,9 @@ describe('getSummaries() Should ', function () {
                 ]
             }
         ]
-    }
-    before(() => {
-        return coreReady;
-    });
+    };
+    
+    before(() => coreReady);
 
     let layoutsForCleanup = [];
 

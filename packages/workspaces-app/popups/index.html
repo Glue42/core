@@ -19,28 +19,37 @@
             </div>
         </div>
         <div class="row">
-            <div class="col">
-                <div class="d-flex flex-row mb-3">
+            <div class="col mb-2">
                     <input id="saveWorkspaceName" class="form-control mr-1" type="text" placeholder="Workspace name"
                         value="" id="js-workspace-name">
-                    <a id="saveWorkspaceButton" class="btn btn-primary">Save</a>
+                    <!-- <a id="saveWorkspaceButton" class="btn btn-primary">Save</a> -->
+
+                </div>
+            </div>
+            <div class="row  align-items-center mb-2">
+                    <div class="col">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="saveContextCheckbox">
+                            <label class="form-check-label" for="saveContextCheckbox">Save context</label>
+                        </div>
+                    </div>
+   
+                    <div class="col  text-right">
+                        <button id="saveWorkspaceButton" type="button" class="btn btn-primary">Save</button>
+                    </div>
+
                 </div>
                 <!-- Form Feedback -->
-                <div id="feedback-container" class="d-flex flex-row mb-3">
-                    <!-- <div class="valid-feedback mt-0 d-block">
-                        Looks good!
+                <div class="row">
+                    <div class="col">
+                        <div id="feedbackContainer" class="d-flex flex-row pb-2"></div>
                     </div>
-                    <div class="invalid-feedback mt-0 d-block">
-                        Please choose a name.
-                    </div>
-                    <div class="warning-feedback mt-0 d-block">
-                        Please provide a valid name.
-                    </div> -->
                 </div>
 
 
             </div>
         </div>
+        
 
     </div>
     <div class="container-fluid add-workspace">
