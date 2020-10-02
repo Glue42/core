@@ -28,7 +28,7 @@
     },
     "license": "MIT",
     "dependencies": {
-        "@glue42/desktop": "^5.1.4",
+        "@glue42/desktop": "^5.2.1",
         "@glue42/web": "^1.4.4"
     },
     "devDependencies": {

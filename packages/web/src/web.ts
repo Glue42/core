@@ -5,6 +5,7 @@ import { Windows } from "./windows/main";
 import { Layouts } from "./layouts/main";
 import { Channels } from "./channels/main";
 import { AppManager } from "./app-manager/main";
+import { Intents } from "./intents/main";
 import { Glue42DesktopWindowContext } from "./types";
 import { Notifications } from "./notifications/main";
 import { defaultWorkerLocation, defaultAssetsBaseLocation } from "./config/defaults";
@@ -94,7 +95,7 @@ export const createFactoryFunction = (coreFactoryFunction: GlueCoreFactoryFuncti
         // create @glue42/core with the extra libs for @glue42/web
         const control = new Control();
         let windows: Windows;
-        let layouts: Layouts;
+        let appManager: AppManager;
         let layoutsController: LayoutsController | undefined;
 
         const ext: Glue42Core.Extension = {
@@ -127,7 +128,6 @@ export const createFactoryFunction = (coreFactoryFunction: GlueCoreFactoryFuncti
                 {
                     name: "layouts",
                     create: (coreLib): Layouts => {
-
                         let remoteStore: RemoteStore | undefined;
 
                         if (builtCoreConfig.layouts?.remoteType === "json") {
@@ -139,19 +139,25 @@ export const createFactoryFunction = (coreFactoryFunction: GlueCoreFactoryFuncti
                         const autoStore = new AutoStorage();
                         const layoutsStorage = new LayoutStorage(localStore, autoStore, remoteStore);
                         layoutsController = new LayoutsController(layoutsStorage, windows, control, coreLib.interop, builtCoreConfig?.glue);
-                        layouts = new Layouts(layoutsController);
-                        return layouts;
+
+                        return new Layouts(layoutsController);
                     }
                 }
             );
 
-            if (shouldInitializeAppManager) {
-                const appManagerLib: Glue42Core.ExternalLib = {
-                    name: "appManager",
-                    create: (coreLib): AppManager => new AppManager(windows, coreLib.interop, control, builtCoreConfig.appManager, builtCoreConfig.glue?.application)
-                };
-                ext.libs?.push(appManagerLib);
-            }
+            const appManagerLib: Glue42Core.ExternalLib = {
+                name: "appManager",
+                create: (coreLib): AppManager => {
+                    appManager = new AppManager(windows, coreLib.interop, control, builtCoreConfig.appManager, builtCoreConfig.glue?.application);
+                    // Instantiate AppManager always as Intents depends on it, but only attach it to the glue object when the user passes appManager: true.
+                    return shouldInitializeAppManager ? appManager : undefined;
+                }
+            };
+            const intentsLib: Glue42Core.ExternalLib = {
+                name: "intents",
+                create: (coreLib): Intents => new Intents(coreLib.interop, windows, appManager)
+            };
+            ext.libs?.push(appManagerLib, intentsLib);
         }
 
         const coreConfig = {

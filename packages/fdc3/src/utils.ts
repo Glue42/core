@@ -1,3 +1,4 @@
+import { FDC3 } from "../types";
 import { Glue42 } from "@glue42/desktop";
 import { WindowType } from "./windowtype";
 
@@ -39,3 +40,23 @@ export const isEmptyObject = (obj: object): boolean => {
 };
 
 export const isGlue42Core = !navigator.userAgent.toLowerCase().includes(" electron/");
+
+export const Listener = (actualUnsub:
+    (() => void)
+    | Promise<() => void>
+): FDC3.Listener => {
+    return {
+        unsubscribe(): void {
+            if (!actualUnsub) {
+                console.error("Could not unsubscribe!");
+                return;
+            }
+
+            if (typeof actualUnsub === "function") {
+                actualUnsub();
+            } else {
+                (actualUnsub as Promise<() => void>).then((unsubFunc: () => void) => unsubFunc());
+            }
+        }
+    };
+};

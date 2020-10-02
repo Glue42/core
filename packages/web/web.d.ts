@@ -126,7 +126,7 @@ export namespace Glue42Web {
         /**
          * A list of glue libraries which will be initiated internally and provide access to specific functionalities
          */
-        libraries?: Array<(glue: Glue42Web.API, config?: Glue42Web.Config) => Promise<void>>;
+        libraries?: Array<(glue: Glue42Web.API, config?: Glue42Web.Config | Glue42.Config) => Promise<void>>;
     }
 
     /**
@@ -141,6 +141,7 @@ export namespace Glue42Web {
         notifications: Glue42Web.Notifications.API;
         channels: Glue42Web.Channels.API;
         appManager: Glue42Web.AppManager.API;
+        intents: Glue42Web.Intents.API;
         workspaces?: Glue42Workspaces.API;
     }
 
@@ -373,7 +374,7 @@ export namespace Glue42Web {
          * @docmenuorder 11
          *
          */
-        export type LayoutType = "Global" | "Workspace" | "Activity";
+        export type LayoutType = "Global" | "Activity" | "ApplicationDefault" | "Swimlane" | "Workspace";
 
         /**
          * Controls the import behavior. If `replace` (default), all existing layouts will be removed.
@@ -843,6 +844,176 @@ export namespace Glue42Web {
              * @returns Promise that resolves when the instance has been stopped.
             */
             stop(): Promise<void>;
+        }
+    }
+
+    /**
+     * @docmenuorder 9
+     * @ignore
+     */
+    namespace Intents {
+        export interface API {
+            /**
+             * Raises an intent, optionally passing context to the intent handlers, and optionally targeting specific intent handlers.
+             * If no handlers are matching the targeting conditions the promise will be rejected.
+             * @param request can be the intent's name or an {@link IntentRequest} object carrying the intent, and its optional target, context and start options (see "startNew").
+             * @returns Promise that resolves with {@link IntentResult}.
+             */
+            raise(request: string | IntentRequest): Promise<IntentResult>;
+
+            /**
+             * Returns all registered {@link Intent}.
+             * @returns Promise that resolves with all registered intents.
+             */
+            all(): Promise<Intent[]>;
+
+            /**
+             * If your application is an intent handler use this method to handle incoming intent requests.
+             * Please note that when a new instance of your application is started as a result of a raised intent with e.g. `startNew` your application needs to call `addIntentListener()` on startup so that the intent can be resolved.
+             * The handler callback will be invoked whenever an intent is raised and your app was selected as an IntentTarget.
+             * You can also use this method to register new dynamic intents, that will have the the same lifespan as your application instance.
+             * @param intent The intent to be handled. The intent name of an object containing the intent, contextTypes that the intent can handle and a display name.
+             * @param handler The callback that will handle a raised intent. Will be called with an {@link IntentContext} if it is provided by the raising application.
+             * @returns An object with an unsubscribe function under the unsubscribe property.
+             */
+            addIntentListener(intent: string | { intent: string, contextTypes?: string[], displayName?: string }, handler: (context: IntentContext) => any): { unsubscribe: UnsubscribeFunction };
+
+            /**
+             * Searches for registered intents.
+             * @param intentFilter can be the intent name or a {@link IntentFilter} filtering criteria.
+             * @returns Promise that resolves with the found intents that match the provided filtering criteria.
+             */
+            find(intentFilter?: string | IntentFilter): Promise<Intent[]>;
+        }
+
+        /**
+         * Specifies the search criteria for the Intent API's `find()` method.
+         */
+        export interface IntentFilter {
+            /**
+             * The name of the intent to be used in the lookup.
+             */
+            name?: string;
+            /**
+             * The name of the context type to be used in the lookup.
+             */
+            contextType?: string;
+        }
+
+        /**
+         * Represents an intent.
+         */
+        export interface Intent {
+            /**
+             * The name of the intent, such as `"CreateCall"`.
+             */
+            readonly name: string;
+            /**
+             * The set of {@link IntentHandler} that provide an implementation for the intent and can be used to handle an intent request.
+             */
+            handlers: IntentHandler[];
+        }
+
+        /**
+         * Represents an implementation of an intent.
+         * Each intent handler can offer its own display name - this allows context menus
+         * built on the fly to display more user friendly options. For example, if there is
+         * an intent with a name "ShowNews", there could be a handler with display name
+         * "Show Bloomberg News" and another with display name "Show Reuters News".
+         * Handlers can optionally specify the context type they support, where the
+         * context type is the name of a typed, documented data structure such as
+         * "Person", "Team", "Instrument", "Order", etc. In the example above,
+         * both the Bloomberg and Reuters handlers would specify a context type "Instrument" and
+         * would expect to be raised with an instrument object conforming to an expected
+         * structure from both handlers.
+         * An intent handler must not necessarily specify a context type.
+         */
+        export interface IntentHandler {
+            /**
+             * The name of the application which registered this intent implementation.
+             */
+            readonly applicationName: string;
+            /**
+             * The type of the handler.
+             * "app" - An application that has declared itself as an implementor of the intent inside of its application definition.
+             * "instance" - A running instance of an application that can handle the intent. Also includes dynamically added intents using `addIntentListener()`.
+             */
+            readonly type: "app" | "instance";
+            /**
+             * The human-readable name of the intent handler.
+             */
+            readonly displayName?: string;
+            /**
+             * The context types this handler supports.
+             */
+            readonly contextTypes?: string[];
+            /**
+             * The id of the running application instance.
+             */
+            readonly instanceId?: string;
+            /**
+             * The window's title of the running application instance.
+             */
+            readonly instanceTitle?: string;
+        }
+
+        /**
+         * Represents a request to raise an intent.
+         */
+        export interface IntentRequest {
+            /**
+             * The name of the intent to be raised.
+             */
+            readonly intent: string;
+            /**
+             * Тhe target of the raised intent. Valid values are:
+             * `startNew` - will start a new instance of an application that can handle the intent.
+             * `reuse` - a running instance of an application will handle the intent.
+             * { app: "AppName" } - will start a new instance of the "AppName" application (iff it can handle it) that will handle the intent.
+             * { instance: "i-123-1" } - the running application instance with instanceId "i-123-1" will handle the intent (iff it can handle it).
+             */
+            readonly target?: "startNew" | "reuse" | { app?: string; instance?: string };
+            /**
+             * The context type and data that will be provided to the intent implementation's handler.
+             */
+            readonly context?: IntentContext;
+            /**
+             * Start up options that will be used when a new instance of an application needs to be started to handle the intent request.
+             */
+            readonly options?: AppManager.ApplicationStartOptions;
+        }
+
+        /**
+         * A structure that describes a typed context to be used to raise intents with.
+         */
+        export interface IntentContext {
+            /**
+             * The name of a typed, documented data structure such as "Person", "Team", "Instrument", "Order", etc.
+             * It is the application developers' job to agree on a protocol to follow.
+             */
+            readonly type?: string;
+            /**
+             * The context data used as an argument by the intent implementation.
+             */
+            readonly data?: { [key: string]: any };
+        }
+
+        /**
+         * The result of a raised intent.
+         */
+        export interface IntentResult {
+            /**
+             * The arguments that were used to raise the intent with.
+             */
+            request: IntentRequest;
+            /**
+             * The intent implementation that handled the intent.
+             */
+            handler: IntentHandler;
+            /**
+             * The data returned by the intent implementation when handling the intent.
+             */
+            result?: any;
         }
     }
 }

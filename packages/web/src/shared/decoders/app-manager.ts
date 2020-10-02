@@ -20,7 +20,7 @@ const fdc3IntentDecoder: Decoder<Intent> = object({
 });
 
 const glue42CoreCreateOptionsDecoder: Decoder<Glue42Web.Windows.CreateOptions> = object({
-    url: nonEmptyStringDecoder,
+    url: optional(nonEmptyStringDecoder),
     top: optional(number()),
     left: optional(number()),
     width: optional(number()),
