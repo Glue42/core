@@ -855,7 +855,6 @@ export namespace Glue42Web {
      * In other cases, you may want to present the user with several options for executing an action or handling data from the current application.
      *
      * The [**Intents**](../../../../core/capabilities/intents/index.html) API makes all that possible by enabling applications to register, find and raise Intents.
-     * @ignore
      */
     namespace Intents {
         export interface API {
