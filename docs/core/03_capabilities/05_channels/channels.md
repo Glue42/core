@@ -96,6 +96,8 @@ await window.GlueWeb({ channels: true });
 Glue42Ng.forRoot({ factory: GlueWeb, config: { channels: true } })
 ```
 
+*For detailed information on the Channels API, see the [**Channels**](../../../glue42-concepts/data-sharing-between-apps/channels/javascript/index.html) documentation.*
+
 In the next sections, you can see examples of using the Channels API. You can open the embedded examples directly in [CodeSandbox](https://codesandbox.io) to see the code and experiment with it.
 
 ## Discover and Navigate

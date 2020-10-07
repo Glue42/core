@@ -849,6 +849,12 @@ export namespace Glue42Web {
 
     /**
      * @docmenuorder 9
+     * In certain workflow scenarios, your application may need to start (or activate) a specific application.
+     * For instance, you may have an application showing client portfolios with financial instruments.
+     * When the user clicks on an instrument, you want to start an application which shows a chart for that instrument.
+     * In other cases, you may want to present the user with several options for executing an action or handling data from the current application.
+     *
+     * The [**Intents**](../../../../core/capabilities/intents/index.html) API makes all that possible by enabling applications to register, find and raise Intents.
      * @ignore
      */
     namespace Intents {

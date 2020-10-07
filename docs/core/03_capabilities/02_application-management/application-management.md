@@ -129,6 +129,8 @@ await window.GlueWeb({ appManager: true, application: "Clients" });
 Glue42Ng.forRoot({ factory: GlueWeb, config: { appManager: true, application: "Clients" } })
 ```
 
+*For detailed information on the Application Management API, see the [**Application Management**](../../../glue42-concepts/application-management/javascript/index.html) documentation.*
+
 In the next section, you will see an example that uses the Application Management API. You can open the embedded examples directly in [CodeSandbox](https://codesandbox.io) to see the code and experiment with it.
 
 ## Handling Applications, Application and Instance Events
