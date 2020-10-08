@@ -33,8 +33,6 @@ Use the `intents` top-level key in the application configuration file to define 
     {
         "name": "ShowChart",
         "displayName": "BBG Instrument Chart",
-        "description": "Open a chart app for BBG Instruments.",
-        "icon": "iVBORw0KGgoAAAAN...",
         "contexts": ["Instrument"]
     }
 ]
@@ -42,9 +40,7 @@ Use the `intents` top-level key in the application configuration file to define 
 
 - `name` - **Required**. The name of the Intent;
 - `displayName` - Optional human readable name of the Intent. Used in context menus to visualize the Intent;
-- `description` - Optional description for the Intent;
-- `icon` - Optional Intent icon encoded as a `base64` string;
-- `contexts` - **Required**. The type of predefined data structures with which the application works;
+- `contexts` - Optional array of types of predefined data structures with which the application works;
 
 The [Intents API](../../../reference/core/latest/intents/index.html) is accessible through `glue.intents`.
 
