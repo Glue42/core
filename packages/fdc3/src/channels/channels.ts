@@ -45,7 +45,9 @@ const createChannelsAgent = (): FDC3.ChannelsAPI => {
     };
 
     const handleSwitchChannelUI = (channelId: string): void => {
-        setCurrentChannel(channels[channelId]);
+        if (typeof channelId !== "undefined") {
+            setCurrentChannel(channels[channelId]);
+        }
     };
 
     const createPendingListener = (contextType: string, handler: (context: FDC3.Context) => void): FDC3.Listener => {
@@ -198,12 +200,15 @@ const createChannelsAgent = (): FDC3.ChannelsAPI => {
             const listener = createPendingListener(contextType, handler);
 
             // Handle context passed to `fdc3.open()`.
-            (window as WindowType).gluePromise.then(() => {
-                const startupContext = (window as WindowType).glue.appManager.myInstance.context;
-                if (!isEmptyObject(startupContext)) {
-                    handler(startupContext);
-                }
-            });
+            (window as WindowType).gluePromise
+                .then(() => {
+                    return (window as WindowType).glue.windows.my().getContext();
+                })
+                .then((startupContext) => {
+                    if (!isEmptyObject(startupContext)) {
+                        handler(startupContext);
+                    }
+                });
 
             return listener;
         }

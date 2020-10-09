@@ -1,5 +1,5 @@
 import { Glue42Web } from "../../web";
-import { AppDefinition } from "./types";
+import { IntentInfo, AppDefinition } from "./types";
 import { UnsubscribeFunction } from "callback-registry";
 import { glue42CoreIntentFilterDecoder, glue42CoreIntentDefinitionDecoder, glue42CoreIntentRequestDecoder } from "../shared/decoders/intents";
 
@@ -94,6 +94,8 @@ export class Intents implements Glue42Web.Intents.API {
             return {
                 name: app.name,
                 title: app.title,
+                icon: app.icon,
+                caption: app.caption,
                 intents: app.userProperties.intents
             };
         });
@@ -113,8 +115,11 @@ export class Intents implements Glue42Web.Intents.API {
 
                 const handler: Glue42Web.Intents.IntentHandler = {
                     applicationName: app.name,
+                    applicationTitle: app.title,
+                    applicationDescription: app.caption,
                     displayName: intentDef.displayName,
                     contextTypes: intentDef.contexts,
+                    applicationIcon: app.icon,
                     type: "app"
                 };
 
@@ -137,22 +142,28 @@ export class Intents implements Glue42Web.Intents.API {
                         intents[intentName] = intent;
                     }
 
-                    let info: { contextTypes?: string[], displayName?: string };
+                    let info: Glue42Web.Intents.AddIntentListenerRequest;
                     if (method.description) {
                         try {
                             info = JSON.parse(method.description);
                         } catch { /* DO NOTHING */ }
                     }
 
-                    const app = appsWithIntents.find((appWithIntents) => appWithIntents.name === server.application);
+                    const app = apps.find((appDef) => appDef.name === server.application);
+                    let appIntent: IntentInfo | undefined;
                     // app can be undefined in the case of a dynamic intent.
-                    const appIntent = app?.intents.find((appDefIntent) => appDefIntent.name === intentName);
+                    if (app && app.intents) {
+                        appIntent = app.intents.find((appDefIntent) => appDefIntent.name === intentName);
+                    }
 
                     const window = this.windows.findById(server.windowId);
                     const title = await window?.getTitle();
                     const handler: Glue42Web.Intents.IntentHandler = {
                         instanceId: server.instance,
                         applicationName: server.application,
+                        applicationIcon: info?.icon || app?.icon,
+                        applicationTitle: app?.title,
+                        applicationDescription: info?.description || app?.caption,
                         displayName: info?.displayName || appIntent?.displayName,
                         contextTypes: info?.contextTypes || appIntent?.contexts,
                         instanceTitle: title,
@@ -165,7 +176,7 @@ export class Intents implements Glue42Web.Intents.API {
         return Object.values(intents);
     }
 
-    public addIntentListener(intent: string | { intent: string, contextTypes?: string[], displayName?: string }, handler: (context: Glue42Web.Intents.IntentContext) => any): { unsubscribe: UnsubscribeFunction } {
+    public addIntentListener(intent: string | Glue42Web.Intents.AddIntentListenerRequest, handler: (context: Glue42Web.Intents.IntentContext) => any): { unsubscribe: UnsubscribeFunction } {
         glue42CoreIntentDefinitionDecoder.runWithException(intent);
         if (typeof handler !== "function") {
             throw new Error("Please provide the handler as a function!");

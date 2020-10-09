@@ -7,5 +7,7 @@ export interface IntentInfo {
 export interface AppDefinition {
     name: string;
     title: string;
+    caption: string;
+    icon: string;
     intents: IntentInfo[];
 }

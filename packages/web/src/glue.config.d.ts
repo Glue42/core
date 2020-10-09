@@ -46,6 +46,16 @@ export interface Glue42CoreApplicationConfig extends ApplicationConfig {
      * Generic object for passing properties, settings, etc., in the for of key/value pairs. Accessed using the app.userProperties property.
      */
     customProperties?: PropertiesObject;
+
+    /**
+     * Application icon.
+     */
+    icon?: string;
+
+    /**
+     * Application caption.
+     */
+    caption?: string;
 }
 
 /**

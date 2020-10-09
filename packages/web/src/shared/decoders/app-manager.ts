@@ -60,5 +60,7 @@ export const glue42CoreApplicationConfigDecoder: Decoder<Glue42CoreApplicationCo
     version: optional(string()),
 
     details: glue42CoreCreateOptionsDecoder,
-    customProperties: optional(object())
+    customProperties: optional(object()),
+    icon: optional(string()),
+    caption: optional(string())
 });

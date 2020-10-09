@@ -45,6 +45,14 @@ export class Application implements Glue42Web.AppManager.Application {
         return this._props.version || "";
     }
 
+    get icon(): string {
+        return this._props.icon || "";
+    }
+
+    get caption(): string {
+        return this._props.caption || "";
+    }
+
     get userProperties(): Glue42Web.AppManager.PropertiesObject {
         return this._props.userProperties || {};
     }
@@ -56,14 +64,21 @@ export class Application implements Glue42Web.AppManager.Application {
     public start = (context?: object, options?: Glue42Web.Windows.Settings): Promise<Glue42Web.AppManager.Instance> => {
         return promisePlus(() => this.startWithoutTimeout(context, options), 3000, `Application "${this.name}" start timeout!`);
     }
-
     /* eslint-disable @typescript-eslint/no-explicit-any */
     public onInstanceStarted(callback: (instance: Glue42Web.AppManager.Instance) => any): void {
+        if (typeof callback !== "function") {
+            throw new Error("Please provide the callback as a function!");
+        }
+
         this._registry.add("instanceStarted", callback);
     }
 
     /* eslint-disable @typescript-eslint/no-explicit-any */
     public onInstanceStopped(callback: (instance: Glue42Web.AppManager.Instance) => any): void {
+        if (typeof callback !== "function") {
+            throw new Error("Please provide the callback as a function!");
+        }
+
         this._registry.add("instanceStopped", callback);
     }
 

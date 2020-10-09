@@ -96,7 +96,9 @@ A `Glue42CoreApplicationConfig` has the following properties:
 |----------|------|-------------|----------|---------|
 | `name` | `string` | Application name. Must be unique. | Yes | `-` |
 | `title` | `string` | The title of the application. Sets the window title. | No | `""` |
-| `version` | `string` | Application version. | No | `""` |
+| `version` | `string` | The version of the application. | No | `""` |
+| `icon` | `string` | The icon application. | No | `""` |
+| `caption` | `string` | The caption of the application. | No | `""` |
 | `details` | `object` | Detailed configuration. Has the same shape as the [CreateOptions](../../../../reference/core/latest/windows/index.html#!CreateOptions) object and must have a defined `url` field. | Yes | `-` |
 | `customProperties` | `object` | Generic object for passing properties, settings, etc., in the form of key/value pairs. Accessed using the [`userProperties`](../../../../reference/core/latest/appmanager/index.html#!Application-userProperties) property of the `application` object. | No | `{}` |
 

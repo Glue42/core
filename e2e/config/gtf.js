@@ -848,7 +848,7 @@ try {
   Function("r", "regeneratorRuntime = r")(runtime);
 }
 
-},{}],"lsrX":[function(require,module,exports) {
+},{}],"EVxB":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1064,7 +1064,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GtfCore = void 0;
 
-var _pp = require("./\u0430pp");
+var _app = require("./app");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -1127,6 +1127,34 @@ var GtfCore = /*#__PURE__*/function () {
       };
     }
   }, {
+    key: "waitForFetch",
+    value: function waitForFetch() {
+      return __awaiter(this, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+        var pollingInterval;
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.next = 2;
+                return this.getGlueConfigJson();
+
+              case 2:
+                pollingInterval = _context.sent.appManager.remoteSources[0].pollingInterval;
+                return _context.abrupt("return", new Promise(function (resolve) {
+                  setTimeout(function () {
+                    resolve();
+                  }, pollingInterval);
+                }));
+
+              case 4:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+    }
+  }, {
     key: "getWindowName",
     value: function getWindowName() {
       var prefix = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "windows";
@@ -1137,95 +1165,107 @@ var GtfCore = /*#__PURE__*/function () {
     key: "getGlueConfigJson",
     value: function getGlueConfigJson() {
       var url = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "/glue/glue.config.json";
-      return __awaiter(this, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
-        var data;
-        return regeneratorRuntime.wrap(function _callee$(_context) {
-          while (1) {
-            switch (_context.prev = _context.next) {
-              case 0:
-                _context.next = 2;
-                return fetch(url);
-
-              case 2:
-                _context.next = 4;
-                return _context.sent.json();
-
-              case 4:
-                data = _context.sent;
-                return _context.abrupt("return", data);
-
-              case 6:
-              case "end":
-                return _context.stop();
-            }
-          }
-        }, _callee);
-      }));
-    }
-  }, {
-    key: "getChannelNames",
-    value: function getChannelNames() {
       return __awaiter(this, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
-        var channelContexts;
+        var data;
         return regeneratorRuntime.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
                 _context2.next = 2;
-                return this.getGlueConfigJson();
+                return fetch(url);
 
               case 2:
-                channelContexts = _context2.sent.channels;
-                return _context2.abrupt("return", channelContexts.map(function (channelContext) {
-                  return channelContext.name;
-                }));
+                _context2.next = 4;
+                return _context2.sent.json();
 
               case 4:
+                data = _context2.sent;
+                return _context2.abrupt("return", data);
+
+              case 6:
               case "end":
                 return _context2.stop();
             }
           }
-        }, _callee2, this);
+        }, _callee2);
       }));
     }
   }, {
-    key: "createApp",
-    value: function createApp() {
-      var appName = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "coreSupport";
+    key: "getChannelNames",
+    value: function getChannelNames() {
       return __awaiter(this, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
-        var foundApp, supportInstance;
+        var channelContexts;
         return regeneratorRuntime.wrap(function _callee3$(_context3) {
           while (1) {
             switch (_context3.prev = _context3.next) {
               case 0:
-                foundApp = this.glue.appManager.application(appName);
+                _context3.next = 2;
+                return this.getGlueConfigJson();
 
-                if (foundApp) {
-                  _context3.next = 3;
-                  break;
-                }
+              case 2:
+                channelContexts = _context3.sent.channels;
+                return _context3.abrupt("return", channelContexts.map(function (channelContext) {
+                  return channelContext.name;
+                }));
 
-                throw new Error("Support application: ".concat(appName, " was not found!"));
-
-              case 3:
-                _context3.next = 5;
-                return foundApp.start();
-
-              case 5:
-                supportInstance = _context3.sent;
-                _context3.next = 8;
-                return this.waitForControlInstance(supportInstance.agm.instance);
-
-              case 8:
-                return _context3.abrupt("return", new _pp.GtfApp(this.glue, supportInstance, this.controlMethodName));
-
-              case 9:
+              case 4:
               case "end":
                 return _context3.stop();
             }
           }
         }, _callee3, this);
       }));
+    }
+  }, {
+    key: "createApp",
+    value: function createApp() {
+      var appName = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "coreSupport";
+      return __awaiter(this, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
+        var foundApp, supportInstance;
+        return regeneratorRuntime.wrap(function _callee4$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                foundApp = this.glue.appManager.application(appName);
+
+                if (foundApp) {
+                  _context4.next = 3;
+                  break;
+                }
+
+                throw new Error("Support application: ".concat(appName, " was not found!"));
+
+              case 3:
+                _context4.next = 5;
+                return foundApp.start();
+
+              case 5:
+                supportInstance = _context4.sent;
+                _context4.next = 8;
+                return this.waitForControlInstance(supportInstance.agm.instance);
+
+              case 8:
+                return _context4.abrupt("return", new _app.GtfApp(this.glue, supportInstance, this.controlMethodName));
+
+              case 9:
+              case "end":
+                return _context4.stop();
+            }
+          }
+        }, _callee4, this);
+      }));
+    }
+  }, {
+    key: "post",
+    value: function post(url, body) {
+      var init = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: body
+      };
+      return fetch(url, init);
     }
   }, {
     key: "waitForControlInstance",
@@ -1259,7 +1299,7 @@ var GtfCore = /*#__PURE__*/function () {
 }();
 
 exports.GtfCore = GtfCore;
-},{"./аpp":"lsrX"}],"cdjG":[function(require,module,exports) {
+},{"./app":"EVxB"}],"cdjG":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1274,6 +1314,205 @@ var GtfAgm = function GtfAgm() {
 };
 
 exports.GtfAgm = GtfAgm;
+},{}],"yj11":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.GtfAppManager = void 0;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var __awaiter = void 0 && (void 0).__awaiter || function (thisArg, _arguments, P, generator) {
+  function adopt(value) {
+    return value instanceof P ? value : new P(function (resolve) {
+      resolve(value);
+    });
+  }
+
+  return new (P || (P = Promise))(function (resolve, reject) {
+    function fulfilled(value) {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    }
+
+    function rejected(value) {
+      try {
+        step(generator["throw"](value));
+      } catch (e) {
+        reject(e);
+      }
+    }
+
+    function step(result) {
+      result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
+    }
+
+    step((generator = generator.apply(thisArg, _arguments || [])).next());
+  });
+};
+
+var GtfAppManager = /*#__PURE__*/function () {
+  function GtfAppManager(gtfCore) {
+    _classCallCheck(this, GtfAppManager);
+
+    this.gtfCore = gtfCore;
+  }
+
+  _createClass(GtfAppManager, [{
+    key: "getLocalApplications",
+    value: function getLocalApplications() {
+      return __awaiter(this, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+        var appManagerConfig;
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.next = 2;
+                return this.gtfCore.getGlueConfigJson();
+
+              case 2:
+                appManagerConfig = _context.sent.appManager;
+                return _context.abrupt("return", appManagerConfig.localApplications);
+
+              case 4:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+    }
+  }, {
+    key: "getRemoteSourceApplications",
+    value: function getRemoteSourceApplications() {
+      var url = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'http://localhost:9998/v1/apps/search';
+      return __awaiter(this, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
+        var data;
+        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                _context2.next = 2;
+                return fetch(url);
+
+              case 2:
+                _context2.next = 4;
+                return _context2.sent.json();
+
+              case 4:
+                data = _context2.sent;
+                return _context2.abrupt("return", data.applications);
+
+              case 6:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2);
+      }));
+    }
+  }, {
+    key: "addRemoteSourceApplication",
+    value: function addRemoteSourceApplication(application) {
+      var url = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'http://localhost:9998/v1/apps/add';
+      return __awaiter(this, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
+        var data;
+        return regeneratorRuntime.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                _context3.next = 2;
+                return this.gtfCore.post(url, JSON.stringify(application));
+
+              case 2:
+                _context3.next = 4;
+                return _context3.sent.json();
+
+              case 4:
+                data = _context3.sent;
+                return _context3.abrupt("return", data.applications);
+
+              case 6:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, _callee3, this);
+      }));
+    }
+  }, {
+    key: "resetRemoteSourceApplications",
+    value: function resetRemoteSourceApplications() {
+      var url = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'http://localhost:9998/v1/apps/reset';
+      return __awaiter(this, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
+        var data;
+        return regeneratorRuntime.wrap(function _callee4$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                _context4.next = 2;
+                return fetch(url);
+
+              case 2:
+                _context4.next = 4;
+                return _context4.sent.json();
+
+              case 4:
+                data = _context4.sent;
+                return _context4.abrupt("return", data.applications);
+
+              case 6:
+              case "end":
+                return _context4.stop();
+            }
+          }
+        }, _callee4);
+      }));
+    }
+  }, {
+    key: "setRemoteSourceApplications",
+    value: function setRemoteSourceApplications(applications) {
+      var url = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'http://localhost:9998/v1/apps/set';
+      return __awaiter(this, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee5() {
+        var data;
+        return regeneratorRuntime.wrap(function _callee5$(_context5) {
+          while (1) {
+            switch (_context5.prev = _context5.next) {
+              case 0:
+                _context5.next = 2;
+                return this.gtfCore.post(url, JSON.stringify(applications));
+
+              case 2:
+                _context5.next = 4;
+                return _context5.sent.json();
+
+              case 4:
+                data = _context5.sent;
+                return _context5.abrupt("return", data.applications);
+
+              case 6:
+              case "end":
+                return _context5.stop();
+            }
+          }
+        }, _callee5, this);
+      }));
+    }
+  }]);
+
+  return GtfAppManager;
+}();
+
+exports.GtfAppManager = GtfAppManager;
 },{}],"QCba":[function(require,module,exports) {
 "use strict";
 
@@ -1282,6 +1521,8 @@ require("regenerator-runtime/runtime");
 var _core = require("./core");
 
 var _agm = require("./agm");
+
+var _appManager = require("./appManager");
 
 var __awaiter = void 0 && (void 0).__awaiter || function (thisArg, _arguments, P, generator) {
   function adopt(value) {
@@ -1317,24 +1558,29 @@ var __awaiter = void 0 && (void 0).__awaiter || function (thisArg, _arguments, P
 
 var startGtf = function startGtf() {
   return __awaiter(void 0, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
-    var glue;
+    var glueWebConfig, glue, gtfCore;
     return regeneratorRuntime.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            _context.next = 2;
-            return GlueWeb({
-              libraries: [GlueWorkspaces]
-            });
+            glueWebConfig = {
+              libraries: [GlueWorkspaces],
+              appManager: true
+            };
+            _context.next = 3;
+            return GlueWeb(glueWebConfig);
 
-          case 2:
+          case 3:
             glue = _context.sent;
+            gtfCore = new _core.GtfCore(glue);
             window.glue = glue;
-            window.gtf = Object.assign(new _core.GtfCore(glue), {
+            window.gtf = Object.assign(gtfCore, {
               agm: new _agm.GtfAgm()
+            }, {
+              appManager: new _appManager.GtfAppManager(gtfCore)
             });
 
-          case 5:
+          case 7:
           case "end":
             return _context.stop();
         }
@@ -1344,4 +1590,4 @@ var startGtf = function startGtf() {
 };
 
 window.coreReady = startGtf();
-},{"regenerator-runtime/runtime":"dgxz","./core":"dDqi","./agm":"cdjG"}]},{},["QCba"], null)
+},{"regenerator-runtime/runtime":"dgxz","./core":"dDqi","./agm":"cdjG","./appManager":"yj11"}]},{},["QCba"], null)

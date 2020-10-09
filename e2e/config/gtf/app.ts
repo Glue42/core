@@ -1,6 +1,7 @@
 import { Glue42Web } from "../../../packages/web/web";
-import { ControlArgs } from "./types";
-export class GtfApp {
+import { Gtf, ControlArgs } from "./types";
+
+export class GtfApp implements Gtf.App {
     constructor(
         private readonly glue: Glue42Web.API,
         private readonly myInstance: Glue42Web.AppManager.Instance,

@@ -1,7 +1,7 @@
 <mat-form-field>
     <mat-label>Select a channel</mat-label>
     <mat-select (selectionChange)="selectChannel($event)">
-        <mat-option [value]="NO_CHANNEL">No channels</mat-option>
+        <mat-option [value]="NO_CHANNEL">No channel</mat-option>
         <mat-option *ngFor="let channel of channels" [style.color]='channel.meta.color' [value]='channel.name'>
             {{channel.name}}</mat-option>
     </mat-select>

@@ -11,6 +11,7 @@
     "test": "npm run test:scripts && lerna run test",
     "build:gtf": "parcel build ./e2e/config/gtf/index.ts --no-source-maps --no-minify --out-dir ./e2e/config --out-file gtf.js",
     "e2e": "npm run build:gtf && node ./e2e/index.js",
+    "e2e:no-gtf-rebuild": "node ./e2e/index.js",
     "release": "gulp release",
     "test:scripts": "mocha ./scripts/test/**/*spec.js",
     "lint:fix": "./node_modules/.bin/eslint --ignore-path .gitignore . --fix",

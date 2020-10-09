@@ -32,11 +32,11 @@ export class AppManager implements Glue42Web.AppManager.API {
 
         this._myInstance = new LocalInstance(myId, this.control, this, this.interop.instance);
 
-        if (config?.remoteSources) {
-            this.readyPromise = this.subscribeForRemoteApplications(config.remoteSources);
+        if (this.config?.remoteSources) {
+            this.readyPromise = this.subscribeForRemoteApplications(this.config.remoteSources);
         }
-        if (config?.localApplications) {
-            const validatedApplications = this.getValidatedApplications(config.localApplications);
+        if (this.config?.localApplications) {
+            const validatedApplications = this.getValidatedApplications(this.config.localApplications);
 
             this.addApplications(validatedApplications);
         }
@@ -59,6 +59,10 @@ export class AppManager implements Glue42Web.AppManager.API {
     }
 
     public application(name: string): Glue42Web.AppManager.Application {
+        if (typeof name !== "string") {
+            throw new Error("Please provide the name as a string!");
+        }
+
         return this._apps[name]?.application;
     }
 
@@ -72,31 +76,50 @@ export class AppManager implements Glue42Web.AppManager.API {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public onAppAdded(callback: (app: Glue42Web.AppManager.Application) => any): UnsubscribeFunction {
+        if (typeof callback !== "function") {
+            throw new Error("Please provide the callback as a function!");
+        }
+
         const applications = Object.keys(this._apps).map((appName) => {
             return this._apps[appName].application;
         });
 
-        this.replay(applications, callback);
-        return this.registry.add("appAdded", callback);
+        return this.registry.add("appAdded", callback, applications);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public onAppRemoved(callback: (app: Glue42Web.AppManager.Application) => any): UnsubscribeFunction {
+        if (typeof callback !== "function") {
+            throw new Error("Please provide the callback as a function!");
+        }
+
         return this.registry.add("appRemoved", callback);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public onAppChanged(callback: (app: Glue42Web.AppManager.Application) => any): UnsubscribeFunction {
+        if (typeof callback !== "function") {
+            throw new Error("Please provide the callback as a function!");
+        }
+
         return this.registry.add("appChanged", callback);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public onInstanceStarted(callback: (app: Glue42Web.AppManager.Instance) => any): UnsubscribeFunction {
-        return this.registry.add("instanceStarted", callback);
+        if (typeof callback !== "function") {
+            throw new Error("Please provide the callback as a function!");
+        }
+
+        return this.registry.add("instanceStarted", callback, this._instances);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public onInstanceStopped(callback: (app: Glue42Web.AppManager.Instance) => any): UnsubscribeFunction {
+        if (typeof callback !== "function") {
+            throw new Error("Please provide the callback as a function!");
+        }
+
         return this.registry.add("instanceStopped", callback);
     }
 
@@ -160,15 +183,20 @@ export class AppManager implements Glue42Web.AppManager.API {
     }
 
     private getAppProps(application: Glue42CoreApplicationConfig | FDC3ApplicationConfig): AppProps {
-        const requiredProps = ["name", "title", "version"];
+        const glue42CoreAppProps = ["name", "title", "version", "customProperties", "icon", "caption"];
 
-        const userProperties = Object.fromEntries(Object.entries(application).filter(([key]) => !requiredProps.includes(key)));
+        const userProperties = Object.fromEntries(Object.entries(application).filter(([key]) => !glue42CoreAppProps.includes(key)));
 
         return {
             name: application.name,
             title: application.title,
             version: application.version,
-            userProperties
+            icon: (application as Glue42CoreApplicationConfig).icon,
+            caption: (application as Glue42CoreApplicationConfig).caption,
+            userProperties: {
+                ...userProperties,
+                ...(application as Glue42CoreApplicationConfig).customProperties
+            }
         };
     }
 
@@ -268,19 +296,11 @@ export class AppManager implements Glue42Web.AppManager.API {
         this.handleAppsAdded(newlyAddedApplications, source);
 
         // Removed.
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         this.handleAppsRemoved(newlyAddedApplications, source);
 
         if (!this._myInstance.application) {
             this.tryPopulateMyInstanceApplication();
         }
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private replay(items: { [key: string]: any } | any[], callback: (item: any) => any): void {
-        const itemsToReplay = Array.isArray(items) ? items : Object.values(items);
-
-        itemsToReplay.forEach((item) => callback(item));
     }
 
     private async remoteFromServer(server: Glue42Web.Interop.Instance): Promise<RemoteInstance | undefined> {
