@@ -1,14 +1,19 @@
+/* tslint:disable:no-console no-empty */
 import { Glue42Web } from "../../web";
 import { LayoutStorage } from "./storage";
 import { Windows } from "../windows/main";
 import { LocalWebWindow } from "../windows/my";
-import { SaveContextMethodName } from "./constants";
+import { LayoutEventMethodName, SaveContextMethodName } from "./constants";
 import { Control } from "../control/control";
 import { RemoteCommand, LayoutRemoteCommand, SaveAutoLayoutCommandArgs } from "../control/commands";
+import { CallbackRegistry, default as CallbackRegistryFactory, UnsubscribeFunction } from "callback-registry";
+import { LayoutEvent } from "./types";
 
 export class LayoutsController {
 
     private autoSaveContext: boolean;
+    private _registry: CallbackRegistry = CallbackRegistryFactory();
+    private readyPromise: Promise<void>;
 
     constructor(
         private readonly storage: LayoutStorage,
@@ -19,7 +24,17 @@ export class LayoutsController {
     ) {
         this.autoSaveContext = config?.layouts?.autoSaveWindowContext ?? false;
         this.control.subscribe("layouts", this.handleControlMessage.bind(this));
-        this.registerRequestMethods();
+        this.readyPromise = Promise.all([
+            this.registerRequestMethods(),
+            this.registerEventsMethod()
+        ]).then(() => {
+            console.log("methods are live");
+            return;
+        });
+    }
+
+    public ready(): Promise<void> {
+        return this.readyPromise;
     }
 
     public async export(layoutType?: Glue42Web.Layouts.LayoutType): Promise<Glue42Web.Layouts.Layout[]> {
@@ -36,7 +51,13 @@ export class LayoutsController {
     }
 
     public async import(layouts: Glue42Web.Layouts.Layout[]): Promise<void> {
-        await Promise.all(layouts.map((layout) => this.storage.store(layout, layout.type)));
+        await Promise.all(layouts.map(async (layout) => {
+            const layoutEvent = (await this.get(layout.name, layout.type)) ? "layoutChanged" : "layoutAdded";
+
+            await this.storage.store(layout, layout.type);
+
+            this.emitLayoutEvent(layoutEvent, layout);
+        }));
     }
 
     public async save(layoutOptions: Glue42Web.Layouts.NewLayoutOptions, autoSave = false): Promise<Glue42Web.Layouts.Layout> {
@@ -53,11 +74,15 @@ export class LayoutsController {
             metadata: layoutOptions.metadata || {}
         };
 
+        const layoutEvent = (await this.get(layoutOptions.name, "Global")) ? "layoutChanged" : "layoutAdded";
+
         if (autoSave) {
             this.storage.storeAutoLayout(layout);
         } else {
             await this.storage.store(layout, "Global");
         }
+
+        this.emitLayoutEvent(layoutEvent, layout);
 
         return layout;
     }
@@ -100,8 +125,14 @@ export class LayoutsController {
         }
     }
 
-    public remove(type: Glue42Web.Layouts.LayoutType, name: string): Promise<void> {
-        return this.storage.remove(name, type);
+    public async remove(type: Glue42Web.Layouts.LayoutType, name: string): Promise<void> {
+        const layoutToRemove = await this.get(name, type);
+
+        await this.storage.remove(name, type);
+
+        if (layoutToRemove) {
+            this.emitLayoutEvent("layoutRemoved", layoutToRemove);
+        }
     }
 
     public async getAll(type: Glue42Web.Layouts.LayoutType): Promise<Glue42Web.Layouts.LayoutSummary[]> {
@@ -150,6 +181,18 @@ export class LayoutsController {
         };
     }
 
+    public onLayoutAdded(callback: (layout: Glue42Web.Layouts.Layout) => void): UnsubscribeFunction {
+        return this._registry.add("layoutAdded", callback);
+    }
+
+    public onLayoutChanged(callback: (layout: Glue42Web.Layouts.Layout) => void): UnsubscribeFunction {
+        return this._registry.add("layoutChanged", callback);
+    }
+
+    public onLayoutRemoved(callback: (layout: Glue42Web.Layouts.Layout) => void): UnsubscribeFunction {
+        return this._registry.add("layoutRemoved", callback);
+    }
+
     private restoreComponents(layout: Glue42Web.Layouts.Layout): void {
         layout.components.forEach((c) => {
             if (c.type === "window") {
@@ -175,7 +218,7 @@ export class LayoutsController {
             if (methods.find((m) => m.name === SaveContextMethodName)) {
                 try {
                     promises.push(this.interop.invoke<Glue42Web.Layouts.WindowComponent>(SaveContextMethodName, {}, { windowId: id }));
-                } catch  {
+                } catch {
                     // swallow
                 }
             }
@@ -185,8 +228,8 @@ export class LayoutsController {
         return responses.map((response) => response.returned);
     }
 
-    private registerRequestMethods(): void {
-        this.interop.register(SaveContextMethodName, (args) => {
+    private registerRequestMethods(): Promise<void> {
+        return this.interop.register(SaveContextMethodName, (args) => {
             return this.getLocalLayoutComponent(args);
         });
     }
@@ -215,8 +258,20 @@ export class LayoutsController {
             });
         }
     }
-    // FOR WORKSPACES
-    // public import() {
 
-    // }
+    private registerEventsMethod(): Promise<void> {
+        return this.interop.register(LayoutEventMethodName, (args) => {
+            this._registry.execute(args.event, args.layout);
+        });
+    }
+
+    private emitLayoutEvent(event: LayoutEvent, layout: Glue42Web.Layouts.Layout): void {
+
+        const hasLayoutMethod = this.interop.methods().some((m) => m.name === LayoutEventMethodName);
+        if (hasLayoutMethod) {
+            // swallow notification error, because we can't handle it any better for now
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            this.interop.invoke(LayoutEventMethodName, { event, layout }, "all").catch(() => { });
+        }
+    }
 }

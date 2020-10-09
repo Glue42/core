@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { IoC } from "./shared/ioc";
 import { checkThrowCallback, nonEmptyStringDecoder, workspaceLayoutDecoder, workspaceDefinitionDecoder, workspaceBuilderCreateConfigDecoder, builderConfigDecoder, restoreWorkspaceConfigDecoder, workspaceLayoutSaveConfigDecoder } from "./shared/decoders";
-import { FrameStreamData, WorkspaceStreamData, WorkspaceSnapshotResult, WindowStreamData, ContainerStreamData } from "./types/protocol";
+import { FrameStreamData, WorkspaceStreamData, WorkspaceSnapshotResult, WindowStreamData } from "./types/protocol";
 import { FrameCreateConfig, WorkspaceIoCCreateConfig } from "./types/ioc";
 import { Glue42Workspaces } from "./../workspaces";
 import { WorkspacesController } from "./types/controller";
@@ -131,6 +131,16 @@ export const composeAPI = (glue: any, ioc: IoC): Glue42Workspaces.API => {
         save: async (config: Glue42Workspaces.WorkspaceLayoutSaveConfig): Promise<Glue42Workspaces.WorkspaceLayout> => {
             const verifiedConfig = workspaceLayoutSaveConfigDecoder.runWithException(config);
             return controller.saveLayout(verifiedConfig);
+        },
+        onSaved: async (callback: (layout: Glue42Workspaces.WorkspaceLayout) => void): Promise<Glue42Workspaces.Unsubscribe> => {
+            checkThrowCallback(callback);
+
+            return controller.handleOnSaved(callback);
+        },
+        onRemoved: async (callback: (layout: Glue42Workspaces.WorkspaceLayout) => void): Promise<Glue42Workspaces.Unsubscribe> => {
+            checkThrowCallback(callback);
+
+            return controller.handleOnRemoved(callback);
         }
     };
 
@@ -149,38 +159,12 @@ export const composeAPI = (glue: any, ioc: IoC): Glue42Workspaces.API => {
         return unsubscribe;
     };
 
-    const onFrameClosing = async (callback: (frame: Glue42Workspaces.Frame) => void): Promise<Glue42Workspaces.Unsubscribe> => {
-        checkThrowCallback(callback);
-        const wrappedCallback = (payload: FrameStreamData): void => {
-            const frameConfig: FrameCreateConfig = {
-                summary: payload.frameSummary
-            };
-            const frame = ioc.getModel<"frame">("frame", frameConfig);
-            callback(frame);
-        };
-        const unsubscribe = await controller.processGlobalSubscription(wrappedCallback, "frame", "closing");
-        return unsubscribe;
-    };
-
     const onFrameClosed = async (callback: (closed: { frameId: string }) => void): Promise<Glue42Workspaces.Unsubscribe> => {
         checkThrowCallback(callback);
         const wrappedCallback = (payload: FrameStreamData): void => {
             callback({ frameId: payload.frameSummary.id });
         };
         const unsubscribe = await controller.processGlobalSubscription(wrappedCallback, "frame", "closed");
-        return unsubscribe;
-    };
-
-    const onFrameFocusChange = async (callback: (frame: Glue42Workspaces.Frame) => void): Promise<Glue42Workspaces.Unsubscribe> => {
-        checkThrowCallback(callback);
-        const wrappedCallback = (payload: FrameStreamData): void => {
-            const frameConfig: FrameCreateConfig = {
-                summary: payload.frameSummary
-            };
-            const frame = ioc.getModel<"frame">("frame", frameConfig);
-            callback(frame);
-        };
-        const unsubscribe = await controller.processGlobalSubscription(wrappedCallback, "frame", "focus");
         return unsubscribe;
     };
 
@@ -205,26 +189,6 @@ export const composeAPI = (glue: any, ioc: IoC): Glue42Workspaces.API => {
         return unsubscribe;
     };
 
-    const onWorkspaceClosing = async (callback: (workspace: Glue42Workspaces.Workspace) => void): Promise<Glue42Workspaces.Unsubscribe> => {
-        checkThrowCallback(callback);
-        const wrappedCallback = async (payload: WorkspaceStreamData): Promise<void> => {
-            const frameConfig: FrameCreateConfig = {
-                summary: payload.frameSummary
-            };
-            const frame = ioc.getModel<"frame">("frame", frameConfig);
-
-            const snapshot = (await controller.getSnapshot(payload.workspaceSummary.id, "workspace")) as WorkspaceSnapshotResult;
-
-            const workspaceConfig: WorkspaceIoCCreateConfig = { frame, snapshot };
-
-            const workspace = ioc.getModel<"workspace">("workspace", workspaceConfig);
-
-            callback(workspace);
-        };
-        const unsubscribe = await controller.processGlobalSubscription(wrappedCallback, "workspace", "closing");
-        return unsubscribe;
-    };
-
     const onWorkspaceClosed = async (callback: (closed: { frameId: string; workspaceId: string }) => void): Promise<Glue42Workspaces.Unsubscribe> => {
         checkThrowCallback(callback);
 
@@ -233,26 +197,6 @@ export const composeAPI = (glue: any, ioc: IoC): Glue42Workspaces.API => {
         };
 
         const unsubscribe = await controller.processGlobalSubscription(wrappedCallback, "workspace", "closed");
-        return unsubscribe;
-    };
-
-    const onWorkspaceFocusChange = async (callback: (workspace: Glue42Workspaces.Workspace) => void): Promise<Glue42Workspaces.Unsubscribe> => {
-        checkThrowCallback(callback);
-        const wrappedCallback = async (payload: WorkspaceStreamData): Promise<void> => {
-            const frameConfig: FrameCreateConfig = {
-                summary: payload.frameSummary
-            };
-            const frame = ioc.getModel<"frame">("frame", frameConfig);
-
-            const snapshot = (await controller.getSnapshot(payload.workspaceSummary.id, "workspace")) as WorkspaceSnapshotResult;
-
-            const workspaceConfig: WorkspaceIoCCreateConfig = { frame, snapshot };
-
-            const workspace = ioc.getModel<"workspace">("workspace", workspaceConfig);
-
-            callback(workspace);
-        };
-        const unsubscribe = await controller.processGlobalSubscription(wrappedCallback, "workspace", "focus");
         return unsubscribe;
     };
 
@@ -311,58 +255,6 @@ export const composeAPI = (glue: any, ioc: IoC): Glue42Workspaces.API => {
         return unsubscribe;
     };
 
-    const onWindowFocusChange = async (callback: (swimlaneWindow: Glue42Workspaces.WorkspaceWindow) => void): Promise<Glue42Workspaces.Unsubscribe> => {
-        checkThrowCallback(callback);
-        const wrappedCallback = async (payload: WindowStreamData): Promise<void> => {
-            const snapshot = (await controller.getSnapshot(payload.windowSummary.config.workspaceId, "workspace")) as WorkspaceSnapshotResult;
-
-            const frameConfig: FrameCreateConfig = {
-                summary: snapshot.frameSummary
-            };
-            const frame = ioc.getModel<"frame">("frame", frameConfig);
-
-            const workspaceConfig: WorkspaceIoCCreateConfig = { frame, snapshot };
-
-            const workspace = ioc.getModel<"workspace">("workspace", workspaceConfig);
-
-            const foundWindow = workspace.getWindow((win) => win.id && win.id === payload.windowSummary.config.windowId);
-
-            callback(foundWindow);
-        };
-        const unsubscribe = await controller.processGlobalSubscription(wrappedCallback, "window", "focus");
-        return unsubscribe;
-    };
-
-    const onParentAdded = async (callback: (parent: Glue42Workspaces.WorkspaceBox) => void): Promise<Glue42Workspaces.Unsubscribe> => {
-        checkThrowCallback(callback);
-        const wrappedCallback = async (payload: ContainerStreamData): Promise<void> => {
-            const snapshot = (await controller.getSnapshot(payload.containerSummary.config.workspaceId, "workspace")) as WorkspaceSnapshotResult;
-
-            const frameConfig: FrameCreateConfig = {
-                summary: snapshot.frameSummary
-            };
-            const frame = ioc.getModel<"frame">("frame", frameConfig);
-
-            const workspaceConfig: WorkspaceIoCCreateConfig = { frame, snapshot };
-
-            const workspace = ioc.getModel<"workspace">("workspace", workspaceConfig);
-            const foundParent = workspace.getBox((parent) => parent.id === payload.containerSummary.itemId);
-            callback(foundParent);
-        };
-        const unsubscribe = await controller.processGlobalSubscription(wrappedCallback, "container", "added");
-        return unsubscribe;
-    };
-
-    const onParentRemoved = async (callback: (removed: { id: string; workspaceId: string; frameId: string }) => void): Promise<Glue42Workspaces.Unsubscribe> => {
-        checkThrowCallback(callback);
-        const wrappedCallback = (payload: ContainerStreamData): void => {
-            const { workspaceId, frameId } = payload.containerSummary.config;
-            callback({ id: payload.containerSummary.itemId, workspaceId, frameId });
-        };
-        const unsubscribe = await controller.processGlobalSubscription(wrappedCallback, "container", "removed");
-        return unsubscribe;
-    };
-
     return {
         inWorkspace,
         getBuilder,
@@ -379,18 +271,11 @@ export const composeAPI = (glue: any, ioc: IoC): Glue42Workspaces.API => {
         createWorkspace,
         layouts,
         onFrameOpened,
-        onFrameClosing,
         onFrameClosed,
-        onFrameFocusChange,
         onWorkspaceOpened,
-        onWorkspaceClosing,
         onWorkspaceClosed,
-        onWorkspaceFocusChange,
         onWindowAdded,
         onWindowLoaded,
         onWindowRemoved,
-        onWindowFocusChange,
-        onBoxAdded: onParentAdded,
-        onBoxRemoved: onParentRemoved
     };
 };

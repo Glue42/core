@@ -177,7 +177,7 @@ export class LayoutsManager {
 
     public async saveWorkspacesFrame(workspaces: Workspace[]) {
         const configPromises = workspaces.map((w) => {
-            return this.saveWorkspaceCore(w);
+            return this.saveWorkspaceCoreSync(w);
         });
         const configs = await Promise.all(configPromises);
         storage.set(storage.LAST_SESSION_KEY, configs);
@@ -194,6 +194,24 @@ export class LayoutsManager {
         const workspaceConfig = this.resolver.getWorkspaceConfig(workspace.id);
         this.removeWorkspaceIds(workspaceConfig);
         await this.applyWindowLayoutState(workspaceConfig);
+
+        const workspaceItem = configConverter.convertToAPIConfig(workspaceConfig) as WorkspaceItem;
+        this.removeWorkspaceItemIds(workspaceItem);
+
+        // The excess properties should be cleaned
+        this.windowSummariesToWindowLayout(workspaceItem);
+        this.addWindowUrlsToWindows(workspaceItem);
+        this.workspaceSummaryToWorkspaceLayout(workspaceItem);
+
+        return workspaceItem;
+    }
+
+    private saveWorkspaceCoreSync(workspace: Workspace): WorkspaceItem {
+        if (!workspace.layout) {
+            return undefined;
+        }
+        const workspaceConfig = this.resolver.getWorkspaceConfig(workspace.id);
+        this.removeWorkspaceIds(workspaceConfig);
 
         const workspaceItem = configConverter.convertToAPIConfig(workspaceConfig) as WorkspaceItem;
         this.removeWorkspaceItemIds(workspaceItem);

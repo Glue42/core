@@ -151,17 +151,20 @@ describe('close() Should ', function () {
     });
 
     it("reject when the workspace has been closed twice", (done) => {
-        workspace.close().then(() => {
-            workspace.close().then(() => {
-                done("Should not resolve");
-            }).catch(() => done());
-        }).catch(done);
+        workspace.close()
+            .then(() => {
+                return workspace.close();
+            })
+            .then(() => done("Should not resolve"))
+            .catch(() => done());
     });
 
     it("reject when the workspace has been closed twice without waiting", (done) => {
         Promise.all([workspace.close(), workspace.close()]).then(() => {
             done("Should not resolve");
-        }).catch(() => done());
+        }).catch(() => {
+            done();
+        });
     });
 
 });

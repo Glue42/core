@@ -1,8 +1,9 @@
 import { METHODS, OPERATIONS } from "./constants";
 import { Glue42Workspaces } from "../../workspaces";
 import { Bridge } from "./bridge";
-import { FrameSummaryResult } from "../types/protocol";
+import { FrameSummaryResult, PingResult } from "../types/protocol";
 import { WindowsAPI, Instance, GDWindow, InteropAPI } from "../types/glue";
+import { promisePlus } from "../shared/promisePlus";
 
 export class CoreFrameUtils {
 
@@ -22,13 +23,29 @@ export class CoreFrameUtils {
         this.workspacesRoute = `${this.assetsBaseLocation || this.defaultAssetsBase}${this.workspacesIndex}${inCsbSuffix}`;
     }
 
-    public getAllFrameInstances(): Instance[] {
-        return this.interop.servers()
+    public async getAllFrameInstances(): Promise<Instance[]> {
+
+        const potentialFrames = this.interop.servers()
             .filter((server) => {
                 if (server?.getMethods) {
                     return server.getMethods()?.some((method) => method.name === METHODS.control.name);
                 }
             });
+
+        const readyFrames: Instance[] = [];
+
+        for (const inst of potentialFrames) {
+            try {
+                const pingResult = await promisePlus<PingResult>(() => this.bridge.send<PingResult>(OPERATIONS.ping.name, undefined, inst), 3000);
+                if (pingResult.live) {
+                    readyFrames.push(inst);
+                }
+            } catch (error) {
+                continue;
+            }
+        }
+
+        return readyFrames;
     }
 
     public async focusFrame(frame: Instance): Promise<void> {
@@ -42,7 +59,7 @@ export class CoreFrameUtils {
             throw new Error("Cannot retrieve the frame, because of over-specification: both frameId and newFrame were provided.");
         }
 
-        const frames = this.getAllFrameInstances();
+        const frames = await this.getAllFrameInstances();
 
         if (config?.frameId) {
             const foundFrame = frames.find((frame) => frame.peerId === config.frameId);
@@ -62,7 +79,11 @@ export class CoreFrameUtils {
     }
 
     public async getFrameInstanceByItemId(itemId: string): Promise<Instance> {
-        const frames = this.getAllFrameInstances();
+        const frames = await this.getAllFrameInstances();
+
+        if (!frames.length) {
+            throw new Error(`Cannot get frame by item id for: ${itemId}, because not frames were found`);
+        }
 
         const queryResult = await Promise.all(frames.map((frame) => this.bridge.send<FrameSummaryResult>(OPERATIONS.getFrameSummary.name, { itemId }, frame)));
 
@@ -77,20 +98,21 @@ export class CoreFrameUtils {
         return frameInstance;
     }
 
-    public getLastFrameInteropInstance(): Instance | undefined {
-        return this.getAllFrameInstances()
-            .sort((a, b) => {
-                const aIncrementor = a?.peerId ? +a.peerId.slice(a.peerId.lastIndexOf("-") + 1) : 0;
-                const bIncrementor = b?.peerId ? +b.peerId.slice(b.peerId.lastIndexOf("-") + 1) : 0;
+    public async getLastFrameInteropInstance(): Promise<Instance | undefined> {
+        const allFrames = await this.getAllFrameInstances();
 
-                return bIncrementor - aIncrementor;
-            })[0];
+        return allFrames.sort((a, b) => {
+            const aIncrementor = a?.peerId ? +a.peerId.slice(a.peerId.lastIndexOf("-") + 1) : 0;
+            const bIncrementor = b?.peerId ? +b.peerId.slice(b.peerId.lastIndexOf("-") + 1) : 0;
+
+            return bIncrementor - aIncrementor;
+        })[0];
     }
 
     public openNewWorkspacesFrame(newFrameConfig?: Glue42Workspaces.NewFrameConfig | boolean): Promise<Instance> {
         return new Promise<Instance>((resolve, reject) => {
 
-            const framesCount = this.getAllFrameInstances().length;
+            const rndIncr = Math.random() * (100 - 0) + 0;
 
             let frameWindow: GDWindow;
 
@@ -115,7 +137,7 @@ export class CoreFrameUtils {
                 height: typeof newFrameConfig === "object" ? newFrameConfig.bounds?.height || this.defaultHeight : this.defaultHeight
             };
 
-            this.windows.open(`frame_${framesCount + 1}`, frameOptions.url, frameOptions)
+            this.windows.open(`frame_${rndIncr + 1}`, frameOptions.url, frameOptions)
                 .then((frWin) => {
                     frameWindow = frWin;
 

@@ -1,14 +1,29 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { METHODS } from "./constants";
 import { promisePlus } from "../shared/promisePlus";
-import { StreamType } from "../types/subscription";
+import { WorkspaceEventType } from "../types/subscription";
 import { InteropAPI, Subscription, Instance, InvocationResult } from "../types/glue";
 
 export class InteropTransport {
 
     private readonly defaultTransportTimeout: number = 30000;
+    private coreEventMethodInitiated = false;
+    private coreEventMethodRegistrationPromise: Promise<void>;
 
     constructor(private readonly agm: InteropAPI) { }
+
+    public coreEventMethodReady(eventCallback: (args?: any) => void): Promise<void> {
+        if (!this.coreEventMethodInitiated) {
+            this.registerCoreEventMethod(eventCallback);
+        }
+        return this.coreEventMethodRegistrationPromise;
+    }
+
+    public registerCoreEventMethod(eventCallback: (args?: any) => void): void {
+        this.coreEventMethodInitiated = true;
+        console.log("creating method");
+        this.coreEventMethodRegistrationPromise = this.agm.register(METHODS.coreEvents.name, eventCallback);
+    }
 
     public async initiate(): Promise<void> {
 
@@ -20,7 +35,7 @@ export class InteropTransport {
 
     }
 
-    public async subscribe(streamName: string, streamBranch: string, streamType: StreamType): Promise<Subscription> {
+    public async subscribe(streamName: string, streamBranch: string, streamType: WorkspaceEventType): Promise<Subscription> {
 
         const subscriptionArgs = {
             branch: streamBranch,
@@ -39,7 +54,7 @@ export class InteropTransport {
         return subscription;
     }
 
-    public async transmitControl(operation: string, operationArguments: any, target?: Instance): Promise<any> {
+    public async transmitControl(operation: string, operationArguments: any, target?: Instance, responseTimeout?: number): Promise<any> {
 
         const controlMethod = this.agm.methods().find((method) => method.name === METHODS.control.name);
 
@@ -55,7 +70,7 @@ export class InteropTransport {
         // using the 0 index of the errors and values collections, because we expect only one server and
         // this is to safeguard in case in future we decide to deprecate the default returned/message properties in favor of using only collections
         try {
-            invocationResult = await this.agm.invoke(METHODS.control.name, invocationArguments, target, { methodResponseTimeoutMs: this.defaultTransportTimeout });
+            invocationResult = await this.agm.invoke(METHODS.control.name, invocationArguments, target, { methodResponseTimeoutMs: responseTimeout || this.defaultTransportTimeout });
 
             if (!invocationResult) {
                 throw new Error("Received unsupported result from GD - empty result");

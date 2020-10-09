@@ -1,8 +1,8 @@
-import { CallbackRegistry } from "callback-registry";
-import { SubscriptionConfig, ActiveSubscription } from "../types/subscription";
+import { CallbackRegistry, UnsubscribeFunction } from "callback-registry";
+import { SubscriptionConfig, ActiveSubscription, WorkspaceEventType, WorkspaceEventAction, WorkspacePayload, WorkspaceEventScope } from "../types/subscription";
 import { STREAMS } from "./constants";
 import { OPERATIONS } from "./constants";
-import { streamRequestArgumentsDecoder, streamActionDecoder } from "../shared/decoders";
+import { eventTypeDecoder, streamRequestArgumentsDecoder, workspaceEventActionDecoder } from "../shared/decoders";
 import { Glue42Workspaces } from "../../workspaces";
 import { InteropTransport } from "./interop-transport";
 import { Instance } from "../types/glue";
@@ -16,8 +16,39 @@ export class Bridge {
         private readonly registry: CallbackRegistry
     ) { }
 
+    public async createCoreEventMethod(): Promise<void> {
+        await this.transport.coreEventMethodReady(this.handleCoreEventInvocation.bind(this));
+    }
+
+    public handleCoreSubscription(config: SubscriptionConfig): UnsubscribeFunction {
+        const registryKey = `${config.eventType}-${config.action}`;
+        const scope = config.scope;
+        const scopeId = config.scopeId;
+
+        return this.registry.add(registryKey, (args) => {
+            const scopeConfig = {
+                type: scope,
+                id: scopeId
+            };
+
+            const receivedIds = {
+                frame: args.frameSummary?.id || args.windowSummary?.config.frameId,
+                workspace: args.workspaceSummary?.id || args.windowSummary?.config.workspaceId,
+                window: args.windowSummary?.config.windowId
+            };
+
+            const shouldInvokeCallback = this.checkScopeMatch(scopeConfig, receivedIds);
+
+            if (!shouldInvokeCallback) {
+                return;
+            }
+
+            config.callback(args);
+        });
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    public async send<T>(operationName: string, operationArgs?: any, target?: Instance): Promise<T> {
+    public async send<T>(operationName: string, operationArgs?: any, target?: Instance, responseTimeout?: number): Promise<T> {
 
         if (!window.glue42gd && !target) {
             throw new Error(`Cannot complete operation: ${operationName} with args: ${JSON.stringify(operationArgs)}, because the environment is Glue42 Core and no frame target was provided`);
@@ -40,7 +71,7 @@ export class Bridge {
         let operationResult;
 
         try {
-            const operationResultRaw = await this.transport.transmitControl(operationDefinition.name, operationArgs, target);
+            const operationResultRaw = await this.transport.transmitControl(operationDefinition.name, operationArgs, target, responseTimeout);
             operationResult = operationDefinition.resultDecoder.runWithException(operationResultRaw);
         } catch (error) {
             if (error.kind) {
@@ -57,8 +88,8 @@ export class Bridge {
         const registryKey = this.getRegistryKey(config);
 
         if (!activeSub) {
-            const stream = STREAMS[config.streamType];
-            const gdSub = await this.transport.subscribe(stream.name, this.getBranchKey(config), config.streamType);
+            const stream = STREAMS[config.eventType];
+            const gdSub = await this.transport.subscribe(stream.name, this.getBranchKey(config), config.eventType);
 
             gdSub.onData((streamData) => {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -66,7 +97,7 @@ export class Bridge {
 
                 // important to decode without exception, because we do not want to throw an exception here
                 const requestedArgumentsResult = streamRequestArgumentsDecoder.run(streamData.requestArguments);
-                const actionResult = streamActionDecoder.run(data.action);
+                const actionResult = workspaceEventActionDecoder.run(data.action);
 
                 if (!requestedArgumentsResult.ok || !actionResult.ok) {
                     return;
@@ -86,9 +117,9 @@ export class Bridge {
             });
 
             activeSub = {
-                streamType: config.streamType,
-                level: config.level,
-                levelId: config.levelId,
+                streamType: config.eventType,
+                level: config.scope,
+                levelId: config.scopeId,
                 callbacksCount: 0,
                 gdSub
             };
@@ -112,19 +143,50 @@ export class Bridge {
         };
     }
 
+    private checkScopeMatch(scope: { type: WorkspaceEventScope, id?: string }, receivedIds: { frame: string, workspace: string, window: string }): boolean {
+
+        if (scope.type === "global") {
+            return true;
+        }
+
+        if (scope.type === "frame" && scope.id === receivedIds.frame) {
+            return true;
+        }
+
+        if (scope.type === "workspace" && scope.id === receivedIds.workspace) {
+            return true;
+        }
+
+        if (scope.type === "window" && scope.id === receivedIds.window) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private handleCoreEventInvocation(args?: any): void {
+        const verifiedAction: WorkspaceEventAction = workspaceEventActionDecoder.runWithException(args.action);
+        const verifiedType: WorkspaceEventType = eventTypeDecoder.runWithException(args.type);
+        const verifiedPayload: WorkspacePayload = STREAMS[verifiedType].payloadDecoder.runWithException(args.payload);
+
+        const registryKey = `${verifiedType}-${verifiedAction}`;
+
+        this.registry.execute(registryKey, verifiedPayload);
+    }
+
     private getBranchKey(config: SubscriptionConfig): string {
-        return config.level === "global" ? config.level : `${config.level}_${config.levelId}`;
+        return config.scope === "global" ? config.scope : `${config.scope}_${config.scopeId}`;
     }
 
     private getRegistryKey(config: SubscriptionConfig): string {
-        return `${config.streamType}-${this.getBranchKey(config)}-${config.action}`;
+        return `${config.eventType}-${this.getBranchKey(config)}-${config.action}`;
     }
 
     private getActiveSubscription(config: SubscriptionConfig): ActiveSubscription {
         return this.activeSubscriptions
-            .find((activeSub) => activeSub.streamType === config.streamType &&
-                activeSub.level === config.level &&
-                activeSub.levelId === config.levelId
+            .find((activeSub) => activeSub.streamType === config.eventType &&
+                activeSub.level === config.scope &&
+                activeSub.levelId === config.scopeId
             );
     }
 }

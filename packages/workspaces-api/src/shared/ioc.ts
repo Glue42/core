@@ -44,7 +44,7 @@ export class IoC {
 
     public get baseController(): BaseController {
         if (!this._baseController) {
-            this._baseController = new BaseController(this, this.windows, this.contexts);
+            this._baseController = new BaseController(this, this.windows, this.contexts, this.layouts);
         }
 
         return this._baseController;

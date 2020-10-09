@@ -1,4 +1,5 @@
-import { WorkspaceSnapshotResult, WindowStreamData, ContainerStreamData } from "../types/protocol";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { WorkspaceSnapshotResult, WindowStreamData } from "../types/protocol";
 import { checkThrowCallback, nonEmptyStringDecoder } from "../shared/decoders";
 import { PrivateDataManager } from "../shared/privateDataManager";
 import { FrameCreateConfig } from "../types/ioc";
@@ -88,11 +89,15 @@ export class Workspace implements Glue42Workspaces.Workspace {
     public async close(): Promise<void> {
         const controller = getData(this).controller;
 
-        const shouldCloseFrame = (await getData(this).frame.workspaces()).length === 1;
+        const workspaces = await getData(this).frame.workspaces();
 
-        const frameToClose = shouldCloseFrame ? getData(this).frame : null;
+        const shouldCloseFrame = workspaces.length === 1 && workspaces.every((wsp) => wsp.id === this.id);
 
-        await controller.closeItem(this.id, frameToClose);
+        if (shouldCloseFrame) {
+            return this.frame.close();
+        }
+
+        await controller.closeItem(this.id);
     }
 
     public snapshot(): Promise<Glue42Workspaces.WorkspaceSnapshot> {
@@ -287,27 +292,6 @@ export class Workspace implements Glue42Workspaces.Workspace {
         await this.refreshReference();
     }
 
-    public async onClosing(callback: () => void): Promise<Glue42Workspaces.Unsubscribe> {
-        checkThrowCallback(callback);
-        const id = getData(this).id;
-
-        const wrappedCallback = async (): Promise<void> => {
-            await this.refreshReference();
-            callback();
-        };
-
-        const config: SubscriptionConfig = {
-            action: "closing",
-            streamType: "workspace",
-            level: "workspace",
-            levelId: id,
-            callback: wrappedCallback
-        };
-
-        const unsubscribe = await getData(this).controller.processLocalSubscription(config, id);
-        return unsubscribe;
-    }
-
     public async onClosed(callback: () => void): Promise<Glue42Workspaces.Unsubscribe> {
         checkThrowCallback(callback);
         const id = getData(this).id;
@@ -318,28 +302,9 @@ export class Workspace implements Glue42Workspaces.Workspace {
         };
         const config: SubscriptionConfig = {
             action: "closed",
-            streamType: "workspace",
-            level: "workspace",
-            levelId: id,
-            callback: wrappedCallback
-        };
-
-        const unsubscribe = await getData(this).controller.processLocalSubscription(config, id);
-        return unsubscribe;
-    }
-
-    public async onFocusChange(callback: () => void): Promise<Glue42Workspaces.Unsubscribe> {
-        checkThrowCallback(callback);
-        const id = getData(this).id;
-        const wrappedCallback = async (): Promise<void> => {
-            await this.refreshReference();
-            callback();
-        };
-        const config: SubscriptionConfig = {
-            action: "focus",
-            streamType: "workspace",
-            level: "workspace",
-            levelId: id,
+            eventType: "workspace",
+            scope: "workspace",
+            scopeId: id,
             callback: wrappedCallback
         };
 
@@ -363,9 +328,9 @@ export class Workspace implements Glue42Workspaces.Workspace {
 
         const config: SubscriptionConfig = {
             action: "added",
-            streamType: "window",
-            level: "workspace",
-            levelId: id,
+            eventType: "window",
+            scope: "workspace",
+            scopeId: id,
             callback: wrappedCallback
         };
 
@@ -385,9 +350,9 @@ export class Workspace implements Glue42Workspaces.Workspace {
 
         const config: SubscriptionConfig = {
             action: "removed",
-            streamType: "window",
-            level: "workspace",
-            levelId: id,
+            eventType: "window",
+            scope: "workspace",
+            scopeId: id,
             callback: wrappedCallback
         };
 
@@ -409,99 +374,9 @@ export class Workspace implements Glue42Workspaces.Workspace {
 
         const config: SubscriptionConfig = {
             action: "loaded",
-            streamType: "window",
-            level: "workspace",
-            levelId: id,
-            callback: wrappedCallback
-        };
-
-        const unsubscribe = await getData(this).controller.processLocalSubscription(config, id);
-        return unsubscribe;
-    }
-
-    public async onWindowFocusChange(callback: (window: Glue42Workspaces.WorkspaceWindow) => void): Promise<Glue42Workspaces.Unsubscribe> {
-        checkThrowCallback(callback);
-        const id = getData(this).id;
-
-        const wrappedCallback = async (payload: WindowStreamData): Promise<void> => {
-            this.refreshReference();
-
-            const foundWindow = this.getWindow((win) => win.id && win.id === payload.windowSummary.config.windowId);
-
-            callback(foundWindow);
-        };
-
-        const config: SubscriptionConfig = {
-            action: "focus",
-            streamType: "window",
-            level: "workspace",
-            levelId: id,
-            callback: wrappedCallback
-        };
-
-        const unsubscribe = await getData(this).controller.processLocalSubscription(config, id);
-        return unsubscribe;
-    }
-
-    public async onBoxAdded(callback: (parent: Glue42Workspaces.WorkspaceBox) => void): Promise<Glue42Workspaces.Unsubscribe> {
-        checkThrowCallback(callback);
-        const id = getData(this).id;
-
-        const wrappedCallback = async (payload: ContainerStreamData): Promise<void> => {
-            await this.refreshReference();
-            const foundParent = this.getBox((parent) => parent.id === payload.containerSummary.itemId);
-            callback(foundParent);
-        };
-
-        const config: SubscriptionConfig = {
-            action: "added",
-            streamType: "container",
-            level: "workspace",
-            levelId: id,
-            callback: wrappedCallback
-        };
-
-        const unsubscribe = await getData(this).controller.processLocalSubscription(config, id);
-        return unsubscribe;
-    }
-
-    public async onBoxRemoved(callback: (removed: { id: string; workspaceId: string; frameId: string }) => void): Promise<Glue42Workspaces.Unsubscribe> {
-        checkThrowCallback(callback);
-        const id = getData(this).id;
-
-        const wrappedCallback = async (payload: ContainerStreamData): Promise<void> => {
-            await this.refreshReference();
-            const { workspaceId, frameId } = payload.containerSummary.config;
-            callback({ id: payload.containerSummary.itemId, workspaceId, frameId });
-        };
-
-        const config: SubscriptionConfig = {
-            action: "removed",
-            streamType: "container",
-            level: "workspace",
-            levelId: id,
-            callback: wrappedCallback
-        };
-
-        const unsubscribe = await getData(this).controller.processLocalSubscription(config, id);
-        return unsubscribe;
-    }
-
-    public async onBoxUpdated(callback: (parent: Glue42Workspaces.WorkspaceBox) => void): Promise<Glue42Workspaces.Unsubscribe> {
-        checkThrowCallback(callback);
-        const id = getData(this).id;
-
-        const wrappedCallback = async (payload: ContainerStreamData): Promise<void> => {
-            await this.refreshReference();
-            const foundParent = this.getBox((parent) => parent.id === payload.containerSummary.itemId);
-            callback(foundParent);
-        };
-
-        const config: SubscriptionConfig = {
-            action: "childrenUpdate",
-            streamType: "container",
-            level: "workspace",
-            levelId: id,
+            eventType: "window",
+            scope: "workspace",
+            scopeId: id,
             callback: wrappedCallback
         };
 

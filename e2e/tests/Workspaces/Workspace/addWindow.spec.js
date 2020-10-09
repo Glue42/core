@@ -11,7 +11,7 @@ describe('addWindow() Should ', function () {
                 children: [windowConfig]
             }
         ]
-    }
+    };
     let workspace = undefined;
 
     before(() => coreReady);

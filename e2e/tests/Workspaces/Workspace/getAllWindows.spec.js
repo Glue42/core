@@ -31,6 +31,7 @@ describe('getAllWindows() Should ', function () {
         expect(Array.isArray(windows)).to.be.true;
     });
 
+
     Array.from({ length: 3 }).forEach((_, i) => {
         it(`return only the windows in the target workspace when there are ${i} workspaces`, async () => {
             const newWorkspace = await Promise.all(Array.from({ length: i + 1 }).map(() => {
@@ -56,4 +57,5 @@ describe('getAllWindows() Should ', function () {
             });
         }
     });
+
 });

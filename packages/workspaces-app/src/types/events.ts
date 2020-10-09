@@ -8,6 +8,7 @@ export type WindowEventAction = "added" | "loaded" | "removed" | "focus" | "cont
 export type WorkspaceEventAction = "opened" | "closing" | "closed" | "focused";
 export type FrameEventAction = "opened" | "closing" | "closed" | "focus";
 export type ContainerEventAction = "added" | "removed" | "childrenUpdate";
+export type EventPayload = WindowEventPayload | ContainerEventPayload | WorkspaceEventPayload | FrameEventPayload;
 
 export interface WindowEventArgs {
     type: "window";

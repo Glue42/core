@@ -435,6 +435,24 @@ export namespace Glue42Web {
              * @param name Name of the layout to remove.
              */
             remove(type: LayoutType, name: string): Promise<void>;
+
+            /**
+             * Notifies when a layout is added.
+             * @param callback Callback function to handle the event. Receives the layout as a parameter and returns an unsubscribe function.
+             */
+            onAdded(callback: (layout: Layout) => void): () => void;
+
+            /**
+             * Notifies when a layout is changed.
+             * @param callback Callback function to handle the event. Receives the layout as a parameter and returns an unsubscribe function.
+             */
+            onChanged(callback: (layout: Layout) => void): () => void;
+
+            /**
+             * Notifies when a layout is removed.
+             * @param callback Callback function to handle the event. Receives the layout as a parameter and returns an unsubscribe function.
+             */
+            onRemoved(callback: (layout: Layout) => void): () => void;
         }
 
         /**

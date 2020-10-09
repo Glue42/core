@@ -127,6 +127,11 @@ export interface GenerateLayoutRequest {
     operationArguments: GenerateLayoutArguments;
 }
 
+export interface PingRequest{
+    operation:"ping";
+    operationArguments:{}
+}
+
 //#endregion
 
 //#region Arguments
@@ -255,4 +260,4 @@ export type ControlArguments = SaveLayoutRequest | DeleteLayoutRequest |
     CloseItemRequest | MaximizeItemRequest | RestoreItemRequest | AddWindowRequest | AddContainerRequest | SetItemTitleRequest |
     AddWorkspaceChildrenRequest | EjectRequest | CreateWorkspaceRequest | ForceLoadWindowRequest | FocusItemRequest |
     BundleWorkspaceRequest | IsWindowInWorkspaceRequest | GetFrameSummaryRequest | MoveFrameRequest | GetFrameSnapshotRequest |
-    GetSnapshotRequest | MoveWindowToRequest | GenerateLayoutRequest;
+    GetSnapshotRequest | MoveWindowToRequest | GenerateLayoutRequest| PingRequest;

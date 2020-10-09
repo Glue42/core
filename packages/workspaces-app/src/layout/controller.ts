@@ -82,12 +82,12 @@ export class LayoutController {
 
         const emptyVisibleWindow = contentItem.getComponentsByName(this._emptyVisibleWindowName)[0];
 
-        store.addWindow({
-            id: idAsString(placementId),
-            appName,
-            url,
-            windowId
-        }, workspace.id);
+        // store.addWindow({
+        //     id: idAsString(placementId),
+        //     appName,
+        //     url,
+        //     windowId
+        // }, workspace.id);
 
         return new Promise<void>((res) => {
             const unsub = this.emitter.onContentComponentCreated((component) => {
@@ -161,12 +161,12 @@ export class LayoutController {
         if (config.content) {
             getAllWindowsFromConfig(config.content).forEach((w: GoldenLayout.ComponentConfig) => {
                 this.registerWindowComponent(workspace.layout, idAsString(w.id));
-                store.addWindow({
-                    id: idAsString(w.id),
-                    appName: w.componentState.appName,
-                    url: w.componentState.url,
-                    windowId: w.componentState.windowId,
-                }, workspace.id);
+                // store.addWindow({
+                //     id: idAsString(w.id),
+                //     appName: w.componentState.appName,
+                //     url: w.componentState.url,
+                //     windowId: w.componentState.windowId,
+                // }, workspace.id);
             });
         }
 

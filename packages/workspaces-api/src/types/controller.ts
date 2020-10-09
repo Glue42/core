@@ -1,6 +1,6 @@
 import { Glue42Workspaces } from "../../workspaces";
 import { AddItemResult, WorkspaceSnapshotResult, FrameSnapshotResult, SimpleWindowOperationSuccessResult } from "./protocol";
-import { SubscriptionConfig, StreamType, StreamAction } from "./subscription";
+import { SubscriptionConfig, WorkspaceEventType, WorkspaceEventAction } from "./subscription";
 import { RefreshChildrenConfig } from "./privateData";
 import { Child } from "./builders";
 import { GDWindow } from "./glue";
@@ -13,7 +13,7 @@ export interface WorkspacesController {
     restoreWorkspace(name: string, options?: Glue42Workspaces.RestoreWorkspaceConfig): Promise<Glue42Workspaces.Workspace>;
     add(type: "container" | "window", parentId: string, parentType: "row" | "column" | "group" | "workspace", definition: Glue42Workspaces.WorkspaceWindowDefinition | Glue42Workspaces.BoxDefinition): Promise<AddItemResult>;
     processLocalSubscription(config: SubscriptionConfig, levelId: string): Promise<Glue42Workspaces.Unsubscribe>;
-    processGlobalSubscription(callback: (callbackData: unknown) => void, streamType: StreamType, action: StreamAction): Promise<Glue42Workspaces.Unsubscribe>;
+    processGlobalSubscription(callback: (callbackData: unknown) => void, streamType: WorkspaceEventType, action: WorkspaceEventAction): Promise<Glue42Workspaces.Unsubscribe>;
     getFrame(selector: { windowId?: string; predicate?: (frame: Glue42Workspaces.Frame) => boolean }): Promise<Glue42Workspaces.Frame>;
     getFrames(predicate?: (frame: Glue42Workspaces.Frame) => boolean): Promise<Glue42Workspaces.Frame[]>;
     getWorkspace(predicate: (workspace: Glue42Workspaces.Workspace) => boolean): Promise<Glue42Workspaces.Workspace>;
@@ -31,6 +31,8 @@ export interface WorkspacesController {
     subscribeWorkspaceContextUpdated(workspaceId: string, callback: (data: any) => void): Promise<UnsubscribeFunction>;
     saveLayout(config: Glue42Workspaces.WorkspaceLayoutSaveConfig): Promise<Glue42Workspaces.WorkspaceLayout>;
     importLayout(layouts: Glue42Workspaces.WorkspaceLayout[]): Promise<void>;
+    handleOnSaved(callback: (layout: Glue42Workspaces.WorkspaceLayout) => void): UnsubscribeFunction;
+    handleOnRemoved(callback: (layout: Glue42Workspaces.WorkspaceLayout) => void): UnsubscribeFunction;
     restoreItem(itemId: string): Promise<void>;
     maximizeItem(itemId: string): Promise<void>;
     focusItem(itemId: string): Promise<void>;

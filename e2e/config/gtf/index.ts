@@ -15,6 +15,8 @@ const startGtf = async () => {
         new GtfCore(glue),
         { agm: new GtfAgm() }
     );
+
+    // reg. method.
 }
 
 window.coreReady = startGtf();

@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Workspace } from "../models/workspace";
 import { WorkspaceSnapshotResult, WorkspaceCreateConfigProtocol, FrameSummaryResult, AddItemResult, WorkspaceSummariesResult, WorkspaceSummaryResult, SimpleWindowOperationSuccessResult, FrameSnapshotResult, SwimlaneWindowSnapshotConfig, ParentSnapshotConfig } from "../types/protocol";
 import { OPERATIONS } from "../communication/constants";
 import { FrameCreateConfig, WorkspaceIoCCreateConfig, WindowCreateConfig, ParentCreateConfig } from "../types/ioc";
 import { IoC } from "../shared/ioc";
 import { Bridge } from "../communication/bridge";
-import { Instance, GDWindow, WindowsAPI, ContextsAPI } from "../types/glue";
+import { Instance, GDWindow, WindowsAPI, ContextsAPI, LayoutsAPI } from "../types/glue";
 import { Glue42Workspaces } from "../../workspaces";
 import { Frame } from "../models/frame";
 import { RefreshChildrenConfig } from "../types/privateData";
@@ -18,7 +19,8 @@ export class BaseController {
     constructor(
         private readonly ioc: IoC,
         private readonly windows: WindowsAPI,
-        private readonly contexts: ContextsAPI
+        private readonly contexts: ContextsAPI,
+        private readonly layouts: LayoutsAPI,
     ) { }
 
     private get bridge(): Bridge {
@@ -119,6 +121,36 @@ export class BaseController {
                 layoutName: summary.config.layoutName
             };
         });
+    }
+
+    public handleOnSaved(callback: (layout: Glue42Workspaces.WorkspaceLayout) => void): UnsubscribeFunction {
+        const wrappedCallback = (layout: Glue42Workspaces.WorkspaceLayout): void => {
+            if (layout.type !== "Workspace") {
+                return;
+            }
+
+            callback(layout);
+        };
+
+        const addedUnSub: UnsubscribeFunction = this.layouts.onAdded(wrappedCallback);
+        const changedUnSub: UnsubscribeFunction = this.layouts.onChanged(wrappedCallback);
+
+        return (): void => {
+            addedUnSub();
+            changedUnSub();
+        };
+    }
+
+    public handleOnRemoved(callback: (layout: Glue42Workspaces.WorkspaceLayout) => void): UnsubscribeFunction {
+        const wrappedCallback = (layout: Glue42Workspaces.WorkspaceLayout): void => {
+            if (layout.type !== "Workspace") {
+                return;
+            }
+
+            callback(layout);
+        };
+
+        return this.layouts.onRemoved(wrappedCallback);
     }
 
     public async fetchWorkspace(workspaceId: string, frameInstance?: Instance): Promise<Workspace> {

@@ -1,6 +1,6 @@
-import { isWindowInSwimlaneResultDecoder, frameSummaryDecoder, workspaceSnapshotResultDecoder, frameSummariesResultDecoder, workspaceCreateConfigDecoder, getFrameSummaryConfigDecoder, layoutSummariesDecoder, openWorkspaceConfigDecoder, workspaceSummariesResultDecoder, voidResultDecoder, exportedLayoutsResultDecoder, workspaceLayoutDecoder, deleteLayoutConfigDecoder, simpleItemConfigDecoder, resizeItemConfigDecoder, moveFrameConfigDecoder, frameSnapshotResultDecoder, simpleWindowOperationSuccessResultDecoder, setItemTitleConfigDecoder, moveWindowConfigDecoder, addWindowConfigDecoder, addContainerConfigDecoder, addItemResultDecoder, bundleConfigDecoder, workspaceStreamDataDecoder, frameStreamDataDecoder, containerStreamDataDecoder, windowStreamDataDecoder, workspaceLayoutSaveConfigDecoder } from "../shared/decoders";
+import { isWindowInSwimlaneResultDecoder, frameSummaryDecoder, workspaceSnapshotResultDecoder, frameSummariesResultDecoder, workspaceCreateConfigDecoder, getFrameSummaryConfigDecoder, layoutSummariesDecoder, openWorkspaceConfigDecoder, workspaceSummariesResultDecoder, voidResultDecoder, exportedLayoutsResultDecoder, workspaceLayoutDecoder, deleteLayoutConfigDecoder, simpleItemConfigDecoder, resizeItemConfigDecoder, moveFrameConfigDecoder, frameSnapshotResultDecoder, simpleWindowOperationSuccessResultDecoder, setItemTitleConfigDecoder, moveWindowConfigDecoder, addWindowConfigDecoder, addContainerConfigDecoder, addItemResultDecoder, bundleConfigDecoder, workspaceStreamDataDecoder, frameStreamDataDecoder, containerStreamDataDecoder, windowStreamDataDecoder, workspaceLayoutSaveConfigDecoder, pingResultDecoder } from "../shared/decoders";
 import { ControlOperation, StreamOperation } from "../types/protocol";
-import { StreamType } from "../types/subscription";
+import { WorkspaceEventType } from "../types/subscription";
 
 type OperationsTypes = "isWindowInWorkspace" |
     "createWorkspace" |
@@ -27,18 +27,20 @@ type OperationsTypes = "isWindowInWorkspace" |
     "moveWindowTo" |
     "addWindow" |
     "addContainer" |
-    "bundleWorkspace";
-type MethodsTypes = "control" | "frameStream" | "workspaceStream" | "containerStream" | "windowStream";
+    "bundleWorkspace" |
+    "ping";
+type MethodsTypes = "control" | "frameStream" | "workspaceStream" | "containerStream" | "windowStream" | "coreEvents";
 
 export const METHODS: { [key in MethodsTypes]: { name: string; isStream: boolean } } = {
     control: { name: "T42.Workspaces.Control", isStream: false },
+    coreEvents: { name: "T42.Workspaces.Events", isStream: false },
     frameStream: { name: "T42.Workspaces.Stream.Frame", isStream: true },
     workspaceStream: { name: "T42.Workspaces.Stream.Workspace", isStream: true },
     containerStream: { name: "T42.Workspaces.Stream.Container", isStream: true },
     windowStream: { name: "T42.Workspaces.Stream.Window", isStream: true }
 };
 
-export const STREAMS: { [key in StreamType]: StreamOperation } = {
+export const STREAMS: { [key in WorkspaceEventType]: StreamOperation } = {
     frame: { name: "T42.Workspaces.Stream.Frame", payloadDecoder: frameStreamDataDecoder },
     workspace: { name: "T42.Workspaces.Stream.Workspace", payloadDecoder: workspaceStreamDataDecoder },
     container: { name: "T42.Workspaces.Stream.Container", payloadDecoder: containerStreamDataDecoder },
@@ -46,6 +48,7 @@ export const STREAMS: { [key in StreamType]: StreamOperation } = {
 };
 
 export const OPERATIONS: { [key in OperationsTypes]: ControlOperation } = {
+    ping: { name: "ping", resultDecoder: pingResultDecoder},
     isWindowInWorkspace: { name: "isWindowInWorkspace", argsDecoder: simpleItemConfigDecoder, resultDecoder: isWindowInSwimlaneResultDecoder },
     createWorkspace: { name: "createWorkspace", resultDecoder: workspaceSnapshotResultDecoder, argsDecoder: workspaceCreateConfigDecoder },
     getAllFramesSummaries: { name: "getAllFramesSummaries", resultDecoder: frameSummariesResultDecoder },

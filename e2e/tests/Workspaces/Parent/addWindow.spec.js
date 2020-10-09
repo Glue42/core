@@ -86,9 +86,6 @@ describe("addWindow() Should", () => {
             await window.forceLoad();
             await workspace.refreshReference();
 
-            const wait = new Promise(r => setTimeout(r, 3000));
-            await wait;
-
             const glueWindow = window.getGdWindow();
             const windowContext = await glueWindow.getContext();
 
@@ -136,9 +133,6 @@ describe("addWindow() Should", () => {
 
                 await window.forceLoad();
                 await workspace.refreshReference();
-
-                const wait = new Promise(r => setTimeout(r, 3000));
-                await wait;
 
                 const glueWindow = window.getGdWindow();
                 const windowContext = await glueWindow.getContext();

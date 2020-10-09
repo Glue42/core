@@ -1,3 +1,4 @@
+import { UnsubscribeFunction } from "callback-registry";
 import { Glue42Web } from "../../web";
 import { LayoutsController } from "./controller";
 import { layoutTypeDecoder, newLayoutOptionsDecoder, restoreOptionsDecoder, layoutDecoder } from "./validation/";
@@ -6,6 +7,10 @@ import { nonEmptyStringDecoder } from "./validation/simple";
 export class Layouts implements Glue42Web.Layouts.API {
 
     constructor(private readonly controller: LayoutsController) { }
+
+    public ready(): Promise<void> {
+        return this.controller.ready();
+    }
 
     public getAll(type: Glue42Web.Layouts.LayoutType): Promise<Glue42Web.Layouts.LayoutSummary[]> {
         layoutTypeDecoder.runWithException(type);
@@ -51,6 +56,30 @@ export class Layouts implements Glue42Web.Layouts.API {
         layoutTypeDecoder.runWithException(type);
 
         return this.controller.remove(type, name);
+    }
+
+    public onAdded(callback: (layout: Glue42Web.Layouts.Layout) => void): UnsubscribeFunction {
+        if (typeof callback !== "function") {
+            throw new Error("The provided callback must be of type 'function'");
+        }
+
+        return this.controller.onLayoutAdded(callback);
+    }
+
+    public onChanged(callback: (layout: Glue42Web.Layouts.Layout) => void): UnsubscribeFunction {
+        if (typeof callback !== "function") {
+            throw new Error("The provided callback must be of type 'function'");
+        }
+
+        return this.controller.onLayoutChanged(callback);
+    }
+
+    public onRemoved(callback: (layout: Glue42Web.Layouts.Layout) => void): UnsubscribeFunction {
+        if (typeof callback !== "function") {
+            throw new Error("The provided callback must be of type 'function'");
+        }
+
+        return this.controller.onLayoutRemoved(callback);
     }
 
 }

@@ -20,3 +20,5 @@ export interface LayoutsDB extends DBSchema {
         value: Glue42Web.Layouts.Layout;
     };
 }
+
+export type LayoutEvent = "layoutAdded" | "layoutChanged" | "layoutRemoved";

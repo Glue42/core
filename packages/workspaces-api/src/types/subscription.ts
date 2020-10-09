@@ -1,21 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Subscription } from "./glue";
+import { FrameStreamData, WorkspaceStreamData, ContainerStreamData, WindowStreamData } from "./protocol";
 
-export type StreamType = "frame" | "workspace" | "container" | "window";
-export type StreamLevel = "global" | "frame" | "workspace" | "window";
-export type StreamAction = "opened" | "closing" | "closed" | "focus" | "added" | "loaded" | "removed" | "childrenUpdate" | "containerChange";
+export type WorkspaceEventType = "frame" | "workspace" | "container" | "window";
+export type WorkspaceEventScope = "global" | "frame" | "workspace" | "window";
+export type WorkspaceEventAction = "opened" | "closing" | "closed" | "focus" | "added" | "loaded" | "removed" | "childrenUpdate" | "containerChange";
+export type WorkspacePayload = FrameStreamData | WorkspaceStreamData | ContainerStreamData | WindowStreamData;
 
 export interface SubscriptionConfig {
-    streamType: StreamType;
-    level: StreamLevel;
-    action: StreamAction;
+    eventType: WorkspaceEventType;
+    scope: WorkspaceEventScope;
+    action: WorkspaceEventAction;
     callback: (args?: any) => void;
-    levelId?: string;
+    scopeId?: string;
 }
 
 export interface ActiveSubscription {
-    streamType: StreamType;
-    level: StreamLevel;
+    streamType: WorkspaceEventType;
+    level: WorkspaceEventScope;
     levelId?: string;
     callbacksCount: number;
     gdSub: Subscription;

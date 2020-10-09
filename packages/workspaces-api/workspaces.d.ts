@@ -338,104 +338,42 @@ export namespace Glue42Workspaces {
         createWorkspace(definition: WorkspaceDefinition, config?: WorkspaceCreateConfig): Promise<Workspace>;
 
         /**
-         * Notifies when this frame is about to close.
-         * Not supported in Glue42 Core
-         * @param callback Callback function to handle the event.
-         */
-        onClosing(callback: (frame: Frame) => void): Promise<Unsubscribe>;
-
-        /**
          * Notifies when this frame is closed.
-         * Not supported in Glue42 Core
          * @param callback Callback function to handle the event.
          */
         onClosed(callback: (closed: { frameId: string }) => void): Promise<Unsubscribe>;
 
         /**
-         * Notifies when this frame either gained or lost focus.
-         * Not supported in Glue42 Core
-         * @param callback Callback function to handle the event.
-         */
-        onFocusChange(callback: (frame: Frame) => void): Promise<Unsubscribe>;
-
-        /**
          * Notifies when a new workspace was opened in this frame and returns an unsubscribe function.
-         * Not supported in Glue42 Core
          * @param callback Callback function to handle the event. Receives the added workspace as a parameter.
          */
         onWorkspaceOpened(callback: (workspace: Workspace) => void): Promise<Unsubscribe>;
 
         /**
-         * Notifies when a workspace present in this frame is about to be closed and returns an unsubscribe function.
-         * Not supported in Glue42 Core
-         * @param callback Callback function to handle the event. Receives the workspace as a parameter.
-         */
-        onWorkspaceClosing(callback: (workspace: Workspace) => void): Promise<Unsubscribe>;
-
-        /**
          * Notifies when a workspace present in this frame was closed and returns an unsubscribe function.
-         * Not supported in Glue42 Core
          * @param callback Callback function to handle the event. Receives an object with the closed workspace id and frame id as a parameter.
          */
         onWorkspaceClosed(callback: (closed: { frameId: string; workspaceId: string }) => void): Promise<Unsubscribe>;
 
         /**
-         * Notifies when a change in the workspace focus in this frame has happened and returns an unsubscribe function.
-         * Not supported in Glue42 Core
-         * @param callback Callback function to handle the event. Receives the workspace which now has focus as a parameter.
-         */
-        onWorkspaceFocusChange(callback: (workspace: Workspace) => void): Promise<Unsubscribe>;
-
-        /**
          * Notifies when a new window was added to a workspace part of this frame and returns an unsubscribe function.
          * An added window means that the window has a place in the workspace (it is a valid workspace element), but does not guarantee that the contents of the window are loaded.
-         * Not supported in Glue42 Core
          * @param callback Callback function to handle the event. Receives the added window as a parameter.
          */
         onWindowAdded(callback: (window: WorkspaceWindow) => void): Promise<Unsubscribe>;
 
         /**
          * Notifies when a window was removed from a workspace part of this frame and returns an unsubscribe function.
-         * Not supported in Glue42 Core
          * @param callback Callback function to handle the event. Receives an object containing the ids of the removed window, and the respective workspace and frame as a parameter.
          */
         onWindowRemoved(callback: (removed: { windowId?: string; workspaceId: string; frameId: string }) => void): Promise<Unsubscribe>;
 
         /**
          * Notifies when a window's content was loaded in a workspace part of this frame and returns an unsubscribe function.
-         * A loaded window is a window, which was added to a workspace and it's contents were loaded.
-         * Not supported in Glue42 Core
+         * A loaded window is a window, which was added to a workspace, it's contents were loaded and is present in the windows collection.
          * @param callback Callback function to handle the event. Receives the loaded window as a parameter.
          */
         onWindowLoaded(callback: (window: WorkspaceWindow) => void): Promise<Unsubscribe>;
-
-        /**
-         * Notifies when a window inside a workspace part of this frame received focus and returns an unsubscribe function.
-         * Not supported in Glue42 Core
-         * @param callback Callback function to handle the event. Receives the focused window as a parameter.
-         */
-        onWindowFocusChange(callback: (window: WorkspaceWindow) => void): Promise<Unsubscribe>;
-
-        /**
-         * Notifies when a new box was added to a workspace part of this frame and returns an unsubscribe function.
-         * Not supported in Glue42 Core
-         * @param callback Callback function to handle the event. Receives the added box as a parameter.
-         */
-        onBoxAdded(callback: (box: WorkspaceBox) => void): Promise<Unsubscribe>;
-
-        /**
-         * Notifies when a box was removed from a workspace part of this frame and returns an unsubscribe function.
-         * Not supported in Glue42 Core
-         * @param callback Callback function to handle the event. Receives an object containing the ids of the removed box and the respective workspace and frame as a parameter.
-         */
-        onBoxRemoved(callback: (removed: { id: string; workspaceId: string; frameId: string }) => void): Promise<Unsubscribe>;
-
-        /**
-         * Notifies when the contents of a box inside a workspace part of this frame has changed and returns an unsubscribe function.
-         * Not supported in Glue42 Core
-         * @param callback Callback function to handle the event. Receives the updated box as a parameter.
-         */
-        onBoxUpdated(callback: (box: Row | Column | Group) => void): Promise<Unsubscribe>;
     }
 
     /** An object describing a workspace */
@@ -609,30 +547,14 @@ export namespace Glue42Workspaces {
         bundleToColumn(): Promise<void>;
 
         /**
-         * Notifies when this workspace is about to close.
-         * Not supported in Glue42 Core
-         * @param callback Callback function to handle the event.
-         */
-        onClosing(callback: () => void): Promise<Unsubscribe>;
-
-        /**
          * Notifies when this workspace is closed.
-         * Not supported in Glue42 Core
          * @param callback Callback function to handle the event.
          */
         onClosed(callback: () => void): Promise<Unsubscribe>;
 
         /**
-         * Notifies when this workspace either gained or lost focus.
-         * Not supported in Glue42 Core
-         * @param callback Callback function to handle the event.
-         */
-        onFocusChange(callback: () => void): Promise<Unsubscribe>;
-
-        /**
          * Notifies when a new window was added to this workspace and returns an unsubscribe function.
          * An added window means that the window has a place in the workspace (it is a valid workspace element), but does not guarantee that the contents of the window are loaded.
-         * Not supported in Glue42 Core
          * @param callback Callback function to handle the event. Receives the added window as a parameter.
          */
         onWindowAdded(callback: (window: WorkspaceWindow) => void): Promise<Unsubscribe>;
@@ -646,39 +568,10 @@ export namespace Glue42Workspaces {
 
         /**
          * Notifies when a window's content was loaded in this workspace and returns an unsubscribe function.
-         * A loaded window is a window, which was added to a workspace and it's contents were loaded.
-         * Not supported in Glue42 Core
+         * A loaded window is a window, which was added to a workspace, it's contents were loaded and is present in the windows collection.
          * @param callback Callback function to handle the event. Receives the loaded window as a parameter.
          */
         onWindowLoaded(callback: (window: WorkspaceWindow) => void): Promise<Unsubscribe>;
-
-        /**
-         * Notifies when a window inside this workspace received focus and returns an unsubscribe function.
-         * Not supported in Glue42 Core
-         * @param callback Callback function to handle the event. Receives the focused window as a parameter.
-         */
-        onWindowFocusChange(callback: (window: WorkspaceWindow) => void): Promise<Unsubscribe>;
-
-        /**
-         * Notifies when a new box was added to this workspace and returns an unsubscribe function.
-         * Not supported in Glue42 Core
-         * @param callback Callback function to handle the event. Receives the added box as a parameter.
-         */
-        onBoxAdded(callback: (box: WorkspaceBox) => void): Promise<Unsubscribe>;
-
-        /**
-         * Notifies when a box was removed from this workspace and returns an unsubscribe function.
-         * Not supported in Glue42 Core
-         * @param callback Callback function to handle the event. Receives an object containing the ids of the removed box and the respective workspace and frame as a parameter.
-         */
-        onBoxRemoved(callback: (removed: { id: string; workspaceId: string; frameId: string }) => void): Promise<Unsubscribe>;
-
-        /**
-         * Notifies when the contents of a box part of this workspace has changed and returns an unsubscribe function.
-         * Not supported in Glue42 Core
-         * @param callback Callback function to handle the event. Receives the updated box as a parameter.
-         */
-        onBoxUpdated(callback: (box: Row | Column | Group) => void): Promise<Unsubscribe>;
     }
 
     /** An object containing the summary of a workspace box */
@@ -833,28 +726,6 @@ export namespace Glue42Workspaces {
         moveTo(box: WorkspaceBox): Promise<void>;
 
         /**
-         * Notifies when this window was added to any workspace in any frame and returns an unsubscribe function.
-         * An added window means that the window has a place in a workspace (it is a valid workspace element), but does not guarantee that the contents of the window are loaded.
-         * Not supported in Glue42 Core
-         * @param callback Callback function to handle the event.
-         */
-        onAdded(callback: () => void): Promise<Unsubscribe>;
-
-        /**
-         * Notifies when this window's content loaded and returns an unsubscribe function.
-         * A loaded window is a window, which was added to a workspace and it's contents were loaded.
-         * Not supported in Glue42 Core
-         * @param callback Callback function to handle the event.
-         */
-        onLoaded(callback: () => void): Promise<Unsubscribe>;
-
-        /**
-         * Notifies when the parent box of this window has changed.
-         * @param callback Callback function to handle the event. Receives the new parent object as a parameter.
-         */
-        onParentChanged(callback: (newParent: WorkspaceBox | Workspace) => void): Promise<Unsubscribe>;
-
-        /**
          * Notifies when this window was removed from the workspace.
          * @param callback Callback function to handle the event.
          */
@@ -989,6 +860,18 @@ export namespace Glue42Workspaces {
          * @param config An object describing the name of the layout and the id of the workspace, whose structure will be saved.
          */
         save(config: WorkspaceLayoutSaveConfig): Promise<WorkspaceLayout>;
+
+        /**
+         * Notifies when a layouts has been saved. This event is fired when a new layout has been saved and an existing layout has been updated.
+         * @param callback Callback function to handle the event. Receives the saved layout as a parameter.
+         */
+        onSaved(callback: (layout: WorkspaceLayout) => void): Promise<Unsubscribe>;
+
+        /**
+         * Notifies when a layouts has been removed.
+         * @param callback Callback function to handle the event. Receives the removed layout as a parameter.
+         */
+        onRemoved(callback: (layout: WorkspaceLayout) => void): Promise<Unsubscribe>;
     }
 
     /**
@@ -1083,102 +966,47 @@ export namespace Glue42Workspaces {
 
         /**
          * Notifies when a new frame was opened and returns an unsubscribe function.
-         * Not supported in Glue42 Core
          * @param callback Callback function to handle the event. Receives the added frame as a parameter.
          */
         onFrameOpened(callback: (frame: Frame) => void): Promise<Unsubscribe>;
 
         /**
-         * Notifies when a frame is about to be closed and returns an unsubscribe function.
-         * Not supported in Glue42 Core
-         * @param callback Callback function to handle the event. Receives the frame as a parameter.
-         */
-        onFrameClosing(callback: (frame: Frame) => void): Promise<Unsubscribe>;
-
-        /**
          * Notifies when a new frame was closed and returns an unsubscribe function.
-         * Not supported in Glue42 Core
          * @param callback Callback function to handle the event. Receives an object containing the id of the closed frame as a parameter.
          */
         onFrameClosed(callback: (closed: { frameId: string }) => void): Promise<Unsubscribe>;
 
         /**
-         * Notifies when a change in the frame focus has happened and returns an unsubscribe function.
-         * Not supported in Glue42 Core
-         * @param callback Callback function to handle the event. Receives the frame which now has focus as a parameter.
-         */
-        onFrameFocusChange(callback: (frame: Frame) => void): Promise<Unsubscribe>;
-
-        /**
          * Notifies when a new workspace was opened in any of the opened frames and returns an unsubscribe function.
-         * Not supported in Glue42 Core
          * @param callback Callback function to handle the event. Receives the added workspace as a parameter.
          */
         onWorkspaceOpened(callback: (workspace: Workspace) => void): Promise<Unsubscribe>;
 
         /**
-         * Notifies when a workspace present in any of the opened frames is about to be closed and returns an unsubscribe function.
-         * Not supported in Glue42 Core
-         * @param callback Callback function to handle the event. Receives the workspace as a parameter.
-         */
-        onWorkspaceClosing(callback: (workspace: Workspace) => void): Promise<Unsubscribe>;
-
-        /**
          * Notifies when a workspace present in any of the opened frames was closed and returns an unsubscribe function.
-         * Not supported in Glue42 Core
          * @param callback Callback function to handle the event. Receives an object with the closed workspace id and frame id as a parameter.
          */
         onWorkspaceClosed(callback: (closed: { frameId: string; workspaceId: string }) => void): Promise<Unsubscribe>;
 
         /**
-         * Notifies when a change in the workspace focus has happened and returns an unsubscribe function.
-         * Not supported in Glue42 Core
-         * @param callback Callback function to handle the event. Receives the workspace which now has focus as a parameter.
-         */
-        onWorkspaceFocusChange(callback: (workspace: Workspace) => void): Promise<Unsubscribe>;
-
-        /**
          * Notifies when a new window was added to any workspace in any frame and returns an unsubscribe function.
          * An added window means that the window has a place in a workspace (it is a valid workspace element), but does not guarantee that the contents of the window are loaded.
-         * Not supported in Glue42 Core
          * @param callback Callback function to handle the event. Receives the added window as a parameter.
          */
         onWindowAdded(callback: (workspaceWindow: WorkspaceWindow) => void): Promise<Unsubscribe>;
 
         /**
          * Notifies when a window's content was loaded in any workspace in any frame and returns an unsubscribe function.
-         * A loaded window is a window, which was added to a workspace and it's contents were loaded.
-         * Not supported in Glue42 Core
+         * A loaded window is a window, which was added to a workspace, it's contents were loaded and it is present in the windows collection.
          * @param callback Callback function to handle the event. Receives the loaded window as a parameter.
          */
         onWindowLoaded(callback: (workspaceWindow: WorkspaceWindow) => void): Promise<Unsubscribe>;
 
         /**
          * Notifies when a window was removed from any workspace and any frame and returns an unsubscribe function.
-         * Not supported in Glue42 Core
          * @param callback Callback function to handle the event. Receives an object containing the ids of the removed window, and the respective workspace and frame as a parameter.
          */
         onWindowRemoved(callback: (removed: { windowId?: string; workspaceId: string; frameId: string }) => void): Promise<Unsubscribe>;
 
-        /**
-         * Notifies when a window received focus and returns an unsubscribe function.
-         * Not supported in Glue42 Core
-         * @param callback Callback function to handle the event. Receives the focused window as a parameter.
-         */
-        onWindowFocusChange(callback: (workspaceWindow: WorkspaceWindow) => void): Promise<Unsubscribe>;
-
-        /**
-         * Notifies when a new box was added to any workspace in any of the opened frames and returns an unsubscribe function.
-         * Not supported in Glue42 Core
-         * @param callback Callback function to handle the event. Receives the added box as a parameter.
-         */
-        onBoxAdded(callback: (box: WorkspaceBox) => void): Promise<Unsubscribe>;
-
-        /**
-         * Notifies when a box was removed from any workspace in any of the opened frames and returns an unsubscribe function.
-         * Not supported in Glue42 Core
-         * @param callback Callback function to handle the event. Receives an object containing the ids of the removed box and the respective workspace and frame as a parameter.
-         */
-        onBoxRemoved(callback: (removed: { id: string; workspaceId: string; frameId: string }) => void): Promise<Unsubscribe>;
     }
 }

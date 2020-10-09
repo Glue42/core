@@ -220,6 +220,92 @@ describe('createWorkspace() ', function () {
         });
     });
 
+    describe('stability ', () => {
+        const basicConfig = {
+            children: [
+                {
+                    type: "row",
+                    children: [
+                        {
+                            type: "window",
+                            appName: "dummyApp"
+                        }
+                    ]
+                }
+            ]
+        };
+
+        it('should resolve when 10 workspaces are opened immediately one after the other with default frame settings and there should be 1 frame', async () => {
+
+            for (const _ of Array.from({ length: 10 })) {
+                await glue.workspaces.createWorkspace(basicConfig);
+            }
+
+            const framesCount = (await glue.workspaces.getAllFrames()).length;
+
+            expect(framesCount).to.eql(1);
+        });
+
+        it('should resolve when 10 workspaces are opened immediately in promise.all with default frame settings', async () => {
+            await Promise.all(Array.from({ length: 10 }).map(() => glue.workspaces.createWorkspace(basicConfig)));
+        });
+
+        it('should resolve when 10 workspaces are opened immediately in promise.all with newFrame setting and there should be 10 frames', async () => {
+            const createConfig = Object.assign({}, basicConfig, { frame: { newFrame: true } });
+
+            await Promise.all(Array.from({ length: 10 }).map(() => glue.workspaces.createWorkspace(createConfig)));
+
+            const framesCount = (await glue.workspaces.getAllFrames()).length;
+
+            expect(framesCount).to.eql(10);
+        });
+
+        [
+            0,
+            20,
+            30,
+            40,
+            70,
+            100,
+            125,
+            150
+        ].forEach((interval) => {
+            it(`should resolve when 10 workspaces are opened in ${interval}ms intervals with default frame settings`, async () => {
+                const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+                const createPromises = [];
+                
+                for (const _ of Array.from({ length: 10 })) {
+                    const createPromise = glue.workspaces.createWorkspace(basicConfig);
+                    createPromises.push(createPromise);
+                    await wait(interval);
+                }
+
+                await Promise.all(createPromises);
+            });
+    
+            it(`should resolve when 10 workspaces are opened in ${interval}ms intervals with newFrame setting and there should be 10 frames`, async () => {
+                const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+                const createConfig = Object.assign({}, basicConfig, { frame: { newFrame: true } });
+
+                const createPromises = [];
+                
+                for (const _ of Array.from({ length: 10 })) {
+                    const createPromise = glue.workspaces.createWorkspace(createConfig);
+                    createPromises.push(createPromise);
+                    await wait(interval);
+                }
+
+                await Promise.all(createPromises);
+
+                const framesCount = (await glue.workspaces.getAllFrames()).length;
+
+                expect(framesCount).to.eql(10);
+            });
+
+        });
+
+    });
     // SAVE CONFIG
     // after resolve the layout should be present in the layouts collection when specified in the save config
     // after resolve the layout should NOT be present in the layouts collection when there is no save config

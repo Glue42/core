@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Bridge } from "../communication/bridge";
-import { IsWindowInSwimlaneResult, WorkspaceCreateConfigProtocol, WorkspaceSnapshotResult, FrameSummariesResult, WorkspaceSummariesResult, LayoutSummariesResult, ExportedLayoutsResult, FrameSnapshotResult, AddItemResult, SimpleWindowOperationSuccessResult } from "../types/protocol";
+import { IsWindowInSwimlaneResult, WorkspaceCreateConfigProtocol, WorkspaceSnapshotResult, FrameSummariesResult, WorkspaceSummariesResult, LayoutSummariesResult, ExportedLayoutsResult, FrameSnapshotResult, AddItemResult, WindowStreamData } from "../types/protocol";
 import { OPERATIONS } from "../communication/constants";
-import { SubscriptionConfig, StreamType, StreamAction } from "../types/subscription";
+import { SubscriptionConfig, WorkspaceEventType, WorkspaceEventAction } from "../types/subscription";
 import { Workspace } from "../models/workspace";
 import { Frame } from "../models/frame";
 import { Child } from "../types/builders";
@@ -10,6 +11,7 @@ import { Glue42Workspaces } from "../../workspaces";
 import { WorkspacesController } from "../types/controller";
 import { GDWindow } from "../types/glue";
 import { BaseController } from "./base";
+import { UnsubscribeFunction } from "callback-registry";
 
 export class EnterpriseController implements WorkspacesController {
 
@@ -62,16 +64,39 @@ export class EnterpriseController implements WorkspacesController {
     }
 
     public processLocalSubscription(config: SubscriptionConfig, levelId: string): Promise<Glue42Workspaces.Unsubscribe> {
-        config.levelId = config.levelId || levelId;
+        config.scopeId = config.scopeId || levelId;
+
+        if (config.eventType === "window" && config.action === "loaded") {
+            const originalCB = config.callback;
+
+            const wrappedCB = async (callbackData: WindowStreamData): Promise<void> => {
+                await this.base.notifyWindowAdded(callbackData.windowSummary.config.windowId);
+                originalCB(callbackData);
+            };
+
+            config.callback = wrappedCB;
+        }
 
         return this.bridge.subscribe(config);
     }
 
-    public processGlobalSubscription(callback: (callbackData: unknown) => void, streamType: StreamType, action: StreamAction): Promise<Glue42Workspaces.Unsubscribe> {
+    public processGlobalSubscription(callback: (callbackData: unknown) => void, eventType: WorkspaceEventType, action: WorkspaceEventAction): Promise<Glue42Workspaces.Unsubscribe> {
         const config: SubscriptionConfig = {
-            streamType, callback, action,
-            level: "global",
+            eventType, callback, action,
+            scope: "global",
         };
+        
+        if (eventType === "window" && action === "loaded") {
+            const wrappedCB = async (callbackData: WindowStreamData): Promise<void> => {
+
+                await this.base.notifyWindowAdded(callbackData.windowSummary.config.windowId);
+                
+                callback(callbackData);
+            };
+
+            config.callback = wrappedCB;
+        }
+
         return this.bridge.subscribe(config);
     }
 
@@ -185,6 +210,14 @@ export class EnterpriseController implements WorkspacesController {
 
     public async importLayout(layouts: Glue42Workspaces.WorkspaceLayout[]): Promise<void> {
         await Promise.all(layouts.map((layout) => this.bridge.send(OPERATIONS.importLayout.name, layout)));
+    }
+
+    public handleOnSaved(callback: (layout: Glue42Workspaces.WorkspaceLayout) => void): UnsubscribeFunction {
+        return this.base.handleOnSaved(callback);
+    }
+
+    public handleOnRemoved(callback: (layout: Glue42Workspaces.WorkspaceLayout) => void): UnsubscribeFunction {
+        return this.base.handleOnRemoved(callback);
     }
 
     public async bundleTo(type: "row" | "column", workspaceId: string): Promise<void> {

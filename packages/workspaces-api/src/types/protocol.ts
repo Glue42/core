@@ -107,6 +107,10 @@ export interface AddItemResult {
     windowId?: string;
 }
 
+export interface PingResult {
+    live: boolean;
+}
+
 // #endregion
 
 // #region outgoing

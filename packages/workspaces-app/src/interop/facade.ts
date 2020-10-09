@@ -32,21 +32,16 @@ import { idAsString } from "../utils";
 import converter from "../config/converter";
 import { Glue42Web } from "@glue42/web";
 import factory from "../config/factory";
+import { EventActionType, EventPayload } from "../types/events";
 
 declare const window: Window & { glue: Glue42Web.API };
 
 class GlueFacade {
-    private readonly _workspacesWindowStream = "T42.Workspaces.Stream.Window";
-    private readonly _workspacesContainerStream = "T42.Workspaces.Stream.Container";
-    private readonly _workspacesWorkspaceStream = "T42.Workspaces.Stream.Workspace";
-    private readonly _workspacesFrameStream = "T42.Workspaces.Stream.Frame";
     private readonly _workspacesControlMethod = "T42.Workspaces.Control";
+    private readonly _workspacesEventMethod = "T42.Workspaces.Events";
+    private _inDisposing = false;
 
     private _frameId: string;
-    private _frameStream: Glue42Web.Interop.Stream;
-    private _workspaceStream: Glue42Web.Interop.Stream;
-    private _containerStream: Glue42Web.Interop.Stream;
-    private _windowStream: Glue42Web.Interop.Stream;
 
     public async init(frameId: string): Promise<void> {
         this._frameId = frameId;
@@ -55,30 +50,38 @@ class GlueFacade {
         }
     }
 
+    public dispose() {
+        this._inDisposing = true;
+    }
+
+    public subscribeForWorkspaceEvents() {
+        manager.workspacesEventEmitter.onFrameEvent((action, payload) => {
+            this.publishEventData(action, payload, "frame");
+        });
+
+        manager.workspacesEventEmitter.onWindowEvent((action, payload) => {
+            this.publishEventData(action, payload, "window");
+        });
+
+        manager.workspacesEventEmitter.onWorkspaceEvent((action, payload) => {
+            this.publishEventData(action, payload, "workspace");
+        });
+
+        manager.workspacesEventEmitter.onContainerEvent((action, payload) => {
+            this.publishEventData(action, payload, "box");
+        });
+    }
+
     private async registerAgmMethods(): Promise<void> {
         await window.glue.agm.registerAsync({
             name: this._workspacesControlMethod
         }, this.handleControl);
-
-        this._frameStream = await window.glue.agm.createStream({
-            name: this._workspacesFrameStream
-        }, { subscriptionRequestHandler: this.handleSubscriptionRequested });
-
-        this._workspaceStream = await window.glue.agm.createStream({
-            name: this._workspacesWorkspaceStream
-        }, { subscriptionRequestHandler: this.handleSubscriptionRequested });
-
-        this._containerStream = await window.glue.agm.createStream({
-            name: this._workspacesContainerStream
-        }, { subscriptionRequestHandler: this.handleSubscriptionRequested });
-
-        this._windowStream = await window.glue.agm.createStream({
-            name: this._workspacesWindowStream
-        }, { subscriptionRequestHandler: this.handleSubscriptionRequested });
     }
 
     private handleControl = async (args: ControlArguments, caller: object, successCallback: (result: object) => void, errorCallback: (error: string) => void) => {
         try {
+            await manager.initPromise;
+
             switch (args.operation) {
                 case "isWindowInWorkspace":
                     successCallback(this.handleIsWindowInWorkspace(args.operationArguments));
@@ -117,7 +120,7 @@ class GlueFacade {
                     successCallback(undefined);
                     break;
                 case "closeItem":
-                    await this.handleCloseItem(args.operationArguments);
+                    this.handleCloseItem(args.operationArguments);
                     successCallback(undefined);
                     break;
                 case "setItemTitle":
@@ -164,6 +167,9 @@ class GlueFacade {
                     break;
                 case "generateLayout":
                     successCallback(await this.handleGenerateLayout(args.operationArguments));
+                    break;
+                case "ping":
+                    successCallback(this.handlePing());
                     break;
                 default:
                     errorCallback(`Invalid operation - ${((args as unknown) as { operation: string }).operation}`);
@@ -233,8 +239,8 @@ class GlueFacade {
         };
     }
 
-    private async handleCloseItem(operationArguments: ItemSelector): Promise<CloseItemResult> {
-        await manager.closeItem(operationArguments.itemId);
+    private handleCloseItem(operationArguments: ItemSelector): CloseItemResult {
+        manager.closeItem(operationArguments.itemId);
     }
     private handleRestoreItem(operationArguments: ItemSelector): RestoreItemResult {
         manager.restoreItem(operationArguments.itemId);
@@ -316,6 +322,9 @@ class GlueFacade {
 
     private async handleEject(operationArguments: ItemSelector) {
         const item = store.getWindowContentItem(operationArguments.itemId);
+        if (!item) {
+            throw new Error(`Could not find item ${operationArguments.itemId}`);
+        }
         return await manager.eject(item);
     }
 
@@ -378,103 +387,24 @@ class GlueFacade {
         return manager.generateWorkspaceLayout(operationArguments.name, operationArguments.workspaceId);
     }
 
-    // private subscribeForEvents() {
-    //     manager.workspacesEventEmitter.onFrameEvent((action, payload) => {
-    //         const frameBranchKey = `frame_${payload.frameSummary.id}`;
-    //         const branchesToStream = [
-    //             ...this.getBranchesToStream(this._frameStream, [frameBranchKey]),
-    //         ];
-
-    //         branchesToStream.forEach((b) => {
-    //             b.push({ action, payload });
-    //         });
-    //     });
-
-    //     manager.workspacesEventEmitter.onWindowEvent((action, payload) => {
-    //         const windowBranchKey = `window_${payload.windowSummary.itemId}`;
-    //         const workspaceBranchKey = `workspace_${payload.windowSummary.config.workspaceId}`;
-    //         const frameBranchKey = `frame_${payload.windowSummary.config.frameId}`;
-    //         const branchesToStream = [
-    //             ...this.getBranchesToStream(this._windowStream, [windowBranchKey, workspaceBranchKey, frameBranchKey]),
-    //         ];
-
-    //         branchesToStream.forEach((b) => {
-    //             b.push({ action, payload });
-    //         });
-    //     });
-
-    //     manager.workspacesEventEmitter.onWorkspaceEvent((action, payload) => {
-    //         const workspaceBranchKey = `workspace_${payload.workspaceSummary.id}`;
-    //         const frameBranchKey = `frame_${payload.frameSummary.id}`;
-    //         const branchesToStream = [
-    //             ...this.getBranchesToStream(this._workspaceStream, [workspaceBranchKey, frameBranchKey]),
-    //         ];
-
-    //         branchesToStream.forEach((b) => {
-    //             b.push({ action, payload });
-    //         });
-    //     });
-
-    //     manager.workspacesEventEmitter.onContainerEvent((action, payload) => {
-    //         const workspaceBranchKey = `workspace_${payload.containerSummary.config.workspaceId}`;
-    //         const frameBranchKey = `frame_${payload.containerSummary.config.frameId}`;
-    //         const branchesToStream = [
-    //             ...this.getBranchesToStream(this._containerStream, [workspaceBranchKey, frameBranchKey]),
-    //         ];
-
-    //         branchesToStream.forEach((b) => {
-    //             b.push({ action, payload });
-    //         });
-    //     });
-    // }
-
-    private getBranchesToStream(stream: Glue42Web.Interop.Stream, branchKeys: string[]) {
-        const globalBranch = stream.branches("global");
-        const branches = stream.branches().filter((b) => branchKeys.some((el) => el === b.key));
-        const result = [];
-
-        if (globalBranch) {
-            result.push(globalBranch);
-        }
-
-        if (branches) {
-            result.push(...branches);
-        }
-
-        return result;
+    private handlePing() {
+        return { live: !this._inDisposing };
     }
 
-    private handleSubscriptionRequested = (request: Glue42Web.Interop.SubscriptionRequest) => {
-        const requestArgs = request.arguments;
-        if (requestArgs && requestArgs.branch) {
-            if (!this.isBranchKeyValid(requestArgs.branch)) {
-                request.reject("The branch key was not in the expected format");
-            }
+    private publishEventData(action: EventActionType, payload: EventPayload, type: "workspace" | "frame" | "box" | "window") {
+        const hasEventMethod = window.glue.agm.methods().some(m => m.name === this._workspacesEventMethod);
 
-            request.acceptOnBranch(requestArgs.branch);
-        } else {
-            request.reject("Couldn't find a subscription key");
+        if (hasEventMethod) {
+
+            const methodPayload = {
+                action,
+                type,
+                payload
+            };
+            window.glue.agm.invoke(this._workspacesEventMethod, methodPayload, "all").catch(() => {
+                // console.warn(`Could not push data to ${this._workspacesEventMethod} because ${e.message}`);
+            });
         }
-    }
-
-    private isBranchKeyValid(branchKey: string) {
-        if (!branchKey) {
-            return false;
-        }
-        if (branchKey === "global") {
-            return true;
-        }
-
-        const validFirstElements = ["frame", "workspace", "window"];
-        const elementsInKey = branchKey.split("_");
-
-        if (elementsInKey.length < 2) {
-            return false;
-        }
-
-        const firstElement = elementsInKey[0];
-
-        return validFirstElements.some((e) => e === firstElement);
     }
 }
 

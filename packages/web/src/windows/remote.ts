@@ -44,7 +44,7 @@ export class RemoteWebWindow implements Glue42Web.Windows.WebWindow {
             const timeout = setTimeout(() => {
                 reject(`can not close window - probably not opened by your window`);
                 done();
-            }, 1000);
+            }, 5000);
 
             this.callControl("close", {}, true)
                 .catch(() => {

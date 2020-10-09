@@ -1,14 +1,17 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Bridge } from "../communication/bridge";
 import { WorkspacesController } from "../types/controller";
 import { Glue42Workspaces } from "../../workspaces";
 import { RefreshChildrenConfig } from "../types/privateData";
-import { AddItemResult, WorkspaceSnapshotResult, FrameSnapshotResult, IsWindowInSwimlaneResult, WorkspaceCreateConfigProtocol, FrameSummaryResult, WorkspaceSummariesResult, SimpleWindowOperationSuccessResult } from "../types/protocol";
+import { AddItemResult, WorkspaceSnapshotResult, FrameSnapshotResult, IsWindowInSwimlaneResult, WorkspaceCreateConfigProtocol, FrameSummaryResult, WorkspaceSummariesResult, WindowStreamData } from "../types/protocol";
 import { Child } from "../types/builders";
 import { CoreFrameUtils } from "../communication/core-frame-utils";
 import { OPERATIONS } from "../communication/constants";
 import { Workspace } from "../models/workspace";
 import { LayoutsAPI, Instance, GDWindow } from "../types/glue";
 import { BaseController } from "./base";
+import { UnsubscribeFunction } from "callback-registry";
+import { SubscriptionConfig, WorkspaceEventAction, WorkspaceEventType } from "../types/subscription";
 
 export class CoreController implements WorkspacesController {
     constructor(
@@ -24,7 +27,7 @@ export class CoreController implements WorkspacesController {
 
     public async checkIsInSwimlane(windowId: string): Promise<boolean> {
 
-        const allFrames = this.frameUtils.getAllFrameInstances();
+        const allFrames = await this.frameUtils.getAllFrameInstances();
 
         if (!allFrames.length) {
             return false;
@@ -65,7 +68,7 @@ export class CoreController implements WorkspacesController {
         const frameInstance: Instance = await this.frameUtils.getFrameInstance({ frameId: options?.frameId, newFrame: options?.newFrame });
 
         const workspace = await this.base.restoreWorkspace(name, options, frameInstance);
-        
+
         await this.frameUtils.focusFrame(frameInstance);
 
         return workspace;
@@ -78,12 +81,47 @@ export class CoreController implements WorkspacesController {
         return await this.base.add(type, parentId, parentType, definition, frameInstance);
     }
 
-    public async processLocalSubscription(): Promise<Glue42Workspaces.Unsubscribe> {
-        throw new Error("Workspaces events are not supported in Glue42 Core.");
+    public async processLocalSubscription(config: SubscriptionConfig, levelId: string): Promise<Glue42Workspaces.Unsubscribe> {
+        await this.bridge.createCoreEventMethod();
+
+        config.scopeId = config.scopeId || levelId;
+
+        if (config.eventType === "window" && config.action === "loaded") {
+            const originalCB = config.callback;
+
+            const wrappedCB = async (callbackData: WindowStreamData): Promise<void> => {
+
+                await this.base.notifyWindowAdded(callbackData.windowSummary.config.windowId);
+
+                originalCB(callbackData);
+            };
+
+            config.callback = wrappedCB;
+        }
+
+        return this.bridge.handleCoreSubscription(config);
     }
 
-    public async processGlobalSubscription(): Promise<Glue42Workspaces.Unsubscribe> {
-        throw new Error("Workspaces events are not supported in Glue42 Core.");
+    public async processGlobalSubscription(callback: (callbackData: unknown) => void, eventType: WorkspaceEventType, action: WorkspaceEventAction): Promise<Glue42Workspaces.Unsubscribe> {
+        await this.bridge.createCoreEventMethod();
+
+        const config: SubscriptionConfig = {
+            eventType, callback, action,
+            scope: "global",
+        };
+
+        if (eventType === "window" && action === "loaded") {
+            const wrappedCB = async (callbackData: WindowStreamData): Promise<void> => {
+
+                await this.base.notifyWindowAdded(callbackData.windowSummary.config.windowId);
+
+                callback(callbackData);
+            };
+
+            config.callback = wrappedCB;
+        }
+
+        return this.bridge.handleCoreSubscription(config);
     }
 
     public async getFrame(selector: { windowId?: string; predicate?: (frame: Glue42Workspaces.Frame) => boolean }): Promise<Glue42Workspaces.Frame> {
@@ -104,11 +142,21 @@ export class CoreController implements WorkspacesController {
 
     public async getFrames(predicate?: (frame: Glue42Workspaces.Frame) => boolean): Promise<Glue42Workspaces.Frame[]> {
 
-        const allFrameInstances = this.frameUtils.getAllFrameInstances();
+        const allFrameInstances = await this.frameUtils.getAllFrameInstances();
 
-        const allFrameSummaries = await Promise.all(allFrameInstances.map((frame) => this.bridge.send<FrameSummaryResult>(OPERATIONS.getFrameSummary.name, { itemId: frame.peerId }, frame)));
+        const validSummaries: FrameSummaryResult[] = [];
 
-        return this.base.getFrames(allFrameSummaries, predicate);
+        for (const frame of allFrameInstances) {
+            try {
+                const summary = await this.bridge.send<FrameSummaryResult>(OPERATIONS.getFrameSummary.name, { itemId: frame.peerId }, frame);
+                validSummaries.push(summary);
+            } catch (error) {
+                continue;
+            }
+        }
+
+        return this.base.getFrames(validSummaries, predicate);
+
     }
 
     public async getWorkspace(predicate: (workspace: Workspace) => boolean): Promise<Workspace> {
@@ -137,7 +185,7 @@ export class CoreController implements WorkspacesController {
     }
 
     public async getAllWorkspaceSummaries(): Promise<Glue42Workspaces.WorkspaceSummary[]> {
-        const allFrames = this.frameUtils.getAllFrameInstances();
+        const allFrames = await this.frameUtils.getAllFrameInstances();
 
         const allResults = await Promise.all(allFrames.map((frame) => this.bridge.send<WorkspaceSummariesResult>(OPERATIONS.getAllWorkspacesSummaries.name, {}, frame)));
 
@@ -206,7 +254,7 @@ export class CoreController implements WorkspacesController {
 
     public async saveLayout(config: Glue42Workspaces.WorkspaceLayoutSaveConfig): Promise<Glue42Workspaces.WorkspaceLayout> {
 
-        const framesCount = this.frameUtils.getAllFrameInstances().length;
+        const framesCount = (await this.frameUtils.getAllFrameInstances()).length;
 
         if (!framesCount) {
             throw new Error(`Cannot save the layout with config: ${JSON.stringify(config)}, because no active frames were found`);
@@ -215,6 +263,14 @@ export class CoreController implements WorkspacesController {
         const frameInstance = await this.frameUtils.getFrameInstanceByItemId(config.workspaceId);
 
         return await this.bridge.send<Glue42Workspaces.WorkspaceLayout>(OPERATIONS.saveLayout.name, config, frameInstance);
+    }
+
+    public handleOnSaved(callback: (layout: Glue42Workspaces.WorkspaceLayout) => void): UnsubscribeFunction {
+        return this.base.handleOnSaved(callback);
+    }
+
+    public handleOnRemoved(callback: (layout: Glue42Workspaces.WorkspaceLayout) => void): UnsubscribeFunction {
+        return this.base.handleOnRemoved(callback);
     }
 
     public async bundleTo(type: "row" | "column", workspaceId: string): Promise<void> {
@@ -257,20 +313,13 @@ export class CoreController implements WorkspacesController {
         await this.base.focusItem(itemId, frameInstance);
     }
 
-    public async closeItem(itemId: string, frame?: Glue42Workspaces.Frame): Promise<void> {
+    public async closeItem(itemId: string): Promise<void> {
+
         const frameInstance = await this.frameUtils.getFrameInstanceByItemId(itemId);
 
         const isItemFrame = itemId === frameInstance.peerId;
 
-        await this.base.closeItem(itemId, frameInstance);
-
-        if (isItemFrame) {
-            return await this.frameUtils.closeFrame(frameInstance);
-        }
-
-        if (frame) {
-            return await frame.close();
-        }
+        return isItemFrame ? this.frameUtils.closeFrame(frameInstance) : this.base.closeItem(itemId, frameInstance);
     }
 
     public async resizeItem(itemId: string, config: Glue42Workspaces.ResizeConfig): Promise<void> {
@@ -296,7 +345,11 @@ export class CoreController implements WorkspacesController {
     public async forceLoadWindow(itemId: string): Promise<string> {
         const frameInstance = await this.frameUtils.getFrameInstanceByItemId(itemId);
 
-        return await this.base.forceLoadWindow(itemId, frameInstance);
+        const windowId = await this.base.forceLoadWindow(itemId, frameInstance);
+
+        await this.base.notifyWindowAdded(windowId);
+
+        return windowId;
     }
 
     public async ejectWindow(itemId: string): Promise<string> {

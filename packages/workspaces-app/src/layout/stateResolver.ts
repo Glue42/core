@@ -19,9 +19,9 @@ export class LayoutStateResolver {
         return this.getWindowSummaryCore(windowContentItem, windowId);
     }
 
-    public getWindowSummarySync(windowId: string | string[]): WindowSummary {
+    public getWindowSummarySync(windowId: string | string[], contentItem?: GoldenLayout.Component): WindowSummary {
         windowId = Array.isArray(windowId) ? windowId[0] : windowId;
-        const windowContentItem = store.getWindowContentItem(windowId);
+        const windowContentItem = contentItem || store.getWindowContentItem(windowId);
 
         return this.getWindowSummaryCore(windowContentItem, windowId);
     }

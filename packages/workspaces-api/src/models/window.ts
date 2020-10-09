@@ -172,58 +172,6 @@ export class Window implements Glue42Workspaces.WorkspaceWindow {
         return controller.moveWindowTo(myId, parent.id);
     }
 
-    public async onAdded(callback: () => void): Promise<Glue42Workspaces.Unsubscribe> {
-        checkThrowCallback(callback);
-        const id = getData(this).id;
-        const wrappedCallback = async (): Promise<void> => {
-            await this.workspace.refreshReference();
-            callback();
-        };
-        const config: SubscriptionConfig = {
-            callback: wrappedCallback,
-            action: "added",
-            streamType: "window",
-            level: "window"
-        };
-        const unsubscribe = await getData(this).controller.processLocalSubscription(config, id);
-        return unsubscribe;
-    }
-
-    public async onLoaded(callback: () => void): Promise<Glue42Workspaces.Unsubscribe> {
-        // TODO add an option to invoke the callback if the window has been already loaded
-        checkThrowCallback(callback);
-        const id = getData(this).id;
-        const wrappedCallback = async (): Promise<void> => {
-            await this.workspace.refreshReference();
-            callback();
-        };
-        const config: SubscriptionConfig = {
-            callback: wrappedCallback,
-            action: "loaded",
-            streamType: "window",
-            level: "window"
-        };
-        const unsubscribe = await getData(this).controller.processLocalSubscription(config, id);
-        return unsubscribe;
-    }
-
-    public async onParentChanged(callback: (newParent: Row | Column | Group | Glue42Workspaces.Workspace) => void): Promise<Glue42Workspaces.Unsubscribe> {
-        checkThrowCallback(callback);
-        const id = getData(this).id;
-        const wrappedCallback = async (): Promise<void> => {
-            await this.workspace.refreshReference();
-            callback(this.parent);
-        };
-        const config: SubscriptionConfig = {
-            callback: wrappedCallback,
-            action: "containerChange",
-            streamType: "window",
-            level: "window"
-        };
-        const unsubscribe = await getData(this).controller.processLocalSubscription(config, id);
-        return unsubscribe;
-    }
-
     public async onRemoved(callback: () => void): Promise<Glue42Workspaces.Unsubscribe> {
         checkThrowCallback(callback);
         const id = getData(this).id;
@@ -234,8 +182,8 @@ export class Window implements Glue42Workspaces.WorkspaceWindow {
         const config: SubscriptionConfig = {
             callback: wrappedCallback,
             action: "removed",
-            streamType: "window",
-            level: "window"
+            eventType: "window",
+            scope: "window"
         };
         const unsubscribe = await getData(this).controller.processLocalSubscription(config, id);
         return unsubscribe;
