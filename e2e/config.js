@@ -3,7 +3,7 @@ const basePolling = require('./ready-conditions/base-polling');
 module.exports = {
     run: [
         {
-            groupName: "Workspaces"
+            groupName: "Play"
         }
     ],
     processes: [
