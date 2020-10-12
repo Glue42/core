@@ -5,19 +5,24 @@ import { WindowType } from "./windowtype";
 
 const convertGlue42IntentToFDC3AppIntent = (glueIntent: Glue42.Intents.Intent): FDC3.AppIntent => {
     const { name, handlers } = glueIntent;
+    const appIntents = handlers.filter((handler) => handler.type === "app");
+    const dynamicInstanceIntents = handlers.filter((handler) => handler.type === "instance" && !appIntents.some((appIntent) => appIntent.applicationName === handler.applicationName));
+    // Ignore instance handlers that aren't dynamic.
+    const handlersToUse = [...appIntents, ...dynamicInstanceIntents];
 
     const appIntent: FDC3.AppIntent = {
         // Issue with the FDC3 specification: there are multiple displayNames.
         intent: { name, displayName: handlers[0].displayName || "" },
-        apps: glueIntent.handlers.map((handler) => {
-            const app = (window as WindowType).glue.appManager.application(handler.applicationName);
+        apps: handlersToUse.map((handler) => {
+            const appName = handler.applicationName;
+            const app = (window as WindowType).glue.appManager.application(appName);
 
             return {
-                name: app.name,
-                title: app.title,
-                tooltip: app.userProperties.tooltip,
-                description: app.userProperties.description,
-                icons: app.userProperties.icons,
+                name: appName,
+                title: handler.applicationTitle || handler.instanceTitle || appName,
+                tooltip: app.userProperties.tooltip || `${appName} (${handler.type})`,
+                description: handler.applicationDescription,
+                icons: handler.applicationIcon ? [handler.applicationIcon, ...(app.userProperties.icons || [])] : app.userProperties.icons,
                 images: app.userProperties.images
             };
         })
