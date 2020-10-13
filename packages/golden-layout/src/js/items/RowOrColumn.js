@@ -14,6 +14,7 @@ lm.items.RowOrColumn = function( isColumn, layoutManager, config, parent ) {
 	this._splitterPosition = null;
 	this._splitterMinPosition = null;
 	this._splitterMaxPosition = null;
+	this._layoutManager = layoutManager;
 };
 
 lm.utils.extend( lm.items.RowOrColumn, lm.items.AbstractContentItem );
@@ -504,6 +505,8 @@ lm.utils.copy( lm.items.RowOrColumn.prototype, {
 			this._splitterPosition = offset;
 			splitter.element.css( this._isColumn ? 'top' : 'left', offset );
 		}
+
+		this._layoutManager.emit("splitterDragged", splitter);
 	},
 
 	/**
@@ -532,5 +535,7 @@ lm.utils.copy( lm.items.RowOrColumn.prototype, {
 		} );
 
 		lm.utils.animFrame( lm.utils.fnBind( this.callDownwards, this, [ 'setSize' ] ) );
+
+		this._layoutManager.emit("splitterDragStopped", splitter);
 	}
 } );
