@@ -107,7 +107,8 @@ A `RemoteSource` has the following properties:
 | Property | Type | Description | Required | Default |
 |----------|------|-------------|----------|---------|
 | `url` | `string` | The URL of the remote source of application definitions. The provided application definitions need to be of type `Glue42CoreApplicationConfig`. | Yes | `-` |
-| `pollingInterval` | `number` | The polling interval for fetching application definitions from the remote source. | No | `3000` |
+| `pollingInterval` | `number` | The polling interval for fetching application definitions from the remote source in milliseconds. | No | `3000` |
+| `requestTimeout` | `number` | The request timeout for fetching application definitions from the remote source in milliseconds. | No | `3000` |
 
 The expected response from the remote application store is in JSON format and with the following shape:
 
@@ -166,7 +167,8 @@ Below is an example configuration for defining local and remote application defi
         "remoteSources": [
             {
                 "url": "http://localhost:3001/v1/apps/search",
-                "pollingInterval": 5000
+                "pollingInterval": 5000,
+                "requestTimeout": 10000
             }
         ]
     }

@@ -119,7 +119,8 @@ To configure **Glue42 Core** to retrieve application definitions from remote app
         "remoteSources": [
             {
                 "url": "http://localhost:3001/v1/apps/search",
-                "pollingInterval": 5000
+                "pollingInterval": 5000,
+                "requestTimeout": 10000
             }
         ]
     }

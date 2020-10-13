@@ -2,6 +2,7 @@ import { RemoteStore } from "../types";
 import { Glue42Web } from "../../../web";
 import { layoutTypeDecoder, layoutDecoder } from "../validation/";
 import { defaultLayoutsName } from "../../config/defaults";
+import { fetchTimeout } from "../../utils";
 
 export class JSONStore implements RemoteStore {
 
@@ -13,7 +14,7 @@ export class JSONStore implements RemoteStore {
 
         const fetchUrl = `${this.storeBaseUrl}/${defaultLayoutsName}`;
 
-        const response = await this.fetchTimeout(fetchUrl);
+        const response = await fetchTimeout(fetchUrl);
 
         if (!response.ok) {
             return [];
@@ -51,29 +52,5 @@ export class JSONStore implements RemoteStore {
         const allLayouts = await this.getAll(layoutType);
 
         return allLayouts.find((layout) => layout.name === name);
-    }
-
-    private fetchTimeout(url: string, timeoutMilliseconds = 1000): Promise<Response> {
-        return new Promise((resolve, reject) => {
-            let timeoutHit = false;
-            const timeout = setTimeout(() => {
-                timeoutHit = true;
-                reject(new Error(`Fetch request for: ${url} timed out at: ${timeoutMilliseconds} milliseconds`));
-            }, timeoutMilliseconds);
-
-            fetch(url)
-                .then((response) => {
-                    if (!timeoutHit) {
-                        clearTimeout(timeout);
-                        resolve(response);
-                    }
-                })
-                .catch((err) => {
-                    if (!timeoutHit) {
-                        clearTimeout(timeout);
-                        reject(err);
-                    }
-                });
-        });
     }
 }

@@ -181,7 +181,14 @@ export interface RemoteSource {
     url: string;
 
     /**
-     * The polling interval for fetching from the remote source.
+     * The polling interval for fetching application definitions from the remote source in milliseconds.
+     * @default 3000
      */
     pollingInterval?: number;
+
+    /**
+     * The request timeout for fetching application definitions from the remote source in milliseconds.
+     * @default 3000
+     */
+    requestTimeout?: number;
 }

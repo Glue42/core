@@ -1,4 +1,4 @@
-export const fetchTimeout = (url: string, timeoutMilliseconds = 1000): Promise<Response> => {
+export const fetchTimeout = (url: string, timeoutMilliseconds = 3000): Promise<Response> => {
     return new Promise((resolve, reject) => {
         let timeoutHit = false;
         const timeout = setTimeout(() => {

@@ -23,6 +23,7 @@ export class AppManager implements Glue42Web.AppManager.API {
     private registry: CallbackRegistry = CallbackRegistryFactory();
 
     private DEFAULT_POLLING_INTERVAL = 3000;
+    private DEFAULT_REQUEST_TIMEOUT = 3000;
     private OKAY_MESSAGE = "OK";
     private LOCAL_SOURCE = "LOCAL_SOURCE";
     private readyPromise: Promise<void>;
@@ -163,7 +164,7 @@ export class AppManager implements Glue42Web.AppManager.API {
             const url = remoteSource.url;
 
             const appsFetch = async () => {
-                const response = await fetchTimeout(url, 1000);
+                const response = await fetchTimeout(url, remoteSource.requestTimeout || this.DEFAULT_REQUEST_TIMEOUT);
                 const json = (await response.json()) as { message: string; applications: Array<Glue42CoreApplicationConfig | FDC3ApplicationConfig> };
 
                 if (json.message === this.OKAY_MESSAGE) {

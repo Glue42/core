@@ -12,7 +12,7 @@ To enable the Application Management API in your applications, you need to provi
 
 ### Application Definitions
 
-To define application configurations you have to use the `appManager` top-level key of the `glue.config.json` file of your project. You can provide application definitions directly in the `glue.config.json` file and/or from a remote application configuration store. 
+To define application configurations you have to use the `appManager` top-level key of the `glue.config.json` file of your project. You can provide application definitions directly in the `glue.config.json` file and/or from a remote application configuration store.
 
 *For more detailed explanations on the available properties for configuring applications, see the [Glue42 Environment: Configuration File](../../core-concepts/environment/overview/index.html#configuration_file) section.*
 
@@ -20,7 +20,7 @@ To define application configurations you have to use the `appManager` top-level 
 
 - #### Local Application Definitions
 
-Use the `localApplications` property of the `appManager` top-level key to define applications directly inside the `glue.config.json` file. Below is an example configuration for two applications: 
+Use the `localApplications` property of the `appManager` top-level key to define applications directly inside the `glue.config.json` file. Below is an example configuration for two applications:
 
 ```json
 {
@@ -92,7 +92,8 @@ Below is an example configuration for a remote application definition store that
         "remoteSources": [
             {
                 "url": "http://localhost:3001/v1/apps/search",
-                "pollingInterval": 5000
+                "pollingInterval": 5000,
+                "requestTimeout": 10000
             }
         ]
     }
