@@ -32,14 +32,18 @@
             }
         ],
         "sharedAssets": [
-           {
-               "route": "/web.umd.js",
-               "path": "../../packages/web/dist/web.umd.js"
-           },
-           {
-            "route": "/workspaces.umd.js",
-            "path": "../../packages/workspaces-api/dist/workspaces.umd.js"
-        }
+            {
+                "route": "/logger.js",
+                "path": "./apps/shared/logger.js"
+            },
+            {
+                "route": "/web.umd.js",
+                "path": "../../packages/web/dist/web.umd.js"
+            },
+            {
+                "route": "/workspaces.umd.js",
+                "path": "../../packages/workspaces-api/dist/workspaces.umd.js"
+            }
         ]
     },
     "logging": "default"

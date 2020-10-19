@@ -3,16 +3,17 @@ import { StartingContext } from "../types";
 import { LocalWebWindow } from "./my";
 import { LocalInstance } from "../app-manager/my";
 
-const createMethodName = (id: string): string => `"GC.Wnd."${id}`;
+const createMethodName = (id: string): string => `GC.Wnd.${id}`;
 
-export const registerChildStartupContext = (interop: Glue42Web.Interop.API, parent: string, id: string, name: string, options?: Glue42Web.Windows.CreateOptions): void => {
+export const registerChildStartupContext = async (interop: Glue42Web.Interop.API, parent: string, id: string, name: string, options?: Glue42Web.Windows.CreateOptions): Promise<void> => {
     const methodName = createMethodName(id);
     const startingContext: StartingContext = {
         context: options?.context ?? {},
         name,
         parent
     };
-    interop.register(methodName, () => startingContext);
+
+    await interop.register(methodName, () => startingContext);
 };
 
 export const initStartupContext = async (my: LocalWebWindow, interop: Glue42Web.Interop.API, instance?: LocalInstance): Promise<void> => {
@@ -21,12 +22,14 @@ export const initStartupContext = async (my: LocalWebWindow, interop: Glue42Web.
     if (interop.methods().find((m) => m.name === methodName)) {
         const result = await interop.invoke<StartingContext>(methodName);
         if (my) {
-            my.setContext(result.returned.context);
+            const context = result.returned.context;
+
+            my.setContext(context);
             my.name = result.returned.name;
             my.parent = result.returned.parent;
             if (instance) {
                 instance.startedByScript = true;
-                instance.context = result.returned.context;
+                instance.context = context;
             }
         }
     }

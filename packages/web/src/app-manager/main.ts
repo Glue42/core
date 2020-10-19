@@ -34,16 +34,13 @@ export class AppManager implements Glue42Web.AppManager.API {
         this._myInstance = new LocalInstance(myId, this.control, this, this.interop.instance);
 
         if (this.config?.remoteSources) {
-            this.readyPromise = this.subscribeForRemoteApplications(this.config.remoteSources);
+            this.readyPromise = this.subscribeForRemoteApplications(this.config.remoteSources).then(() => this.trackInstanceLifetime());
         }
         if (this.config?.localApplications) {
             const validatedApplications = this.getValidatedApplications(this.config.localApplications);
 
             this.addApplications(validatedApplications);
         }
-        control.onStart(() => {
-            this.trackInstanceLifetime();
-        });
     }
 
     get myInstance(): LocalInstance {
@@ -163,7 +160,7 @@ export class AppManager implements Glue42Web.AppManager.API {
         for (const remoteSource of remoteSources) {
             const url = remoteSource.url;
 
-            const appsFetch = async () => {
+            const appsFetch = async (): Promise<void> => {
                 const response = await fetchTimeout(url, remoteSource.requestTimeout || this.DEFAULT_REQUEST_TIMEOUT);
                 const json = (await response.json()) as { message: string; applications: Array<Glue42CoreApplicationConfig | FDC3ApplicationConfig> };
 
@@ -304,7 +301,7 @@ export class AppManager implements Glue42Web.AppManager.API {
         }
     }
 
-    private async remoteFromServer(server: Glue42Web.Interop.Instance): Promise<RemoteInstance | undefined> {
+    private remoteFromServer(server: Glue42Web.Interop.Instance): RemoteInstance | undefined {
         const serverApp = server.application;
 
         if (!server.instance || !serverApp || !this._apps[serverApp]) {
@@ -314,19 +311,18 @@ export class AppManager implements Glue42Web.AppManager.API {
         const id = server.instance;
         const app = this._apps[serverApp].application;
         const appWindow = this.windows.list().find((window) => window.id === server.windowId);
-        const context = await appWindow?.getContext();
 
-        return new RemoteInstance(id, app, this.control, context, server);
+        return new RemoteInstance(id, app, this.control, server, appWindow);
     }
 
     private trackInstanceLifetime(): void {
         // Whenever a new control method appears we have a new Glue42 Core instance in our environment.
-        this.interop.serverMethodAdded(async ({ server, method }) => {
+        this.interop.serverMethodAdded(({ server, method }) => {
             if (method.name !== Control.CONTROL_METHOD) {
                 return;
             }
 
-            const remoteInstance = await this.remoteFromServer(server);
+            const remoteInstance = this.remoteFromServer(server);
 
             if (remoteInstance) {
                 this._instances.push(remoteInstance);
@@ -335,8 +331,8 @@ export class AppManager implements Glue42Web.AppManager.API {
         });
 
         // Whenever a control method is removed we have a removed Glue42 Core instance from our environment.
-        this.interop.serverRemoved(async (server) => {
-            const remoteInstance = await this.remoteFromServer(server);
+        this.interop.serverRemoved((server) => {
+            const remoteInstance = this.remoteFromServer(server);
 
             if (remoteInstance) {
                 this._instances = this._instances.filter((instance) => instance.id !== remoteInstance.id);

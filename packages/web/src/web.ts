@@ -180,8 +180,6 @@ export const createFactoryFunction = (coreFactoryFunction: GlueCoreFactoryFuncti
             await Promise.all(config.libraries.map((lib) => lib(core, builtCoreConfig?.glue)));
         }
 
-        // start control component
-        control.start(core.interop, core.logger.subLogger("control"));
         if (isWebEnvironment) {
             // fill in our window context
             await initStartupContext(core.windows.my() as LocalWebWindow, core.interop, core.appManager?.myInstance as LocalInstance);
@@ -191,6 +189,8 @@ export const createFactoryFunction = (coreFactoryFunction: GlueCoreFactoryFuncti
             }
             await hookCloseEvents(core, builtCoreConfig.glue ?? {}, control, layoutsController);
         }
+        // Start the control component after the app has received its initial context so that when `serverMethodAdded()` is fired it is already populated.
+        control.start(core.interop, core.logger.subLogger("control"));
 
         return core;
     };

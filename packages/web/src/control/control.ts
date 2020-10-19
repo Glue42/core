@@ -28,7 +28,7 @@ export class Control {
                 if (!this.myWindow) {
                     return;
                 }
-                const result = (this.myWindow as any)[command.command].call(this.myWindow, command.args);
+                const result = await (this.myWindow as any)[command.command].call(this.myWindow, command.args);
                 if (command.skipResult) {
                     return {};
                 } else {
@@ -39,7 +39,7 @@ export class Control {
                 if (!this.myInstance) {
                     return;
                 }
-                const result = (this.myInstance as any)[command.command].call(this.myInstance, command.args);
+                const result = await (this.myInstance as any)[command.command].call(this.myInstance, command.args);
                 if (command.skipResult) {
                     return {};
                 } else {

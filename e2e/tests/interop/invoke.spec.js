@@ -71,13 +71,13 @@ describe('invoke()', function () {
         //         });
         // });
 
-        
+
     });
 
     describe('async method invoke', function () {
         before(() => window.methodDefinition = gtf.agm.getMethodName());
     });
-    
+
     describe('invoke()', function () {
 
         before(() => {
@@ -363,8 +363,6 @@ describe('invoke()', function () {
                         done('Should not be called');
                     }, (invokeErrorHandler) => {
                         try {
-                            // changed from GTF_SUPPORT_RUNNER to TestRunner
-                            console.log('invoked by', invokeErrorHandler.executed_by.application);
                             expect(invokeErrorHandler.executed_by.application.includes('TestRunner')).to.be.true;
                             done();
                         } catch (e) {
@@ -455,7 +453,7 @@ describe('invoke()', function () {
         it('Should reject when the supplied target object isn\'t an instance', (done) => {
             glue.agm.register(methodDefinition, (args) => args);
 
-            glue.agm.invoke(methodDefinition, {}, { target: 'best' }, {waitTimeoutMs: 5000})
+            glue.agm.invoke(methodDefinition, {}, { target: 'best' }, { waitTimeoutMs: 5000 })
                 .then((result) => done('Should not resolve', result))
                 .catch(() => done());
         });
@@ -724,7 +722,7 @@ describe('invoke()', function () {
         // });
     });
 
-    describe('Complex AGM objects: ', function() {
+    describe('Complex AGM objects: ', function () {
         this.timeout(5000);
 
         before(() => {

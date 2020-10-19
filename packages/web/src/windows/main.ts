@@ -52,7 +52,7 @@ export class Windows implements Glue42Web.Windows.API {
         let top = options?.top ?? 0;
         const id = shortid();
 
-        registerChildStartupContext(this.interop, this.my().id, id, name, options);
+        await registerChildStartupContext(this.interop, this.my().id, id, name, options);
 
         if (options?.relativeTo) {
             const relativeWindowId = options.relativeTo;
@@ -134,8 +134,9 @@ export class Windows implements Glue42Web.Windows.API {
                     width: rect.width,
                     height: relativeTo.height
                 };
+            default:
+                throw new Error("invalid relativeDirection");
         }
-        throw new Error("invalid relativeDirection");
     }
 
     private trackWindowsLifetime() {

@@ -4,16 +4,7 @@ describe('subscribeFor()', () => {
     });
 
     afterEach(async () => {
-        const channelNames = await glue.channels.all();
-        const resetChannelPromises = channelNames.map((channelName) => glue.contexts.set(`___channel___${channelName}`, {
-            name: channelName,
-            meta: {
-                color: channelName.toLowerCase()
-            },
-            data: {}
-        }));
-
-        return Promise.all([...resetChannelPromises, glue.channels.leave()]);
+        return Promise.all([gtf.channels.resetContexts(), glue.channels.leave()]);
     });
 
     it('Should reject with an error when name isn\'t of type string.', async () => {

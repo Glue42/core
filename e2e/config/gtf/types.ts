@@ -9,6 +9,7 @@ export interface ControlArgs {
 export interface CancellablePromise<T> extends Promise<T> {
     cancel: () => void;
 }
+
 export namespace Gtf {
     export interface App {
         stop(): Promise<void>;
@@ -38,6 +39,10 @@ export namespace Gtf {
         post(url: string, body: string): Promise<Response>;
     }
 
+    export interface Channels {
+        resetContexts(): Promise<void[]>;
+    }
+
     export interface AppManager {
         getLocalApplications(): Promise<Array<Glue42CoreApplicationConfig | FDC3ApplicationConfig>>;
 
@@ -48,5 +53,17 @@ export namespace Gtf {
         resetRemoteSourceApplications(url?: string): Promise<Glue42Web.AppManager.Application[]>;
 
         setRemoteSourceApplications(applications: Glue42Web.AppManager.Application[], url?: string): Promise<Glue42Web.AppManager.Application[]>;
+
+        stopAllOtherInstances(): Promise<void>;
+    }
+
+    export interface Connection {
+        disconnectGlues(gluesToDisconnect: Glue42Web.API[]): Promise<void>;
+    }
+
+    export interface Logger {
+        patchLogMessages(): void;
+
+        register(): Promise<void>;
     }
 }

@@ -760,6 +760,7 @@ export namespace Glue42Web {
 
             /**
              * Notifies when a new application instance has been started.
+             * Replays the already started instances.
              * @param callback Callback function to handle the event. Receives the started application instance as a parameter.
              * @returns Unsubscribe function.
              */
@@ -774,6 +775,7 @@ export namespace Glue42Web {
 
             /**
              * Notifies when an application is registered in the environment.
+             * Replays the already added applications.
              * @param callback Callback function to handle the event. Receives the added application as a parameter.
              * @returns Unsubscribe function.
              */
@@ -827,6 +829,7 @@ export namespace Glue42Web {
 
             /**
              * Subscribes for the event which fires when an application instance is started.
+             * Note: unlike the API's `onInstanceStarted()` the Application's `onInstanceStarted()` method doesn't replay the already started instances.
              * @param callback Callback function to handle the newly started instance.
              * @returns Unsubscribe function.
              */

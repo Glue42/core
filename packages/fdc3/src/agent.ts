@@ -20,10 +20,10 @@ const convertGlue42IntentToFDC3AppIntent = (glueIntent: Glue42.Intents.Intent): 
             return {
                 name: appName,
                 title: handler.applicationTitle || handler.instanceTitle || appName,
-                tooltip: app.userProperties.tooltip || `${appName} (${handler.type})`,
+                tooltip: app?.userProperties.tooltip || `${appName} (${handler.type})`,
                 description: handler.applicationDescription,
-                icons: handler.applicationIcon ? [handler.applicationIcon, ...(app.userProperties.icons || [])] : app.userProperties.icons,
-                images: app.userProperties.images
+                icons: handler.applicationIcon ? [handler.applicationIcon, ...(app?.userProperties.icons || [])] : app?.userProperties.icons,
+                images: app?.userProperties.images
             };
         })
     };
@@ -34,7 +34,7 @@ const convertGlue42IntentToFDC3AppIntent = (glueIntent: Glue42.Intents.Intent): 
 const createIntentsAgent = (): Partial<FDC3.DesktopAgent> => {
     const open = async (name: string, context?: FDC3.Context): Promise<void> => {
         const app = (window as WindowType).glue.appManager.application(name);
-        if (!app) {
+        if (typeof app === "undefined") {
             throw new Error(FDC3.OpenError.AppNotFound);
         }
 
@@ -95,7 +95,7 @@ const createIntentsAgent = (): Partial<FDC3.DesktopAgent> => {
         if (typeof target !== "undefined") {
             const app = (window as WindowType).glue.appManager.application(target);
             if (typeof app === "undefined") {
-                throw new Error(`Application ${target} not found.`);
+                throw new Error(FDC3.OpenError.AppNotFound);
             }
             const appInstances = app.instances;
             if (appInstances.length === 0) {

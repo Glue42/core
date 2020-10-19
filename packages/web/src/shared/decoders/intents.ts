@@ -24,13 +24,13 @@ const glue42CoreIntentContextDecoder: Decoder<Glue42Web.Intents.IntentContext> =
     data: optional(object())
 });
 
-export const glue42CoreIntentFilterDecoder: Decoder<string | Glue42Web.Intents.IntentFilter> = oneOf<string | Glue42Web.Intents.IntentFilter>(
+export const glue42CoreIntentFilterDecoder: Decoder<string | Glue42Web.Intents.IntentFilter> = optional(oneOf<string | Glue42Web.Intents.IntentFilter>(
     object({
         name: optional(string()),
         contextType: optional(string())
     }),
     nonEmptyStringDecoder
-);
+));
 
 export const glue42CoreIntentDefinitionDecoder: Decoder<string | { intent: string, contextTypes?: string[], displayName?: string }> = oneOf<string | { intent: string, contextTypes?: string[], displayName?: string }>(
     object({

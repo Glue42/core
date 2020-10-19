@@ -23,11 +23,14 @@
     "@lerna/run": "^3.20.0",
     "@typescript-eslint/eslint-plugin": "^2.25.0",
     "@typescript-eslint/parser": "^2.25.0",
+    "body-parser": "^1.19.0",
     "chai": "^4.2.0",
+    "cors": "^2.8.5",
     "eslint": "^6.8.0",
     "eslint-plugin-import": "^2.21.2",
     "eslint-plugin-jest": "^23.8.2",
     "eslint-plugin-react": "^7.19.0",
+    "express": "^4.17.1",
     "gulp": "^4.0.2",
     "husky": "^4.2.3",
     "karma": "^5.1.0",
@@ -42,6 +45,7 @@
     "parcel-bundler": "^1.12.4",
     "rollup-plugin-typescript2": "^0.27.2",
     "simple-git": "^1.131.0",
+    "tree-kill": "^1.2.2",
     "typescript": "^3.8.3"
   },
   "husky": {
@@ -54,7 +58,5 @@
       "./node_modules/.bin/eslint --ignore-path .gitignore ."
     ]
   },
-  "dependencies": {
-    "tree-kill": "^1.2.2"
-  }
+  "dependencies": {}
 }

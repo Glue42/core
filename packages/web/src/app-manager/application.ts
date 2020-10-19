@@ -62,6 +62,13 @@ export class Application implements Glue42Web.AppManager.Application {
     }
 
     public start = (context?: object, options?: Glue42Web.Windows.Settings): Promise<Glue42Web.AppManager.Instance> => {
+        if (typeof context !== "undefined" && typeof context !== "object") {
+            throw new Error("Please provide the context as an object!");
+        }
+        if (typeof options !== "undefined" && typeof options !== "object") {
+            throw new Error("Please provide the options as an object!");
+        }
+
         return promisePlus(() => this.startWithoutTimeout(context, options), 3000, `Application "${this.name}" start timeout!`);
     }
     /* eslint-disable @typescript-eslint/no-explicit-any */

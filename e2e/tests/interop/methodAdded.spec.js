@@ -1,7 +1,7 @@
 /* eslint-disable no-console, no-unused-vars */
 'use strict';
 describe('methodAdded()', function () {
-    
+
     let currentStream;
 
     before(() => coreReady);
@@ -122,7 +122,7 @@ describe('methodAdded()', function () {
 
     });
 
-    
+
     describe('AGM events about other servers\' actions: ', function () {
         this.timeout(5000);
 
@@ -376,7 +376,7 @@ describe('methodAdded()', function () {
         });
     });
 
-    
+
     describe('Registering with only name', () => {
         const expectedProperties = [
             'accepts',
@@ -497,7 +497,7 @@ describe('methodAdded()', function () {
         });
     });
 
-    
+
     describe('methodAdded()', function () {
 
         before(() => {
@@ -556,7 +556,7 @@ describe('methodAdded()', function () {
                 gtf.addWindowHook(un);
             });
         });
-    
+
         it('Should not be triggered when a method with the same name and signature is registered.', (done) => {
             let calledCounter = 0;
             gtf.wait(3000, () => {
@@ -579,7 +579,7 @@ describe('methodAdded()', function () {
             glueApplicationOne.agm.register(newMethodDefinition, callbackNeverCalled);
             glueApplicationOne.agm.register(newMethodDefinition, callbackNeverCalled);
         });
-    
+
         // I think that this test detects a bug
         // it('Should be triggered when a method with the same name and signature is registered as a method that was registered but then was unregistered.', (done) => {
         //     const newName = gtf.agm.getMethodName();
@@ -626,7 +626,7 @@ describe('methodAdded()', function () {
         //             glueApplicationOne.agm.register(newMethodDefinition, callbackNeverCalled);
         //         });
         // });
-    
+
         it('Should call the callback with the correct MethodDefinition.', (done) => {
             const newName = gtf.agm.getMethodName();
             const newMethodDefinition = {
@@ -673,7 +673,6 @@ describe('methodAdded()', function () {
 
             const un = glue.agm.methodAdded((methodDef) => {
                 if (methodDef.name === newName) {
-                    console.log(`increment for: ${newName}`);
                     done();
                 }
             });

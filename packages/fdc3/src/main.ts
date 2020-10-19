@@ -1,5 +1,5 @@
 import createDesktopAgent from "./agent";
-import Glue, { Glue42 } from "@glue42/desktop";
+import Glue from "@glue42/desktop";
 import GlueWebFactory from "@glue42/web";
 import { getChannelsList, isEmptyObject, isGlue42Core } from "./utils";
 import { version } from "../package.json";
@@ -8,7 +8,6 @@ import { WindowType } from "./windowtype";
 
 const defaultGlueConfig = {
     application: (window as WindowType).fdc3AppName,
-    appManager: true,
     context: true,
     intents: true,
     channels: true,
@@ -34,9 +33,12 @@ const patchSharedContexts = (): Promise<void> => {
     });
 };
 
-const setupGlue = (clientGlueConfig?: Glue42.Config): void => {
+const setupGlue = (): void => {
     if (isGlue42Core) {
-        (window as WindowType).gluePromise = GlueWebFactory(defaultGlueConfig)
+        (window as WindowType).gluePromise = GlueWebFactory({
+            ...defaultGlueConfig,
+            appManager: true
+        })
             .then((glue) => {
                 (window as WindowType).glue = glue;
 
@@ -65,7 +67,10 @@ const setupGlue = (clientGlueConfig?: Glue42.Config): void => {
             .then(() => {
                 const GlueFactory = (window as WindowType).Glue || Glue;
 
-                return GlueFactory(clientGlueConfig || defaultGlueConfig);
+                return GlueFactory({
+                    ...defaultGlueConfig,
+                    appManager: "full"
+                });
             })
             .then((glue) => {
                 (window as WindowType).glue = glue;
