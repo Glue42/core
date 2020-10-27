@@ -12,13 +12,13 @@ export class GtfApp implements Gtf.App {
     public get agm() {
         return {
             register: (methodDefinition: string | object) => {
-                    const controlArgs: ControlArgs = {
-                        operation: 'register',
-                        params: {
-                            methodDefinition
-                        }
+                const controlArgs: ControlArgs = {
+                    operation: 'register',
+                    params: {
+                        methodDefinition
                     }
-                    return this.sendControl<void>(controlArgs);
+                }
+                return this.sendControl<void>(controlArgs);
             },
             unregister: (methodDefinition: string | object) => {
                 const controlArgs: ControlArgs = {
@@ -30,13 +30,13 @@ export class GtfApp implements Gtf.App {
                 return this.sendControl<void>(controlArgs);
             },
             registerAsync: (methodDefinition: string | object) => {
-                    const controlArgs: ControlArgs = {
-                        operation: 'registerAsync',
-                        params: {
-                            methodDefinition
-                        }
+                const controlArgs: ControlArgs = {
+                    operation: 'registerAsync',
+                    params: {
+                        methodDefinition
                     }
-                    return this.sendControl<void>(controlArgs);
+                }
+                return this.sendControl<void>(controlArgs);
             },
             createStream: (methodDefinition: any): Promise<any> => {
                 return new Promise(async (resolve, reject) => {
@@ -53,10 +53,10 @@ export class GtfApp implements Gtf.App {
                                 methodDefinition
                             }
                         };
-            
+
                         await this.sendControl<void>(closeStreamOptions);
                     };
-            
+
                     const pushStream = (data: object, branches?: string | string[]) => {
                         const pushStreamOptions: ControlArgs = {
                             operation: "pushStream",
@@ -65,7 +65,7 @@ export class GtfApp implements Gtf.App {
                                 branches
                             }
                         };
-            
+
                         this.sendControl<void>(pushStreamOptions);
                     };
 
@@ -86,8 +86,7 @@ export class GtfApp implements Gtf.App {
     }
 
     public async stop(): Promise<void> {
-        const foundWindow = this.glue.windows.findById(this.myInstance.agm.windowId);
-        await foundWindow.close();
+        await this.myInstance.stop();
     }
 
     public async setContext(ctxName: string, ctxData: any): Promise<void> {

@@ -7,7 +7,7 @@ describe('stop()', () => {
         return gtf.appManager.stopAllOtherInstances();
     });
 
-    it.skip('Should stop the application instance.', async () => {
+    it('Should stop the application instance.', async () => {
         const appNameToStartAndStop = 'coreSupport';
         const app = glue.appManager.application(appNameToStartAndStop);
 

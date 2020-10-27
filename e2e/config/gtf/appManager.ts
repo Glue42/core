@@ -36,11 +36,11 @@ export class GtfAppManager implements Gtf.AppManager {
         return data.applications;
     }
 
-    public stopAllOtherInstances(): Promise<void[]> {
+    public async stopAllOtherInstances(): Promise<void> {
         const myInstanceId = this.glue.appManager.myInstance.id;
 
         const otherInstances = this.glue.appManager.instances().filter((instance) => instance.id !== myInstanceId);
 
-        return Promise.all(otherInstances.map((instance) => instance.stop()));
+        await Promise.all(otherInstances.map((instance) => instance.stop()));
     }
 }

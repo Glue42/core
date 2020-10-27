@@ -3,6 +3,10 @@ describe('properties', () => {
         return coreReady;
     });
 
+    afterEach(() => {
+        return gtf.appManager.stopAllOtherInstances();
+    });
+
     describe('_url', () => {
         it('Should be set correctly in the case of a Glue42 Core application.', async () => {
             const appName = 'coreSupport';
@@ -132,7 +136,7 @@ describe('properties', () => {
     });
 
     describe('instances', () => {
-        it.skip('Should be set correctly.', async () => {
+        it('Should be set correctly.', async () => {
             const appName = 'coreSupport';
             const app = glue.appManager.application(appName);
 

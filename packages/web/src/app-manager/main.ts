@@ -31,7 +31,7 @@ export class AppManager implements Glue42Web.AppManager.API {
     constructor(private windows: Windows, private interop: Glue42Web.Interop.API, private control: Control, private config?: AppManagerConfig, private appName?: string) {
         const myId = interop.instance.instance as string;
 
-        this._myInstance = new LocalInstance(myId, this.control, this, this.interop.instance);
+        this._myInstance = new LocalInstance(myId, this.control, this.interop.instance);
 
         if (this.config?.remoteSources) {
             this.readyPromise = this.subscribeForRemoteApplications(this.config.remoteSources).then(() => this.trackInstanceLifetime());
@@ -312,7 +312,7 @@ export class AppManager implements Glue42Web.AppManager.API {
         const app = this._apps[serverApp].application;
         const appWindow = this.windows.list().find((window) => window.id === server.windowId);
 
-        return new RemoteInstance(id, app, this.control, server, appWindow);
+        return new RemoteInstance(id, app, this.control, server, this, appWindow);
     }
 
     private trackInstanceLifetime(): void {
@@ -325,6 +325,11 @@ export class AppManager implements Glue42Web.AppManager.API {
             const remoteInstance = this.remoteFromServer(server);
 
             if (remoteInstance) {
+                // Handle a bug where the callback provided to `serverMethodAdded()` is called twice for the same server/method pair.
+                if (this._instances.some((instance) => instance.id === remoteInstance.id)) {
+                    return;
+                }
+
                 this._instances.push(remoteInstance);
                 this.registry.execute("instanceStarted", remoteInstance);
             }
