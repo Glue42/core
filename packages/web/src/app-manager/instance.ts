@@ -8,8 +8,12 @@ export class RemoteInstance implements Glue42Web.AppManager.Instance {
 
     // window can be undefined in the case when `serverMethodAdded()` is fired after the window is already closed.
     constructor(public id: string, public application: Glue42Web.AppManager.Application, private control: Control, public agm: Glue42Web.Interop.Instance, private appManager: Glue42Web.AppManager.API, private window?: Glue42Web.Windows.WebWindow) {
-        this.window?.getContext().then((context: object) => {
-            this.context = context;
+        // `getContext()` relies on the control having been started.
+        const unsub = control.onStart(() => {
+            this.window?.getContext().then((context: object) => {
+                unsub();
+                this.context = context;
+            });
         });
     }
 

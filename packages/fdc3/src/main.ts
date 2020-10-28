@@ -3,8 +3,8 @@ import Glue from "@glue42/desktop";
 import GlueWebFactory from "@glue42/web";
 import { getChannelsList, isEmptyObject, isGlue42Core } from "./utils";
 import { version } from "../package.json";
-import { FDC3 } from "../types";
-import { WindowType } from "./windowtype";
+import { WindowType } from "./types/windowtype";
+import { DesktopAgent } from "@finos/fdc3";
 
 const defaultGlueConfig = {
     application: (window as WindowType).fdc3AppName,
@@ -83,7 +83,7 @@ const setupGlue = (): void => {
     }
 };
 
-const fdc3Factory = (): FDC3.DesktopAgent & { version: string } => {
+const fdc3Factory = (): DesktopAgent & { version: string } => {
     setupGlue();
 
     const agentApi = createDesktopAgent();

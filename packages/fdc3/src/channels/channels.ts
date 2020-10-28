@@ -1,20 +1,27 @@
-import { FDC3 } from "../../types";
 import { Glue42 } from "@glue42/desktop";
 import { SystemChannel, AppChannel } from "./channel";
-import { WindowType } from "../windowtype";
-import { getChannelsList, isGlue42Core, newSubscribe, isEmptyObject, Listener } from "../utils";
+import { WindowType } from "../types/windowtype";
+import {
+    getChannelsList,
+    isGlue42Core,
+    newSubscribe,
+    isEmptyObject,
+    AsyncListener
+} from "../utils";
+import { Channel, ChannelError, Context, Listener } from "@finos/fdc3";
+import { ChannelsAPI } from "../types/channelsAPI";
 
 interface PendingSubscription {
     contextType: string;
-    handler: (context: FDC3.Context) => void;
+    handler: (context: Context) => void;
     setActualUnsub: (actualUnsub: () => void) => void;
 }
 
-const createChannelsAgent = (): FDC3.ChannelsAPI => {
-    let currentChannel: FDC3.Channel | null;
+const createChannelsAgent = (): ChannelsAPI => {
+    let currentChannel: Channel | null;
     let pendingSubscription: PendingSubscription | null;
 
-    const channels: { [name: string]: FDC3.Channel } = {};
+    const channels: { [name: string]: Channel } = {};
 
     let systemChannels: string[] = [];
 
@@ -29,18 +36,18 @@ const createChannelsAgent = (): FDC3.ChannelsAPI => {
         await (window as WindowType).glue.contexts.set(channelId, null);
     };
 
-    const isSystem = (channel: FDC3.Channel | null): boolean => {
+    const isSystem = (channel: Channel | null): boolean => {
         if (!channel) {
             return false;
         }
         return systemChannels.some((n) => n === channel.id);
     };
 
-    const mapToFDC3SystemChannel = (glueChannel: Glue42.Channels.ChannelContext): FDC3.Channel => {
+    const mapToFDC3SystemChannel = (glueChannel: Glue42.Channels.ChannelContext): Channel => {
         return new SystemChannel(glueChannel);
     };
 
-    const mapToFDC3AppChannel = (channelName: string): FDC3.Channel => {
+    const mapToFDC3AppChannel = (channelName: string): Channel => {
         return new AppChannel(channelName);
     };
 
@@ -50,7 +57,7 @@ const createChannelsAgent = (): FDC3.ChannelsAPI => {
         }
     };
 
-    const createPendingListener = (contextType: string, handler: (context: FDC3.Context) => void): FDC3.Listener => {
+    const createPendingListener = (contextType: string, handler: (context: Context) => void): Listener => {
         let unsubscribe = (): void => { pendingSubscription = null; };
 
         const setActualUnsub = (actualUnsub: () => void): void => { unsubscribe = actualUnsub; };
@@ -90,7 +97,7 @@ const createChannelsAgent = (): FDC3.ChannelsAPI => {
 
     const initDone = init();
 
-    const getSystemChannels = async (): Promise<FDC3.Channel[]> => {
+    const getSystemChannels = async (): Promise<Channel[]> => {
         await initDone;
 
         const systemChannelImpls = systemChannels.map((id) => channels[id]);
@@ -98,7 +105,7 @@ const createChannelsAgent = (): FDC3.ChannelsAPI => {
         return systemChannelImpls;
     };
 
-    const getOrCreateAppChannel = async (channelId: FDC3.ChannelId): Promise<FDC3.Channel> => {
+    const getOrCreateAppChannel = async (channelId: string): Promise<Channel> => {
         await initDone;
 
         const exists = await doesAppChannelExist(channelId);
@@ -110,7 +117,7 @@ const createChannelsAgent = (): FDC3.ChannelsAPI => {
         return mapToFDC3AppChannel(channelId);
     };
 
-    const getOrCreateChannel = async (channelId: FDC3.ChannelId): Promise<FDC3.Channel> => {
+    const getOrCreateChannel = async (channelId: string): Promise<Channel> => {
         const systemChannels = await getSystemChannels();
         const channel = systemChannels.find((systemChannel) => systemChannel.id === channelId);
 
@@ -127,13 +134,13 @@ const createChannelsAgent = (): FDC3.ChannelsAPI => {
         }
     };
 
-    const tryGetAppChannel = async (channelId: string): Promise<FDC3.Channel> => {
+    const tryGetAppChannel = async (channelId: string): Promise<Channel> => {
         await initDone;
 
         const exists = await doesAppChannelExist(channelId);
 
         if (!exists) {
-            throw new Error(FDC3.ChannelError.NoChannelFound);
+            throw new Error(ChannelError.NoChannelFound);
         }
 
         const appChannel = mapToFDC3AppChannel(channelId);
@@ -145,11 +152,11 @@ const createChannelsAgent = (): FDC3.ChannelsAPI => {
     const joinChannel = async (channelId: string): Promise<void> => {
         await initDone;
 
-        const channel: FDC3.Channel = channels[channelId]
+        const channel: Channel = channels[channelId]
             || await tryGetAppChannel(channelId);
 
         if (!channel) {
-            throw new Error(FDC3.ChannelError.NoChannelFound);
+            throw new Error(ChannelError.NoChannelFound);
         }
 
         if (isSystem(channel)) {
@@ -161,10 +168,10 @@ const createChannelsAgent = (): FDC3.ChannelsAPI => {
         setCurrentChannel(channel);
     };
 
-    const getCurrentChannel = async (): Promise<FDC3.Channel> => {
+    const getCurrentChannel = async (): Promise<Channel> => {
         await initDone;
 
-        return currentChannel as FDC3.Channel;
+        return currentChannel as Channel;
     };
 
     const leaveCurrentChannel = async (): Promise<void> => {
@@ -175,11 +182,11 @@ const createChannelsAgent = (): FDC3.ChannelsAPI => {
         currentChannel = null;
     };
 
-    const broadcast = async (context: FDC3.Context): Promise<void> => {
+    const broadcast = async (context: Context): Promise<void> => {
         await initDone;
 
         if (!currentChannel) {
-            console.error("You must join a channel first.");
+            console.error("You need to join a channel in order to broadcast.");
             return;
         }
 
@@ -189,14 +196,14 @@ const createChannelsAgent = (): FDC3.ChannelsAPI => {
             : (window as WindowType).glue.contexts.update(id, context);
     };
 
-    function addContextListener(handler: (context: FDC3.Context) => void): FDC3.Listener;
-    function addContextListener(contextType: string, handler: (context: FDC3.Context) => void): FDC3.Listener;
-    function addContextListener(contextTypeInput: any, handlerInput?: any): FDC3.Listener {
+    function addContextListener(handler: (context: Context) => void): Listener;
+    function addContextListener(contextType: string, handler: (context: Context) => void): Listener;
+    function addContextListener(contextTypeInput: any, handlerInput?: any): Listener {
         const contextType = arguments.length === 2 && contextTypeInput;
         const handler = arguments.length === 2 ? handlerInput : contextTypeInput;
 
         if (!currentChannel) {
-            console.warn("You will start receiving broadcasts only after you join a channel !");
+            console.warn("You need to join a channel in order to start receiving broadcasted contexts!");
             const listener = createPendingListener(contextType, handler);
 
             // Handle context passed to `fdc3.open()`.
@@ -231,10 +238,10 @@ const createChannelsAgent = (): FDC3.ChannelsAPI => {
 
         const unsubFunc = subscribe(onNewData);
 
-        return Listener(unsubFunc);
+        return AsyncListener(unsubFunc);
     }
 
-    const setCurrentChannel = (newChannel: FDC3.Channel): void => {
+    const setCurrentChannel = (newChannel: Channel): void => {
         currentChannel = newChannel;
 
         if (pendingSubscription) {
