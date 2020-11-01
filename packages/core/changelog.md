@@ -1,3 +1,5 @@
+5.2.5
+fix: config - exposed glue.config.application (legacy)
 5.2.4
 fix: contexts - clone context object when passing to subscribers
 5.2.3
