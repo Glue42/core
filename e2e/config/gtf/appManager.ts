@@ -41,6 +41,9 @@ export class GtfAppManager implements Gtf.AppManager {
 
         const otherInstances = this.glue.appManager.instances().filter((instance) => instance.id !== myInstanceId);
 
-        await Promise.all(otherInstances.map((instance) => instance.stop()));
+        console.log(`My instance id: ${myInstanceId}`);
+        console.log(`Stopping instances: ${otherInstances.map(instance => instance.id)}`);
+
+        await Promise.all(otherInstances.map((instance) => instance.stop().then(() => console.log(`Stopped instance ${instance.id}`))));
     }
 }

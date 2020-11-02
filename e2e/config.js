@@ -27,7 +27,7 @@ module.exports = {
                 path: '/',
                 method: 'GET',
                 pollingInterval: 100,
-                pollingTimeout: 1000
+                pollingTimeout: 30 * 1000
             })
         },
         {
@@ -39,7 +39,7 @@ module.exports = {
                 path: '/v1/apps/search',
                 method: 'GET',
                 pollingInterval: 100,
-                pollingTimeout: 1000
+                pollingTimeout: 30 * 1000
             })
         }
     ]
