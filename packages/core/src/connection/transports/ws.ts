@@ -9,9 +9,7 @@ import Utils from "../../utils/utils";
 import { PromiseWrapper } from "../../utils/pw";
 import timer from "../../utils/timer";
 
-const dummyRequire = (): any => undefined;
-const requireFunc: any = Utils.isNode() ? require : dummyRequire;
-const WebSocketConstructor = Utils.isNode() ? requireFunc("ws") : window.WebSocket;
+const WebSocketConstructor = Utils.isNode() ? require("ws") : window.WebSocket;
 
 export default class WS implements Transport {
     private ws: WebSocket | undefined;
