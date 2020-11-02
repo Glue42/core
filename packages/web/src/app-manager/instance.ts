@@ -17,24 +17,22 @@ export class RemoteInstance implements Glue42Web.AppManager.Instance {
         });
     }
 
-    public async stop(): Promise<void> {
-        const instanceStoppedPromise: Promise<void> = new Promise((resolve) => {
+    public stop(): Promise<void> {
+        const instanceStoppedPromise: Promise<void> = new Promise((resolve, reject) => {
             this.appManager.onInstanceStopped((instance) => {
                 if (instance.id === this.id) {
                     resolve();
                 }
             });
+
+            this.callControl("stop", {}, false).catch((error) => {
+                if (error.message !== this.WINDOW_DID_NOT_HAVE_TIME_TO_RESPOND) {
+                    reject(error);
+                }
+            });
         });
 
-        try {
-            await this.callControl("stop", {}, false);
-        } catch (error) {
-            if (error.message !== this.WINDOW_DID_NOT_HAVE_TIME_TO_RESPOND) {
-                throw new Error(error);
-            }
-        }
-
-        await promisePlus(() => instanceStoppedPromise, 10000, `Instance ${this.id} stop timeout!`);
+        return promisePlus<void>(() => instanceStoppedPromise, 10000, `Instance ${this.id} stop timeout!`);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

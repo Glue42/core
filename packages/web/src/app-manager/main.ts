@@ -337,7 +337,13 @@ export class AppManager implements Glue42Web.AppManager.API {
 
         // Whenever a control method is removed we have a removed Glue42 Core instance from our environment.
         this.interop.serverRemoved((server) => {
-            const remoteInstance = this.remoteFromServer(server);
+            const serverId = server.instance;
+
+            if (!serverId) {
+                return;
+            }
+
+            const remoteInstance = this._instances.find((instance) => instance.id === serverId);
 
             if (remoteInstance) {
                 this._instances = this._instances.filter((instance) => instance.id !== remoteInstance.id);
