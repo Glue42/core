@@ -8,8 +8,10 @@
  *
  * @returns {VOID}
  */
-lm.LayoutManager = function (config, container) {
-
+lm.LayoutManager = function (config, container, componentFactory) {
+	if (!$ && window.$) {
+		$ = window.$;
+	}
 	if (!$ || typeof $.noConflict !== 'function') {
 		var errorMsg = 'jQuery is missing as dependency for GoldenLayout. ';
 		errorMsg += 'Please either expose $ on GoldenLayout\'s scope (e.g. window) or add "jquery" to ';
@@ -33,6 +35,7 @@ lm.LayoutManager = function (config, container) {
 	this._dragProxies = [];
 	this._updatingColumnsResponsive = false;
 	this._firstLoad = true;
+	this._componentFactory = componentFactory;
 
 	this.width = null;
 	this.height = null;
@@ -1082,20 +1085,14 @@ lm.utils.copy(lm.LayoutManager.prototype, {
 		}, this));
 	}
 });
-
 /**
  * Expose the Layoutmanager as the single entrypoint using UMD
  */
 (function () {
 	/* global define */
-	if (typeof define === 'function' && define.amd) {
-		define(['jquery'], function (jquery) {
-			$ = jquery;
-			return lm.LayoutManager;
-		}); // jshint ignore:line
-	} else if (typeof exports === 'object') {
+	if (typeof exports === 'object') {
+		lm.LayoutManager.default = lm.LayoutManager;
 		module.exports = lm.LayoutManager;
-	} else {
-		window.GoldenLayout = lm.LayoutManager;
 	}
+	window.GoldenLayout = lm.LayoutManager;
 })();

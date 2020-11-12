@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Bridge } from "../communication/bridge";
-import { IsWindowInSwimlaneResult, WorkspaceCreateConfigProtocol, WorkspaceSnapshotResult, FrameSummariesResult, WorkspaceSummariesResult, LayoutSummariesResult, ExportedLayoutsResult, FrameSnapshotResult, AddItemResult, WindowStreamData } from "../types/protocol";
+import { IsWindowInSwimlaneResult, WorkspaceCreateConfigProtocol, WorkspaceSnapshotResult, FrameSummariesResult, WorkspaceSummariesResult, LayoutSummariesResult, ExportedLayoutsResult, FrameSnapshotResult, AddItemResult, WindowStreamData, FrameStateResult } from "../types/protocol";
 import { OPERATIONS } from "../communication/constants";
 import { SubscriptionConfig, WorkspaceEventType, WorkspaceEventAction } from "../types/subscription";
 import { Workspace } from "../models/workspace";
@@ -85,12 +85,12 @@ export class EnterpriseController implements WorkspacesController {
             eventType, callback, action,
             scope: "global",
         };
-        
+
         if (eventType === "window" && action === "loaded") {
             const wrappedCB = async (callbackData: WindowStreamData): Promise<void> => {
 
                 await this.base.notifyWindowAdded(callbackData.windowSummary.config.windowId);
-                
+
                 callback(callbackData);
             };
 
@@ -250,6 +250,15 @@ export class EnterpriseController implements WorkspacesController {
 
     public async focusItem(itemId: string): Promise<void> {
         return await this.base.focusItem(itemId);
+    }
+
+    public async changeFrameState(frameId: string, state: Glue42Workspaces.FrameState): Promise<void> {
+        await this.bridge.send<void>(OPERATIONS.changeFrameState.name, { frameId, requestedState: state });
+    }
+
+    public async getFrameState(frameId: string): Promise<Glue42Workspaces.FrameState> {
+        const frameResult = await this.bridge.send<FrameStateResult>(OPERATIONS.getFrameState.name, { itemId: frameId });
+        return frameResult.state;
     }
 
     public async closeItem(itemId: string): Promise<void> {

@@ -44,6 +44,26 @@ export class Frame implements Glue42Workspaces.Frame {
         return getData(this).controller.focusItem(myId);
     }
 
+    public async state(): Promise<Glue42Workspaces.FrameState> {
+        const myId = getData(this).summary.id;
+        return getData(this).controller.getFrameState(myId);
+    }
+
+    public async minimize(): Promise<void> {
+        const myId = getData(this).summary.id;
+        return getData(this).controller.changeFrameState(myId, "minimized");
+    }
+
+    public async maximize(): Promise<void> {
+        const myId = getData(this).summary.id;
+        return getData(this).controller.changeFrameState(myId, "maximized");
+    }
+
+    public async restore(): Promise<void> {
+        const myId = getData(this).summary.id;
+        return getData(this).controller.changeFrameState(myId, "normal");
+    }
+
     public close(): Promise<void> {
         const myId = getData(this).summary.id;
         return getData(this).controller.closeItem(myId);
@@ -84,6 +104,60 @@ export class Frame implements Glue42Workspaces.Frame {
         const config: SubscriptionConfig = {
             callback: wrappedCallback,
             action: "closed",
+            eventType: "frame",
+            scope: "frame"
+        };
+        const unsubscribe = await getData(this).controller.processLocalSubscription(config, myId);
+        return unsubscribe;
+    }
+
+    public async onMaximized(callback: () => void): Promise<Glue42Workspaces.Unsubscribe> {
+        checkThrowCallback(callback);
+        const myId = getData(this).summary.id;
+
+        const wrappedCallback = (): void => {
+            callback();
+        };
+
+        const config: SubscriptionConfig = {
+            callback: wrappedCallback,
+            action: "maximized",
+            eventType: "frame",
+            scope: "frame"
+        };
+        const unsubscribe = await getData(this).controller.processLocalSubscription(config, myId);
+        return unsubscribe;
+    }
+
+    public async onMinimized(callback: () => void): Promise<Glue42Workspaces.Unsubscribe> {
+        checkThrowCallback(callback);
+        const myId = getData(this).summary.id;
+
+        const wrappedCallback = (): void => {
+            callback();
+        };
+
+        const config: SubscriptionConfig = {
+            callback: wrappedCallback,
+            action: "minimized",
+            eventType: "frame",
+            scope: "frame"
+        };
+        const unsubscribe = await getData(this).controller.processLocalSubscription(config, myId);
+        return unsubscribe;
+    }
+
+    public async onNormal(callback: () => void): Promise<Glue42Workspaces.Unsubscribe> {
+        checkThrowCallback(callback);
+        const myId = getData(this).summary.id;
+
+        const wrappedCallback = (): void => {
+            callback();
+        };
+
+        const config: SubscriptionConfig = {
+            callback: wrappedCallback,
+            action: "normal",
             eventType: "frame",
             scope: "frame"
         };

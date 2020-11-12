@@ -16,7 +16,8 @@
     "publishConfig": {
         "access": "public"
     },
-    "dependencies": {
+    "dependencies": {},
+    "peerDependencies": {
         "jquery": "3.5.0"
     },
     "scripts": {

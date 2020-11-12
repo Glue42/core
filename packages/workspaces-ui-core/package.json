@@ -1,0 +1,68 @@
+{
+    "name": "@glue42/workspaces-ui-core",
+    "version": "0.0.0",
+    "description": "Glue42's vanilla JS implementation of the workspaces ui component",
+    "module": "./dist/export.js",
+    "main": "./dist/export.js",
+    "typings": "workspaces.d.ts",
+    "scripts": {
+        "build": "npm run test && rollup --config ./rollup.config.js",
+        "build:dev": "rollup --config ./rollup.config.js",
+        "test": "cross-env TS_NODE_PROJECT=./tsconfig.test.json mocha -r ts-node/register test/**/*.spec.ts",
+        "audit": "node ../../scripts/audit/index.js",
+        "preversion": "npm run build && npm run test && npm run audit",
+        "version": "npm run build"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "author": {
+        "name": "Glue42",
+        "url": "https://www.glue42.com"
+    },
+    "files": [
+        "assets",
+        "dist",
+        "popups/dist",
+        "popups/index.html",
+        "popups/styles",
+        "popups/images",
+        "index.html",
+        "workspaces.d.ts",
+        "workspaces.webmanifest"
+    ],
+    "license": "MIT",
+    "dependencies": {
+        "@glue42/golden-layout": "^1.1.3",
+        "@glue42/web": "^1.6.5",
+        "@glue42/workspaces-api": "^1.1.3",
+        "callback-registry": "^2.5.2",
+        "jquery": "~3.5.1",
+        "resize-observer-polyfill": "^1.5.1",
+        "shortid": "^2.2.15"
+    },
+    "devDependencies": {
+        "@glue42/desktop": "^5.2.4",
+        "@rollup/plugin-commonjs": "^16.0.0",
+        "@rollup/plugin-node-resolve": "^10.0.0",
+        "@types/chai": "^4.2.11",
+        "@types/jquery": "^3.3.31",
+        "@types/json-stable-stringify": "^1.0.32",
+        "@types/mocha": "^7.0.2",
+        "@types/node": "^12.12.21",
+        "@types/shortid": "0.0.29",
+        "@types/sinon": "^9.0.4",
+        "chai": "^4.2.0",
+        "cross-env": "^7.0.2",
+        "mocha": "^8.1.1",
+        "rollup": "^2.32.1",
+        "rollup-plugin-copy": "^3.3.0",
+        "rollup-plugin-peer-deps-external": "^2.2.4",
+        "rollup-plugin-terser": "^7.0.2",
+        "rollup-plugin-typescript2": "^0.29.0",
+        "sinon": "^9.0.2",
+        "ts-node": "^8.10.2",
+        "tslint": "^6.1.2",
+        "typescript": "^4.0.3"
+    }
+}

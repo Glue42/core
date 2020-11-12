@@ -1,4 +1,9 @@
 declare module '@glue42/golden-layout' {
+    interface ComponentFactory {
+        createLogo?: (options: { domNode: HTMLElement }) => void;
+        createAddWorkspace?: (options: { domNode: HTMLElement }) => void;
+        createSystemButtons?: (options: { domNode: HTMLElement }) => void;
+    }
     class GoldenLayout implements GoldenLayout.EventEmitter {
         /**
          * The topmost item in the layout item tree. In browser terms: Think of the GoldenLayout instance as window
@@ -58,7 +63,7 @@ declare module '@glue42/golden-layout' {
          * @param config A GoldenLayout configuration object
          * @param container The DOM element the layout will be initialised in. Default: document.body
          */
-        constructor(configuration: GoldenLayout.Config, container?: Element | HTMLElement | JQuery);
+        constructor(configuration: GoldenLayout.Config, container?: Element | HTMLElement | JQuery, componentFactory?: ComponentFactory);
 
         /*
          * @param name 	The name of the component, as referred to by componentName in the component configuration.
