@@ -1,12 +1,14 @@
 import fdc3Factory from "./main";
 import { WindowType } from "./types/windowtype";
 
-const fdc3 = fdc3Factory();
+let globalFdc3 = (window as WindowType).fdc3;
 
-if (typeof (window as WindowType).fdc3 === "undefined") {
-    (window as WindowType).fdc3 = fdc3;
+if (typeof globalFdc3 === "undefined") {
+    globalFdc3 = fdc3Factory();
+
+    (window as WindowType).fdc3 = globalFdc3;
 } else {
     console.warn("Defaulting to using the auto-injected fdc3.");
 }
 
-export default fdc3;
+export default globalFdc3;
