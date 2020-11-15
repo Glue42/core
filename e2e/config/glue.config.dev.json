@@ -8,7 +8,7 @@
         "layouts": "./glue/glue.layouts.json",
         "route": "/glue",
         "workspaces": {
-            "appLocation": "../../packages/workspaces-app/",
+            "appLocation": "../../templates/workspaces-react/build",
             "manifestLocation": "./glue/workspaces.webmanifest"
         }
     },

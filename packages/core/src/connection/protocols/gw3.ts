@@ -285,7 +285,7 @@ export default class GW3ProtocolImpl implements GW3Protocol {
 
             this.connection.login(this.loginConfig, true)
                 .catch(() => {
-                    setTimeout(this.handleDisconnected, 1000);
+                    setTimeout(this.handleDisconnected.bind(this), this.settings.reconnectInterval || 1000);
                 });
         }
     }

@@ -111,6 +111,10 @@ export interface PingResult {
     live: boolean;
 }
 
+export interface FrameStateResult {
+    state: Glue42Workspaces.FrameState;
+}
+
 // #endregion
 
 // #region outgoing
@@ -134,6 +138,11 @@ export interface DeleteLayoutConfig {
 
 export interface SimpleItemConfig {
     itemId: string;
+}
+
+export interface FrameStateConfig {
+    frameId: string;
+    requestedState?: Glue42Workspaces.FrameState;
 }
 
 export interface ResizeItemConfig {

@@ -160,6 +160,9 @@ export namespace Glue42Workspaces {
     /** An object which represent a workspace box. This is an element which contains other elements, called children. */
     export type WorkspaceBox = Row | Column | Group;
 
+    /** The possible window states for a workspaces frame. */
+    export type FrameState = "maximized" | "minimized" | "normal";
+
     /** An object describing the options of the builder. */
     export interface BuilderConfig {
         /** A string defining the type of the builder. */
@@ -309,6 +312,36 @@ export namespace Glue42Workspaces {
         focus(): Promise<void>;
 
         /**
+         * Returns the current state of the frame.
+         * Not available in Glue42 Core
+         */
+        state(): Promise<FrameState>;
+
+        /**
+         * Minimizes this frame.
+         * Not available in Glue42 Core
+         */
+        minimize(): Promise<void>;
+
+        /**
+         * Minimizes this frame.
+         * Not available in Glue42 Core
+         */
+        minimize(): Promise<void>;
+
+        /**
+         * Maximizes this frame.
+         * Not available in Glue42 Core
+         */
+        maximize(): Promise<void>;
+
+        /**
+         * Restores this frame.
+         * Not available in Glue42 Core
+         */
+        restore(): Promise<void>;
+
+        /**
          * Closes this frame.
          */
         close(): Promise<void>;
@@ -342,6 +375,27 @@ export namespace Glue42Workspaces {
          * @param callback Callback function to handle the event.
          */
         onClosed(callback: (closed: { frameId: string }) => void): Promise<Unsubscribe>;
+
+        /**
+         * Notifies when this frame is maximized.
+         * This event is not supported in Glue42 Core.
+         * @param callback Callback function to handle the event.
+         */
+        onMaximized(callback: () => void): Promise<Unsubscribe>;
+
+        /**
+         * Notifies when this frame is closed.
+         * This event is not supported in Glue42 Core.
+         * @param callback Callback function to handle the event.
+         */
+        onMinimized(callback: () => void): Promise<Unsubscribe>;
+
+        /**
+         * Notifies when this frame is closed.
+         * This event is not supported in Glue42 Core.
+         * @param callback Callback function to handle the event.
+         */
+        onNormal(callback: () => void): Promise<Unsubscribe>;
 
         /**
          * Notifies when a new workspace was opened in this frame and returns an unsubscribe function.

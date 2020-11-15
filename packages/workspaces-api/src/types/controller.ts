@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Glue42Workspaces } from "../../workspaces";
-import { AddItemResult, WorkspaceSnapshotResult, FrameSnapshotResult, SimpleWindowOperationSuccessResult } from "./protocol";
+import { AddItemResult, WorkspaceSnapshotResult, FrameSnapshotResult } from "./protocol";
 import { SubscriptionConfig, WorkspaceEventType, WorkspaceEventAction } from "./subscription";
 import { RefreshChildrenConfig } from "./privateData";
 import { Child } from "./builders";
@@ -35,6 +36,8 @@ export interface WorkspacesController {
     handleOnRemoved(callback: (layout: Glue42Workspaces.WorkspaceLayout) => void): UnsubscribeFunction;
     restoreItem(itemId: string): Promise<void>;
     maximizeItem(itemId: string): Promise<void>;
+    changeFrameState(frameId: string, state: Glue42Workspaces.FrameState): Promise<void>;
+    getFrameState(frameId: string): Promise<Glue42Workspaces.FrameState>;
     focusItem(itemId: string): Promise<void>;
     closeItem(itemId: string, frame?: Glue42Workspaces.Frame): Promise<void>;
     resizeItem(itemId: string, config: Glue42Workspaces.ResizeConfig): Promise<void>;

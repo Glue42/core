@@ -1,6 +1,6 @@
 {
     "name": "@glue42/react-hooks",
-    "version": "1.2.5",
+    "version": "1.2.6",
     "description": "React Hooks for Glue Web",
     "main": "dist/npm/index.js",
     "module": "dist/es/index.js",
@@ -73,7 +73,7 @@
     },
     "dependencies": {
         "@glue42/desktop": "^5.2.4",
-        "@glue42/web": "^1.6.5",
+        "@glue42/web": "^1.6.6",
         "prop-types": "^15.7.2"
     }
 }

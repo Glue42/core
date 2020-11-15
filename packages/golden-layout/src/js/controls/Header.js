@@ -19,6 +19,24 @@ lm.controls.Header = function (layoutManager, parent) {
 		this.element.addClass('header_double');
 	}
 
+	if (this.layoutManager.config.settings.mode === "workspace" && this.layoutManager._componentFactory) {
+		const headerControlls = this.element.children(".lm_controls")[0];
+		const workspaceControlsContainer = this.element.children(".lm_workspace_controls")[0];
+		const logoContainer = this.element.children(".lm_logo")[0];
+
+		if (this.layoutManager._componentFactory.createLogo) {
+			this.layoutManager._componentFactory.createLogo({ domNode: logoContainer });
+		}
+
+		if (this.layoutManager._componentFactory.createAddWorkspace) {
+			this.layoutManager._componentFactory.createAddWorkspace({ domNode: workspaceControlsContainer });
+		}
+
+		if (this.layoutManager._componentFactory.createSystemButtons) {
+			this.layoutManager._componentFactory.createSystemButtons({ domNode: headerControlls });
+		}
+	}
+
 	this.tabsContainer = this.element.find('.lm_tabs');
 	this.tabDropdownContainer = this.element.find('.lm_tabdropdown_list');
 	this.tabDropdownContainer.hide();
@@ -36,11 +54,14 @@ lm.controls.Header = function (layoutManager, parent) {
 
 	this._lastVisibleTabIndex = -1;
 	this._tabControlOffset = this.layoutManager.config.settings.tabControlOffset;
-	this._createControls();
+	if (!(this.layoutManager.config.settings.mode === "workspace" && this.layoutManager._componentFactory && this.layoutManager._componentFactory.createSystemButtons)) {
+		this._createControls();
+	}
 };
 
 lm.controls.Header._template = [
 	'<div class="lm_header">',
+	'<div class="lm_logo"></div>',
 	'<ul class="lm_tabs"></ul>',
 	'<ul class="lm_workspace_controls"></ul>',
 	'<ul class="lm_tabs_controls"></ul>',

@@ -313,6 +313,14 @@ export class CoreController implements WorkspacesController {
         await this.base.focusItem(itemId, frameInstance);
     }
 
+    public changeFrameState(): Promise<void> {
+        throw new Error("Changing the frame state is not supported in Glue42 Core");
+    }
+
+    public async getFrameState(): Promise<Glue42Workspaces.FrameState> {
+        throw new Error("Frame state is not supported in Glue42 Core");
+    }
+
     public async closeItem(itemId: string): Promise<void> {
 
         const frameInstance = await this.frameUtils.getFrameInstanceByItemId(itemId);

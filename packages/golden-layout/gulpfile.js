@@ -14,7 +14,8 @@ gulp.task( 'dev', function() {
 		'./src/js/**'
 	])
 	.pipe(concat('goldenlayout.js'))
-	.pipe(insert.wrap('(function($){', '})(window.$);' ))
+	.pipe(insert.wrap('(function($){', `})(window.$);
+	exports = window.GoldenLayout;` ))
 	.pipe(gulp.dest('./dist'));
 });
 
@@ -28,7 +29,8 @@ gulp.task( 'build', function() {
 		'./src/js/**'
 	])
 	.pipe(concat('goldenlayout.js'))
-	.pipe(insert.wrap('(function($){', '})(window.$);' ))
+	.pipe(insert.wrap('(function($){', `})(window.$);
+	exports = window.GoldenLayout;` ))
 	.pipe(gulp.dest('./dist'))
 	.pipe(terser())
 	.pipe(concat('goldenlayout.min.js'))

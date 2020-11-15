@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import { Decoder, object, boolean, string, optional, array, oneOf, constant, lazy, number, anyJson, intersection } from "decoder-validate";
-import { IsWindowInSwimlaneResult, WorkspaceSnapshotResult, ChildSnapshotResult, WorkspaceConfigResult, FrameSummaryResult, WorkspaceCreateConfigProtocol, GetFrameSummaryConfig, WorkspaceSummaryResult, LayoutSummariesResult, LayoutSummary, OpenWorkspaceConfig, FrameSummariesResult, WorkspaceSummariesResult, ExportedLayoutsResult, DeleteLayoutConfig, SimpleItemConfig, ResizeItemConfig, MoveFrameConfig, FrameSnapshotResult, BaseChildSnapshotConfig, ParentSnapshotConfig, SwimlaneWindowSnapshotConfig, SimpleWindowOperationSuccessResult, SetItemTitleConfig, MoveWindowConfig, AddWindowConfig, AddContainerConfig, AddItemResult, BundleConfig, WorkspaceStreamData, FrameStreamData, ContainerStreamData, ContainerSummaryResult, WindowStreamData, PingResult } from "../types/protocol";
+import { IsWindowInSwimlaneResult, WorkspaceSnapshotResult, ChildSnapshotResult, WorkspaceConfigResult, FrameSummaryResult, WorkspaceCreateConfigProtocol, GetFrameSummaryConfig, WorkspaceSummaryResult, LayoutSummariesResult, LayoutSummary, OpenWorkspaceConfig, FrameSummariesResult, WorkspaceSummariesResult, ExportedLayoutsResult, DeleteLayoutConfig, SimpleItemConfig, ResizeItemConfig, MoveFrameConfig, FrameSnapshotResult, BaseChildSnapshotConfig, ParentSnapshotConfig, SwimlaneWindowSnapshotConfig, SimpleWindowOperationSuccessResult, SetItemTitleConfig, MoveWindowConfig, AddWindowConfig, AddContainerConfig, AddItemResult, BundleConfig, WorkspaceStreamData, FrameStreamData, ContainerStreamData, ContainerSummaryResult, WindowStreamData, PingResult, FrameStateConfig, FrameStateResult } from "../types/protocol";
 import { WorkspaceEventType, WorkspaceEventAction } from "../types/subscription";
 import { Glue42Workspaces } from "../../workspaces";
 
@@ -22,6 +22,12 @@ export const subParentDecoder: Decoder<"row" | "column" | "group"> = oneOf<"row"
     constant("row"),
     constant("column"),
     constant("group")
+);
+
+export const frameStateDecoder: Decoder<"maximized" | "minimized" | "normal"> = oneOf<"maximized" | "minimized" | "normal">(
+    constant("maximized"),
+    constant("minimized"),
+    constant("normal")
 );
 
 export const checkThrowCallback = (callback: unknown, allowUndefined?: boolean): void => {
@@ -198,7 +204,7 @@ export const streamRequestArgumentsDecoder: Decoder<{ type: WorkspaceEventType; 
     branch: nonEmptyStringDecoder
 });
 
-export const workspaceEventActionDecoder: Decoder<WorkspaceEventAction> = oneOf<"opened" | "closing" | "closed" | "focus" | "added" | "loaded" | "removed" | "childrenUpdate" | "containerChange">(
+export const workspaceEventActionDecoder: Decoder<WorkspaceEventAction> = oneOf<"opened" | "closing" | "closed" | "focus" | "added" | "loaded" | "removed" | "childrenUpdate" | "containerChange" | "maximized" | "minimized" | "normal">(
     constant("opened"),
     constant("closing"),
     constant("closed"),
@@ -207,7 +213,10 @@ export const workspaceEventActionDecoder: Decoder<WorkspaceEventAction> = oneOf<
     constant("loaded"),
     constant("removed"),
     constant("childrenUpdate"),
-    constant("containerChange")
+    constant("containerChange"),
+    constant("maximized"),
+    constant("minimized"),
+    constant("normal")
 );
 
 export const workspaceConfigResultDecoder: Decoder<WorkspaceConfigResult> = object({
@@ -372,6 +381,10 @@ export const simpleWindowOperationSuccessResultDecoder: Decoder<SimpleWindowOper
 
 export const voidResultDecoder: Decoder<{}> = anyJson();
 
+export const frameStateResultDecoder: Decoder<FrameStateResult> = object({
+    state: frameStateDecoder
+});
+
 export const resizeConfigDecoder: Decoder<Glue42Workspaces.ResizeConfig> = object({
     width: optional(nonNegativeNumberDecoder),
     height: optional(nonNegativeNumberDecoder),
@@ -386,6 +399,11 @@ export const moveConfigDecoder: Decoder<Glue42Workspaces.MoveConfig> = object({
 
 export const simpleItemConfigDecoder: Decoder<SimpleItemConfig> = object({
     itemId: nonEmptyStringDecoder
+});
+
+export const frameStateConfigDecoder: Decoder<FrameStateConfig> = object({
+    frameId: nonEmptyStringDecoder,
+    requestedState: frameStateDecoder
 });
 
 export const setItemTitleConfigDecoder: Decoder<SetItemTitleConfig> = object({

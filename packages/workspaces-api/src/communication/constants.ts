@@ -1,4 +1,4 @@
-import { isWindowInSwimlaneResultDecoder, frameSummaryDecoder, workspaceSnapshotResultDecoder, frameSummariesResultDecoder, workspaceCreateConfigDecoder, getFrameSummaryConfigDecoder, layoutSummariesDecoder, openWorkspaceConfigDecoder, workspaceSummariesResultDecoder, voidResultDecoder, exportedLayoutsResultDecoder, workspaceLayoutDecoder, deleteLayoutConfigDecoder, simpleItemConfigDecoder, resizeItemConfigDecoder, moveFrameConfigDecoder, frameSnapshotResultDecoder, simpleWindowOperationSuccessResultDecoder, setItemTitleConfigDecoder, moveWindowConfigDecoder, addWindowConfigDecoder, addContainerConfigDecoder, addItemResultDecoder, bundleConfigDecoder, workspaceStreamDataDecoder, frameStreamDataDecoder, containerStreamDataDecoder, windowStreamDataDecoder, workspaceLayoutSaveConfigDecoder, pingResultDecoder } from "../shared/decoders";
+import { isWindowInSwimlaneResultDecoder, frameSummaryDecoder, workspaceSnapshotResultDecoder, frameSummariesResultDecoder, workspaceCreateConfigDecoder, getFrameSummaryConfigDecoder, layoutSummariesDecoder, openWorkspaceConfigDecoder, workspaceSummariesResultDecoder, voidResultDecoder, exportedLayoutsResultDecoder, workspaceLayoutDecoder, deleteLayoutConfigDecoder, simpleItemConfigDecoder, resizeItemConfigDecoder, moveFrameConfigDecoder, frameSnapshotResultDecoder, simpleWindowOperationSuccessResultDecoder, setItemTitleConfigDecoder, moveWindowConfigDecoder, addWindowConfigDecoder, addContainerConfigDecoder, addItemResultDecoder, bundleConfigDecoder, workspaceStreamDataDecoder, frameStreamDataDecoder, containerStreamDataDecoder, windowStreamDataDecoder, workspaceLayoutSaveConfigDecoder, pingResultDecoder, frameStateConfigDecoder, frameStateResultDecoder } from "../shared/decoders";
 import { ControlOperation, StreamOperation } from "../types/protocol";
 import { WorkspaceEventType } from "../types/subscription";
 
@@ -28,7 +28,9 @@ type OperationsTypes = "isWindowInWorkspace" |
     "addWindow" |
     "addContainer" |
     "bundleWorkspace" |
-    "ping";
+    "ping" |
+    "changeFrameState" | 
+    "getFrameState";
 type MethodsTypes = "control" | "frameStream" | "workspaceStream" | "containerStream" | "windowStream" | "coreEvents";
 
 export const METHODS: { [key in MethodsTypes]: { name: string; isStream: boolean } } = {
@@ -66,6 +68,8 @@ export const OPERATIONS: { [key in OperationsTypes]: ControlOperation } = {
     focusItem: { name: "focusItem", argsDecoder: simpleItemConfigDecoder, resultDecoder: voidResultDecoder },
     closeItem: { name: "closeItem", argsDecoder: simpleItemConfigDecoder, resultDecoder: voidResultDecoder },
     resizeItem: { name: "resizeItem", argsDecoder: resizeItemConfigDecoder, resultDecoder: voidResultDecoder },
+    changeFrameState: {name: "changeFrameState", argsDecoder: frameStateConfigDecoder, resultDecoder: voidResultDecoder},
+    getFrameState: {name: "getFrameState", argsDecoder: simpleItemConfigDecoder, resultDecoder: frameStateResultDecoder},
     moveFrame: { name: "moveFrame", argsDecoder: moveFrameConfigDecoder, resultDecoder: voidResultDecoder },
     getFrameSnapshot: { name: "getFrameSnapshot", argsDecoder: simpleItemConfigDecoder, resultDecoder: frameSnapshotResultDecoder },
     forceLoadWindow: { name: "forceLoadWindow", argsDecoder: simpleItemConfigDecoder, resultDecoder: simpleWindowOperationSuccessResultDecoder },
