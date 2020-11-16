@@ -59,3 +59,31 @@ export const AsyncListener = (actualUnsub:
         }
     };
 };
+
+export const waitFor = <T>(predicate: () => boolean, retryMs: number, resolution?: () => T): Promise<T> => {
+    return new Promise((resolve) => {
+        const resolvePromise: () => void = () => {
+            if (typeof resolution !== "undefined") {
+                resolve(resolution());
+            } else {
+                resolve();
+            }
+        };
+
+        if (predicate()) {
+            resolvePromise();
+        } else {
+            let interval: any;
+
+            const callback = (): void => {
+                if (predicate()) {
+                    clearInterval(interval);
+
+                    resolvePromise();
+                }
+            };
+
+            interval = setInterval(callback, retryMs);
+        }
+    });
+};

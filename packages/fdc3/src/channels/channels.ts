@@ -25,6 +25,34 @@ const createChannelsAgent = (): ChannelsAPI => {
 
     let systemChannels: string[] = [];
 
+    const initDone = (window as WindowType).fdc3GluePromise.then(() => {
+        const current = (window as WindowType).glue.channels.current();
+
+        // In Glue42 Core the channel selector widget needs to use the FDC3 Channels API instead of the Glue42 Channels API to navigate between the channels.
+        if (!isGlue42Core) {
+            if (typeof current !== "undefined") {
+                handleSwitchChannelUI(current);
+            }
+
+            (window as WindowType).glue.channels.changed((channelId: string) => {
+                handleSwitchChannelUI(channelId);
+            });
+        }
+
+        const setChannelsPromise = getChannelsList().then((channelContents) => {
+            channelContents.map((channelContext) => {
+                channels[channelContext.name] = mapToFDC3SystemChannel(channelContext);
+            });
+
+        });
+
+        const setSystemChannelsPromise = (window as WindowType).glue.channels.all().then((channels) => {
+            systemChannels = channels;
+        });
+
+        return Promise.all([setChannelsPromise, setSystemChannelsPromise]);
+    });
+
     const doesAppChannelExist = async (name: string): Promise<boolean> => {
         const exists = (await (window as WindowType).glue.contexts.all())
             .some((ctxName) => ctxName === name);
@@ -69,33 +97,6 @@ const createChannelsAgent = (): ChannelsAPI => {
             unsubscribe
         };
     };
-
-    const init = async (): Promise<void> => {
-        await (window as WindowType).gluePromise;
-
-        const channelContents: Array<Glue42.Channels.ChannelContext> = await getChannelsList();
-
-        channelContents.map((channelContext) => {
-            channels[channelContext.name] = mapToFDC3SystemChannel(channelContext);
-        });
-
-        systemChannels = await (window as WindowType).glue.channels.all();
-
-        const current = await (window as WindowType).glue.channels.current();
-
-        // In Glue42 Core the channel selector widget needs to use the FDC3 Channels API instead of the Glue42 Channels API to navigate between the channels.
-        if (!isGlue42Core) {
-            if (current) {
-                handleSwitchChannelUI(current);
-            }
-
-            (window as WindowType).glue.channels.changed((channelId: string) => {
-                handleSwitchChannelUI(channelId);
-            });
-        }
-    };
-
-    const initDone = init();
 
     const getSystemChannels = async (): Promise<Channel[]> => {
         await initDone;
@@ -207,7 +208,7 @@ const createChannelsAgent = (): ChannelsAPI => {
             const listener = createPendingListener(contextType, handler);
 
             // Handle context passed to `fdc3.open()`.
-            (window as WindowType).gluePromise
+            (window as WindowType).fdc3GluePromise
                 .then(() => {
                     return (window as WindowType).glue.windows.my().getContext();
                 })

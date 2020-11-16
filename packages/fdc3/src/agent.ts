@@ -134,7 +134,7 @@ const createIntentsAgent = (): Partial<DesktopAgent> => {
             unsubscribe: (): void => console.error("Failed to unsubscribe!")
         };
 
-        (window as WindowType).gluePromise.then(() => {
+        (window as WindowType).fdc3GluePromise.then(() => {
             unsub.unsubscribe = (window as WindowType).glue.intents.addIntentListener(intent, handler as (context: object) => void).unsubscribe;
         });
 
@@ -143,19 +143,19 @@ const createIntentsAgent = (): Partial<DesktopAgent> => {
 
     return {
         open: async (...props): Promise<void> => {
-            await (window as WindowType).gluePromise;
+            await (window as WindowType).fdc3GluePromise;
             return open(...props);
         },
         findIntent: async (...props): Promise<AppIntent> => {
-            await (window as WindowType).gluePromise;
+            await (window as WindowType).fdc3GluePromise;
             return findIntent(...props);
         },
         findIntentsByContext: async (...props): Promise<AppIntent[]> => {
-            await (window as WindowType).gluePromise;
+            await (window as WindowType).fdc3GluePromise;
             return findIntentsByContext(...props);
         },
         raiseIntent: async (...props): Promise<IntentResolution> => {
-            await (window as WindowType).gluePromise;
+            await (window as WindowType).fdc3GluePromise;
             return raiseIntent(...props);
         },
         addIntentListener
