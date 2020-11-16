@@ -21,7 +21,6 @@
     },
     "scripts": {
         "test": "",
-        "tslint": "tslint \"**/*.ts\" -e \"node_modules/**\" -e \"typings/**\"",
         "format:check": "prettier --check ./{.,src/less/**,src/less{.,less/**}}/*.{css,less}",
         "format:fix": "npm run format:check -- --write",
         "build": "npm run build:min && npm run build:less",
@@ -41,9 +40,6 @@
         "gulp-terser": "^1.2.0",
         "handlebars": "^4.7.6",
         "prettier": "^1.19.1",
-        "tslint": "^5.20.1",
-        "tslint-config-typings": "^0.2.2",
-        "typescript": "^1.8.9",
         "walker": "1.0.6"
     },
     "repository": {
