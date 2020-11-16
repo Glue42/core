@@ -12,7 +12,7 @@ export default WorkspacesFactory;
  *
  * The Glue42 Workspaces enable the users to compose a custom arrangement of applications by treating each application as an individual building block that can be added, removed, moved or resized within the unifying Frame. The Frame can hold multiple Workspaces (as tabs) and can also be maximized, minimized or resized. 
  *
- * See also the [**Workspaces**](../../../../core/capabilities/interop/workspaces/index.html) documentation for more details.
+ * See also the [Glue42 Enterprise: Workspaces](https://docs.glue42.com/glue42-concepts/windows/workspaces/javascript/index.html) and [Glue42 Core: Workspaces](https://docs.glue42.com/core/capabilities/workspaces/index.html) documentation for more details.
  */
 export namespace Glue42Workspaces {
 

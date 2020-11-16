@@ -158,7 +158,7 @@ export namespace Glue42Web {
         autoRestore?: boolean;
 
         /**
-         * If set to `true`, will return glue.windows.my().context automatically when asked for layout state.
+         * If set to `true`, will return `glue.windows.my().context` automatically when asked for layout state.
          * @default false
          */
         autoSaveWindowContext?: boolean;

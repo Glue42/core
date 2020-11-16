@@ -10,7 +10,7 @@ You can find the tutorial [here](../../tutorials/core/javascript/index.html).
 
 ## React
 
-Apart from the main tools that comprise **Glue42 Core**, you can also use the [**Glue42 React Hooks**](../glue42-client/react/index.html) library which is based on React Hooks. This library makes using **Glue42 Core** in a React app easy and intuitive.
+Apart from the main tools that comprise **Glue42 Core**, you can also use the [**Glue42 React Hooks**](https://www.npmjs.com/package/@glue42/react-hooks) library which is based on React Hooks. This library makes using **Glue42 Core** in a React app easy and intuitive.
 
 You can find the tutorial [here](../../tutorials/core/react/index.html).
 

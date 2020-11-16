@@ -25,7 +25,7 @@ The `init` command will set up **Glue42 Core** for the current directory. This m
 - install with `npm` (and perform `npm init --yes` beforehand if no `package.json` file is found) all necessary dependencies that provide the [**Glue42 Environment**](../overview/index.html) files;
 - create a `glue.config.dev.json` file with default settings and correct paths for all **Glue42 Core** assets;
 - create a `glue.config.json` file with default settings so that you can customize (if you need to) the settings in it. The Glue42 CLI will copy this file to the output directory when bundling your **Glue42 Core** files for deployment.
-- create a `glue.layouts.json` file in which [**Workspaces**](../../capabilities/workspaces/index.html) layouts can be defined;
+- create a `glue.layouts.json` file in which [**Workspaces**](../../../capabilities/workspaces/index.html) layouts can be defined;
 - create a `glue.core.cli.log` file which will contain the log output of the [**Glue42 CLI**](../../cli/index.html) if you set the `logging` setting in the `glue.config.dev.json` to `"full"`.
 
 If you want to use [**Workspaces**](../../../capabilities/workspaces/index.html) in your project, use the `-w` or `--workspaces` flag to modify the `init` command:

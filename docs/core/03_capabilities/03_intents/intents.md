@@ -22,7 +22,7 @@ Another case where the [**Intents**](../../../reference/core/latest/intents/inde
 
 ## Registering Intents
 
-Intents are registered either through the [application configuration](../application-management/index.html#enabling_application_management-application_definitions) (in the `glue.config.json` file), or dynamically at runtime (using the [`addIntentListener()`](../../../reference/core/latest/intents/index.htmll#!API-addIntentListener) method). Intents are configured under the `intents` top-level key of the application configuration.
+Intents are registered either through the [application configuration](../application-management/index.html#enabling_application_management-application_definitions) (in the `glue.config.json` file), or dynamically at runtime (using the [`addIntentListener()`](../../../reference/core/latest/intents/index.html#!API-addIntentListener) method). Intents are configured under the `intents` top-level key of the application configuration.
 
 It is possible for several applications to register an Intent with the same name, which is useful when several applications perform the same action or work with the same data structure. This allows for easy replacement of applications. You may have an old app that has registered an Intent called `"ShowChart"` which you want to replace with a new app. Your new app only needs to register the same Intent (you can either remove the old app or leave it as an additional option for the users who prefer it). No changes to the calling application are necessary - when it raises the `"ShowChart"` Intent, the new app will be called. 
 

@@ -13,7 +13,7 @@ The Glue42 Environment consists of the following files:
 Environment requirements:
 
 - all files must be hosted on the same domain as your applications;
-- all files must be served from a path easily accessible by all [**Glue42 Clients**](../glue42-client/index.html);
+- all files must be served from a path easily accessible by all [**Glue42 Clients**](../../glue42-client/index.html);
 - all files must be located at the same level in the same directory;
 
 All files are described in more detail below. For step-by-step guides and examples on how to set up the Environment files depending on your project requirements, see the [**Glue42 Environment: Setup**](../setup/index.html) section.

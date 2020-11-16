@@ -42,7 +42,7 @@ Go to the [Manual](../core-concepts/environment/setup/index.html#manual) section
 
 - #### Where can I see a Glue42 Core demo project?	
 
-See a full-blown demo **Glue42 Core** project [here](https://start-of-day.glue42.com/), or see and experiment with the example mini apps demonstrating **Glue42 Core** functionalities in the [Shared Contexts](../capabilities/shared-contexts/index.html), [Interop](../capabilities/interop/index.html) and [Window Management](capabilities/window-management/index.html) sections.	
+See a full-blown demo **Glue42 Core** project [here](https://start-of-day.glue42.com/), or see and experiment with the example mini apps demonstrating **Glue42 Core** functionalities in the [Shared Contexts](../capabilities/shared-contexts/index.html), [Interop](../capabilities/interop/index.html) and [Window Management](../capabilities/window-management/index.html) sections.	
 
 - #### I want to quickly set up a project and test Glue42 Core in practice. How do I do that?	
 
