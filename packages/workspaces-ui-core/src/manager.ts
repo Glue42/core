@@ -53,6 +53,10 @@ class WorkspacesManager {
         return this._initialized;
     }
 
+    public get frameId() {
+        return this._frameId;
+    }
+
     public init(glue: Glue42Web.API, frameId: string, componentFactory?: ComponentFactory): { cleanUp: () => void } {
         this._glue = glue;
         const startupConfig = scReader.loadConfig();
@@ -99,6 +103,9 @@ class WorkspacesManager {
         });
 
         (workspace.layout.config.workspacesOptions as WorkspaceOptionsWithLayoutName).layoutName = name;
+        if (workspace.layout.config.workspacesOptions.noTabHeader) {
+            delete workspace.layout.config.workspacesOptions.noTabHeader;
+        }
         store.getWorkspaceLayoutItemById(id).setTitle(name);
         return result;
     }
@@ -127,6 +134,11 @@ class WorkspacesManager {
             savedConfig.workspacesOptions = savedConfig.workspacesOptions || {};
 
             (savedConfig.workspacesOptions as WorkspaceOptionsWithLayoutName).layoutName = savedConfigWithData.layoutData.name;
+        }
+
+        if (savedConfig && options?.noTabHeader !== undefined) {
+            savedConfig.workspacesOptions = savedConfig.workspacesOptions || {};
+            savedConfig.workspacesOptions.noTabHeader = options?.noTabHeader;
         }
 
         if (!this._isLayoutInitialized) {
@@ -321,9 +333,10 @@ class WorkspacesManager {
 
     private async initLayout() {
         const config = await this._layoutsManager.getInitialConfig();
-
         this.subscribeForPopups();
         this.subscribeForLayout();
+
+        this._isLayoutInitialized = true;
 
         await Promise.all(config.workspaceConfigs.map(c => {
             return this._glue.contexts.set(getWorkspaceContextName(c.id), c.config?.workspacesOptions?.context || {});
@@ -336,8 +349,6 @@ class WorkspacesManager {
         });
 
         store.layouts.map((l) => l.layout).filter((l) => l).forEach((l) => this.reportLayoutStructure(l));
-
-        this._isLayoutInitialized = true;
 
         if (startupReader.config.emptyFrame) {
 
@@ -510,6 +521,13 @@ class WorkspacesManager {
                 }
             });
             if (store.getActiveWorkspace().id === workspace.id) {
+                this._workspacesEventEmitter.raiseWorkspaceEvent({
+                    action: "selected",
+                    payload: {
+                        frameSummary: { id: this._frameId },
+                        workspaceSummary: this.stateResolver.getWorkspaceSummary(workspace.id)
+                    }
+                });
                 if (!workspace.layout) {
                     this._frameController.selectionChangedDeep([], allOtherWindows.map((w) => w.id));
                     return;
@@ -526,7 +544,7 @@ class WorkspacesManager {
             const title = workspaceOptions.title || workspaceOptions.name;
 
             if (title) {
-                store.getWorkspaceLayoutItemById(workspace.id).setTitle(title);
+                store.getWorkspaceLayoutItemById(workspace.id)?.setTitle(title);
             }
         });
 
@@ -534,7 +552,7 @@ class WorkspacesManager {
             if (!workspace.layout) {
                 this._frameController.selectionChangedDeep([], toBack.map((w) => w.id));
                 this._workspacesEventEmitter.raiseWorkspaceEvent({
-                    action: "focused", payload: {
+                    action: "selected", payload: {
                         frameSummary: { id: this._frameId },
                         workspaceSummary: this.stateResolver.getWorkspaceSummary(workspace.id)
                     }
@@ -546,7 +564,7 @@ class WorkspacesManager {
 
             this._frameController.selectionChangedDeep(allWinsInLayout.map((w) => idAsString(w.id)), toBack.map((w) => w.id));
             this._workspacesEventEmitter.raiseWorkspaceEvent({
-                action: "focused", payload: {
+                action: "selected", payload: {
                     frameSummary: { id: this._frameId },
                     workspaceSummary: this.stateResolver.getWorkspaceSummary(workspace.id)
                 }
@@ -637,6 +655,28 @@ class WorkspacesManager {
             }
             return this.eject(item);
         });
+
+        componentStateMonitor.onWorkspaceContentsShown((workspaceId: string) => {
+            const workspace = store.getActiveWorkspace();
+            if (!workspace?.layout || workspaceId !== workspace.id) {
+                return;
+            }
+            const workspaceContentItem = store.getWorkspaceContentItem(workspaceId);
+            const bounds = getElementBounds(workspaceContentItem.element);
+            workspace.layout.updateSize(bounds.width, bounds.height);
+            const stacks = workspace.layout.root.getItemsByFilter((e) => e.type === "stack");
+
+            this._frameController.selectionChangedDeep(stacks.map(s => idAsString(s.getActiveContentItem().config.id)), []);
+        });
+
+        componentStateMonitor.onWorkspaceContentsHidden((workspaceId: string) => {
+            const workspace = store.getById(workspaceId);
+            if (!workspace?.layout || workspaceId !== workspace.id) {
+                return;
+            }
+
+            this._frameController.selectionChangedDeep([], workspace.windows.map(w => w.id));
+        });
     }
 
     private subscribeForPopups() {
@@ -653,7 +693,6 @@ class WorkspacesManager {
         if (scReader.config?.build) {
             return;
         }
-
         const windowSummaries: WindowSummary[] = [];
         const workspaceSummaries = store.workspaceIds.map((wid) => {
             const workspace = store.getById(wid);
@@ -670,7 +709,8 @@ class WorkspacesManager {
             this.workspacesEventEmitter.raiseWorkspaceEvent({ action: "closed", payload: { frameSummary: { id: this._frameId }, workspaceSummary: ws } });
         });
 
-        const currentWorkspaces = store.layouts;
+        const currentWorkspaces = store.layouts.filter(l => !l.layout?.config?.workspacesOptions?.noTabHeader);
+
 
         this._layoutsManager.saveWorkspacesFrame(currentWorkspaces);
 

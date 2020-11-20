@@ -10,8 +10,6 @@ import SaveContextCheckbox from "./SaveContextCheckbox";
 import SaveWorkspaceButton from "./SaveWorkspaceButton";
 import withGlueInstance from "../../../withGlueInstance";
 
-declare const window: Window & { glue?: any };
-
 const SaveWorkspacePopup: React.FC<SaveWorkspacePopupProps> = ({ workspaceId, resizePopup, hidePopup, buildMode, glue, ...props }) => {
     const inputRef = React.createRef<HTMLInputElement>();
     const containerRef = React.createRef<HTMLDivElement>();
@@ -37,10 +35,18 @@ const SaveWorkspacePopup: React.FC<SaveWorkspacePopupProps> = ({ workspaceId, re
     }, [feedbackMessage, workspaceId]);
 
     useEffect(() => {
+        let shouldUpdate = true;
+        
         glue.workspaces.getAllWorkspaces().then((allWorkspaces: any[]) => {
             const myWorkspace = allWorkspaces.find((w) => w.id === workspaceId);
-            setWorkspaceName(myWorkspace.layoutName || "");
-        })
+            if (shouldUpdate) {
+                setWorkspaceName(myWorkspace.layoutName || "");
+            }
+        });
+
+        return () => {
+            shouldUpdate = false;
+        }
     }, [workspaceId]);
 
     const clearInput = () => {

@@ -447,6 +447,10 @@ declare module '@glue42/golden-layout' {
              * The id of the window which resides in a golden layout tab
              */
             windowId?: string;
+            /**
+             * Creates a workspace component without a tab header(Available only in mode workspace)
+             */
+            noTabHeader?: boolean;
         }
 
         export interface ReactComponentConfig extends BaseItemConfig {
@@ -471,6 +475,11 @@ declare module '@glue42/golden-layout' {
              * The name of the workspace
              */
             name?: string;
+
+            /**
+             * Hides the tab element of the workspace
+             */
+            noTabHeader?: boolean;
         }
 
         export interface Config {
@@ -535,7 +544,7 @@ declare module '@glue42/golden-layout' {
              * @param itemOrItemConfig A content item (or tree of content items) or an ItemConfiguration to create the item from
              * @param index last index  An optional index that determines at which position the new item should be added. Default: last index.
              */
-            addChild(itemOrItemConfig: ContentItem | ItemConfigType, index?: number): void;
+            addChild(itemOrItemConfig: ContentItem | ItemConfigType, index?: number, activate?: boolean): void;
 
             /**
              * Destroys the item and all it's children

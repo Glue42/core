@@ -32,6 +32,10 @@ lm.controls.Tab = function (header, contentItem) {
 	this._onTabClickFn = lm.utils.fnBind(this._onTabClick, this);
 	this._onCloseClickFn = lm.utils.fnBind(this._onCloseClick, this);
 
+	if (this._layoutManager.config.settings.mode === "workspace" && contentItem.config.noTabHeader) {
+		this.element.hide();
+	}
+
 	this.element.on('mousedown touchstart', this._onTabClickFn);
 
 	if (this.contentItem.config.isClosable) {
@@ -128,6 +132,9 @@ lm.utils.copy(lm.controls.Tab.prototype, {
 			this.contentItem.parent.toggleMaximise();
 		}
 		if (this.contentItem.parent.header.tabs.length < 2 && this.contentItem.layoutManager.config.settings.mode === "workspace") {
+			return;
+		}
+		if (this.contentItem.layoutManager.config.settings.mode !== "workspace" && !this.contentItem.config.windowId) {
 			return;
 		}
 		const newProxy = new lm.controls.DragProxy(

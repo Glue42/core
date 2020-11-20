@@ -122,6 +122,7 @@ export const restoreWorkspaceConfigDecoder: Decoder<Glue42Workspaces.RestoreWork
         newFrameConfigDecoder,
         boolean()
     )),
+    noTabHeader: optional(boolean()),
     inMemoryLayout: optional(boolean())
 }));
 
@@ -139,7 +140,8 @@ export const workspaceDefinitionDecoder: Decoder<Glue42Workspaces.WorkspaceDefin
     config: optional(object({
         title: optional(nonEmptyStringDecoder),
         position: optional(nonNegativeNumberDecoder),
-        isFocused: optional(boolean())
+        isFocused: optional(boolean()),
+        noTabHeader: optional(boolean())
     })),
     frame: optional(object({
         reuseFrameId: optional(nonEmptyStringDecoder),
@@ -204,7 +206,7 @@ export const streamRequestArgumentsDecoder: Decoder<{ type: WorkspaceEventType; 
     branch: nonEmptyStringDecoder
 });
 
-export const workspaceEventActionDecoder: Decoder<WorkspaceEventAction> = oneOf<"opened" | "closing" | "closed" | "focus" | "added" | "loaded" | "removed" | "childrenUpdate" | "containerChange" | "maximized" | "minimized" | "normal">(
+export const workspaceEventActionDecoder: Decoder<WorkspaceEventAction> = oneOf<"opened" | "closing" | "closed" | "focus" | "added" | "loaded" | "removed" | "childrenUpdate" | "containerChange" | "maximized" | "minimized" | "normal" | "selected">(
     constant("opened"),
     constant("closing"),
     constant("closed"),
@@ -216,7 +218,8 @@ export const workspaceEventActionDecoder: Decoder<WorkspaceEventAction> = oneOf<
     constant("containerChange"),
     constant("maximized"),
     constant("minimized"),
-    constant("normal")
+    constant("normal"),
+    constant("selected")
 );
 
 export const workspaceConfigResultDecoder: Decoder<WorkspaceConfigResult> = object({

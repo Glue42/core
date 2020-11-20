@@ -5,6 +5,7 @@ export interface ElementCreationWrapperState {
   logo?: CreateElementRequestOptions;
   addWorkspace?: CreateElementRequestOptions;
   systemButtons?: CreateElementRequestOptions;
+  workspaceContents: CreateWorkspaceContentsRequestOptions[];
   saveWorkspacePopup?: SaveWorkspacePopupComponentProps & CreateElementRequestOptions;
   addApplicationPopup?: AddApplicationPopupComponentProps & CreateElementRequestOptions;
   addWorkspacePopup?: AddWorkspacePopupComponentProps & CreateElementRequestOptions;
@@ -14,6 +15,7 @@ export interface WorkspacesWrapperProps {
   onCreateLogoRequested?: (options: CreateElementRequestOptions) => void;
   onCreateAddWorkspaceRequested?: (options: CreateElementRequestOptions) => void;
   onCreateSystemButtonsRequested?: (options: CreateElementRequestOptions) => void;
+  onCreateWorkspaceContentsRequested?: (options: CreateElementRequestOptions) => void;
   onCreateSaveWorkspacePopupRequested?: (options: SaveWorkspacePopupComponentProps & CreateElementRequestOptions) => void;
   onCreateAddApplicationPopupRequested?: (options: AddApplicationPopupComponentProps & CreateElementRequestOptions) => void;
   onCreateAddWorkspacePopupRequested?: (options: AddWorkspacePopupComponentProps & CreateElementRequestOptions) => void;
@@ -25,6 +27,15 @@ export interface WorkspacesWrapperProps {
   }
   glue?: any;
 }
+
+export interface WorkspaceContentsProps {
+  workspaceId: string;
+}
+
+export interface CreateWorkspaceContentsRequestOptions extends CreateElementRequestOptions {
+  workspaceId: string
+}
+
 
 export interface CreateElementRequestOptions {
   domNode: HTMLElement;
@@ -39,7 +50,8 @@ export interface PortalProps {
 }
 
 export interface WorkspacesManager {
-  init(componentFactory: any): Promise<void>;
+  getFrameId(): string;
+  init(componentFactory: any): void;
   notifyMoveAreaChanged(): void;
   notifyWorkspacePopupChanged(element: HTMLElement): string;
   getComponentBounds(): Bounds;
@@ -62,6 +74,7 @@ export interface WorkspacesProps extends React.DetailedHTMLProps<React.HTMLAttri
       AddWorkspaceComponent?: React.ComponentType<HeaderComponentProps>;
       SystemButtonsComponent?: React.ComponentType<HeaderComponentProps>;
     };
+    WorkspaceContents?: React.ComponentType<WorkspaceContentsProps>;
     popups?: {
       SaveWorkspaceComponent?: React.ComponentType<SaveWorkspacePopupComponentProps> | string;
       AddApplicationComponent?: React.ComponentType<AddApplicationPopupComponentProps> | string;
@@ -195,4 +208,8 @@ export interface SaveWorkspaceButtonProps {
   glue: any;
   hidePopup: () => void;
   buildMode?: boolean;
+}
+
+export interface WorkspaceContentsProps {
+  workspaceId: string;
 }

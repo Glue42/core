@@ -38,10 +38,10 @@ export class TabObserver {
 
     private handleTabCountChanged(tabsElement: JQuery<Node>, removedNodes: Node[]) {
         const tabChildren = tabsElement.children();
-        tabsElement.css("max-width", `${tabChildren.length * 200}px`);
-        const tabWidths = Array.from(tabChildren).map((t) => $(t).width());
+        const visibleTabs = this.visibleTabs($(tabsElement));
+        tabsElement.css("max-width", `${visibleTabs.length * 200}px`);
 
-        const proportionalWidth = tabsElement.width() / tabWidths.length;
+        const proportionalWidth = tabsElement.width() / visibleTabs.length;
 
         Array.from(tabChildren).forEach((tab) => {
             const title = $(tab).children(".lm_title");
@@ -55,10 +55,9 @@ export class TabObserver {
     private handleTabHeaderResized(stackElement: JQuery<Node>) {
         const headerElement = stackElement.children(".lm_header");
         const tabElements = headerElement.children(".lm_tabs");
+        const visibleTabs = this.visibleTabs($(tabElements));
 
-        const tabWidths = Array.from(tabElements.children()).map((t) => $(t).width());
-
-        const proportionalWidth = tabElements.width() / tabWidths.length;
+        const proportionalWidth = tabElements.width() / visibleTabs.length;
         Array.from(tabElements.children()).forEach((tab) => {
             const title = $(tab).children(".lm_title");
             title.css("max-width", `${proportionalWidth * 0.65}px`);
@@ -85,5 +84,9 @@ export class TabObserver {
             classes.remove("lm_tab_small");
             classes.add("lm_tab_mini");
         }
+    }
+
+    private visibleTabs(tabsContainer: JQuery<Node>) {
+        return Array.from(tabsContainer.children()).filter((t) => $(t).is(":visible"));
     }
 }

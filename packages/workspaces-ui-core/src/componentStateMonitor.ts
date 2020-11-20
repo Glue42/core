@@ -1,15 +1,27 @@
 import { ComponentFactory, DecoratedComponentFactory, VisibilityState } from "./types/internal";
+import createRegistry from "callback-registry";
 
 class ComponentStateMonitor {
 
     private readonly visibilityState: VisibilityState = {
         logo: undefined,
         addWorkspace: undefined,
-        systemButtons: undefined
+        systemButtons: undefined,
+        workspaceContents: []
     };
 
     private componentsFactory: ComponentFactory = {};
     private readonly _decoratedFactory: DecoratedComponentFactory = {};
+    private readonly callbackRegistry = createRegistry();
+    private readonly observer = new MutationObserver((mutations) => {
+        Array.from(mutations).forEach((m) => {
+            const targetDiv = m.target as HTMLDivElement;
+
+            const workspaceId = this.getWorkspaceIdFromContents(targetDiv);
+            const action = targetDiv.style.display === "none" ? "workspace-contents-hidden" : "workspace-contents-shown";
+            this.callbackRegistry.execute(action, workspaceId);
+        });
+    });
 
     public get decoratedFactory() {
         return this._decoratedFactory;
@@ -40,6 +52,15 @@ class ComponentStateMonitor {
                 return componentsFactory.createSystemButtons(...this.visibilityState.systemButtons);
             };
         }
+
+        if (componentsFactory?.createWorkspaceContents) {
+            this.decoratedFactory.createWorkspaceContents = (...args) => {
+                this.visibilityState.workspaceContents.push([...args]);
+
+                this.subscribeForWorkspaceContentsVisibility(args[0]?.workspaceId);
+                return componentsFactory.createWorkspaceContents(...args);
+            };
+        }
     }
 
     public reInitialize(incomingFactory?: ComponentFactory) {
@@ -55,7 +76,36 @@ class ComponentStateMonitor {
             incomingFactory.createSystemButtons(...this.visibilityState.systemButtons);
         }
 
+        if (incomingFactory?.createWorkspaceContents) {
+            this.visibilityState.workspaceContents.forEach((wc) => {
+                incomingFactory.createWorkspaceContents(...wc);
+            });
+        }
+
         this.componentsFactory = incomingFactory;
+    }
+
+    public onWorkspaceContentsShown(callback: (workspaceId: string) => void) {
+        this.callbackRegistry.add("workspace-contents-shown", callback);
+    }
+
+    public onWorkspaceContentsHidden(callback: (workspaceId: string) => void) {
+        this.callbackRegistry.add("workspace-contents-hidden", callback);
+    }
+
+    private subscribeForWorkspaceContentsVisibility(workspaceId: string) {
+        const contentsElement = document.getElementById(`nestHere${workspaceId}`);
+        if (!contentsElement) {
+            return;
+        }
+        this.observer.observe(contentsElement, {
+            attributes: true,
+            attributeFilter: ["style"]
+        });
+    }
+
+    private getWorkspaceIdFromContents(element: HTMLElement) {
+        return element.id.split("nestHere")[1];
     }
 
 }

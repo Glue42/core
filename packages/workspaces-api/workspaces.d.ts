@@ -182,6 +182,9 @@ export namespace Glue42Workspaces {
 
         /** States whether or not the workspace should have focus when opened. */
         isFocused?: boolean;
+
+        /** Provides the opportunity to open a workspace with no tab header */
+        noTabHeader?: boolean;
     }
 
     /** An object describing the possible options when defining a new workspace */
@@ -402,6 +405,12 @@ export namespace Glue42Workspaces {
          * @param callback Callback function to handle the event. Receives the added workspace as a parameter.
          */
         onWorkspaceOpened(callback: (workspace: Workspace) => void): Promise<Unsubscribe>;
+
+        /**
+         * Notifies when a workspace is selected in this frame and returns an unsubscribe function.
+         * @param callback Callback function to handle the event. Receives the selected workspace as a parameter.
+         */
+        onWorkspaceSelected(callback: (workspace: Workspace) => void): Promise<Unsubscribe>;
 
         /**
          * Notifies when a workspace present in this frame was closed and returns an unsubscribe function.

@@ -2,6 +2,7 @@ import { Bounds, ComponentFactory } from "./src/types/internal";
 import { Glue42Web } from "@glue42/web";
 
 export interface WorkspacesManager {
+    getFrameId: () => string;
     init: (glue: Glue42Web.API, componentFactory?: any) => void;
     notifyMoveAreaChanged: () => void;
     getComponentBounds: () => Bounds;

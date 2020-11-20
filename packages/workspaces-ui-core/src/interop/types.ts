@@ -127,9 +127,9 @@ export interface GenerateLayoutRequest {
     operationArguments: GenerateLayoutArguments;
 }
 
-export interface PingRequest{
-    operation:"ping";
-    operationArguments:{}
+export interface PingRequest {
+    operation: "ping";
+    operationArguments: {}
 }
 
 //#endregion
@@ -167,6 +167,7 @@ export interface SaveLayoutArguments {
 export interface RestoreWorkspaceConfig {
     title?: string;
     context?: object;
+    noTabHeader?: boolean;
 }
 
 export interface AddWindowArguments {
@@ -260,4 +261,4 @@ export type ControlArguments = SaveLayoutRequest | DeleteLayoutRequest |
     CloseItemRequest | MaximizeItemRequest | RestoreItemRequest | AddWindowRequest | AddContainerRequest | SetItemTitleRequest |
     AddWorkspaceChildrenRequest | EjectRequest | CreateWorkspaceRequest | ForceLoadWindowRequest | FocusItemRequest |
     BundleWorkspaceRequest | IsWindowInWorkspaceRequest | GetFrameSummaryRequest | MoveFrameRequest | GetFrameSnapshotRequest |
-    GetSnapshotRequest | MoveWindowToRequest | GenerateLayoutRequest| PingRequest;
+    GetSnapshotRequest | MoveWindowToRequest | GenerateLayoutRequest | PingRequest;

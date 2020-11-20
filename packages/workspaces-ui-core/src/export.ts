@@ -42,6 +42,9 @@ const init = (glue: Glue42Web.API, componentFactory?: ComponentFactory) => {
 
 const workspacesManagerAPI: WorkspacesManager = {
     init,
+    getFrameId: () => {
+        return manager.frameId;
+    },
     notifyMoveAreaChanged: () => {
         return;
     },

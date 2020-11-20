@@ -246,12 +246,13 @@ export class LayoutController {
             type: "component",
             workspacesConfig: {},
             id,
+            noTabHeader: config.workspacesOptions?.noTabHeader,
             title: (config?.workspacesOptions as any)?.title || this._configFactory.getWorkspaceTitle(store.workspaceTitles)
         };
 
         this.registerWorkspaceComponent(id);
 
-        stack.addChild(componentConfig);
+        stack.addChild(componentConfig, undefined, !componentConfig.noTabHeader);
 
         await this.initWorkspaceContents(id, config);
 
@@ -719,7 +720,6 @@ export class LayoutController {
 
                     const activeItem = stack.getActiveContentItem();
                     const activeWorkspaceId = activeItem.config.id;
-
                     await this.waitForLayout(idAsString(activeWorkspaceId));
 
                     // don't ignore the windows from the currently selected workspace because the event
@@ -852,7 +852,20 @@ export class LayoutController {
             };
 
             div.appendChild(newButton);
-            container.getElement().append(div);
+            if (componentStateMonitor.decoratedFactory?.createWorkspaceContents) {
+                // template.content.appendChild(div);
+                // container.getElement().append(template);
+                document.body.append(div);
+
+                div.style.display = "none";
+                componentStateMonitor.decoratedFactory?.createWorkspaceContents({
+                    workspaceId,
+                    domNode: container.getElement()[0]
+                });
+
+            } else {
+                container.getElement().append(div);
+            }
             $(newButton).hide();
         });
     }

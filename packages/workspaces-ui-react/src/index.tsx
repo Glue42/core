@@ -6,6 +6,7 @@ import MinimizeFrameButton from './defaultComponents/MinimizeFrameButton';
 import AddApplicationPopup from './defaultComponents/popups/addApplication/AddApplicationPopup';
 import AddWorkspacePopup from './defaultComponents/popups/addWorkspace/AddWorkspacePopup';
 import SaveWorkspacePopup from './defaultComponents/popups/saveWorkspace/SaveWorkspacePopup';
+import WorkspaceContents from "./defaultComponents/WorkspaceContents";
 import useWorkspacePopup from './useWorkspacePopup';
 import useWorkspaceWindowClicked from './useWorkspaceWindowClicked';
 
@@ -23,6 +24,7 @@ import {
     AddWorkspacePopupProps,
     SaveWorkspacePopupProps,
     AddApplicationPopupProps,
+    WorkspaceContentsProps
 } from './types/internal';
 import WorkspacesElementCreationWrapper from './WorkspacesElementCreationWrapper'
 import workspacesManager from './workspacesManager';
@@ -38,10 +40,12 @@ export {
     AddWorkspaceButton,
     WorkspacePopup,
     useWorkspacePopup,
-    useWorkspaceWindowClicked
+    useWorkspaceWindowClicked,
+    WorkspaceContents
 };
-export const notifyMoveAreaChanged: () => void = workspacesManager?.notifyMoveAreaChanged;
-export const getComponentBounds: () => Bounds = workspacesManager?.getComponentBounds;
+export const notifyMoveAreaChanged: () => void = () => workspacesManager?.notifyMoveAreaChanged();
+export const getComponentBounds: () => Bounds = () => workspacesManager?.getComponentBounds();
+export const getFrameId: () => string = () => workspacesManager?.getFrameId();
 
 export {
     WorkspacesProps,
@@ -54,6 +58,7 @@ export {
     AddApplicationPopupComponentProps,
     AddWorkspacePopupProps,
     SaveWorkspacePopupProps,
-    AddApplicationPopupProps
+    AddApplicationPopupProps,
+    WorkspaceContentsProps
 };
 export default WorkspacesElementCreationWrapper;

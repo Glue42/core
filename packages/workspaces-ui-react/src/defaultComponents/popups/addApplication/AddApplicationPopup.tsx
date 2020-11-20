@@ -13,12 +13,20 @@ const AddApplicationPopup: React.FC<AddApplicationPopupProps> = ({ workspaceId, 
     const containerRef = React.createRef<HTMLDivElement>();
 
     useEffect(() => {
+        let shouldUpdate = true;
         glue.workspaces.getAllWorkspaces().then((allWorkspaces: any) => {
             const myWorkspace = allWorkspaces.find((w: any) => w.id === workspaceId);
             const parent = myWorkspace.getBox((p: any) => p.id === boxId) || myWorkspace;
 
+            if (!shouldUpdate) {
+                return;
+            }
             setParent(parent);
         });
+
+        return () => {
+            shouldUpdate = false;
+        }
     }, [boxId, workspaceId]);
 
     const refreshPopupHeight = () => {

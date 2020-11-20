@@ -1,0 +1,17 @@
+{
+    "title": "Workspaces UI",
+    "type": "workspaces",
+    "name": "workspaces-demo",
+    "icon": "http://localhost:22080/resources/icons/workspaces.ico",
+    "details": {
+        "layouts": [
+            {
+                "children": []
+            }
+        ],
+        "url": "http://localhost:3000",
+        "windowState": "normal"
+    },
+    "allowMultiple": true,
+    "customProperties": {}
+}

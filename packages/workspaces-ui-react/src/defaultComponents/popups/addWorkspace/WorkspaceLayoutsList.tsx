@@ -5,12 +5,21 @@ import WorkspaceLayoutItem from "./WorkspaceLayoutItem";
 const WorkspaceLayoutsList: React.FC<WorkspaceLayoutsListProps> = ({ glue, frameId, showFeedback, hidePopup, resizePopup }) => {
     const [layoutSummaries, setLayoutSummaries] = useState([] as any[]);
 
-    const refreshSummaries = () => {
-        return glue.workspaces.layouts.getSummaries().then((s: any) => { setLayoutSummaries(s); });
+    const getSummaries = () => {
+        return glue.workspaces.layouts.getSummaries();
     };
 
     useEffect(() => {
-        refreshSummaries();
+        let shouldUpdate = true;
+        getSummaries().then((s: any) => {
+            if (!shouldUpdate) {
+                return;
+            }
+            setLayoutSummaries(s);
+        });
+        return () => {
+            shouldUpdate = false;
+        }
     }, []);
 
     useEffect(() => {
@@ -32,7 +41,7 @@ const WorkspaceLayoutsList: React.FC<WorkspaceLayoutsListProps> = ({ glue, frame
             glue.workspaces.layouts.delete(layoutName).catch((e: Error) => {
                 showFeedback(e.message);
             }).then(() => {
-                refreshSummaries();
+                getSummaries().then((s: any) => { setLayoutSummaries(s); });
             });
         };
     }

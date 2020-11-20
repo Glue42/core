@@ -184,6 +184,25 @@ export class Frame implements Glue42Workspaces.Frame {
         return unsubscribe;
     }
 
+    public async onWorkspaceSelected(callback: (workspace: Glue42Workspaces.Workspace) => void): Promise<Glue42Workspaces.Unsubscribe> {
+        checkThrowCallback(callback);
+        const myId = getData(this).summary.id;
+
+        const wrappedCallback = async (payload: WorkspaceStreamData): Promise<void> => {
+            const workspace = await getData(this).controller.getWorkspace((wsp) => wsp.id === payload.workspaceSummary.id);
+            callback(workspace);
+        };
+
+        const config: SubscriptionConfig = {
+            callback: wrappedCallback,
+            action: "selected",
+            eventType: "workspace",
+            scope: "frame"
+        };
+        const unsubscribe = await getData(this).controller.processLocalSubscription(config, myId);
+        return unsubscribe;
+    }
+
     public async onWorkspaceClosed(callback: (closed: { frameId: string; workspaceId: string }) => void): Promise<Glue42Workspaces.Unsubscribe> {
         checkThrowCallback(callback);
         const myId = getData(this).summary.id;

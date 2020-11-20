@@ -205,8 +205,8 @@ export interface SaveWorkspaceConfig {
 export interface ComponentFactory {
     createLogo?: (options: { domNode: HTMLElement }, frameId: string) => void;
     createAddWorkspace?: (options: { domNode: HTMLElement }, frameId: string) => void;
-    createSystemButtons?: (options: { domNode: HTMLElement }, frameId:string ) => void;
-
+    createSystemButtons?: (options: { domNode: HTMLElement }, frameId: string) => void;
+    createWorkspaceContents?: (options: { domNode: HTMLElement, workspaceId: string }) => void;
     createAddApplicationPopup?: (options: AddApplicationPopupOptions) => void;
     createSaveWorkspacePopup?: (options: SaveWorkspacePopupOptions) => void;
     createAddWorkspacePopup?: (options: OpenWorkspacePopupOptions) => void;
@@ -218,7 +218,7 @@ export interface DecoratedComponentFactory {
     createLogo?: (options: { domNode: HTMLElement }) => void;
     createAddWorkspace?: (options: { domNode: HTMLElement }) => void;
     createSystemButtons?: (options: { domNode: HTMLElement }) => void;
-
+    createWorkspaceContents?: (options: { domNode: HTMLElement, workspaceId: string }) => void;
     createAddApplicationPopup?: (options: AddApplicationPopupOptions) => void;
     createSaveWorkspacePopup?: (options: SaveWorkspacePopupOptions) => void;
     createAddWorkspacePopup?: (options: OpenWorkspacePopupOptions) => void;
@@ -252,7 +252,8 @@ export interface OpenWorkspacePopupOptions extends BasePayloadOptions {
 export interface VisibilityState {
     logo: [options: { domNode: HTMLElement }, frameId: string],
     addWorkspace: [options: { domNode: HTMLElement }, frameId: string],
-    systemButtons: [options: { domNode: HTMLElement }, frameId: string]
+    systemButtons: [options: { domNode: HTMLElement }, frameId: string],
+    workspaceContents: Array<[options: { domNode: HTMLElement, workspaceId: string }]>
 }
 
 export type WorkspaceOptionsWithTitle = GoldenLayout.WorkspacesOptions & { title?: string };

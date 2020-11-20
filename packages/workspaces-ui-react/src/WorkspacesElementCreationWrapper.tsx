@@ -3,7 +3,7 @@ import AddApplicationPopup from "./defaultComponents/popups/addApplication/AddAp
 import AddWorkspacePopup from "./defaultComponents/popups/addWorkspace/AddWorkspacePopup";
 import SaveWorkspacePopup from "./defaultComponents/popups/saveWorkspace/SaveWorkspacePopup";
 import Portal from "./Portal";
-import { AddApplicationPopupProps, CreateElementRequestOptions, ElementCreationWrapperState, AddWorkspacePopupProps, SaveWorkspacePopupProps, WorkspacesProps } from "./types/internal";
+import { AddApplicationPopupProps, CreateElementRequestOptions, ElementCreationWrapperState, AddWorkspacePopupProps, SaveWorkspacePopupProps, WorkspacesProps, CreateWorkspaceContentsRequestOptions } from "./types/internal";
 import WorkspacesWrapper from "./WorkspacesWrapper";
 
 class WorkspacesElementCreationWrapper extends React.Component<WorkspacesProps, ElementCreationWrapperState> {
@@ -13,6 +13,7 @@ class WorkspacesElementCreationWrapper extends React.Component<WorkspacesProps, 
             logo: undefined,
             addWorkspace: undefined,
             systemButtons: undefined,
+            workspaceContents: [],
             saveWorkspacePopup: undefined,
             addApplicationPopup: undefined,
             addWorkspacePopup: undefined
@@ -51,6 +52,22 @@ class WorkspacesElementCreationWrapper extends React.Component<WorkspacesProps, 
             return {
                 ...s,
                 systemButtons: options
+            }
+        });
+    }
+
+    onCreateWorkspaceContentsRequested = (options: CreateWorkspaceContentsRequestOptions) => {
+        if (this.state.workspaceContents.some(wc => wc.domNode === options.domNode)) {
+            return;
+        }
+
+        this.setState(s => {
+            return {
+                ...s,
+                workspaceContents: [
+                    ...s.workspaceContents,
+                    options
+                ]
             }
         });
     }
@@ -132,6 +149,19 @@ class WorkspacesElementCreationWrapper extends React.Component<WorkspacesProps, 
         return <Portal domNode={domNode}><SystemButtonsCustomComponent {...options} /></Portal>
     }
 
+    renderWorskpaceContents = () => {
+        const WorkspaceContentsComponent = this.props.components?.WorkspaceContents;
+
+        return this.state.workspaceContents.map((wc) => {
+            if (!WorkspaceContentsComponent || !wc.domNode) {
+                return;
+            }
+
+            const { domNode, callback, ...options } = wc;
+            return <Portal key={options.workspaceId} domNode={domNode}><WorkspaceContentsComponent {...options} /></Portal>
+        });
+    }
+
     renderSaveWorkspacePopupComponent = () => {
         const SaveWorkspaceCustomComponent = this.props.components?.popups?.SaveWorkspaceComponent || SaveWorkspacePopup;
         if (!SaveWorkspaceCustomComponent || (!this.state.saveWorkspacePopup || !this.state.saveWorkspacePopup.domNode)) {
@@ -165,7 +195,7 @@ class WorkspacesElementCreationWrapper extends React.Component<WorkspacesProps, 
     }
 
     render() {
-        const { components, ...additionalProperties } = this.props;
+        const { components, glue, ...additionalProperties } = this.props;
         const addApplicationComponent = components?.popups?.AddApplicationComponent || AddApplicationPopup;
         const saveWorkspaceComponent = components?.popups?.SaveWorkspaceComponent || SaveWorkspacePopup;
         const addWorkspaceComponent = components?.popups?.AddWorkspaceComponent || AddWorkspacePopup;
@@ -194,6 +224,7 @@ class WorkspacesElementCreationWrapper extends React.Component<WorkspacesProps, 
                 {this.renderLogoComponent()}
                 {this.renderAddWorkspaceComponent()}
                 {this.renderSystemButtonsComponent()}
+                {this.renderWorskpaceContents()}
                 {this.renderSaveWorkspacePopupComponent()}
                 {this.renderAddApplicationPopupComponent()}
                 {this.renderAddWorkspacePopupComponent()}
@@ -201,12 +232,13 @@ class WorkspacesElementCreationWrapper extends React.Component<WorkspacesProps, 
                     onCreateSystemButtonsRequested={components?.header?.SystemButtonsComponent ? this.onCreateSystemButtonsRequested : undefined}
                     onCreateAddWorkspaceRequested={components?.header?.AddWorkspaceComponent ? this.onCreateAddWorkspaceRequested : undefined}
                     onCreateLogoRequested={components?.header?.LogoComponent ? this.onCreateLogoRequested : undefined}
+                    onCreateWorkspaceContentsRequested={components?.WorkspaceContents ? this.onCreateWorkspaceContentsRequested : undefined}
                     onCreateSaveWorkspacePopupRequested={onCreateSaveWorkspaceRequested}
                     onCreateAddApplicationPopupRequested={onCreateAddApplicationRequested}
                     onCreateAddWorkspacePopupRequested={onCreateAddWorkspacePopupRequested}
                     onHideSystemPopupsRequested={this.onHideSystemPopups}
                     externalPopupApplications={externalPopupApplications}
-                    glue={this.props.glue}
+                    glue={glue}
                 />
             </div>
         );

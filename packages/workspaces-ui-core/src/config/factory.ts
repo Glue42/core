@@ -145,6 +145,7 @@ export class WorkspacesConfigurationFactory {
                             id: wcc?.id || defaultId,
                             componentName: this.getWorkspaceLayoutComponentName(idAsString(wcc?.id) || defaultId),
                             componentState: {},
+                            noTabHeader: wcc?.workspacesOptions?.noTabHeader,
                             title: (wcc?.workspacesOptions as WorkspaceOptionsWithTitle)?.title || wcc?.workspacesOptions?.name || this.getWorkspaceTitle(store.workspaceIds),
                         };
                     }),

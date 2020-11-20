@@ -16,6 +16,7 @@ const SaveWorkspaceButton: React.FC<SaveWorkspaceButtonProps> = ({ workspaceId,
         if (!shouldSave) {
             return;
         }
+        let shouldUpdate = true;
         let workspace: any;
         const workspaceName = inputValue;
         glue.workspaces.getAllWorkspaces().then((allWorkspaces: any) => {
@@ -27,14 +28,22 @@ const SaveWorkspaceButton: React.FC<SaveWorkspaceButtonProps> = ({ workspaceId,
                 saveContext: shouldSaveContext
             });
         }).then(() => {
-            hidePopup();
             return workspace.setTitle(workspaceName);
         }).catch((error: Error) => {
-            showFeedback(error.message)
+            if (shouldUpdate) {
+                showFeedback(error.message)
+            }
         }).finally(() => {
-            clearInput();
-            setShouldSave(false);
+            if (shouldUpdate) {
+                clearInput();
+                setShouldSave(false);
+                hidePopup();
+            }
         });
+
+        return () => {
+            shouldUpdate = false;
+        }
     }, [shouldSave]);
 
     const exportJson = (layout: object, name: string) => {

@@ -102,13 +102,15 @@ lm.utils.copy(lm.items.Stack.prototype, {
 		return this.header.activeContentItem;
 	},
 
-	addChild: function (contentItem, index) {
+	addChild: function (contentItem, index, activate = true) {
 		contentItem = this.layoutManager._$normalizeContentItem(contentItem, this);
 		lm.items.AbstractContentItem.prototype.addChild.call(this, contentItem, index);
 		this.childElementContainer.append(contentItem.element);
 		this.header.createTab(contentItem, index);
-		if ($(this.layoutManager.container).is(":visible")) {
+		if ($(this.layoutManager.container).is(":visible") && activate) {
 			this.setActiveContentItem(contentItem);
+		} else {
+			contentItem._$hide();
 		}
 		this.callDownwards('setSize');
 		this._$validateClosability();

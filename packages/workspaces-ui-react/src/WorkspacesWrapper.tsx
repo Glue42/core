@@ -33,6 +33,7 @@ class WorkspacesWrapper extends React.Component<WorkspacesWrapperProps> {
             createLogo: this.props.onCreateLogoRequested,
             createAddWorkspace: this.props.onCreateAddWorkspaceRequested,
             createSystemButtons: this.props.onCreateSystemButtonsRequested,
+            createWorkspaceContents: this.props.onCreateWorkspaceContentsRequested,
             createSaveWorkspacePopup: this.props.onCreateSaveWorkspacePopupRequested,
             createAddApplicationPopup: this.props.onCreateAddApplicationPopupRequested,
             createAddWorkspacePopup: this.props.onCreateAddWorkspacePopupRequested,
