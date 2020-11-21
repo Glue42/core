@@ -5,7 +5,7 @@ import { Glue42Initializer } from "./glue-initializer.service";
 import { CONFIG_TOKEN } from "./tokens";
 import { GlueConfigService } from "./glue-config-service";
 
-export const initFactory = (initializer: Glue42Initializer): void | Promise<void> => initializer.start();
+export const initFactory = (initializer: Glue42Initializer) => (): void | Promise<void> => initializer.start();
 
 // @dynamic
 @NgModule()
@@ -18,7 +18,6 @@ export class Glue42Ng {
     }
 
     public static forRoot(settings?: Glue42NgSettings): ModuleWithProviders<Glue42Ng> {
-
         return {
             ngModule: Glue42Ng,
             providers: [
@@ -33,7 +32,7 @@ export class Glue42Ng {
                     provide: APP_INITIALIZER,
                     useFactory: initFactory,
                     multi: true,
-                    deps: [GlueConfigService, Glue42Initializer, Glue42Store]
+                    deps: [Glue42Initializer, GlueConfigService, Glue42Store]
                 }
             ]
         };
