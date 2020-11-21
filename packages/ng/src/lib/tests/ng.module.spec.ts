@@ -1,12 +1,12 @@
 import { TestBed } from "@angular/core/testing";
 import { Glue42Ng } from "../ng.module";
-import { FactoryProvider, APP_INITIALIZER } from "@angular/core";
+import { FactoryProvider, APP_INITIALIZER, ValueSansProvider } from "@angular/core";
 import { Glue42Initializer } from "../glue-initializer.service";
 import { Glue42Store } from "../glue-store.service";
-// import { Glue42 } from "@glue42/desktop";
-// import { Glue42NgConfig } from "../types";
+import { GlueConfigService } from "../glue-config.service";
+import { Glue42NgSettings } from "../types";
 
-xdescribe("Glue42Ng", () => {
+describe("Glue42Ng", () => {
 
     describe("forRoot unit", () => {
 
@@ -74,25 +74,6 @@ xdescribe("Glue42Ng", () => {
             expect(initializerSpy.start).toHaveBeenCalledTimes(1);
         });
 
-        // it("the initializerFactory should call the initializer start with the settings config and settings factory", async () => {
-        //     const mockSettings = {
-        //         config: { test: 24 } as Glue42NgConfig,
-        //         factory: async (): Promise<Glue42.Glue> => {
-        //             return { test: 42 } as unknown as Glue42.Glue;
-        //         }
-        //     };
-
-        //     const ngModule = Glue42Ng.forRoot(mockSettings);
-
-        //     const appInitializer = ngModule.providers[0] as FactoryProvider;
-
-        //     const useFactoryFunc = appInitializer.useFactory(initializerSpy);
-
-        //     await useFactoryFunc();
-
-        //     expect(initializerSpy.start).toHaveBeenCalledWith(mockSettings.config, mockSettings.factory);
-        // });
-
         it("the initializerFactory should return promise by default", async () => {
             const ngModule = Glue42Ng.forRoot();
 
@@ -121,18 +102,23 @@ xdescribe("Glue42Ng", () => {
             await factoryResult;
         });
 
-        it("when settings.holdInit false init factory should return void", () => {
-            const ngModule = Glue42Ng.forRoot({ holdInit: false });
+        [
+            { holdInit: false },
+            { factory: (): number => 42 },
+            { config: { test: 42 } },
+            { config: { test: 42 }, factory: (): number => 42, holdInit: false }
+        ].forEach((input) => {
+            it(`should set the exact same settings object in the CONFIG_TOKEN: ${JSON.stringify(input)}`, () => {
+                const ngModule = Glue42Ng.forRoot(input as Glue42NgSettings);
 
-            const appInitializer = ngModule.providers[0] as FactoryProvider;
+                const valueProvider = ngModule.providers[1] as ValueSansProvider;
 
-            const useFactoryFunc = appInitializer.useFactory(initializerSpy);
+                const tokenValue = valueProvider.useValue;
 
-            const factoryResult = useFactoryFunc();
+                expect(tokenValue).toEqual(input);
+            });
 
-            expect(factoryResult).toBeUndefined();
         });
-
     });
 
     describe("forRoot integration ", () => {
@@ -149,14 +135,22 @@ xdescribe("Glue42Ng", () => {
             expect(() => TestBed.inject(Glue42Initializer)).toThrowError(/No provider/);
         });
 
-        it("should register Glue42Store and Glue42Initializer when provided with forRoot", () => {
+        it("should not register GlueConfigService when provided without forRoot", () => {
+            TestBed.configureTestingModule({ imports: [Glue42Ng] });
+
+            expect(() => TestBed.inject(GlueConfigService)).toThrowError(/No provider/);
+        });
+
+        it("should register Glue42Store and Glue42Initializer and GlueConfigService when provided with forRoot", () => {
             TestBed.configureTestingModule({ imports: [Glue42Ng.forRoot()] });
 
             const initService = TestBed.inject(Glue42Initializer);
             const storeService = TestBed.inject(Glue42Store);
+            const configService = TestBed.inject(GlueConfigService);
 
             expect(initService).toBeTruthy();
             expect(storeService).toBeTruthy();
+            expect(configService).toBeTruthy();
         });
     });
 

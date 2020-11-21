@@ -4,7 +4,7 @@ import { Glue42NgConfig, Glue42NgFactory } from "./types";
 import { Glue42 } from "@glue42/desktop";
 import { Glue42Web } from "@glue42/web";
 import { Subject, Observable } from "rxjs";
-import { GlueConfigService } from "./glue-config-service";
+import { GlueConfigService } from "./glue-config.service";
 
 @Injectable()
 export class Glue42Initializer {
@@ -13,7 +13,7 @@ export class Glue42Initializer {
 
     constructor(private readonly configService: GlueConfigService) { }
 
-    public start(): void | Promise<void> {
+    public start(): Promise<void> {
 
         const config = this.configService.getSettings().config;
         const factory = this.configService.getSettings().factory;
@@ -24,7 +24,7 @@ export class Glue42Initializer {
             const errorMessage = "Initialization failed, because no Glue Factory function was found. Please provide a factory function when importing the Glue42Ng module. Alternatively make sure there is a GlueWeb or Glue function attached to the global window object";
             this.initializationSource.next({ error: { message: errorMessage } });
             this.initializationSource.complete();
-            return;
+            return Promise.resolve();
         }
 
         const gluePromise = this.safeCallFactory(config, glueFactory, this.defaultInitTimeoutMilliseconds, `Glue factory timeout hit. Set at: ${this.defaultInitTimeoutMilliseconds} milliseconds`)
@@ -37,10 +37,7 @@ export class Glue42Initializer {
                 this.initializationSource.complete();
             });
 
-
-        if (this.configService.getSettings().holdInit) {
-            return gluePromise;
-        }
+        return this.configService.getSettings().holdInit ? gluePromise : Promise.resolve();
     }
 
     public onState(): Observable<{ glueInstance?: Glue42Web.API | Glue42.Glue; error?: any }> {
