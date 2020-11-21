@@ -1,6 +1,6 @@
 {
     "name": "@glue42/ng",
-    "version": "1.2.7-beta.0",
+    "version": "1.2.7-beta.1",
     "description": "Glue42 library for Angular",
     "license": "MIT",
     "publishConfig": {
