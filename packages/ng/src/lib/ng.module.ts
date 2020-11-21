@@ -5,7 +5,7 @@ import { Glue42Initializer } from "./glue-initializer.service";
 import { CONFIG_TOKEN } from "./tokens";
 import { GlueConfigService } from "./glue-config-service";
 
-const initFactory = (initializer: Glue42Initializer): void | Promise<void> => initializer.start();
+export const initFactory = (initializer: Glue42Initializer): void | Promise<void> => initializer.start();
 
 // @dynamic
 @NgModule()
