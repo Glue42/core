@@ -5,7 +5,7 @@ import { Subject, ReplaySubject, Observable, Subscription } from "rxjs";
 import { Glue42Initializer } from "../glue-initializer.service";
 import { Glue42 } from "@glue42/desktop";
 
-describe("Glue42Store ", () => {
+xdescribe("Glue42Store ", () => {
     let service: Glue42Store;
     let initObs: Subject<unknown>;
     let initializerSpy: jasmine.SpyObj<Glue42Initializer>;
