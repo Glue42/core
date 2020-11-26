@@ -4,10 +4,14 @@ import ApplicationItem from "./ApplicationItem";
 
 const ApplicationsList: React.FC<ApplicationListProps> = ({ glue, inLane, parent, hidePopup, searchTerm, updatePopupHeight, filterApps }) => {
     const hasFlag = (app: any) => app?.userProperties?.includeInWorkspaces ?? app?.userProperties?.includeInCanvas;
-    const defaultFilter = (a: any) => !a.hidden &&
-        !a.isActivity &&
+    const isFromSupportedType = (a: any) => !a.type || (a.type !== "activity" &&
+        a.type !== "canvas" &&
+        a.type !== "workspaces" &&
+        a.type !== "node");
+
+    const defaultFilter = (a: any) => !a.isActivity &&
         !a.isShell &&
-        (!a.type || a.type === "exe" || a.type === "window") && hasFlag(a);
+        isFromSupportedType(a) && hasFlag(a);
 
     const filter = filterApps || defaultFilter;
 
