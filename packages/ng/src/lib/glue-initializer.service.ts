@@ -4,13 +4,19 @@ import { Glue42NgConfig, Glue42NgFactory } from "./types";
 import { Glue42 } from "@glue42/desktop";
 import { Glue42Web } from "@glue42/web";
 import { Subject, Observable } from "rxjs";
+import { GlueConfigService } from "./glue-config.service";
 
 @Injectable()
 export class Glue42Initializer {
     private readonly defaultInitTimeoutMilliseconds = 3000;
     private initializationSource = new Subject<{ glueInstance?: Glue42Web.API | Glue42.Glue; error?: any }>();
 
-    public async start(config: Glue42NgConfig, factory: Glue42NgFactory): Promise<void> {
+    constructor(private readonly configService: GlueConfigService) { }
+
+    public start(): Promise<void> {
+
+        const config = this.configService.getSettings().config;
+        const factory = this.configService.getSettings().factory;
 
         const glueFactory = factory || this.getGlueFactory();
 
@@ -18,17 +24,20 @@ export class Glue42Initializer {
             const errorMessage = "Initialization failed, because no Glue Factory function was found. Please provide a factory function when importing the Glue42Ng module. Alternatively make sure there is a GlueWeb or Glue function attached to the global window object";
             this.initializationSource.next({ error: { message: errorMessage } });
             this.initializationSource.complete();
-            return;
+            return Promise.resolve();
         }
 
-        try {
-            const glueInstance = await this.safeCallFactory(config, glueFactory, this.defaultInitTimeoutMilliseconds, `Glue factory timeout hit. Set at: ${this.defaultInitTimeoutMilliseconds} milliseconds`);
-            this.initializationSource.next({ glueInstance });
-            this.initializationSource.complete();
-        } catch (error) {
-            this.initializationSource.next({ error });
-            this.initializationSource.complete();
-        }
+        const gluePromise = this.safeCallFactory(config, glueFactory, this.defaultInitTimeoutMilliseconds, `Glue factory timeout hit. Set at: ${this.defaultInitTimeoutMilliseconds} milliseconds`)
+            .then((glueInstance) => {
+                this.initializationSource.next({ glueInstance });
+                this.initializationSource.complete();
+            })
+            .catch((error) => {
+                this.initializationSource.next({ error });
+                this.initializationSource.complete();
+            });
+
+        return this.configService.getSettings().holdInit ? gluePromise : Promise.resolve();
     }
 
     public onState(): Observable<{ glueInstance?: Glue42Web.API | Glue42.Glue; error?: any }> {
