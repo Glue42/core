@@ -123,6 +123,7 @@ export interface AddApplicationPopupProps extends React.DetailedHTMLProps<React.
   hidePopup: () => void;
   boxId: string;
   frameId?: string;
+  filterApps?: (glueApp: any) => boolean;
 }
 
 export interface AddWorkspacePopupProps extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> {
@@ -171,6 +172,7 @@ export interface ApplicationListProps {
   hidePopup: () => void;
   searchTerm: string;
   updatePopupHeight: () => void;
+  filterApps?: (glueApplication: any) => boolean;
 }
 
 export interface ContainerSwitchProps {

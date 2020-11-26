@@ -6,7 +6,7 @@ import withGlueInstance from "../../../withGlueInstance";
 
 declare const window: Window & { glue?: any };
 
-const AddApplicationPopup: React.FC<AddApplicationPopupProps> = ({ workspaceId, boxId, hidePopup, resizePopup, glue, frameId, ...props }) => {
+const AddApplicationPopup: React.FC<AddApplicationPopupProps> = ({ workspaceId, boxId, hidePopup, resizePopup, glue, frameId, filterApps, ...props }) => {
     const [inLane, setInLane] = useState(false);
     const [parent, setParent] = useState(undefined);
     const [searchTerm, setSearchTerm] = useState("");
@@ -75,6 +75,7 @@ const AddApplicationPopup: React.FC<AddApplicationPopupProps> = ({ workspaceId, 
                             inLane={inLane}
                             parent={parent}
                             searchTerm={searchTerm}
+                            filterApps={filterApps}
                             updatePopupHeight={() => { refreshPopupHeight() }}
                         />
                     </div>

@@ -2,14 +2,17 @@ import React, { useEffect } from "react";
 import { ApplicationListProps } from "../../../types/internal";
 import ApplicationItem from "./ApplicationItem";
 
-const ApplicationsList: React.FC<ApplicationListProps> = ({ glue, inLane, parent, hidePopup, searchTerm, updatePopupHeight }) => {
+const ApplicationsList: React.FC<ApplicationListProps> = ({ glue, inLane, parent, hidePopup, searchTerm, updatePopupHeight, filterApps }) => {
     const inCore = !window.glue42gd;
-    const hasFlag = (app: any) => inCore || app?.userProperties?.includeInWorkspaces;
-
-    const workspacesFriendlyApps: any[] = glue.appManager.applications().filter((a: any) => !a.hidden &&
+    const hasFlag = (app: any) => inCore || (app?.userProperties?.includeInWorkspaces ?? app?.userProperties?.includeInCanvas);
+    const defaultFilter = (a: any) => !a.hidden &&
         !a.isActivity &&
         !a.isShell &&
-        (!a.type || a.type === "exe" || a.type === "window") && hasFlag(a));
+        (!a.type || a.type === "exe" || a.type === "window") && hasFlag(a);
+
+    const filter = filterApps || defaultFilter;
+
+    const workspacesFriendlyApps: any[] = glue.appManager.applications().filter(filter);
 
     const getElementOnClick = (appName: string) => {
         return async () => {
