@@ -1,5 +1,3 @@
-const { isGetAccessor } = require("typescript");
-
 /**
  * Represents an individual tab within a Stack's header
  *

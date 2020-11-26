@@ -3,8 +3,7 @@ import { ApplicationListProps } from "../../../types/internal";
 import ApplicationItem from "./ApplicationItem";
 
 const ApplicationsList: React.FC<ApplicationListProps> = ({ glue, inLane, parent, hidePopup, searchTerm, updatePopupHeight, filterApps }) => {
-    const inCore = !window.glue42gd;
-    const hasFlag = (app: any) => inCore || (app?.userProperties?.includeInWorkspaces ?? app?.userProperties?.includeInCanvas);
+    const hasFlag = (app: any) => app?.userProperties?.includeInWorkspaces ?? app?.userProperties?.includeInCanvas;
     const defaultFilter = (a: any) => !a.hidden &&
         !a.isActivity &&
         !a.isShell &&
