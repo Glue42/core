@@ -134,7 +134,7 @@ lm.utils.copy(lm.controls.Tab.prototype, {
 		if (this.contentItem.parent.header.tabs.length < 2 && this.contentItem.layoutManager.config.settings.mode === "workspace") {
 			return;
 		}
-		if (this.contentItem.layoutManager.config.settings.mode !== "workspace" && !this.contentItem.config.windowId) {
+		if (this.contentItem.layoutManager.config.settings.mode !== "workspace" && (!this.contentItem.config.windowId && !this.contentItem.componentState.windowId)) {
 			return;
 		}
 		const newProxy = new lm.controls.DragProxy(

@@ -530,7 +530,6 @@ ul {
 }
 .move_area {
   flex-grow: 1;
-  cursor: move;
 }
 .empty-container-background {
   width: 100%;

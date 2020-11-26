@@ -3,10 +3,13 @@ import { ApplicationListProps } from "../../../types/internal";
 import ApplicationItem from "./ApplicationItem";
 
 const ApplicationsList: React.FC<ApplicationListProps> = ({ glue, inLane, parent, hidePopup, searchTerm, updatePopupHeight }) => {
+    const inCore = !window.glue42gd;
+    const hasFlag = (app: any) => inCore || app?.userProperties?.includeInWorkspaces;
+
     const workspacesFriendlyApps: any[] = glue.appManager.applications().filter((a: any) => !a.hidden &&
         !a.isActivity &&
         !a.isShell &&
-        (!a.type || a.type === "exe" || a.type === "window"));
+        (!a.type || a.type === "exe" || a.type === "window") && hasFlag(a));
 
     const getElementOnClick = (appName: string) => {
         return async () => {
