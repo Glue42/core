@@ -172,4 +172,4 @@ The demo consists of a Chart and a Blotter application. Searching and selecting 
 
 Right-clicking on an instrument inside the Blotter opens up a context menu with the intents that can be raised for the instrument. When the chart application is running it would update its context and when there are no instances of the Chart application running it will start a new instance with the given context.
 
-You can use the [code of the demo](https://github.com/Glue42/fdc3-demos/tree/configure-for-glue42-core) as a reference when adapting your own applications.
+You can use the [code of the demo](https://github.com/Glue42/fdc3-demos/tree/adapt-for-glue42) as a reference when adapting your own applications.

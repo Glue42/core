@@ -79,7 +79,9 @@ const createChannelsAgent = (): ChannelsAPI => {
         return new AppChannel(channelName);
     };
 
-    const handleSwitchChannelUI = (channelId: string): void => {
+    const handleSwitchChannelUI = async (channelId: string): Promise<void> => {
+        await initDone;
+
         if (typeof channelId !== "undefined") {
             setCurrentChannel(channels[channelId]);
         }

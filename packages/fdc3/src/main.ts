@@ -25,7 +25,7 @@ const validateGlue = (glue: Glue42.Glue | Glue42Web.API): void => {
 
     for (const apiFDC3ReliesUpon of apisFDC3ReliesUpon) {
         if (typeof glue[apiFDC3ReliesUpon] === "undefined") {
-            throw new Error(`Failed to initialize @glue42/fdc3. @glue42/fdc3 depends on the Glue42 ${apiFDC3ReliesUpon.replace(/^./, apiFDC3ReliesUpon[0].toUpperCase())} API being available.Ignore this error if you do not plan on using FDC3.`);
+            throw new Error(`Failed to initialize @glue42/fdc3. @glue42/fdc3 depends on the Glue42 ${apiFDC3ReliesUpon.replace(/^./, apiFDC3ReliesUpon[0].toUpperCase())} API being available. Ignore this error if you do not plan on using FDC3.`);
         }
     }
 };
