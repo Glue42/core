@@ -1,153 +1,36 @@
-/* eslint-disable no-console, no-unused-vars */
-'use strict';
-describe('methodAdded()', function () {
+describe('methodAdded()', () => {
+    const callbackNeverCalled = () => { };
 
-    let currentStream;
-
-    before(() => coreReady);
-
-    before(() => window.methodDefinition = {
-        name: gtf.agm.getMethodName()
+    before(() => {
+        return coreReady;
     });
-
-    const cleanUp = () => {
-        return new Promise((resolve, reject) => {
-
-            const method = glue.agm.methods().find(m => m.name === methodDefinition.name);
-
-            if (method && !method.supportsStreaming) {
-
-                gtf.agm.clearMethod(methodDefinition.name, glue.agm.instance)
-                    .then(() => {
-                        resolve();
-                    })
-                    .catch((err) => {
-                        reject(err);
-                    });
-
-            } else if (method && method.supportsStreaming) {
-
-                gtf.agm.clearStream(currentStream, glue.agm.instance)
-                    .then(() => {
-                        resolve();
-                    })
-                    .catch((err) => {
-                        reject(err);
-                    });
-
-            } else {
-                resolve();
-            }
-        });
-    };
 
     afterEach(() => {
-        return cleanUp();
+        return Promise.all([gtf.agm.unregisterAllMyNonSystemMethods(), gtf.clearWindowActiveHooks()]);
     });
 
-    it('Should receive method added event when I register a stream', (done) => {
-
-        const callDone = gtf.waitFor(3, done);
-
-        methodDefinition.name = gtf.agm.getMethodName();
-
-        let un = glue.agm.methodAdded((method) => {
-            if (method.name === methodDefinition.name) {
-                if (un) {
-                    un();
-                }
-                callDone();
-            }
-        });
-
-        let unSub = glue.agm.serverMethodAdded((data) => {
-
-            var server = data.server || {};
-            var method = data.method || {};
-
-            if (method.name !== methodDefinition.name) {
-                return;
-            }
-
-            if (gtf.agm.isValidServer(server, glue.agm.instance)) {
-                if (unSub) {
-                    unSub();
-                }
-                callDone();
-            }
-        });
-
-        glue.agm.createStream(methodDefinition.name)
-            .then((server) => {
-                currentStream = server;
-                callDone();
-            })
-            .catch((err) => {
-                done(err);
-            });
-    });
-
-    it('Should receive method added event when I register a method', (done) => {
-        const callDone = gtf.waitFor(2, done);
-
-        methodDefinition.name = gtf.agm.getMethodName();
-
-        glue.agm.register(methodDefinition.name, () => {
-        });
-
-        let un = glue.agm.methodAdded((method) => {
-            if (method.name === methodDefinition.name) {
-                if (un) {
-                    un();
-                }
-                callDone();
-            }
-        });
-
-        let unSub = glue.agm.serverMethodAdded((data) => {
-            const server = data.server || {};
-            const method = data.method || {};
-
-            if (method.name !== methodDefinition.name) {
-                return;
-            }
-
-            if (gtf.agm.isValidServer(server, glue.agm.instance)) {
-                if (unSub) {
-                    unSub();
-                }
-                callDone();
-            }
-        });
-
-    });
-
-
-    describe('AGM events about other servers\' actions: ', function () {
-        this.timeout(5000);
-
-        before(() => window.methodDefinition = {
-            name: gtf.agm.getMethodName()
-        });
+    describe('AGM events about my actions: ', () => {
+        let methodDefinition;
+        let myStreams = [];
 
         beforeEach(() => {
-            return gtf.createApp()
-                .then((glueApplication) => {
-                    window.glueApplicationOne = glueApplication;
-                });
+            methodDefinition = {
+                name: gtf.agm.getMethodName()
+            };
         });
 
-        afterEach(() => {
-            return glueApplicationOne.stop();
+        afterEach(async () => {
+            await gtf.agm.unregisterMyStreams(myStreams);
+
+            myStreams = [];
         });
 
-        it('Should receive methodAdded and serverMethodAdded events when a server registers a method async', (done) => {
-
-            const callDone = gtf.waitFor(2, done);
+        it('Should receive method added event when I register a stream', (done) => {
+            const callDone = gtf.waitFor(3, done);
 
             methodDefinition.name = gtf.agm.getMethodName();
 
-            let un = glue.agm.methodAdded((method) => {
+            const un = glue.interop.methodAdded((method) => {
                 if (method.name === methodDefinition.name) {
                     if (un) {
                         un();
@@ -156,7 +39,7 @@ describe('methodAdded()', function () {
                 }
             });
 
-            let unSub = glue.agm.serverMethodAdded((data) => {
+            const unSub = glue.interop.serverMethodAdded((data) => {
                 const server = data.server || {};
                 const method = data.method || {};
 
@@ -164,7 +47,97 @@ describe('methodAdded()', function () {
                     return;
                 }
 
-                if (gtf.agm.isValidServer(server, glueApplicationOne.myInstance.agm)) {
+                if (gtf.agm.compareServers(server, glue.interop.instance)) {
+                    if (unSub) {
+                        unSub();
+                    }
+                    callDone();
+                }
+            });
+
+            glue.interop.createStream(methodDefinition.name)
+                .then((stream) => {
+                    myStreams.push(stream);
+                    callDone();
+                })
+                .catch(done);
+        });
+
+        it('Should receive method added event when I register a method', (done) => {
+            const callDone = gtf.waitFor(2, done);
+
+            methodDefinition.name = gtf.agm.getMethodName();
+
+            const un = glue.interop.methodAdded((method) => {
+                if (method.name === methodDefinition.name) {
+                    if (un) {
+                        un();
+                    }
+                    callDone();
+                }
+            });
+
+            const unSub = glue.interop.serverMethodAdded((data) => {
+                const server = data.server || {};
+                const method = data.method || {};
+
+                if (method.name !== methodDefinition.name) {
+                    return;
+                }
+
+                if (gtf.agm.compareServers(server, glue.interop.instance)) {
+                    if (unSub) {
+                        unSub();
+                    }
+                    callDone();
+                }
+            });
+
+            glue.interop.register(methodDefinition.name, callbackNeverCalled);
+        });
+    });
+
+    describe('AGM events about other servers\' actions: ', () => {
+        let methodDefinition;
+
+        let glueApplication;
+
+        beforeEach(async () => {
+            glueApplication = await gtf.createApp();
+
+            methodDefinition = {
+                name: gtf.agm.getMethodName()
+            };
+        });
+
+        afterEach(async () => {
+            await glueApplication.stop();
+            glueApplication = null;
+        });
+
+        it('Should receive methodAdded and serverMethodAdded events when a server registers a method async', (done) => {
+            const callDone = gtf.waitFor(2, done);
+
+            methodDefinition.name = gtf.agm.getMethodName();
+
+            const un = glue.interop.methodAdded((method) => {
+                if (method.name === methodDefinition.name) {
+                    if (un) {
+                        un();
+                    }
+                    callDone();
+                }
+            });
+
+            const unSub = glue.interop.serverMethodAdded((data) => {
+                const server = data.server || {};
+                const method = data.method || {};
+
+                if (method.name !== methodDefinition.name) {
+                    return;
+                }
+
+                if (gtf.agm.compareServers(server, glueApplication.agm.instance)) {
                     if (unSub) {
                         unSub();
                     }
@@ -173,17 +146,16 @@ describe('methodAdded()', function () {
                 }
             });
 
-            glueApplicationOne.agm.registerAsync(methodDefinition, (args, caller, success) => {
+            glueApplication.agm.registerAsync(methodDefinition, (_, __, success) => {
                 success();
             });
         });
 
         it('Should receive methodAdded and serverMethodAdded events when a server registers a method', (done) => {
-
             const callDone = gtf.waitFor(2, done);
             methodDefinition.name = gtf.agm.getMethodName();
 
-            let un = glue.agm.methodAdded((method) => {
+            const un = glue.interop.methodAdded((method) => {
                 if (method.name === methodDefinition.name) {
                     if (un) {
                         un();
@@ -192,7 +164,7 @@ describe('methodAdded()', function () {
                 }
             });
 
-            let unSub = glue.agm.serverMethodAdded((data) => {
+            const unSub = glue.interop.serverMethodAdded((data) => {
                 const server = data.server || {};
                 const method = data.method || {};
 
@@ -200,7 +172,7 @@ describe('methodAdded()', function () {
                     return;
                 }
 
-                if (gtf.agm.isValidServer(server, glueApplicationOne.myInstance.agm)) {
+                if (gtf.agm.compareServers(server, glueApplication.agm.instance)) {
                     if (unSub) {
                         unSub();
                     }
@@ -209,8 +181,7 @@ describe('methodAdded()', function () {
                 }
             });
 
-            glueApplicationOne.agm.register(methodDefinition, () => {
-            });
+            glueApplication.agm.register(methodDefinition, callbackNeverCalled);
         });
 
         it('Should receive method added event when a server registers a stream', (done) => {
@@ -218,7 +189,7 @@ describe('methodAdded()', function () {
 
             methodDefinition.name = gtf.agm.getMethodName();
 
-            let un = glue.agm.methodAdded((method) => {
+            const un = glue.interop.methodAdded((method) => {
                 if (method.name === methodDefinition.name) {
                     if (un) {
                         un();
@@ -227,7 +198,7 @@ describe('methodAdded()', function () {
                 }
             });
 
-            let unSub = glue.agm.serverMethodAdded((data) => {
+            const unSub = glue.interop.serverMethodAdded((data) => {
                 const server = data.server || {};
                 const method = data.method || {};
 
@@ -235,7 +206,7 @@ describe('methodAdded()', function () {
                     return;
                 }
 
-                if (gtf.agm.isValidServer(server, glueApplicationOne.myInstance.agm)) {
+                if (gtf.agm.compareServers(server, glueApplication.agm.instance)) {
                     if (unSub) {
                         unSub();
                     }
@@ -245,14 +216,12 @@ describe('methodAdded()', function () {
 
             });
 
-            glueApplicationOne.agm.createStream(methodDefinition.name);
-
+            glueApplication.agm.createStream(methodDefinition);
         });
-
     });
 
     describe('Registering with full method options', () => {
-        let stream;
+        let myStreams = [];
 
         const expectedProperties = [
             'accepts',
@@ -266,7 +235,6 @@ describe('methodAdded()', function () {
         ];
 
         const fullMethodOptions = {
-            name: '',
             objectTypes: ['otherApp'],
             description: 'same description',
             displayName: 'awesome display name',
@@ -275,11 +243,9 @@ describe('methodAdded()', function () {
         };
 
         const checkMethodDefinition = (method, isStream) => {
-
             const shouldSupportStreaming = isStream ? isStream : false;
 
-            for (let prop of expectedProperties) {
-
+            for (const prop of expectedProperties) {
                 if (method.hasOwnProperty(prop)) {
                     if (prop === 'supportsStreaming') {
                         expect(method[prop]).to.be.a('Boolean');
@@ -302,21 +268,14 @@ describe('methodAdded()', function () {
             fullMethodOptions.name = gtf.agm.getMethodName();
         });
 
-        afterEach(() => {
-            const method = glue.agm.methods().find(x => x.name === fullMethodOptions.name);
+        afterEach(async () => {
+            await gtf.agm.unregisterMyStreams(myStreams);
 
-            if (method && method.supportsStreaming) {
-                return gtf.agm.clearStream(stream, glue.agm.instance);
-            }
-
-            if (method && !method.supportsStreaming) {
-                return gtf.agm.clearMethod(method.name, glue.agm.instance);
-            }
-
+            myStreams = [];
         });
 
-        it('MethodAdded should pass a valid methodDefinition object', (done) => {
-            const un = glue.agm.methodAdded((method) => {
+        it('MethodAdded should pass a valid methodDefinition object (register)', (done) => {
+            const un = glue.interop.methodAdded((method) => {
                 if (method.name === fullMethodOptions.name) {
                     try {
                         checkMethodDefinition(method);
@@ -328,12 +287,12 @@ describe('methodAdded()', function () {
                     }
                 }
             });
-            glue.agm.register(fullMethodOptions, () => {
-            });
+            glue.interop.register(fullMethodOptions, callbackNeverCalled);
         });
 
-        it('MethodAdded should pass a valid methodDefinition object | Ticket: https://jira.tick42.com/browse/GLUE_D-1609', (done) => {
-            const un = glue.agm.methodAdded((method) => {
+
+        it('MethodAdded should pass a valid methodDefinition object  (registerAsync)', (done) => {
+            const un = glue.interop.methodAdded((method) => {
                 if (method.name === fullMethodOptions.name) {
                     try {
                         checkMethodDefinition(method);
@@ -346,15 +305,14 @@ describe('methodAdded()', function () {
                 }
             });
 
-            glue.agm.registerAsync(fullMethodOptions, () => {
-            });
+            glue.interop.registerAsync(fullMethodOptions, callbackNeverCalled);
         });
 
-        it('MethodAdded should pass a valid methodDefinition object', (done) => {
+        it('MethodAdded should pass a valid methodDefinition object (createStreamr)', (done) => {
 
             const ready = gtf.waitFor(2, done);
 
-            const un = glue.agm.methodAdded((method) => {
+            const un = glue.interop.methodAdded((method) => {
                 if (method.name === fullMethodOptions.name) {
                     try {
                         checkMethodDefinition(method, true);
@@ -367,17 +325,19 @@ describe('methodAdded()', function () {
                 }
             });
 
-            glue.agm.createStream(fullMethodOptions)
-                .then((s) => {
-                    stream = s;
+            glue.interop.createStream(fullMethodOptions)
+                .then((stream) => {
+                    myStreams.push(stream);
                     ready();
                 })
                 .catch(done);
         });
     });
 
-
     describe('Registering with only name', () => {
+        let myStreams = [];
+        let methodName;
+
         const expectedProperties = [
             'accepts',
             'description',
@@ -389,11 +349,7 @@ describe('methodAdded()', function () {
             'supportsStreaming',
         ];
 
-        let methodName;
-        let stream;
-
         const checkMethodDefinition = (method, isStream) => {
-
             const shouldSupportStreaming = isStream ? isStream : false;
 
             for (let prop of expectedProperties) {
@@ -422,21 +378,14 @@ describe('methodAdded()', function () {
             methodName = gtf.agm.getMethodName();
         });
 
-        afterEach(() => {
-            const method = glue.agm.methods().find(x => x.name === methodName);
+        afterEach(async () => {
+            await gtf.agm.unregisterMyStreams(myStreams);
 
-            if (method && method.supportsStreaming) {
-                return gtf.agm.clearStream(stream, glue.agm.instance);
-            }
-
-            if (method && !method.supportsStreaming) {
-                return gtf.agm.clearMethod(methodName, glue.agm.instance);
-            }
-
+            myStreams = [];
         });
 
-        it('MethodAdded should pass a valid methodDefinition object', (done) => {
-            const un = glue.agm.methodAdded((method) => {
+        it('MethodAdded should pass a valid methodDefinition object (register)', (done) => {
+            const un = glue.interop.methodAdded((method) => {
                 if (method.name === methodName) {
                     try {
                         checkMethodDefinition(method);
@@ -449,12 +398,11 @@ describe('methodAdded()', function () {
                 }
             });
 
-            glue.agm.register(methodName, () => {
-            });
+            glue.interop.register(methodName, callbackNeverCalled);
         });
 
-        it('MethodAdded should pass a valid methodDefinition object', (done) => {
-            const un = glue.agm.methodAdded((method) => {
+        it('MethodAdded should pass a valid methodDefinition object (registerAsync)', (done) => {
+            const un = glue.interop.methodAdded((method) => {
                 if (method.name === methodName) {
                     try {
                         checkMethodDefinition(method);
@@ -467,15 +415,14 @@ describe('methodAdded()', function () {
                 }
             });
 
-            glue.agm.registerAsync(methodName, () => {
-            });
+            glue.interop.registerAsync(methodName, callbackNeverCalled);
         });
 
-        it('MethodAdded should pass a valid methodDefinition object', (done) => {
+        it('MethodAdded should pass a valid methodDefinition object (createStream)', (done) => {
 
             const ready = gtf.waitFor(2, done);
 
-            const un = glue.agm.methodAdded((method) => {
+            const un = glue.interop.methodAdded((method) => {
                 if (method.name === methodName) {
                     try {
                         checkMethodDefinition(method, true);
@@ -488,49 +435,44 @@ describe('methodAdded()', function () {
                 }
             });
 
-            glue.agm.createStream(methodName)
-                .then((s) => {
-                    stream = s;
+            glue.interop.createStream(methodName)
+                .then((stream) => {
+                    myStreams.push(stream);
                     ready();
                 })
                 .catch(done);
         });
     });
 
+    describe('methodAdded()', () => {
+        let glueApplication;
+        let name;
+        let methodDefinition;
 
-    describe('methodAdded()', function () {
+        beforeEach(async () => {
+            glueApplication = await gtf.createApp();
 
-        before(() => {
-            window.name = gtf.agm.getMethodName();
-            window.methodDefinition = {
-                name,
+            name = gtf.agm.getMethodName();
+            methodDefinition = {
+                name
             };
-            window.callbackNeverCalled = () => {
-            };
-            gtf.createApp()
-                .then((glueApplication) => {
-                    window.glueApplicationOne = glueApplication;
-                });
         });
 
-        after(() => {
-            return glueApplicationOne.stop();
-        });
-
-        afterEach(() => {
-            gtf.clearWindowActiveHooks();
+        afterEach(async () => {
+            await glueApplication.stop();
+            glueApplication = null;
         });
 
         it('Should return a working unsubscribe function when triggered.', (done) => {
             const timeout = gtf.wait(3000, () => done());
-            const un = glue.agm.methodAdded(() => {
+            const un = glue.interop.methodAdded(() => {
                 timeout.cancel();
                 done('Should not be called.');
             });
             if (typeof un === 'function') {
                 un();
             }
-            glueApplicationOne.agm.register(methodDefinition, callbackNeverCalled);
+            glueApplication.agm.register(methodDefinition, callbackNeverCalled);
         });
 
         it('Should replay all beforehand registered methods.', (done) => {
@@ -538,11 +480,11 @@ describe('methodAdded()', function () {
             const name1 = gtf.agm.getMethodName();
             const name2 = gtf.agm.getMethodName();
             const name3 = gtf.agm.getMethodName();
-            const promise1 = glueApplicationOne.agm.register(name1, callbackNeverCalled);
-            const promise2 = glueApplicationOne.agm.register(name2, callbackNeverCalled);
-            const promise3 = glueApplicationOne.agm.register(name3, callbackNeverCalled);
+            const promise1 = glueApplication.agm.register(name1, callbackNeverCalled);
+            const promise2 = glueApplication.agm.register(name2, callbackNeverCalled);
+            const promise3 = glueApplication.agm.register(name3, callbackNeverCalled);
             Promise.all([promise1, promise2, promise3]).then(() => {
-                const un = glue.agm.methodAdded((newMethodDef) => {
+                const un = glue.interop.methodAdded((newMethodDef) => {
                     if (newMethodDef.name === name1) {
                         ready();
                     }
@@ -570,75 +512,75 @@ describe('methodAdded()', function () {
             const newMethodDefinition = {
                 name: newName,
             };
-            const un = glue.agm.methodAdded((m) => {
+            const un = glue.interop.methodAdded((m) => {
                 if (m.name === newName) {
                     calledCounter++;
                 }
             });
             gtf.addWindowHook(un);
-            glueApplicationOne.agm.register(newMethodDefinition, callbackNeverCalled);
-            glueApplicationOne.agm.register(newMethodDefinition, callbackNeverCalled);
+            glueApplication.agm.register(newMethodDefinition, callbackNeverCalled);
+            glueApplication.agm.register(newMethodDefinition, callbackNeverCalled);
         });
 
-        // I think that this test detects a bug
-        // it('Should be triggered when a method with the same name and signature is registered as a method that was registered but then was unregistered.', (done) => {
-        //     const newName = gtf.agm.getMethodName();
-        //     const newMethodDefinition = {
-        //         name: newName,
-        //         accepts: 'String test1, String test2'
-        //     };
-        //     let callCount = 0;
+        it('Should be triggered when a method with the same name and signature is registered as a method that was registered but then was unregistered.', (done) => {
+            const newName = gtf.agm.getMethodName();
+            const newMethodDefinition = {
+                name: newName,
+                accepts: 'String test1, String test2'
+            };
+            let callCount = 0;
 
-        //     gtf.wait(5000, () => {
-        //         try {
-        //             expect(callCount).to.eql(1);
-        //             done();
-        //         } catch (err) {
-        //             done(err);
-        //         }
-        //     }).catch(done);
+            gtf.wait(5000, () => {
+                try {
+                    expect(callCount).to.eql(1);
+                    done();
+                } catch (err) {
+                    done(err);
+                }
+            }).catch(done);
 
-        //     const mRemoved = () => {
-        //         return new Promise((resolve) => {
-        //             const un = glue.agm.methodRemoved((m) => {
-        //                 if (m.name === newName) {
-        //                     if (un) {
-        //                         un();
-        //                     }
-        //                     resolve();
-        //                 }
-        //             });
-        //         });
-        //     };
+            const mRemoved = () => {
+                return new Promise((resolve) => {
+                    const un = glue.interop.methodRemoved((m) => {
+                        if (m.name === newName) {
+                            if (un) {
+                                un();
+                            }
+                            resolve();
+                        }
+                    });
+                });
+            };
 
-        //     glueApplicationOne.agm.register(newMethodDefinition, callbackNeverCalled)
-        //         .then(() => {
-        //             glueApplicationOne.agm.unregister(newMethodDefinition);
-        //             return mRemoved();
-        //         })
-        //         .then(() => {
-        //             const un = glue.agm.methodAdded((m) => {
-        //                 if (m.name === newName) {
-        //                     ++callCount;
-        //                 }
-        //             });
-        //             gtf.addWindowHook(un);
-        //             glueApplicationOne.agm.register(newMethodDefinition, callbackNeverCalled);
-        //         });
-        // });
+            glueApplication.agm.register(newMethodDefinition, callbackNeverCalled)
+                .then(() => {
+
+                    glueApplication.agm.unregister(newMethodDefinition);
+                    return mRemoved();
+                })
+                .then(() => {
+                    const un = glue.interop.methodAdded((m) => {
+                        if (m.name === newName) {
+                            ++callCount;
+                        }
+                    });
+                    gtf.addWindowHook(un);
+                    glueApplication.agm.register(newMethodDefinition, callbackNeverCalled);
+                });
+        });
 
         it('Should call the callback with the correct MethodDefinition.', (done) => {
             const newName = gtf.agm.getMethodName();
             const newMethodDefinition = {
                 name: newName,
             };
-            const un = glue.agm.methodAdded((methodDef) => {
+            const un = glue.interop.methodAdded((methodDef) => {
                 if (methodDef.name === newName) {
                     done();
                 }
             });
             gtf.addWindowHook(un);
-            glueApplicationOne.agm.register(newMethodDefinition, callbackNeverCalled);
+            glueApplication.agm.register(newMethodDefinition, callbackNeverCalled);
         });
 
         it('Should verify that the action really took place.', (done) => {
@@ -646,15 +588,10 @@ describe('methodAdded()', function () {
             const newMethodDefinition = {
                 name: newName,
             };
-            let callCount = 0;
-            const un = glue.agm.methodAdded((methodDef) => {
+            const un = glue.interop.methodAdded((methodDef) => {
                 if (methodDef.name === newName) {
-                    ++callCount;
-                    if (callCount > 1) {
-                        return;
-                    }
                     try {
-                        expect(glue.agm.methods().find(m => m.name === newName)).not.to.be.undefined;
+                        expect(glue.interop.methods().find(m => m.name === newName)).not.to.be.undefined;
                         done();
                     } catch (error) {
                         done(error);
@@ -662,7 +599,7 @@ describe('methodAdded()', function () {
                 }
             });
             gtf.addWindowHook(un);
-            glueApplicationOne.agm.register(newMethodDefinition, callbackNeverCalled);
+            glueApplication.agm.register(newMethodDefinition, callbackNeverCalled);
         });
 
         it('Should be called only once when registering one method.', (done) => {
@@ -671,20 +608,20 @@ describe('methodAdded()', function () {
                 name: newName,
             };
 
-            const un = glue.agm.methodAdded((methodDef) => {
+            const un = glue.interop.methodAdded((methodDef) => {
                 if (methodDef.name === newName) {
                     done();
                 }
             });
             gtf.addWindowHook(un);
-            glueApplicationOne.agm.register(newMethodDefinition, callbackNeverCalled);
+            glueApplication.agm.register(newMethodDefinition, callbackNeverCalled);
 
         });
 
-        it('Should not be triggered when the setup was there but the corresponding method wasn\'t called (3k ms).', (done) => {
+        it('Should not be triggered when the setup was there but the corresponding method wasn\'t registered (3k ms).', (done) => {
             const timeout = gtf.wait(3000, () => done());
             const newName = gtf.agm.getMethodName();
-            const un = glue.agm.methodAdded((methodDef) => {
+            const un = glue.interop.methodAdded((methodDef) => {
                 if (methodDef.name === newName) {
                     timeout.cancel();
                     done('Should not be called.');
@@ -694,7 +631,7 @@ describe('methodAdded()', function () {
         });
 
         it('Should return the unsubscribe function BEFORE calling the methods replaying callback.', (done) => {
-            const un = glue.agm.methodAdded(() => {
+            const un = glue.interop.methodAdded(() => {
                 try {
                     expect(typeof un).to.eql('function');
                     un();
@@ -705,6 +642,4 @@ describe('methodAdded()', function () {
             });
         });
     });
-
-
 });

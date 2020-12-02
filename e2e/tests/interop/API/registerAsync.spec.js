@@ -1,27 +1,31 @@
-/* global glue  describe it afterEach expect */
+describe('registerAsync()', () => {
+    const callbackNeverCalled = () => { };
+    let name;
+    let methodDefinition;
 
-describe('registerAsync()', function () {
 
-    before(() => coreReady);
-
-    this.timeout(5000);
     before(() => {
-        window.name = gtf.agm.getMethodName();
-        window.methodDefinition = { name };
+        return coreReady;
+    });
 
-        window.callbackNeverCalled = () => {
+    beforeEach(() => {
+        name = gtf.agm.getMethodName()
+        methodDefinition = {
+            name
         };
     });
 
-    describe('Async: ', () => {
-        afterEach(() => gtf.agm.clearMethod(methodDefinition.name, glue.agm.instance));
+    afterEach(() => {
+        return gtf.agm.unregisterAllMyNonSystemMethods();
+    });
 
-        it('The method should contain all properties defined in the API, when registered only with name | Ticket: https://jira.tick42.com/browse/GLUE_D-1299, https://jira.tick42.com/browse/GLUE_D-1300, https://jira.tick42.com/browse/GLUE_D-1301', (done) => {
+    describe('Async: ', () => {
+        it('The method should contain all properties defined in the API, when registered only with name', (done) => {
             methodDefinition.name = gtf.agm.getMethodName();
 
-            glue.agm.registerAsync(methodDefinition, callbackNeverCalled)
+            glue.interop.registerAsync(methodDefinition, callbackNeverCalled)
                 .then(() => {
-                    const method = glue.agm.methods().find(m => m.name === methodDefinition.name);
+                    const method = glue.interop.methods().find(m => m.name === methodDefinition.name);
                     // const t = method.hasOwnProperty('accepts');
                     expect(method.hasOwnProperty('accepts')).to.be.true;
                     expect(method.hasOwnProperty('description')).to.be.true;
@@ -39,7 +43,7 @@ describe('registerAsync()', function () {
                 });
         });
 
-        it('The method should contain all properties defined in the API, when registered with all options | Ticket: https://jira.tick42.com/browse/GLUE_D-1299, https://jira.tick42.com/browse/GLUE_D-1300, https://jira.tick42.com/browse/GLUE_D-1301', (done) => {
+        it('The method should contain all properties defined in the API, when registered with all options', (done) => {
             methodDefinition.name = gtf.agm.getMethodName();
             methodDefinition.accepts = 'composite: { string a, string b } party';
             methodDefinition.description = 'awesome description';
@@ -48,9 +52,9 @@ describe('registerAsync()', function () {
             methodDefinition.returns = 'int c';
             methodDefinition.version = 42;
 
-            glue.agm.registerAsync(methodDefinition, callbackNeverCalled)
+            glue.interop.registerAsync(methodDefinition, callbackNeverCalled)
                 .then(() => {
-                    const method = glue.agm.methods().find(m => m.name === methodDefinition.name);
+                    const method = glue.interop.methods().find(m => m.name === methodDefinition.name);
                     expect(method.accepts).to.eql('composite: { string a, string b } party');
                     expect(method.description).to.eql(methodDefinition.description);
                     expect(method.displayName).to.eql(methodDefinition.displayName);
@@ -70,106 +74,103 @@ describe('registerAsync()', function () {
         });
     });
 
+    describe('registerAsync()', () => {
+        let glueApplication;
 
-    describe('registerAsync()', function () {
-
-        beforeEach(() => {
-            window.name = gtf.agm.getMethodName();
-            window.methodDefinition = { name };
-        });
-
-        before(() => gtf.createApp()
-            .then((glueApplication) => {
-                window.glueApplicationOne = glueApplication;
+        beforeEach(() => gtf.createApp()
+            .then((app) => {
+                glueApplication = app;
             }));
 
-        after(() => glueApplicationOne.stop());
+        afterEach(async () => {
+            await glueApplication.stop();
+            glueApplication = null;
+        });
 
         it('Should return a promise that when resolved notifies that the method has been registered.', () => {
-            return glue.agm.registerAsync(methodDefinition, (args, caller, success) => success(42))
+            return glue.interop.registerAsync(methodDefinition, (_, __, success) => success(42))
                 .then(() => {
-                    expect(glue.agm.methods({ name }).length).to.eql(1);
+                    expect(glue.interop.methods({ name }).length).to.eql(1);
                 });
         });
 
-        // Todo: Make ticket --> it fails
         it('Should call the handler with the correct caller Instance when invoked.', async () => {
-            await glue.agm.registerAsync(methodDefinition, (args, caller, success) => {
-                expect(caller).to.eql(glue.agm.instance);
+            await glue.interop.registerAsync(methodDefinition, (_, __, success) => {
+                expect(caller).to.eql(glue.interop.instance);
                 success(42);
             });
 
-            glue.agm.invoke(methodDefinition);
+            glue.interop.invoke(methodDefinition);
         });
 
         it('Should register a method with the correct name.', async () => {
-            await glue.agm.registerAsync(methodDefinition, (args, caller, success) => success(42));
-            expect(glue.agm.methods({ name }).length).to.eql(1);
+            await glue.interop.registerAsync(methodDefinition, (_, __, success) => success(42));
+            expect(glue.interop.methods({ name }).length).to.eql(1);
         });
 
         it('Should register a method with correct accepts when provided (methodDefinition).', async () => {
             methodDefinition.accepts = 'String test';
-            await glue.agm.registerAsync(methodDefinition, (args, caller, success) => success(42));
-            expect(glue.agm.methods({ name })[0].accepts).to.eql('String test');
+            await glue.interop.registerAsync(methodDefinition, (_, __, success) => success(42));
+            expect(glue.interop.methods({ name })[0].accepts).to.eql('String test');
         });
 
         it('Should register a method with correct description when provided (methodDefinition).', async () => {
             methodDefinition.description = 'Hello world.';
-            await glue.agm.registerAsync(methodDefinition, (args, caller, success) => success(42));
-            expect(glue.agm.methods({ name })[0].description).to.eql('Hello world.');
+            await glue.interop.registerAsync(methodDefinition, (_, __, success) => success(42));
+            expect(glue.interop.methods({ name })[0].description).to.eql('Hello world.');
         });
 
         it('Should register a method with correct display when provided (methodDefinition).', async () => {
             methodDefinition.displayName = 'Display name.';
-            await glue.agm.registerAsync(methodDefinition, (args, caller, success) => success(42));
-            expect(glue.agm.methods({ name })[0].displayName).to.eql('Display name.');
+            await glue.interop.registerAsync(methodDefinition, (_, __, success) => success(42));
+            expect(glue.interop.methods({ name })[0].displayName).to.eql('Display name.');
         });
 
         it('Should register a method with correct objectTypes when provided (methodDefinition).', async () => {
             methodDefinition.objectTypes = ['S', 'O', 'L', 'I', 'D'];
-            await glue.agm.registerAsync(methodDefinition, (args, caller, success) => success(42));
-            expect(glue.agm.methods({ name })[0].objectTypes).to.eql(['S', 'O', 'L', 'I', 'D']);
+            await glue.interop.registerAsync(methodDefinition, (_, __, success) => success(42));
+            expect(glue.interop.methods({ name })[0].objectTypes).to.eql(['S', 'O', 'L', 'I', 'D']);
         });
 
         it('Should register a method with correct returns when provided (methodDefinition).', async () => {
             methodDefinition.returns = 'String test';
-            await glue.agm.registerAsync(methodDefinition, (args, caller, success) => success(42));
-            expect(glue.agm.methods({ name })[0].returns).to.eql('String test');
+            await glue.interop.registerAsync(methodDefinition, (_, __, success) => success(42));
+            expect(glue.interop.methods({ name })[0].returns).to.eql('String test');
         });
 
         it('Should register a method with supportsStreaming false inside it\'s definition property.', async () => {
-            await glue.agm.registerAsync(methodDefinition, (args, caller, success) => success(42));
-            expect(glue.agm.methods({ name })[0].supportsStreaming).to.be.false;
+            await glue.interop.registerAsync(methodDefinition, (_, __, success) => success(42));
+            expect(glue.interop.methods({ name })[0].supportsStreaming).to.be.false;
         });
 
         it('Should call the successCallback of the handler once executed w/o errors.', async () => {
-            await glue.agm.registerAsync(methodDefinition, (args, caller, success) => {
+            await glue.interop.registerAsync(methodDefinition, (_, __, success) => {
                 success({
                     test: 42
                 });
             });
 
-            const invokeRes = await glue.agm.invoke(methodDefinition);
+            const invokeRes = await glue.interop.invoke(methodDefinition);
 
             expect(invokeRes.returned).to.eql({ test: 42 });
         });
 
         it('Should reject when registering a method with the same name as an existing one.', (done) => {
-            glue.agm.registerAsync(methodDefinition, (args, caller, success) => success(42))
-                .then(() => glue.agm.registerAsync(methodDefinition, (args, caller, success) => success(42)))
+            glue.interop.registerAsync(methodDefinition, (_, __, success) => success(42))
+                .then(() => glue.interop.registerAsync(methodDefinition, (_, __, success) => success(42)))
                 .then(() => done('Should not have resolved !'))
                 .catch(() => done());
         });
 
         it('Should reject when the method/methodDefinition is undefined.', (done) => {
-            glue.agm.registerAsync(undefined, (args, caller, success) => success(42))
+            glue.interop.registerAsync(undefined, (_, __, success) => success(42))
                 .then(() => done('Should not have resolved !'))
                 .catch(() => done());
         });
 
         it('Should call the errorCallback of the handler once executed w/ errors.', (done) => {
-            glue.agm.registerAsync(methodDefinition, (args, caller, success, error) => error('test: 24'))
-                .then(() => glue.agm.invoke(methodDefinition.name))
+            glue.interop.registerAsync(methodDefinition, (_, __, ___, error) => error('test: 24'))
+                .then(() => glue.interop.invoke(methodDefinition.name))
                 .catch((errorRes) => {
                     try {
                         expect(errorRes.message).to.eql('test: 24');
@@ -180,11 +181,9 @@ describe('registerAsync()', function () {
                 });
         });
 
-        it.skip('Should reject when the callback provided returns a promise but has the success and error callback arguments');
-
         ['string', 5].forEach((type) => {
             it('Should reject when the second parameter is not a function', (done) => {
-                glue.agm.registerAsync(name, type)
+                glue.interop.registerAsync(name, type)
                     .then(() => done('Should not have resolved !'))
                     .catch(() => done());
             });
@@ -192,43 +191,43 @@ describe('registerAsync()', function () {
 
         it('Should reject when supportsStreaming IS passed as TRUE', (done) => {
             methodDefinition.supportsStreaming = true;
-            glue.agm.registerAsync(methodDefinition)
+            glue.interop.registerAsync(methodDefinition)
                 .then(() => done('Should not have resolved !'))
                 .catch(() => done());
         });
 
         it('Should reject when registering a method with the same name as an existing one.', (done) => {
-            glue.agm.registerAsync(methodDefinition, callbackNeverCalled);
-            gtf.agm.waitForMethod(glue, methodDefinition.name, glue.agm.instance).then(() => {
-                glue.agm.registerAsync(methodDefinition, callbackNeverCalled)
+            glue.interop.registerAsync(methodDefinition, callbackNeverCalled);
+            gtf.agm.waitForMethodAdded(methodDefinition).then(() => {
+                glue.interop.registerAsync(methodDefinition, callbackNeverCalled)
                     .then(() => done('Should not have resolved !'))
                     .catch(() => done());
             });
         });
 
         it('Should reject when the method/methodDefinition is undefined.', (done) => {
-            glue.agm.registerAsync(undefined, callbackNeverCalled)
+            glue.interop.registerAsync(undefined, callbackNeverCalled)
                 .then(() => done('Should not have resolved'))
                 .catch(() => done());
         });
 
         it('Should resolve when the method is able to be invoked', async () => {
-            await glue.agm.registerAsync(name, callbackNeverCalled);
-            glue.agm.invoke(name);
+            await glue.interop.registerAsync(name, callbackNeverCalled);
+            glue.interop.invoke(name);
         });
 
-        it('Should resolve when the method is contained in the glue.agm.methods() client collection', async () => {
-            await glue.agm.registerAsync(name, callbackNeverCalled);
+        it('Should resolve when the method is contained in the glue.interop.methods() client collection', async () => {
+            await glue.interop.registerAsync(name, callbackNeverCalled);
 
-            expect(glue.agm.methods({ name }).length).to.eql(1);
+            expect(glue.interop.methods({ name }).length).to.eql(1);
         });
 
         it('Should not mutate the .methods() collection when the methodDefinition object of the registered method is changed', async () => {
             methodDefinition.displayName = 'Should not be mutated';
-            await glue.agm.registerAsync(methodDefinition, callbackNeverCalled);
+            await glue.interop.registerAsync(methodDefinition, callbackNeverCalled);
             methodDefinition.displayName === 'Mutator';
 
-            expect(glue.agm.methods({ name })[0].displayName).to.equal('Should not be mutated');
+            expect(glue.interop.methods({ name })[0].displayName).to.equal('Should not be mutated');
         });
     });
 });

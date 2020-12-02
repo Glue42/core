@@ -1,6 +1,14 @@
 describe('initialization', () => {
+    let gluesToDisconnect = [];
+
     before(() => {
         return coreReady;
+    });
+
+    afterEach(async () => {
+        await gtf.connection.disconnectGlues(gluesToDisconnect);
+
+        gluesToDisconnect = [];
     });
 
     const channelsAPIMethods = [
@@ -21,12 +29,14 @@ describe('initialization', () => {
 
     it("Should not be initialized when Glue42Web is called with an object that has a channels: false property.", async () => {
         const newGlue = await GlueWeb({ channels: false });
+        gluesToDisconnect.push(newGlue);
 
         expect(newGlue.channels).to.be.undefined;
     });
 
     it("Should be initialized when Glue42Web is called with an object that has a channels: true property.", async () => {
         const newGlue = await GlueWeb({ channels: true });
+        gluesToDisconnect.push(newGlue);
 
         expect(newGlue.channels).to.not.be.undefined;
 

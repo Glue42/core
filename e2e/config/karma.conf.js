@@ -1,24 +1,31 @@
 const testConfig = require('../config.js');
 
 let folderGlob;
-if (testConfig.run.length === 0) {
-    throw new Error('Please specify folder names containing .spec.js files');
-} else if (testConfig.run.length > 1) {
-    const groupNames = testConfig.run.reduce((groupNames, folderToRun) => {
-        groupNames.push(folderToRun.groupName);
-        return groupNames;
-    }, []);
-    folderGlob = `{${groupNames.join(',')}}`;
-    console.log('group names', groupNames);
+
+const testGroupsCount = testConfig.run.length;
+
+if (testGroupsCount === 0) {
+    throw new Error('Please specify folder names containing .spec.js files!');
+} else if (testGroupsCount === 1) { // Can't match a single group using { }.
+    const onlyGroupName = testConfig.run[0].groupName
+    folderGlob = onlyGroupName;
+    console.log(`Group name: ${onlyGroupName}`);
 } else {
-    folderGlob = testConfig.run[0].groupName;
+    const groupNames = testConfig.run.map((group) => group.groupName);
+    folderGlob = `{${groupNames.join(',')}}`;
+    console.log(`Group names: ${groupNames}`);
 }
 
-module.exports = function (config) {
+module.exports = (config) => {
     config.set({
         frameworks: ["mocha", "chai"],
         browsers: ["ChromeHeadless"],
-        reporters: ["progress"],
+        reporters: ["spec"],
+        specReporter: {
+            suppressFailed: false,
+            suppressPassed: false,
+            suppressSkipped: true
+        },
         basePath: process.cwd(),
         colors: true,
         client: {
@@ -28,7 +35,6 @@ module.exports = function (config) {
             captureConsole: true
         },
         files: [
-            `e2e/tests/${folderGlob}/**/*.spec.js`,
             {
                 pattern: 'packages/web/dist/web.umd.js'
             },
@@ -37,13 +43,14 @@ module.exports = function (config) {
             },
             {
                 pattern: 'e2e/config/gtf.js'
-            }
+            },
+            `e2e/tests/${folderGlob}/**/*.spec.js`
         ],
         port: 9999,
         singleRun: true,
         concurrency: Infinity,
         proxies: {
             '/': 'http://localhost:4242/'
-        },
+        }
     });
 };

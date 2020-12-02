@@ -1,176 +1,78 @@
 import { Glue42Web } from "../../../packages/web/web";
+import { Gtf } from "./types";
+import { promisePlus } from "./utils";
 
-export class GtfAgm {
+export class GtfAgm implements Gtf.Agm {
     private counter: number = 0;
+    private systemMethodNames = ["T42.HC.GetSaveContext", "T42.Layouts.Events", "GC.Control", "G42Core.E2E.Logger"];
 
-    constructor(
-        private readonly glue: Glue42Web.API
-    ) {}
+    constructor(private readonly glue: Glue42Web.API) {
+    }
 
     public getMethodName(): string {
         this.counter++;
         return `agm.integration.tests.method.${Date.now()}.${this.counter}`;
     }
 
-    public clearMethod(name: string, targetAgmInstance: Glue42Web.AppManager.Instance): Promise<void> {
-        return new Promise((resolve, reject) => {
-            const cancel = setTimeout(() => {
-                reject("clearMethod timed out!");
-            }, 5000);
-            
-            const un = this.glue.interop.serverMethodRemoved((data) => {
-                const server = data.server || {} as Glue42Web.AppManager.Instance;
-                const method = data.method || {} as Glue42Web.Interop.MethodDefinition;
+    public waitForMethodAdded(methodDefinition: string | Glue42Web.Interop.MethodDefinition, targetAgmInstance = this.glue.interop.instance.instance, timeoutMilliseconds = 3000): Promise<void> {
+        const methodName = (methodDefinition as Glue42Web.Interop.MethodDefinition).name || methodDefinition;
 
-                if (method.name !== name) {
-                    return;
-                }
-
-                if (this.isValidServer(server, targetAgmInstance)) {
-                    un();
-                    clearTimeout(cancel);
+        const methodAddedPromise = new Promise<void>((resolve) => {
+            const unsub = this.glue.interop.serverMethodAdded(({ method, server }) => {
+                if (method.name === methodName && server.instance === targetAgmInstance) {
+                    unsub();
                     resolve();
                 }
             });
-
-            const methodToRemove = this.glue.interop.methods().find((method) => method.name === name);
-            if (methodToRemove === undefined) {
-                throw new Error(`Method ${name} was not found`);
-            }
-
-            this.glue.interop.unregister(methodToRemove);
         });
+
+        return promisePlus<void>(() => methodAddedPromise, timeoutMilliseconds, `Timed out waiting for method added ${methodName}`);
     }
 
-    public waitForMethod(glueToUse: Glue42Web.API, methodDefinition: string, targetAgmInstance?: any, timeout?: number): Promise<void> {
-        if (glueToUse.agm) {
-            targetAgmInstance = targetAgmInstance || glueToUse.agm.instance;
-        } else {
-            throw new Error("The agm of the passed glue is undefined");
-        }
+    public waitForMethodRemoved(methodDefinition: string | Glue42Web.Interop.MethodDefinition, targetAgmInstance = this.glue.interop.instance.instance, timeoutMilliseconds = 3000): Promise<void> {
+        const methodName = (methodDefinition as Glue42Web.Interop.MethodDefinition).name || methodDefinition;
 
-        return new Promise((resolve, reject) => {
-            let un: any; // todo: add type to it
-            const cancel = setTimeout(() => {
-                if (un) {
-                    un();
-                }
-                reject(`Timeout waiting for method: ${JSON.stringify(methodDefinition)} from glue version: ${glueToUse.version}`);
-            }, timeout || 5000);
-            if (glueToUse.agm) {
-                un = glueToUse.agm.serverMethodAdded((data) => {
-
-                    if (typeof methodDefinition === "object" &&
-                        methodDefinition.name !== data.method.name) {
-                        return;
-                    }
-
-                    if (typeof methodDefinition === "string" &&
-                        data.method.name !== methodDefinition) {
-                        return;
-                    }
-
-                    if (typeof methodDefinition === "string" &&
-                        data.method.name !== methodDefinition) {
-                        return;
-                    }
-
-                    if (targetAgmInstance && this.isValidServer(data.server, targetAgmInstance)) {
-                        if (un) {
-                            un();
-                        }
-                        clearTimeout(cancel);
-                        resolve();
-                    } else if (!targetAgmInstance) {
-                        reject("The agm of the passed glue is undefined");
-                    }
-                });
-            } else {
-                reject("The agm of the passed glue is undefined");
-            }
-        });
-    }
-
-    public clearStream(stream: any, targetAgmInstance: any): Promise<void> {
-        return new Promise((resolve, reject) => {
-
-            const cancel = setTimeout(() => {
-                reject("clearStream timed out!");
-            }, 5000);
-
-            const name = stream.name;
-
-            const un = this.glue.agm.serverMethodRemoved((data) => {
-                const server = data.server;
-                const method = data.method;
-
-                if (method.name !== name) {
-                    return;
-                }
-
-                if (this.isValidServer(server, targetAgmInstance)) {
-                    this.persistentMethodCheck(name)
-                        .then(() => {
-                            un();
-                            clearTimeout(cancel);
-                            resolve();
-                        });
+        const methodRemovedPromise = new Promise<void>((resolve) => {
+            const unsub = this.glue.interop.serverMethodRemoved(({ method, server }) => {
+                if (method.name === methodName && server.instance === targetAgmInstance) {
+                    unsub();
+                    resolve();
                 }
             });
+        });
+
+        return promisePlus<void>(() => methodRemovedPromise, timeoutMilliseconds, `Timed out waiting for method removed ${methodName}`);
+    }
+
+    public async unregisterAllMyNonSystemMethods(): Promise<void> {
+        const allMethods = this.glue.interop.methods().filter((method) => !method.supportsStreaming);
+        const allMyMethods = allMethods.filter((method) => method.getServers().some((server) => server.instance === this.glue.interop.instance.instance));
+        const allMyNonSystemMethods = allMyMethods.filter((method) => !this.systemMethodNames.includes(method.name));
+
+        const unregisterPromises = allMyNonSystemMethods.map((method) => {
+            const unregisterPromise = this.waitForMethodRemoved(method);
+
+            this.glue.interop.unregister(method);
+
+            return unregisterPromise;
+        });
+
+        await Promise.all(unregisterPromises);
+    }
+
+    public async unregisterMyStreams(myStreams: Glue42Web.Interop.Stream[]): Promise<void> {
+        const unregisterPromises = myStreams.map((stream) => {
+            const unregisterPromise = this.waitForMethodRemoved(stream.definition);
+
             stream.close();
+
+            return unregisterPromise;
         });
+
+        await Promise.all(unregisterPromises);
     }
 
-    public isValidServer(actualServer: Glue42Web.AppManager.Instance, expectedServer: Glue42Web.AppManager.Instance): boolean {
-        const expectedInstance = expectedServer.instance;
-        const expectedApplication = expectedServer.application;
-
-        if (!actualServer) {
-            return false;
-        }
-
-        if (actualServer.instance && actualServer.instance === expectedInstance) {
-            return true;
-        }
-
-        if (!actualServer.instance && actualServer.application === expectedApplication) {
-            return true;
-        }
-
-        return false;
+    public compareServers({ instance: actualServerInstance, application: actualServerApplication }: Glue42Web.Interop.Instance, { instance: expectedServerInstance, application: expectedServerApplication }: Glue42Web.Interop.Instance): boolean {
+        return actualServerInstance === expectedServerInstance && actualServerApplication === expectedServerApplication;
     }
-
-    public persistentMethodCheck(name: string): Promise<void> {
-        let method: any;
-
-        const methodExists = () => {
-            return typeof method !== "undefined";
-        };
-
-        return new Promise((resolve, reject) => {
-
-            method = this.checkMethod(name);
-
-            if (methodExists()) {
-
-                const interval = setInterval(() => {
-                    method = this.checkMethod(name);
-
-                    if (!methodExists()) {
-                        clearInterval(interval);
-                        resolve();
-                    }
-
-                }, 100);
-
-            } else {
-                resolve();
-            }
-        });
-    }
-
-    public checkMethod(name: string): any {
-        return this.glue.agm.methods().find((m) => m.name === name);
-    }
-
 }

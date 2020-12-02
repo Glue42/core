@@ -1,10 +1,14 @@
 describe('subscribe()', () => {
+    let gluesToDisconnect = [];
+
     before(() => {
         return coreReady;
     });
 
     afterEach(async () => {
-        return Promise.all([gtf.channels.resetContexts(), glue.channels.leave()]);
+        await Promise.all([gtf.channels.resetContexts(), glue.channels.leave(), gtf.connection.disconnectGlues(gluesToDisconnect)]);
+
+        gluesToDisconnect = [];
     });
 
     it('Should throw an error when callback isn\'t of type function.', () => {
@@ -19,6 +23,7 @@ describe('subscribe()', () => {
     it('Should invoke the callback with the correct data, context (name, meta and data) and updaterId whenever data is published to the current channel by another party.', async () => {
         // Create a new Glue for the other party.
         const otherGlue = await GlueWeb({ channels: true });
+        gluesToDisconnect.push(otherGlue);
 
         const [channel] = (await gtf.getGlueConfigJson()).channels;
         const channelName = channel.name;
@@ -102,6 +107,7 @@ describe('subscribe()', () => {
     it('Should invoke the callback with the correct data, context (name, meta and data) and updaterId whenever a new channel is joined and data is published to that channel by another party.', async () => {
         // Create a new Glue for the other party.
         const otherGlue = await GlueWeb({ channels: true });
+        gluesToDisconnect.push(otherGlue);
 
         const [firstChannel, secondChannel] = (await gtf.getGlueConfigJson()).channels;
         const firstChannelName = firstChannel.name;

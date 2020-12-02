@@ -1,20 +1,24 @@
-import 'regenerator-runtime/runtime';
+import "regenerator-runtime/runtime";
 import { GtfCore } from "./core";
 import { GtfAgm } from "./agm";
-import { GtfChannels } from './channels';
+import { GtfChannels } from "./channels";
 import { GtfAppManager } from "./appManager";
-import { GtfLogger } from './logger';
-import { GtfConnection } from './connection';
+import { GtfIntents } from './intents';
+import { GtfLogger } from "./logger";
+import { GtfConnection } from "./connection";
+import { GlueWebFactoryFunction, Glue42Web } from "../../../packages/web/web.d";
+import { WorkspacesFactoryFunction } from "../../../packages/workspaces-api/workspaces";
 
 declare const window: any;
-declare const GlueWorkspaces: any;
-declare const GlueWeb: any;
+declare const GlueWorkspaces: WorkspacesFactoryFunction;
+declare const GlueWeb: GlueWebFactoryFunction;
 
 const startGtf = async () => {
-    const glueWebConfig = {
+    const glueWebConfig: Glue42Web.Config = {
         libraries: [GlueWorkspaces],
         appManager: true,
-        application: 'TestRunner'
+        application: "TestRunner",
+        channels: true
     };
     const glue = await GlueWeb(glueWebConfig);
 
@@ -29,6 +33,7 @@ const startGtf = async () => {
         { agm: new GtfAgm(glue) },
         { channels: new GtfChannels(glue) },
         { appManager: new GtfAppManager(glue, gtfCore) },
+        { intents: new GtfIntents(glue) },
         { connection: new GtfConnection() }
     );
 };

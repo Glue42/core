@@ -1,19 +1,19 @@
 const http = require('http');
 
-const waitForServer = options => () => {
-    const { pollingInterval = 100, pollingTimeout = 1000, ...httpOptions } = options;
+const waitForServer = ({ pollingInterval = 100, pollingTimeout = 1000, ...httpOptions }) => () => {
     const maxRequests = Math.floor(pollingTimeout / pollingInterval);
     let reqCounter = 0;
 
     return new Promise((resolve, reject) => {
         const pingServer = () => {
             if (reqCounter >= maxRequests) {
-                reject('Could not connect to server');
+                return reject('Failed to connect to server!');
             }
-            const req = http.request(httpOptions, res => {
+            const req = http.request(httpOptions, (res) => {
                 if (res.statusCode === 200) {
                     return resolve();
                 }
+
                 reject(`Server responded with status code: ${res.statusCode}`);
             });
             req.on('error', () => {
@@ -22,9 +22,10 @@ const waitForServer = options => () => {
                 setTimeout(pingServer, pollingInterval);
             });
             req.end();
-        }
+        };
+
         pingServer();
     });
-}
+};
 
-module.exports = options => waitForServer(options);
+module.exports = waitForServer;

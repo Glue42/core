@@ -161,20 +161,24 @@ export class AppManager implements Glue42Web.AppManager.API {
             const url = remoteSource.url;
 
             const appsFetch = async (): Promise<void> => {
-                const response = await fetchTimeout(url, remoteSource.requestTimeout || this.DEFAULT_REQUEST_TIMEOUT);
-                const json = (await response.json()) as { message: string; applications: Array<Glue42CoreApplicationConfig | FDC3ApplicationConfig> };
+                try {
+                    const response = await fetchTimeout(url, remoteSource.requestTimeout || this.DEFAULT_REQUEST_TIMEOUT);
+                    const json = (await response.json()) as { message: string; applications: Array<Glue42CoreApplicationConfig | FDC3ApplicationConfig> };
 
-                if (json.message === this.OKAY_MESSAGE) {
-                    const validatedApplications = this.getValidatedApplications(json.applications);
+                    if (json.message === this.OKAY_MESSAGE) {
+                        const validatedApplications = this.getValidatedApplications(json.applications);
 
-                    this.addApplications(validatedApplications, url);
+                        this.addApplications(validatedApplications, url);
+                    }
+                } catch (error) {
+                    // tslint:disable-next-line:no-console
+                    console.warn(`Failed to fetch apps from ${url}`);
                 }
             };
 
             initialFetchAppsPromises.push(appsFetch());
 
-            // tslint:disable-next-line:no-console
-            setInterval(() => appsFetch().catch(console.warn), remoteSource.pollingInterval || this.DEFAULT_POLLING_INTERVAL);
+            setInterval(() => appsFetch(), remoteSource.pollingInterval || this.DEFAULT_POLLING_INTERVAL);
         }
 
         await Promise.all(initialFetchAppsPromises);

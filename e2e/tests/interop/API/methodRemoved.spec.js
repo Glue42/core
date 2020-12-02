@@ -1,47 +1,28 @@
-describe('methodRemoved()', function () {
+describe('methodRemoved()', () => {
+    const callbackNeverCalled = () => { };
 
-    before(() => coreReady);
+    before(() => {
+        return coreReady;
+    });
 
-    describe('AGM events about my actions: ', function () {
-        let currentStream;
+    afterEach(() => {
+        return Promise.all([gtf.agm.unregisterAllMyNonSystemMethods(), gtf.clearWindowActiveHooks()]);
+    });
 
-        before(() => window.methodDefinition = {
-            name: gtf.agm.getMethodName()
+    describe('AGM events about my actions: ', () => {
+        let methodDefinition
+        let myStreams = [];
+
+        beforeEach(() => {
+            methodDefinition = {
+                name: gtf.agm.getMethodName()
+            };
         });
 
-        const cleanUp = () => {
-            return new Promise((resolve, reject) => {
+        afterEach(async () => {
+            await gtf.agm.unregisterMyStreams(myStreams);
 
-                const method = glue.agm.methods().find(m => m.name === methodDefinition.name);
-
-                if (method && !method.supportsStreaming) {
-
-                    gtf.agm.clearMethod(methodDefinition.name, glue.agm.instance)
-                        .then(() => {
-                            resolve();
-                        })
-                        .catch((err) => {
-                            reject(err);
-                        });
-
-                } else if (method && method.supportsStreaming) {
-
-                    gtf.agm.clearStream(currentStream, glue.agm.instance)
-                        .then(() => {
-                            resolve();
-                        })
-                        .catch((err) => {
-                            reject(err);
-                        });
-
-                } else {
-                    resolve();
-                }
-            });
-        };
-
-        afterEach(() => {
-            return cleanUp();
+            myStreams = [];
         });
 
         it('Should receive method removed event when I unregister a method', (done) => {
@@ -49,7 +30,7 @@ describe('methodRemoved()', function () {
 
             methodDefinition.name = gtf.agm.getMethodName();
 
-            let unSubscribe = glue.agm.serverMethodRemoved((data) => {
+            const unSubscribe = glue.interop.serverMethodRemoved((data) => {
                 const server = data.server || {};
                 const method = data.method || {};
 
@@ -57,7 +38,7 @@ describe('methodRemoved()', function () {
                     return;
                 }
 
-                if (gtf.agm.isValidServer(server, glue.agm.instance)) {
+                if (gtf.agm.compareServers(server, glue.interop.instance)) {
                     if (unSubscribe) {
                         unSubscribe();
                     }
@@ -65,7 +46,7 @@ describe('methodRemoved()', function () {
                 }
             });
 
-            let unSub = glue.agm.methodRemoved((method) => {
+            const unSub = glue.interop.methodRemoved((method) => {
                 if (method.name === methodDefinition.name) {
                     if (unSub) {
                         unSub();
@@ -74,29 +55,26 @@ describe('methodRemoved()', function () {
                 }
             });
 
-            const un = glue.agm.methodAdded((method) => {
+            const un = glue.interop.methodAdded((method) => {
                 if (method.name === methodDefinition.name) {
                     if (un) {
                         un();
                     }
-                    const m = glue.agm.methods().find(x => x.name === methodDefinition.name);
-                    glue.agm.unregister(m);
+                    const m = glue.interop.methods().find(x => x.name === methodDefinition.name);
+                    glue.interop.unregister(m);
 
                 }
             });
 
-            glue.agm.register(methodDefinition.name, () => {
-
-            });
-
+            glue.interop.register(methodDefinition.name, callbackNeverCalled);
         });
-    
+
         it('Should receive method removed event when I unregister a stream', (done) => {
             const callDone = gtf.waitFor(2, done);
 
             methodDefinition.name = gtf.agm.getMethodName();
 
-            let un = glue.agm.methodRemoved((method) => {
+            const un = glue.interop.methodRemoved((method) => {
                 if (method.name === methodDefinition.name) {
                     if (un) {
                         un();
@@ -105,57 +83,7 @@ describe('methodRemoved()', function () {
                 }
             });
 
-            let unSub = glue.agm.serverMethodRemoved((data) => {
-                var server = data.server || {};
-                var method = data.method || {};
-
-                if (method.name !== methodDefinition.name) {
-                    return;
-                }
-
-                if (gtf.agm.isValidServer(server, glue.agm.instance)) {
-                    if (unSub) {
-                        unSub();
-                    }
-                    gtf.agm.persistentMethodCheck(methodDefinition.name)
-                        .then(() => {
-                            callDone();
-                        });
-                }
-            });
-
-            glue.agm.createStream(methodDefinition)
-                .then((server) => {
-                    server.close();
-                });
-
-        });
-    });
-
-    describe('AGM events about other servers\' actions: ', function () {
-
-        before(() => window.methodDefinition = {
-            name: gtf.agm.getMethodName()
-        });
-
-        beforeEach(() => {
-            return gtf.createApp()
-                .then((glueApplication) => {
-                    window.glueApplicationOne = glueApplication;
-                });
-        });
-
-        afterEach(() => {
-            return glueApplicationOne.stop();
-        });
-
-        it('Should receive methodRemoved and serverMethodRemoved events when a server un-registers an async method', (done) => {
-
-            const callDone = gtf.waitFor(2, done);
-
-            methodDefinition.name = gtf.agm.getMethodName();
-
-            let un = glue.agm.serverMethodAdded((data) => {
+            const unSub = glue.interop.serverMethodRemoved((data) => {
                 const server = data.server || {};
                 const method = data.method || {};
 
@@ -163,16 +91,62 @@ describe('methodRemoved()', function () {
                     return;
                 }
 
-                if (gtf.agm.isValidServer(server, glueApplicationOne.myInstance.agm)) {
+                if (gtf.agm.compareServers(server, glue.interop.instance)) {
+                    if (unSub) {
+                        unSub();
+                    }
+                    callDone();
+                }
+            });
+
+            glue.interop.createStream(methodDefinition)
+                .then((stream) => {
+                    stream.close();
+                });
+        });
+    });
+
+    describe('AGM events about other servers\' actions: ', () => {
+        let methodDefinition;
+
+        let glueApplication;
+
+        beforeEach(async () => {
+            glueApplication = await gtf.createApp();
+
+            methodDefinition = {
+                name: gtf.agm.getMethodName()
+            };
+        });
+
+        afterEach(async () => {
+            await glueApplication.stop();
+            glueApplication = null;
+        });
+
+        it('Should receive methodRemoved and serverMethodRemoved events when a server un-registers an async method', (done) => {
+            const callDone = gtf.waitFor(2, done);
+
+            methodDefinition.name = gtf.agm.getMethodName();
+
+            const un = glue.interop.serverMethodAdded((data) => {
+                const server = data.server || {};
+                const method = data.method || {};
+
+                if (method.name !== methodDefinition.name) {
+                    return;
+                }
+
+                if (gtf.agm.compareServers(server, glueApplication.agm.instance)) {
                     if (un) {
                         un();
                     }
-                    glueApplicationOne.agm.unregister(methodDefinition);
+                    glueApplication.agm.unregister(methodDefinition);
                     return;
                 }
             });
 
-            let unSub = glue.agm.methodRemoved((method) => {
+            const unSub = glue.interop.methodRemoved((method) => {
                 if (method.name === methodDefinition.name) {
                     if (unSub) {
                         unSub();
@@ -181,15 +155,15 @@ describe('methodRemoved()', function () {
                 }
             });
 
-            let unSubscribe = glue.agm.serverMethodRemoved((removal) => {
-                var server = removal.server || {};
-                var method = removal.method || {};
+            const unSubscribe = glue.interop.serverMethodRemoved((removal) => {
+                const server = removal.server || {};
+                const method = removal.method || {};
 
                 if (method.name !== methodDefinition.name) {
                     return;
                 }
 
-                if (gtf.agm.isValidServer(server, glueApplicationOne.myInstance.agm)) {
+                if (gtf.agm.compareServers(server, glueApplication.agm.instance)) {
                     if (unSubscribe) {
                         unSubscribe();
                     }
@@ -198,111 +172,106 @@ describe('methodRemoved()', function () {
                 }
             });
 
-            glueApplicationOne.agm.registerAsync(methodDefinition, (args, caller, success) => {
+            glueApplication.agm.registerAsync(methodDefinition, (_, __, success) => {
                 success();
             });
 
         });
-    
-        // probably detected a real bug
 
-        // it('Should receive methodRemoved and serverMethodRemoved events when a server un-registers a method', (done) => {
+        it('Should receive methodRemoved and serverMethodRemoved events when a server un-registers a method', (done) => {
+            const callDone = gtf.waitFor(2, done);
 
-        //     const callDone = gtf.waitFor(2, done);
+            methodDefinition.name = gtf.agm.getMethodName();
 
-        //     methodDefinition.name = gtf.agm.getMethodName();
+            const un = glue.interop.serverMethodAdded((data) => {
+                const server = data.server || {};
+                const method = data.method || {};
 
-        //     let un = glue.agm.serverMethodAdded((data) => {
-        //         const server = data.server || {};
-        //         const method = data.method || {};
+                if (method.name !== methodDefinition.name) {
+                    return;
+                }
 
-        //         if (method.name !== methodDefinition.name) {
-        //             return;
-        //         }
+                if (gtf.agm.compareServers(server, glueApplication.agm.instance)) {
+                    if (un) {
+                        un();
+                    }
 
-        //         if (gtf.agm.isValidServer(server, glueApplicationOne.myInstance.agm)) {
-        //             if (un) {
-        //                 un();
-        //             }
-        //             glueApplicationOne.agm.unregister(method);
-        //             return;
-        //         }
-        //     });
+                    glueApplication.agm.unregister(methodDefinition);
+                }
+            });
 
-        //     let unSub = glue.agm.methodRemoved((method) => {
-        //         if (method.name === methodDefinition.name) {
-        //             if (unSub) {
-        //                 unSub();
-        //             }
-        //             callDone();
-        //         }
-        //     });
+            const unSub = glue.interop.methodRemoved((method) => {
+                if (method.name === methodDefinition.name) {
+                    if (unSub) {
+                        unSub();
+                    }
 
-        //     let unSubscribe = glue.agm.serverMethodRemoved((removal) => {
-        //         var server = removal.server || {};
-        //         var method = removal.method || {};
+                    callDone();
+                }
+            });
 
-        //         if (method.name !== methodDefinition.name) {
-        //             return;
-        //         }
+            const unSubscribe = glue.interop.serverMethodRemoved((removal) => {
+                const server = removal.server || {};
+                const method = removal.method || {};
 
-        //         if (gtf.agm.isValidServer(server, glueApplicationOne.myInstance.agm)) {
-        //             if (unSubscribe) {
-        //                 unSubscribe();
-        //             }
-        //             callDone();
-        //             return;
-        //         }
-        //     });
+                if (method.name !== methodDefinition.name) {
+                    return;
+                }
 
-        //     glueApplicationOne.agm.register(methodDefinition, () => { });
+                if (gtf.agm.compareServers(server, glueApplication.agm.instance)) {
+                    if (unSubscribe) {
+                        unSubscribe();
+                    }
 
-        // });
-    
-        // probably detected a real bug
+                    callDone();
+                }
+            });
 
-        // it('Should receive method removed event when a server un-registers a stream', (done) => {
+            glueApplication.agm.register(methodDefinition, callbackNeverCalled);
+        });
 
-        //     const callDone = gtf.waitFor(2, done);
+        it('Should receive method removed event when a server un-registers a stream', (done) => {
 
-        //     methodDefinition.name = gtf.agm.getMethodName();
+            const callDone = gtf.waitFor(2, done);
 
-        //     let un = glue.agm.methodRemoved((method) => {
-        //         if (method.name === methodDefinition.name) {
-        //             if (un) {
-        //                 un();
-        //             }
-        //             callDone();
-        //         }
-        //     });
+            methodDefinition.name = gtf.agm.getMethodName();
 
-        //     let unSub = glue.agm.serverMethodRemoved((removal) => {
-        //         var server = removal.server || {};
-        //         var method = removal.method || {};
+            const un = glue.interop.methodRemoved((method) => {
+                if (method.name === methodDefinition.name) {
+                    if (un) {
+                        un();
+                    }
+                    callDone();
+                }
+            });
 
-        //         if (method.name !== methodDefinition.name) {
-        //             return;
-        //         }
+            const unSub = glue.interop.serverMethodRemoved((removal) => {
+                const server = removal.server || {};
+                const method = removal.method || {};
 
-        //         if (gtf.agm.isValidServer(server, glueApplicationOne.myInstance.agm)) {
-        //             if (unSub) {
-        //                 unSub();
-        //             }
-        //             callDone();
-        //             return;
-        //         }
-        //     });
+                if (method.name !== methodDefinition.name) {
+                    return;
+                }
 
-        //     glueApplicationOne.agm.createStream(methodDefinition)
-        //         .then((stream) => {
-        //             stream.close();
-        //         })
-        //         .catch(done);
-        // });
+                if (gtf.agm.compareServers(server, glueApplication.agm.instance)) {
+                    if (unSub) {
+                        unSub();
+                    }
+                    callDone();
+                    return;
+                }
+            });
+
+            glueApplication.agm.createStream(methodDefinition)
+                .then((stream) => {
+                    stream.close();
+                })
+                .catch(done);
+        });
     });
 
     describe('Registering with full method options', () => {
-        let stream;
+        let myStreams = [];
 
         const expectedProperties = [
             'accepts',
@@ -352,28 +321,20 @@ describe('methodRemoved()', function () {
             fullMethodOptions.name = gtf.agm.getMethodName();
         });
 
-        afterEach(() => {
-            const method = glue.agm.methods().find(x => x.name === fullMethodOptions.name);
+        afterEach(async () => {
+            await gtf.agm.unregisterMyStreams(myStreams);
 
-            if (method && method.supportsStreaming) {
-                return gtf.agm.clearStream(stream, glue.agm.instance);
-            }
-
-            if (method && !method.supportsStreaming) {
-                return gtf.agm.clearMethod(method.name, glue.agm.instance);
-            }
-
+            myStreams = [];
         });
 
         it('MethodRemoved should pass a valid methodDefinition object', (done) => {
-
-            const un = glue.agm.methodAdded((method) => {
+            const un = glue.interop.methodAdded((method) => {
                 if (method.name === fullMethodOptions.name) {
-                    glue.agm.unregister(fullMethodOptions);
+                    glue.interop.unregister(fullMethodOptions);
                 }
             });
 
-            const unTwo = glue.agm.methodRemoved((method) => {
+            const unTwo = glue.interop.methodRemoved((method) => {
                 if (method.name === fullMethodOptions.name) {
                     try {
                         checkMethodDefinition(method);
@@ -386,20 +347,19 @@ describe('methodRemoved()', function () {
                 }
             });
 
-            glue.agm.register(fullMethodOptions, () => { });
-
+            glue.interop.register(fullMethodOptions, callbackNeverCalled);
         });
-    
-        it('MethodRemoved should pass a valid methodDefinition object | Ticket: https://jira.tick42.com/browse/GLUE_D-1609', (done) => {
-            const un = glue.agm.methodAdded((method) => {
+
+        it('MethodRemoved should pass a valid methodDefinition object', (done) => {
+            const un = glue.interop.methodAdded((method) => {
                 if (method.name === fullMethodOptions.name) {
 
-                    const m = glue.agm.methods().find(x => x.name === fullMethodOptions.name);
-                    glue.agm.unregister(m);
+                    const m = glue.interop.methods().find(x => x.name === fullMethodOptions.name);
+                    glue.interop.unregister(m);
                 }
             });
 
-            const unTwo = glue.agm.methodRemoved((method) => {
+            const unTwo = glue.interop.methodRemoved((method) => {
                 if (method.name === fullMethodOptions.name) {
                     try {
                         checkMethodDefinition(method);
@@ -414,13 +374,13 @@ describe('methodRemoved()', function () {
                 }
             });
 
-            glue.agm.registerAsync(fullMethodOptions, () => { });
+            glue.interop.registerAsync(fullMethodOptions, callbackNeverCalled);
         });
-    
+
         it('MethodRemoved should pass a valid methodDefinition object', (done) => {
             const ready = gtf.waitFor(2, done);
 
-            const unTwo = glue.agm.methodRemoved((method) => {
+            const unTwo = glue.interop.methodRemoved((method) => {
                 if (method.name === fullMethodOptions.name) {
                     try {
                         checkMethodDefinition(method, true);
@@ -433,7 +393,7 @@ describe('methodRemoved()', function () {
                 }
             });
 
-            glue.agm.createStream(fullMethodOptions)
+            glue.interop.createStream(fullMethodOptions)
                 .then((s) => {
                     s.close();
                     ready();
@@ -443,6 +403,9 @@ describe('methodRemoved()', function () {
     });
 
     describe('Registering with only name', () => {
+        let myStreams = [];
+        let methodName;
+
         const expectedProperties = [
             'accepts',
             'description',
@@ -454,11 +417,7 @@ describe('methodRemoved()', function () {
             'supportsStreaming',
         ];
 
-        let methodName;
-        let stream;
-
         const checkMethodDefinition = (method, isStream) => {
-
             const shouldSupportStreaming = isStream ? isStream : false;
 
             for (let prop of expectedProperties) {
@@ -487,27 +446,20 @@ describe('methodRemoved()', function () {
             methodName = gtf.agm.getMethodName();
         });
 
-        afterEach(() => {
-            const method = glue.agm.methods().find(x => x.name === methodName);
+        afterEach(async () => {
+            await gtf.agm.unregisterMyStreams(myStreams);
 
-            if (method && method.supportsStreaming) {
-                return gtf.agm.clearStream(stream, glue.agm.instance);
-            }
-
-            if (method && !method.supportsStreaming) {
-                return gtf.agm.clearMethod(methodName, glue.agm.instance);
-            }
-
+            myStreams = [];
         });
 
         it('MethodRemoved should pass a valid methodDefinition object', (done) => {
-            const un = glue.agm.methodAdded((method) => {
+            const un = glue.interop.methodAdded((method) => {
                 if (method.name === methodName) {
-                    glue.agm.unregister(method);
+                    glue.interop.unregister(method);
                 }
             });
 
-            const unTwo = glue.agm.methodRemoved((method) => {
+            const unTwo = glue.interop.methodRemoved((method) => {
                 if (method.name === methodName) {
                     try {
                         checkMethodDefinition(method);
@@ -522,13 +474,13 @@ describe('methodRemoved()', function () {
                 }
             });
 
-            glue.agm.register(methodName, () => { });
+            glue.interop.register(methodName, callbackNeverCalled);
         });
-    
+
         it('MethodRemoved should pass a valid methodDefinition object', (done) => {
             const ready = gtf.waitFor(2, done);
 
-            const unTwo = glue.agm.methodRemoved((method) => {
+            const unTwo = glue.interop.methodRemoved((method) => {
                 if (method.name === methodName) {
                     try {
                         checkMethodDefinition(method, true);
@@ -541,22 +493,22 @@ describe('methodRemoved()', function () {
                 }
             });
 
-            glue.agm.createStream(methodName)
+            glue.interop.createStream(methodName)
                 .then((s) => {
                     s.close();
                     ready();
                 })
                 .catch(done);
         });
-    
+
         it('MethodRemoved should pass a valid methodDefinition object', (done) => {
-            const un = glue.agm.methodAdded((method) => {
+            const un = glue.interop.methodAdded((method) => {
                 if (method.name === methodName) {
-                    glue.agm.unregister(method);
+                    glue.interop.unregister(method);
                 }
             });
 
-            const unTwo = glue.agm.methodRemoved((method) => {
+            const unTwo = glue.interop.methodRemoved((method) => {
                 if (method.name === methodName) {
                     try {
                         checkMethodDefinition(method);
@@ -571,49 +523,45 @@ describe('methodRemoved()', function () {
                 }
             });
 
-            glue.agm.registerAsync(methodName, () => { });
+            glue.interop.registerAsync(methodName, callbackNeverCalled);
         });
-    
     });
- 
-    describe('methodRemoved()', function () {
 
-        before(() => {
-            window.name = gtf.agm.getMethodName();
-            window.methodDefinition = {
-                name,
+    describe('methodRemoved()', () => {
+        let glueApplication;
+        let name;
+        let methodDefinition;
+
+        beforeEach(async () => {
+            glueApplication = await gtf.createApp();
+
+            name = gtf.agm.getMethodName();
+            methodDefinition = {
+                name
             };
-            window.callbackNeverCalled = () => { };
         });
 
-
-        before(() => gtf.createApp()
-            .then((glueApplication) => {
-                window.glueApplicationOne = glueApplication;
-            }));
-
-        after(() => {
-            glueApplicationOne.stop();
+        afterEach(async () => {
+            await glueApplication.stop();
+            glueApplication = null;
         });
-
-        afterEach(() => gtf.clearWindowActiveHooks());
 
         it('Should return a working unsubscribe function when triggered.', (done) => {
             const timeout = gtf.wait(3000, () => done());
-            const un = glue.agm.methodRemoved(() => {
+            const un = glue.interop.methodRemoved(() => {
                 timeout.cancel();
                 done('Should not be called.');
             });
             if (un) {
                 un();
             }
-            glueApplicationOne.agm.register(methodDefinition, callbackNeverCalled).then(() => {
-                glueApplicationOne.agm.unregister(methodDefinition);
+            glueApplication.agm.register(methodDefinition, callbackNeverCalled).then(() => {
+                glueApplication.agm.unregister(methodDefinition);
             });
         });
-    
+
         it('Should call the callback with the correct MethodDefinition.', (done) => {
-            const un = glue.agm.methodRemoved((methodDef) => {
+            const un = glue.interop.methodRemoved((methodDef) => {
                 try {
                     expect(methodDef.name).to.eql(methodDefinition.name);
                     done();
@@ -622,32 +570,46 @@ describe('methodRemoved()', function () {
                 }
             });
             gtf.addWindowHook(un);
-            glueApplicationOne.agm.register(methodDefinition, callbackNeverCalled).then(() => {
-                glueApplicationOne.agm.unregister(methodDefinition);
+            glueApplication.agm.register(methodDefinition, callbackNeverCalled).then(() => {
+                glueApplication.agm.unregister(methodDefinition);
             });
         });
-    
+
+        it('Should verify that the action really took place.', (done) => {
+            const un = glue.interop.methodRemoved(() => {
+                try {
+                    expect(glue.interop.methods().filter(m => m.name === methodDefinition.name).length).to.eql(0);
+                    done();
+                } catch (err) {
+                    done(err);
+                }
+            });
+            gtf.addWindowHook(un);
+            glueApplication.agm.register(methodDefinition, callbackNeverCalled).then(() => {
+                glueApplication.agm.unregister(methodDefinition);
+            });
+        });
+
         it('Should not be triggered when the setup was there but the corresponding method wasn\'t called (3k ms).', (done) => {
             const timeout = gtf.wait(3000, () => done());
-            const un = glue.agm.methodRemoved(() => {
+            const un = glue.interop.methodRemoved(() => {
                 timeout.cancel();
                 done('Should not be called.');
             });
             gtf.addWindowHook(un);
-            glueApplicationOne.agm.register(methodDefinition, callbackNeverCalled);
+            glueApplication.agm.register(methodDefinition, callbackNeverCalled);
         });
 
         it('Should not be triggered when the first application that registered a method unregisters it and there is another application that has registered the same method.', (done) => {
             const timeout = gtf.wait(3000, () => done());
-            const un = glue.agm.methodRemoved(() => {
+            const un = glue.interop.methodRemoved(() => {
                 timeout.cancel();
                 done('Should not be called.');
             });
             gtf.addWindowHook(un);
-            glueApplicationOne.agm.register(methodDefinition, callbackNeverCalled).then(() => {
-                return glue.agm.register(methodDefinition, callbackNeverCalled);
-            }).then(() => glueApplicationOne.agm.unregister(methodDefinition)).catch(done);
+            glueApplication.agm.register(methodDefinition, callbackNeverCalled).then(() => {
+                return glue.interop.register(methodDefinition, callbackNeverCalled);
+            }).then(() => glueApplication.agm.unregister(methodDefinition)).catch(done);
         });
     });
- 
 });

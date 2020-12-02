@@ -41,8 +41,6 @@ describe("set() Should", () => {
 
     contextsForTesting.forEach((context) => {
         it(`set the context between 2 applications with ${context.type}`, async () => {
-            const secondApp = await gtf.createApp();
-
             await glue.contexts.set(contextName, context);
 
             const contextFromSecondApp = await secondApp.getContext(contextName);
@@ -52,7 +50,6 @@ describe("set() Should", () => {
         });
 
         it(`replace the old context when the new context is ${context.type} and 2 applications are used`, async () => {
-            const secondApp = await gtf.createApp();
             const initialContext = {
                 isSaved: true
             };

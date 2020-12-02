@@ -12,25 +12,25 @@ export class GtfAppManager implements Gtf.AppManager {
         return appManagerConfig.localApplications;
     }
 
-    public async getRemoteSourceApplications(url = 'http://localhost:9998/v1/apps/search'): Promise<Glue42Web.AppManager.Application[]> {
+    public async getRemoteSourceApplications(url = "http://localhost:9998/v1/apps/search"): Promise<Glue42Web.AppManager.Application[]> {
         const data = await (await fetch(url)).json();
 
         return data.applications;
     }
 
-    public async addRemoteSourceApplication(application: Glue42Web.AppManager.Application, url = 'http://localhost:9998/v1/apps/add'): Promise<Glue42Web.AppManager.Application[]> {
+    public async addRemoteSourceApplication(application: Glue42Web.AppManager.Application, url = "http://localhost:9998/v1/apps/add"): Promise<Glue42Web.AppManager.Application[]> {
         const data = await (await this.gtfCore.post(url, JSON.stringify(application))).json();
 
         return data.applications;
     }
 
-    public async resetRemoteSourceApplications(url = 'http://localhost:9998/v1/apps/reset'): Promise<Glue42Web.AppManager.Application[]> {
+    public async resetRemoteSourceApplications(url = "http://localhost:9998/v1/apps/reset"): Promise<Glue42Web.AppManager.Application[]> {
         const data = await (await fetch(url)).json();
 
         return data.applications;
     }
 
-    public async setRemoteSourceApplications(applications: Glue42Web.AppManager.Application[], url = 'http://localhost:9998/v1/apps/set'): Promise<Glue42Web.AppManager.Application[]> {
+    public async setRemoteSourceApplications(applications: Glue42Web.AppManager.Application[], url = "http://localhost:9998/v1/apps/set"): Promise<Glue42Web.AppManager.Application[]> {
         const data = await (await this.gtfCore.post(url, JSON.stringify(applications))).json();
 
         return data.applications;
@@ -41,8 +41,7 @@ export class GtfAppManager implements Gtf.AppManager {
 
         const otherInstances = this.glue.appManager.instances().filter((instance) => instance.id !== myInstanceId);
 
-        console.log(`My instance id: ${myInstanceId}`);
-        console.log(`Stopping instances: ${otherInstances.map(instance => instance.id)}`);
+        console.log(otherInstances.length > 0 ? `Stopping instances: ${otherInstances.map(instance => instance.id)}` : "No instances to stop");
 
         await Promise.all(otherInstances.map((instance) => instance.stop().then(() => console.log(`Stopped instance ${instance.id}`))));
     }

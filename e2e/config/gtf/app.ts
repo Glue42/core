@@ -1,88 +1,173 @@
 import { Glue42Web } from "../../../packages/web/web";
-import { Gtf, ControlArgs } from "./types";
+import { Gtf, ControlArgs, SubscriptionFacade, StreamFacade } from "./types";
 
 export class GtfApp implements Gtf.App {
+    private registerResponseCounter = 0;
+
     constructor(
         private readonly glue: Glue42Web.API,
         public readonly myInstance: Glue42Web.AppManager.Instance,
         private readonly controlMethodName: string
     ) { }
 
-    // hristo react tutorial on tuesday
     public get agm() {
+        const methodDefinitionToParams = (methodDefinition: string | Glue42Web.Interop.MethodDefinition) => {
+            let params;
+
+            if (typeof methodDefinition === "string") {
+                params = {
+                    methodDefinition: {
+                        name: methodDefinition
+                    }
+                };
+            } else {
+                params = {
+                    methodDefinition
+                };
+            }
+
+            return params;
+        };
+
         return {
-            register: (methodDefinition: string | object) => {
+            instance: this.myInstance.agm,
+            register: (methodDefinition: string | Glue42Web.Interop.MethodDefinition): Promise<void> => {
                 const controlArgs: ControlArgs = {
-                    operation: 'register',
-                    params: {
-                        methodDefinition
-                    }
-                }
+                    operation: "register",
+                    params: methodDefinitionToParams(methodDefinition)
+                };
                 return this.sendControl<void>(controlArgs);
             },
-            unregister: (methodDefinition: string | object) => {
+            unregister: (methodDefinition: string | Glue42Web.Interop.MethodDefinition): Promise<void> => {
                 const controlArgs: ControlArgs = {
-                    operation: 'unregister',
-                    params: {
-                        methodDefinition
-                    }
-                }
+                    operation: "unregister",
+                    params: methodDefinitionToParams(methodDefinition)
+                };
                 return this.sendControl<void>(controlArgs);
             },
-            registerAsync: (methodDefinition: string | object) => {
+            registerAsync: async (methodDefinition: string | Glue42Web.Interop.MethodDefinition, callback: (args: any, caller: Glue42Web.Interop.Instance, successCallback: (args?: any) => void, errorCallback: (error?: string | object) => void) => void): Promise<void> => {
+                const responseMethodName = `agm.integration.tests.onMethodInvoke.${this.myInstance.id}.${++this.registerResponseCounter}`;
+
+                await this.glue.interop.register(responseMethodName, (args) => {
+                    const success = () => { };
+
+                    const error = () => { };
+
+                    return callback(args.args, this.myInstance.agm, success, error);
+                });
+
                 const controlArgs: ControlArgs = {
-                    operation: 'registerAsync',
+                    operation: "registerAsync",
                     params: {
-                        methodDefinition
+                        ...methodDefinitionToParams(methodDefinition),
+                        responseName: responseMethodName
                     }
-                }
-                return this.sendControl<void>(controlArgs);
+                };
+
+                await this.sendControl<void>(controlArgs);
             },
-            createStream: (methodDefinition: any): Promise<any> => {
-                return new Promise(async (resolve, reject) => {
-                    const registerStreamOptions: ControlArgs = {
-                        operation: "createStream",
+            createStream: async (methodDefinition: string | Glue42Web.Interop.MethodDefinition): Promise<StreamFacade> => {
+                const params = methodDefinitionToParams(methodDefinition);
+
+                const registerStreamOptions: ControlArgs = {
+                    operation: "createStream",
+                    params
+                };
+
+                const closeStream = async (): Promise<void> => {
+                    const closeStreamOptions: ControlArgs = {
+                        operation: "closeStream",
+                        params
+                    };
+
+                    await this.sendControl<void>(closeStreamOptions);
+                };
+
+                const pushStream = async (data: object, branches: string | string[] = []): Promise<void> => {
+                    const pushStreamOptions: ControlArgs = {
+                        operation: "pushStream",
                         params: {
-                            methodDefinition
+                            ...params,
+                            data,
+                            branches
                         }
                     };
-                    const closeStream = async (): Promise<void> => {
-                        const closeStreamOptions: ControlArgs = {
-                            operation: "closeStream",
-                            params: {
-                                methodDefinition
-                            }
-                        };
 
-                        await this.sendControl<void>(closeStreamOptions);
-                    };
+                    await this.sendControl<void>(pushStreamOptions);
+                };
 
-                    const pushStream = (data: object, branches?: string | string[]) => {
-                        const pushStreamOptions: ControlArgs = {
-                            operation: "pushStream",
-                            params: {
-                                data,
-                                branches
-                            }
-                        };
+                await this.sendControl<void>(registerStreamOptions);
 
-                        this.sendControl<void>(pushStreamOptions);
-                    };
+                const streamFacade: StreamFacade = {
+                    close: closeStream,
+                    push: pushStream,
+                    name: (methodDefinition as Glue42Web.Interop.MethodDefinition).name || methodDefinition as string
+                };
 
-                    try {
-                        await this.sendControl<void>(registerStreamOptions);
-                        const streamFacade = {
-                            close: closeStream,
-                            push: pushStream,
-                            name: methodDefinition.name
-                        };
-                        resolve(streamFacade);
-                    } catch (error) {
-                        reject(error);
-                    }
+                return streamFacade;
+            },
+            subscribe: async (methodDefinition: string | Glue42Web.Interop.MethodDefinition, parameters: Glue42Web.Interop.SubscriptionParams = {}): Promise<SubscriptionFacade> => {
+                const callbacks: ((data: any) => void)[] = [];
+                const responseMethodName = `agm.integration.tests.onSubscriptionData.${this.myInstance.id}.${++this.registerResponseCounter}`;
+
+                await this.glue.interop.register(responseMethodName, (args) => {
+                    callbacks.forEach((callback) => callback(args));
                 });
+
+                const controlArgs: ControlArgs = {
+                    operation: "subscribe",
+                    params: {
+                        ...methodDefinitionToParams(methodDefinition),
+                        parameters,
+                        responseName: responseMethodName
+                    }
+                };
+
+                await this.sendControl<void>(controlArgs);
+
+                const subscriptionFacade: SubscriptionFacade = {
+                    onData: (callback: (data: any) => void): void => {
+                        callbacks.push(callback);
+                    }
+                };
+
+                return subscriptionFacade;
+            },
+            unsubscribe: (methodDefinition: string | Glue42Web.Interop.MethodDefinition): Promise<void> => {
+                const controlArgs: ControlArgs = {
+                    operation: "unsubscribe",
+                    params: methodDefinitionToParams(methodDefinition)
+                };
+                return this.sendControl<void>(controlArgs);
+            },
+            waitForMethodAdded: (methodDefinition: string | Glue42Web.Interop.MethodDefinition, targetAgmInstance: string = this.glue.interop.instance.instance): Promise<void> => {
+                const controlArgs: ControlArgs = {
+                    operation: "waitForMethodAdded",
+                    params: {
+                        ...methodDefinitionToParams(methodDefinition),
+                        targetAgmInstance
+                    }
+                };
+                return this.sendControl<void>(controlArgs);
             }
         }
+    }
+
+    public get intents() {
+        return {
+            addIntentListener: (intent: string | Glue42Web.Intents.AddIntentListenerRequest): Promise<ReturnType<Glue42Web.Intents.API['addIntentListener']>> => {
+                const intentName = typeof intent === "string" ? intent : intent.intent;
+
+                const controlArgs: ControlArgs = {
+                    operation: 'addIntentListener',
+                    params: {
+                        intent: intentName
+                    }
+                };
+
+                return this.sendControl<ReturnType<Glue42Web.Intents.API['addIntentListener']>>(controlArgs);
+            }
+        };
     }
 
     public async stop(): Promise<void> {
@@ -134,7 +219,6 @@ export class GtfApp implements Gtf.App {
     }
 
     private async sendControl<T>(controlArgs: ControlArgs): Promise<T> {
-
         const invResult = await this.glue.interop.invoke<{ result: T }>(this.controlMethodName, controlArgs, this.myInstance.agm);
 
         return invResult.returned.result;

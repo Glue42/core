@@ -92,13 +92,31 @@
                 },
                 "customProperties": {
                     "a": 97
-                }
+                },
+                "intents": [
+                    {
+                        "name": "AppWithDetails-local-intent",
+                        "displayName": "AppWithDetails-local-intent-displayName",
+                        "contexts": [
+                            "test-context"
+                        ]
+                    }
+                ]
             },
             {
                 "name": "FDC3App-top-level-url",
                 "appId": "FDC3App-top-level-url",
                 "manifestType": "Test-top-level-url",
-                "manifest": "{\"url\":\"https://glue42.com/\"}"
+                "manifest": "{\"url\":\"https://glue42.com/\"}",
+                "intents": [
+                    {
+                        "name": "FDC3App-top-level-url-intent",
+                        "displayName": "FDC3App-top-level-url-intent-displayName",
+                        "contexts": [
+                            "test-context"
+                        ]
+                    }
+                ]
             },
             {
                 "name": "FDC3App-url-inside-of-top-level-details",

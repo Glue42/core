@@ -6,22 +6,26 @@ import { CancellablePromise, Gtf } from "./types";
 export class GtfCore implements Gtf.Core {
     private readonly controlMethodName = "G42Core.E2E.Control";
     private windowNameCounter = 0;
-    private activeWindowHooks: any[] = [];
+    private activeWindowHooks: (() => void | Promise<void>)[] = [];
 
     constructor(private readonly glue: Glue42Web.API) {
         console.log("GTF CREATED");
     }
 
-    public addWindowHook(h: any): void {
-        this.activeWindowHooks.push(h);
+    public addWindowHook(hook: () => void | Promise<void>): void {
+        if (typeof hook !== "function") {
+            throw new Error('Tried to add a non-function hook.');
+        }
+
+        this.activeWindowHooks.push(hook);
     }
 
-    public clearWindowActiveHooks(): void {
-        this.activeWindowHooks.forEach((h: any) => {
-            if (typeof h === "function") {
-                h();
-            }
-        });
+    public async clearWindowActiveHooks(): Promise<void> {
+        const clearWindowActiveHooksPromises = this.activeWindowHooks.map((hook) => Promise.resolve(hook()));
+
+        await Promise.all(clearWindowActiveHooksPromises);
+
+        this.activeWindowHooks = [];
     }
 
     public wait(mSeconds: number, funcToCall: any): CancellablePromise<any> {
@@ -118,9 +122,9 @@ export class GtfCore implements Gtf.Core {
 
     public post(url: string, body: string): Promise<Response> {
         const init = {
-            method: 'POST',
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json'
+                "Content-Type": "application/json"
             },
             body
         };

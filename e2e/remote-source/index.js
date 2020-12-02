@@ -38,7 +38,16 @@ const detailsRemoteApplication = {
     },
     customProperties: {
         a: 97
-    }
+    },
+    intents: [
+        {
+            name: "AppWithDetails-remote-intent",
+            displayName: "AppWithDetails-remote-intent-displayName",
+            contexts: [
+                "test-context"
+            ]
+        }
+    ]
 };
 
 // The application is already part of the local application definitions.
