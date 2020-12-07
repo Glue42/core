@@ -69,8 +69,8 @@ describe('properties', () => {
         });
 
 
-        it('Should contain an application property that includes \'TestRunner\'.', (done) => {
-            expect(glue.interop.instance.application.includes('TestRunner')).to.be.true;
+        it('Should contain an application property that includes RUNNER.', (done) => {
+            expect(glue.interop.instance.application.includes(RUNNER)).to.be.true;
             done();
         });
     });

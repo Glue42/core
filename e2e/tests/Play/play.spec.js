@@ -23,7 +23,7 @@
 //         expect(gtf).to.not.be.an('undefined');
 //         expect(gtf.waitFor).to.not.be.an('undefined');
 //         expect(gtf.getWindowName).to.not.be.an('undefined');
-//         expect(gtf.getGlueConfigJson).to.not.be.an('undefined');
+//         expect(gtf.getChannelsConfigDefinitions).to.not.be.an('undefined');
 //         expect(gtf.getChannelNames).to.not.be.an('undefined');
 //         expect(gtf.createApp).to.not.be.an('undefined');
 //     });

@@ -32,6 +32,7 @@ export default function (configuration: Glue42Core.Config, ext: Glue42Core.Exten
         let ws = gwConfig?.ws;
         const sharedWorker = gwConfig?.sharedWorker;
         const inproc = gwConfig?.inproc;
+        const webPlatform = gwConfig?.webPlatform ?? undefined;
 
         // If running in GD use the injected ws URL
         if (glue42gd) {
@@ -73,9 +74,8 @@ export default function (configuration: Glue42Core.Config, ext: Glue42Core.Exten
                 instanceId = nodeStartingContext.instanceId;
             }
         } else {
-            // generate windowId, this is useful in glue0 case, when we're started
-            // from shortcut, not another window; ignored in the other cases
-            windowId = window.name || generate();
+            // this is the case where this is is running in Glue42 Core V2
+            // in this case the windowId of the identity is set by the WebTransport, because it needs to communicate with possible parents
         }
 
         // replay specs for core connection
@@ -97,6 +97,7 @@ export default function (configuration: Glue42Core.Config, ext: Glue42Core.Exten
             reconnectInterval,
             ws,
             sharedWorker,
+            webPlatform,
             inproc,
             protocolVersion,
             reconnectAttempts,
@@ -146,7 +147,7 @@ export default function (configuration: Glue42Core.Config, ext: Glue42Core.Exten
             };
         }
 
-        if (configuration.gateway?.inproc || configuration.gateway?.sharedWorker) {
+        if (configuration.gateway?.webPlatform || configuration.gateway?.inproc || configuration.gateway?.sharedWorker) {
             return {
                 username: "glue42", password: "glue42"
             };

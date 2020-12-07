@@ -120,7 +120,7 @@ export interface FrameStateResult {
 // #region outgoing
 
 export interface WorkspaceCreateConfigProtocol extends Glue42Workspaces.WorkspaceDefinition {
-    saveConfig: Glue42Workspaces.WorkspaceCreateConfig;
+    saveConfig?: Glue42Workspaces.WorkspaceCreateConfig;
 }
 
 export interface GetFrameSummaryConfig {

@@ -53,7 +53,7 @@ describe('properties', () => {
             const subscriptionRequestHandler = (request) => {
                 try {
                     request.accept();
-                    expect(request.instance.application.includes('TestRunner')).to.be.true;
+                    expect(request.instance.application.includes(RUNNER)).to.be.true;
                     done();
                 } catch (err) {
                     done(err);

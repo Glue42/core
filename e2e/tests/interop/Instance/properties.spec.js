@@ -4,8 +4,8 @@ describe('properties', () => {
     });
 
     describe('application', () => {
-        it('Should include \'TestRunner\'.', (done) => {
-            expect(glue.interop.instance.application.includes('TestRunner')).to.be.true;
+        it('Should include RUNNER.', (done) => {
+            expect(glue.interop.instance.application.includes(RUNNER)).to.be.true;
             done();
         });
     });

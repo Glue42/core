@@ -13,7 +13,7 @@ import { WorkspacesConfigurationFactory } from "./config/factory";
 import { WorkspacesEventEmitter } from "./eventEmitter";
 import { Glue42Web } from "@glue42/web";
 import { RestoreWorkspaceConfig } from "./interop/types";
-import { EmptyVisibleWindowName } from "./constants";
+import { EmptyVisibleWindowName, PlatformControlMethod } from "./constants";
 import { TitleGenerator } from "./config/titleGenerator";
 import startupReader from "./config/startupReader";
 import componentStateMonitor from "./componentStateMonitor";
@@ -21,6 +21,7 @@ import { ConfigConverter } from "./config/converter";
 import { PopupManagerComposer } from "./popups/composer";
 import { PopupManager } from "./popups/external";
 import { ComponentPopupManager } from "./popups/component";
+import { generate } from "shortid";
 
 class WorkspacesManager {
     private _controller: LayoutController;
@@ -218,7 +219,7 @@ class WorkspacesManager {
         this.closeItem(idAsString(item.config.id));
 
         const ejectedWindowUrl = this.getUrlByAppName(appName) || url;
-        const ejectedWindow = await this._glue.windows.open(appName, ejectedWindowUrl, { context } as Glue42Web.Windows.CreateOptions);
+        const ejectedWindow = await this._glue.windows.open(appName, ejectedWindowUrl, { context } as Glue42Web.Windows.Settings);
 
         return { windowId: ejectedWindow.id };
     }
@@ -371,7 +372,8 @@ class WorkspacesManager {
             const workspace = store.getById(workspaceId);
             const newWindowBounds = getElementBounds(component.element);
             const { componentState } = component.config;
-            const { windowId, title, appName } = componentState;
+            const { title, appName } = componentState;
+            let { windowId } = componentState;
             const componentId = idAsString(component.config.id);
             const applicationTitle = this.getTitleByAppName(appName);
             const windowTitle = title || applicationTitle || appName;
@@ -379,6 +381,17 @@ class WorkspacesManager {
             let url = this.getUrlByAppName(componentState.appName) || componentState.url;
 
             const isNewWindow = !store.getWindow(componentId);
+
+            if (!url && windowId) {
+                const win = this._glue.windows.list().find((w) => w.id === windowId);
+
+                url = await win.getURL();
+                const newlyAddedWindow = store.getWindow(componentId) as WorkspacesWindow;
+
+                newlyAddedWindow.url = url;
+            }
+
+            windowId = windowId || generate();
 
             store.addWindow({
                 id: componentId,
@@ -390,15 +403,6 @@ class WorkspacesManager {
 
             if (component.config.componentState?.context) {
                 delete component.config.componentState.context;
-            }
-
-            if (!url && windowId) {
-                const win = this._glue.windows.list().find((w) => w.id === windowId);
-
-                url = await win.getURL();
-                const newlyAddedWindow = store.getWindow(componentId) as WorkspacesWindow;
-
-                newlyAddedWindow.url = url;
             }
 
             component.config.componentState.url = url;
@@ -414,20 +418,31 @@ class WorkspacesManager {
                     }
                 });
             }
+            const glueWinOutsideOfWorkspace = this._glue.windows.findById(windowId);
+            if (glueWinOutsideOfWorkspace) {
+                try {
+                    // Glue windows with the given id should be closed
+                    await glueWinOutsideOfWorkspace.close();
+                } catch (error) {
+                    // because of chrome security policy this call can fail,
+                    // however the opening of a new window should continue
+                }
+            }
             try {
-                const frame = await this._frameController.startFrame(componentId, url, undefined, windowContext, windowId);
+                await this.notifyFrameWillStart(windowId, appName, windowContext);
+                const frame = await this._frameController.startFrame(componentId, url, undefined, windowId);
 
-                component.config.componentState.windowId = frame.name;
+                component.config.componentState.windowId = windowId;
 
                 this._frameController.moveFrame(componentId, getElementBounds(component.element));
 
                 if (isNewWindow) {
-                    this._workspacesEventEmitter.raiseWindowEvent({
-                        action: "loaded",
-                        payload: {
-                            windowSummary: await this.stateResolver.getWindowSummary(componentId)
-                        }
-                    });
+                    // this._workspacesEventEmitter.raiseWindowEvent({
+                    //     action: "loaded",
+                    //     payload: {
+                    //         windowSummary: await this.stateResolver.getWindowSummary(componentId)
+                    //     }
+                    // });
                 }
 
             } catch (error) {
@@ -593,7 +608,7 @@ class WorkspacesManager {
         this._controller.emitter.onWorkspaceAddButtonClicked(async () => {
             const payload = {
                 frameId: this._frameId,
-                peerId: this._glue.agm.instance.peerId
+                peerId: this._glue.agm.instance.windowId
             };
 
             const addButton = store
@@ -702,6 +717,9 @@ class WorkspacesManager {
         });
 
         windowSummaries.forEach((ws) => {
+            this.notifyFrameWillClose(ws.config.windowId, ws.config.appName).catch((e) => {
+                // Log the error
+            });
             this.workspacesEventEmitter.raiseWindowEvent({ action: "removed", payload: { windowSummary: ws } });
         });
 
@@ -735,12 +753,17 @@ class WorkspacesManager {
         this._controller.removeLayoutElement(itemId);
         this._frameController.remove(itemId);
 
+        this.notifyFrameWillClose(windowSummary.config.windowId, windowSummary.config.appName).catch((e) => {
+            // Log the error
+        });
+
         this.workspacesEventEmitter.raiseWindowEvent({
             action: "removed",
             payload: {
                 windowSummary
             }
         });
+
 
         if (!workspace.windows.length) {
             this.checkForEmptyWorkspace(workspace);
@@ -762,6 +785,9 @@ class WorkspacesManager {
         workspace.windows.forEach((w) => this._frameController.remove(w.id));
         this.checkForEmptyWorkspace(workspace);
         windowSummaries.forEach((ws) => {
+            this.notifyFrameWillClose(ws.config.windowId, ws.config.appName).catch((e) => {
+                // Log the error
+            });
             this.workspacesEventEmitter.raiseWindowEvent({
                 action: "removed",
                 payload: {
@@ -786,6 +812,12 @@ class WorkspacesManager {
     private checkForEmptyWorkspace(workspace: Workspace) {
         // Closing all workspaces except the last one
         if (store.layouts.length === 1) {
+            try {
+                window.close();
+                return;
+            } catch (error) {
+                // Try to close my window if it fails fallback to frame with one empty workspace
+            }
             workspace.windows = [];
             workspace.layout?.destroy();
             workspace.layout = undefined;
@@ -824,6 +856,30 @@ class WorkspacesManager {
 
     private getTitleByAppName(appName: string): string {
         return this._glue.appManager?.application(appName)?.title;
+    }
+
+    private notifyFrameWillStart(windowId: string, appName?: string, context?: any) {
+        return this._glue.interop.invoke(PlatformControlMethod, {
+            domain: appName ? "appManager" : "windows",
+            operation: appName ? "registerWorkspaceApp" : "registerWorkspaceWindow",
+            data: {
+                name: `${appName || "window"}_${windowId}`,
+                windowId,
+                frameId: this.frameId,
+                appName,
+                context
+            }
+        });
+    }
+
+    private notifyFrameWillClose(windowId: string, appName?: string) {
+        return this._glue.interop.invoke(PlatformControlMethod, {
+            domain: appName ? "appManager" : "windows",
+            operation: appName ? "unregisterWorkspaceApp" : "unregisterWorkspaceWindow",
+            data: {
+                windowId,
+            }
+        });
     }
 }
 

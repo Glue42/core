@@ -213,8 +213,6 @@ describe('subscribe()', () => {
             const subscription = await glue.interop.subscribe(name, { target: glueApplicationOne.agm.instance });
 
             expect(subscription.serverInstance.application).to.eql(glueApplicationOne.agm.instance.application);
-            expect(subscription.serverInstance.machine).to.eql(glueApplicationOne.agm.instance.machine);
-            expect(subscription.serverInstance.environment).to.eql(glueApplicationOne.agm.instance.environment);
         });
 
         it('Should reject when the methodDefinition is undefined.', (done) => {

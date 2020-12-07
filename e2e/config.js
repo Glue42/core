@@ -1,25 +1,35 @@
 const basePolling = require('./ready-conditions/base-polling');
 
 module.exports = {
+    libPaths: [
+        'packages/web/dist/web.umd.js',
+        'packages/workspaces-api/dist/workspaces.umd.js'
+    ],
     run: [
+        // {
+        //     groupName: 'Example',
+        //     timesToRun: 1,
+        //     processes: ['exampleServer']
+        // },
+        // {
+        //     groupName: 'contexts'
+        // },
         {
-            groupName: "contexts"
+            groupName: 'interop',
+            timesToRun: 1
         },
-        {
-            groupName: "interop"
-        },
-        {
-            groupName: "channels"
-        },
-        {
-            groupName: "app-manager",
-            processes: ["remoteSource"]
-        }
+        // {
+        //     groupName: 'channels'
+        // },
+        // {
+        //     groupName: 'app-manager',
+        //     processes: ['remoteSource']
+        // }
     ],
     processes: [
         {
-            name: "exampleServer",
-            path: "./testServer/exampleServer.js",
+            name: 'exampleServer',
+            path: './exampleServer/index.js',
             args: ['first', 'second', 'third'],
             readyCondition: basePolling({
                 hostname: 'localhost',
@@ -31,8 +41,8 @@ module.exports = {
             })
         },
         {
-            name: "remoteSource",
-            path: "./remote-source/index.js",
+            name: 'remoteSource',
+            path: './remote-source/index.js',
             readyCondition: basePolling({
                 hostname: 'localhost',
                 port: 9998,

@@ -2,23 +2,41 @@ const { spawn } = require('child_process');
 const kill = require('tree-kill');
 const path = require('path');
 const os = require('os');
+const fs = require('fs');
+const http = require('http');
+const rimraf = require('rimraf');
+const config = require('./config');
+const {
+    PATH_TO_KARMA_CONFIG,
+    PATH_TO_TEST_DIR,
+    PATH_TO_TEST_COLLECTION_DIR,
+    PATH_TO_APPS_DIR,
+    HTTP_SERVER_PORT,
+    WARN_TIMES_TO_RUN
+} = require('./constants');
 
-const basePolling = require('./ready-conditions/base-polling');
-const testConfig = require('./config');
-
-const gluecConfigPath = path.resolve(process.cwd(), 'e2e', 'config');
 const karmaConfigPath = path.resolve(process.cwd());
 const npxCommand = os.type() === 'Windows_NT' ? 'npx.cmd' : 'npx';
-let controllerProcessExitCode = 0;
-
 const runningProcesses = [];
+let httpServer;
 
-const killRunningProcesses = () => {
+const deleteTestCollectionDir = () => {
+    rimraf.sync(PATH_TO_TEST_COLLECTION_DIR);
+};
+
+const cleanUp = () => {
+    // Kill all running processes.
     for (const runningProcess of runningProcesses) {
         if (!runningProcess.killed) {
             kill(runningProcess.pid);
         }
     }
+
+    // Stop http server.
+    httpServer.close();
+
+    // Delete the test collection directory.
+    deleteTestCollectionDir();
 };
 
 const extractUniqueProcessNames = (testGroups) => {
@@ -46,46 +64,31 @@ const mapProcessNamesToProcessDefinitions = (processesDefinitions, processNames)
 };
 
 const validateChildProcessStarted = (childProcess) => {
-    if (typeof childProcess.pid === "undefined") {
+    if (typeof childProcess.pid === 'undefined') {
         throw new Error(`Failed to spawn ${childProcess.name} process!`);
     }
 };
 
-const spawnGluecServer = () => {
-    const gluec = spawn(npxCommand, ['@glue42/cli-core', 'serve'], {
-        cwd: gluecConfigPath,
-        stdio: 'inherit'
+const runHttpServer = () => {
+    return new Promise((resolve) => {
+        const server = http.createServer((req, res) => {
+            fs.readFile(`${PATH_TO_APPS_DIR}${req.url}`, (error, data) => {
+                if (error) {
+                    res.writeHead(404);
+                    res.end(JSON.stringify(error));
+                } else {
+                    res.writeHead(200);
+                    res.end(data);
+                }
+            });
+        })
+            .listen(HTTP_SERVER_PORT, () => resolve(server));
     });
-
-    validateChildProcessStarted(gluec);
-
-    gluec.on('exit', () => process.exit(controllerProcessExitCode));
-    gluec.on('error', () => {
-        console.log('gluec serve process error!');
-        process.exit(1)
-    });
-
-    return gluec;
-};
-
-const runGluecServer = async () => {
-    const gluec = spawnGluecServer();
-    const gluecReadyCondition = basePolling({
-        hostname: 'localhost',
-        port: 4242,
-        path: '/glue/worker.js',
-        method: 'GET',
-        pollingInterval: 5 * 1000,
-        pollingTimeout: 60 * 1000
-    });
-    runningProcesses.push(gluec);
-    await gluecReadyCondition();
-    return gluec;
 };
 
 const runConfigProcesses = async () => {
-    const uniqueProcessNames = extractUniqueProcessNames(testConfig.run);
-    const processDefinitions = mapProcessNamesToProcessDefinitions(testConfig.processes, uniqueProcessNames);
+    const uniqueProcessNames = extractUniqueProcessNames(config.run);
+    const processDefinitions = mapProcessNamesToProcessDefinitions(config.processes, uniqueProcessNames);
 
     await Promise.all(processDefinitions.map((processDefinition) => {
         const processName = processDefinition.name;
@@ -111,31 +114,89 @@ const runConfigProcesses = async () => {
 };
 
 const spawnKarmaServer = () => {
-    const karma = spawn(npxCommand, ['karma', 'start', './e2e/config/karma.conf.js'], {
+    const karma = spawn(npxCommand, ['karma', 'start', PATH_TO_KARMA_CONFIG], {
         cwd: karmaConfigPath,
         stdio: 'inherit'
     });
     validateChildProcessStarted(karma);
-    karma.on('exit', (exitCode) => {
-        controllerProcessExitCode = exitCode;
-
-        killRunningProcesses();
+    karma.on('exit', () => {
+        cleanUp();
     });
     karma.on('error', () => {
         console.log('karma process error!');
 
-        killRunningProcesses();
+        cleanUp();
 
         process.exit(1);
     });
     return karma;
 };
 
+const copyFileAsync = (src, dest) => {
+    return new Promise((resolve) => {
+        fs.copyFile(src, dest, () => resolve());
+    });
+};
+
+const copyDirAsync = async (src, dest) => {
+    const entries = fs.readdirSync(src, { withFileTypes: true });
+
+    fs.mkdirSync(dest);
+    for (const entry of entries) {
+        const srcPath = path.join(src, entry.name);
+        const destPath = path.join(dest, entry.name);
+        if (entry.isDirectory()) {
+            await copyDirAsync(srcPath, destPath);
+        } else {
+            await copyFileAsync(srcPath, destPath);
+        }
+    }
+};
+
+const prepareTestCollection = async () => {
+    if (fs.existsSync(PATH_TO_TEST_COLLECTION_DIR)) {
+        deleteTestCollectionDir();
+    }
+    fs.mkdirSync(PATH_TO_TEST_COLLECTION_DIR);
+
+    const groupsWithNameAndTimesToRun = config.run.map(({ groupName, timesToRun }) => {
+        if (typeof groupName === 'undefined') {
+            throw new Error('Please provide a groupName');
+        }
+
+        return {
+            groupName: groupName.toLowerCase(),
+            timesToRun: timesToRun || 1
+        };
+    });
+
+    if (groupsWithNameAndTimesToRun.some(({ timesToRun }) => timesToRun > WARN_TIMES_TO_RUN)) {
+        console.warn('Please note that running a test group too many times could cause file system problems as the tests are being copied.');
+    }
+
+    const groupNames = groupsWithNameAndTimesToRun.map((groupWithNameAndTimesToRun) => groupWithNameAndTimesToRun.groupName);
+    if (groupNames.length > new Set(groupNames).size) {
+        throw new Error('Multiple groups have the same name. Make sure to provide groups with unique names. If you want to run a certain group multiple times use the timesToRun property.');
+    }
+
+    console.log(`Group names: ${groupsWithNameAndTimesToRun.map(({ groupName, timesToRun }) => `${groupName} (x${timesToRun})`).join('; ')}`);
+
+    const prepareTestCollectionPromise = Promise.all([groupsWithNameAndTimesToRun.map(({ groupName, timesToRun }) => {
+        const copyDirPromises = [];
+
+        for (let i = 0; i < timesToRun; i++) {
+            copyDirPromises.push(copyDirAsync(`${PATH_TO_TEST_DIR}${groupName}`, `${PATH_TO_TEST_COLLECTION_DIR}${groupName}-${i}`))
+        }
+
+        return copyDirPromises;
+    })]);
+
+    await prepareTestCollectionPromise;
+};
+
 const startProcessController = async () => {
     try {
-        await runGluecServer();
-
-        await runConfigProcesses();
+        [httpServer] = await Promise.all([runHttpServer(), runConfigProcesses(), prepareTestCollection()]);
 
         spawnKarmaServer();
     } catch (error) {

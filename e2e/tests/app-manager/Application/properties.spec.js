@@ -8,25 +8,25 @@ describe('properties', () => {
     });
 
     describe('_url', () => {
-        it('Should be set correctly in the case of a Glue42 Core application.', async () => {
+        it('Should be set correctly in the case of a Glue42 Core application.', () => {
             const appName = 'coreSupport';
-            const expectedUrl = (await gtf.appManager.getLocalApplications()).find((localApp) => localApp.name === appName).details.url;
+            const expectedUrl = gtf.appManager.getLocalApplications().find((localApp) => localApp.name === appName).details.url;
             const url = glue.appManager.application(appName)._url;
 
             expect(url).to.eql(expectedUrl);
         });
 
-        it('Should be set correctly in the case of a FDC3 application with a top level url property inside the manifest.', async () => {
+        it('Should be set correctly in the case of a FDC3 application with a top level url property inside the manifest.', () => {
             const appName = 'FDC3App-top-level-url';
-            const expectedUrl = JSON.parse((await gtf.appManager.getLocalApplications()).find((localApp) => localApp.name === appName).manifest).url;
+            const expectedUrl = JSON.parse(gtf.appManager.getLocalApplications().find((localApp) => localApp.name === appName).manifest).url;
             const url = glue.appManager.application(appName)._url;
 
             expect(url).to.eql(expectedUrl);
         });
 
-        it('Should be set correctly in the case of a FDC3 application with a url property inside a top level details property inside the manifest.', async () => {
+        it('Should be set correctly in the case of a FDC3 application with a url property inside a top level details property inside the manifest.', () => {
             const appName = 'FDC3App-url-inside-of-top-level-details';
-            const expectedUrl = JSON.parse((await gtf.appManager.getLocalApplications()).find((localApp) => localApp.name === appName).manifest).details.url;
+            const expectedUrl = JSON.parse(gtf.appManager.getLocalApplications().find((localApp) => localApp.name === appName).manifest).details.url;
             const url = glue.appManager.application(appName)._url;
 
             expect(url).to.eql(expectedUrl);
@@ -35,7 +35,7 @@ describe('properties', () => {
 
     describe('name', () => {
         it('Should be set correctly.', async () => {
-            const localAppNames = (await gtf.appManager.getLocalApplications()).map((localApp) => localApp.name);
+            const localAppNames = gtf.appManager.getLocalApplications().map((localApp) => localApp.name);
             const validRemoteAppNames = (await gtf.appManager.getRemoteSourceApplications()).map((remoteApp) => remoteApp.name).filter((remoteAppName) => remoteAppName !== 'invalid-application');
             const allValidAppNames = [
                 ...localAppNames,
@@ -51,7 +51,7 @@ describe('properties', () => {
 
     describe('title', () => {
         it('Should be set correctly.', async () => {
-            const localApps = await gtf.appManager.getLocalApplications();
+            const localApps = gtf.appManager.getLocalApplications();
             const validRemoteApps = (await gtf.appManager.getRemoteSourceApplications()).filter((remoteApp) => remoteApp.name !== 'invalid-application');
             const allValidApps = [
                 ...localApps,
@@ -67,7 +67,7 @@ describe('properties', () => {
 
     describe('version', () => {
         it('Should be set correctly.', async () => {
-            const localApps = await gtf.appManager.getLocalApplications();
+            const localApps = gtf.appManager.getLocalApplications();
             const validRemoteApps = (await gtf.appManager.getRemoteSourceApplications()).filter((remoteApp) => remoteApp.name !== 'invalid-application');
             const allValidApps = [
                 ...localApps,
@@ -83,7 +83,7 @@ describe('properties', () => {
 
     describe('icon', () => {
         it('Should be set correctly.', async () => {
-            const localApps = await gtf.appManager.getLocalApplications();
+            const localApps = gtf.appManager.getLocalApplications();
             const validRemoteApps = (await gtf.appManager.getRemoteSourceApplications()).filter((remoteApp) => remoteApp.name !== 'invalid-application');
             const allValidApps = [
                 ...localApps,
@@ -99,7 +99,7 @@ describe('properties', () => {
 
     describe('caption', () => {
         it('Should be set correctly.', async () => {
-            const localApps = await gtf.appManager.getLocalApplications();
+            const localApps = gtf.appManager.getLocalApplications();
             const validRemoteApps = (await gtf.appManager.getRemoteSourceApplications()).filter((remoteApp) => remoteApp.name !== 'invalid-application');
             const allValidApps = [
                 ...localApps,
@@ -115,7 +115,7 @@ describe('properties', () => {
 
     describe('userProperties', () => {
         it('Should be set correctly.', async () => {
-            const localApps = await gtf.appManager.getLocalApplications();
+            const localApps = gtf.appManager.getLocalApplications();
             const validRemoteApps = (await gtf.appManager.getRemoteSourceApplications()).filter((remoteApp) => remoteApp.name !== 'invalid-application');
             const allValidApps = [
                 ...localApps,

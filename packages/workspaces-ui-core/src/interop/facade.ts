@@ -405,7 +405,7 @@ class GlueFacade {
                 type,
                 payload
             };
-            this._glue.agm.invoke(this._workspacesEventMethod, methodPayload, "all").catch(() => {
+            this._glue.agm.invoke(this._workspacesEventMethod, methodPayload).catch(() => {
                 // console.warn(`Could not push data to ${this._workspacesEventMethod} because ${e.message}`);
             });
         }

@@ -20,7 +20,8 @@
         "packages/golden-layout/*",
         "docs/*",
         "e2e/*",
-        "demos/*"
+        "demos/*",
+        "**/dist/**"
     ],
     "rules": {
         "indent": [

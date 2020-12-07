@@ -12,6 +12,7 @@ export interface ConnectionSettings {
     protocolVersion?: number;
     ws?: string;
     sharedWorker?: string;
+    webPlatform?: Glue42Core.WebPlatformConnection;
     inproc?: Glue42Core.InprocGWSettings;
     /** If connection is lost, try reconnecting on some interval */
     reconnectInterval?: number;
@@ -63,6 +64,8 @@ export interface GW3Protocol {
 
 export interface Transport {
     isObjectBasedTransport?: boolean;
+
+    transportWindowId?: string;
 
     sendObject?: (msg: object, options?: Glue42Core.Connection.SendMessageOptions) => Promise<void>;
 

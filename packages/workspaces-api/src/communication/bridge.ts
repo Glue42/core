@@ -5,7 +5,6 @@ import { OPERATIONS } from "./constants";
 import { eventTypeDecoder, streamRequestArgumentsDecoder, workspaceEventActionDecoder } from "../shared/decoders";
 import { Glue42Workspaces } from "../../workspaces";
 import { InteropTransport } from "./interop-transport";
-import { Instance } from "../types/glue";
 
 export class Bridge {
 
@@ -16,8 +15,8 @@ export class Bridge {
         private readonly registry: CallbackRegistry
     ) { }
 
-    public async createCoreEventMethod(): Promise<void> {
-        await this.transport.coreEventMethodReady(this.handleCoreEventInvocation.bind(this));
+    public async createCoreEventSubscription(): Promise<void> {
+        await this.transport.coreSubscriptionReady(this.handleCoreEvent.bind(this));
     }
 
     public handleCoreSubscription(config: SubscriptionConfig): UnsubscribeFunction {
@@ -48,11 +47,7 @@ export class Bridge {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    public async send<T>(operationName: string, operationArgs?: any, target?: Instance, responseTimeout?: number): Promise<T> {
-
-        if (!window.glue42gd && !target) {
-            throw new Error(`Cannot complete operation: ${operationName} with args: ${JSON.stringify(operationArgs)}, because the environment is Glue42 Core and no frame target was provided`);
-        }
+    public async send<T>(operationName: string, operationArgs?: any): Promise<T> {
 
         const operationDefinition = Object.values(OPERATIONS).find((operation) => operation.name === operationName);
 
@@ -71,7 +66,7 @@ export class Bridge {
         let operationResult;
 
         try {
-            const operationResultRaw = await this.transport.transmitControl(operationDefinition.name, operationArgs, target, responseTimeout);
+            const operationResultRaw = await this.transport.transmitControl(operationDefinition.name, operationArgs);
             operationResult = operationDefinition.resultDecoder.runWithException(operationResultRaw);
         } catch (error) {
             if (error.kind) {
@@ -143,7 +138,7 @@ export class Bridge {
         };
     }
 
-    private checkScopeMatch(scope: { type: WorkspaceEventScope, id?: string }, receivedIds: { frame: string, workspace: string, window: string }): boolean {
+    private checkScopeMatch(scope: { type: WorkspaceEventScope; id?: string }, receivedIds: { frame: string; workspace: string; window: string }): boolean {
 
         if (scope.type === "global") {
             return true;
@@ -164,14 +159,20 @@ export class Bridge {
         return false;
     }
 
-    private handleCoreEventInvocation(args?: any): void {
-        const verifiedAction: WorkspaceEventAction = workspaceEventActionDecoder.runWithException(args.action);
-        const verifiedType: WorkspaceEventType = eventTypeDecoder.runWithException(args.type);
-        const verifiedPayload: WorkspacePayload = STREAMS[verifiedType].payloadDecoder.runWithException(args.payload);
-
-        const registryKey = `${verifiedType}-${verifiedAction}`;
-
-        this.registry.execute(registryKey, verifiedPayload);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private handleCoreEvent(args: any): void {
+        const data = args.data;
+        try {
+            const verifiedAction: WorkspaceEventAction = workspaceEventActionDecoder.runWithException(data.action);
+            const verifiedType: WorkspaceEventType = eventTypeDecoder.runWithException(data.type);
+            const verifiedPayload: WorkspacePayload = STREAMS[verifiedType].payloadDecoder.runWithException(data.payload);
+    
+            const registryKey = `${verifiedType}-${verifiedAction}`;
+    
+            this.registry.execute(registryKey, verifiedPayload);
+        } catch (error) {
+            console.warn(`Cannot handle event with data ${JSON.stringify(data)}, because of validation error: ${error.message}`);
+        }
     }
 
     private getBranchKey(config: SubscriptionConfig): string {

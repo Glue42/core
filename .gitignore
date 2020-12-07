@@ -19,3 +19,5 @@ yarn-debug.log*
 yarn-error.log*
 !live-examples/**/dist
 e2e/config/gtf.js
+e2e/config/apps/libs/*
+e2e/tests/temp-test-collection/

@@ -1,12 +1,16 @@
+*RAW*
+TODO: we are not ready with channels right now.
+*END*
+
 ## Overview
 
-The channels are globally accessed named contexts that allow users to dynamically group applications, instructing them to work over the same shared data object. The [Channels API](../../../reference/core/latest/channels/index.html) enables applications to:
+The Glue42 **Channels** are globally accessed named contexts that allow users to dynamically group applications, instructing them to work with the same shared data object. The [Channels API](../../../reference/core/latest/channels/index.html) enables you to:
 
-- discover channels - applications can get the names and contexts of all channels;
-- navigate through channels - application can get the current channel, join and leave channels, subscribe for the event which fires when the current channel has changed;
-- publish and subscribe - applications can publish data to other applications on the same channel and can subscribe for channel updates to react to data published by other applications;
+- discover Channels - get the names and contexts of all Channels;
+- navigate through Channels - get the current Channel, join and leave Channels, subscribe for the event which fires when the current Channel has changed;
+- publish and subscribe - publish data to other applications on the same Channel and subscribe for Channel updates to react to data published by other applications;
 
-Channels are based on Shared Contexts. A context object may contain different types of data, e.g. `ids`, `displayName`, etc.:
+Channels are based on [Shared Contexts](../shared-contexts/index.html). A context object may contain different types of data, e.g. `ids`, `displayName`, etc.:
 
 ```json
 {
@@ -33,44 +37,13 @@ Channels are based on Shared Contexts. A context object may contain different ty
 }
 ```
 
-Different applications on the same channel can use different or the same parts of the data:
+Different applications on the same Channel may use different parts of the data:
 
-A "Client List" app, for example, can update the context object with data for the selected user (`ids`, `displayName`, etc.). A "Portfolio" app can use the `ids` to load the portfolio of the client that the user has selected in the "Client List" app.
+A "Client List" app, for example, may update the context object with data for the selected user (`ids`, `displayName`, etc.). A "Portfolio" app may use the `ids` to load the portfolio of the client that the user has selected in the "Client List" app.
 
 ## Enabling Channels
 
-To enable the Channels API for your application you need to define channels (channel names and colors) in the `glue.config.json` file of your **Glue42 Core** project and also initialize the [Glue42 Web](../../../reference/core/latest/glue42%20web/index.html) library with a [`Config`](../../../reference/core/latest/glue42%20web/index.html#!Config) object that enables the Channels API.
-
-### Defining Channels
-
-Open the `glue.config.json` file of your project and add a `channels` property. Its value should be an array of objects that describe the channels you want to use. You can define any number of channels. The values for the channel colors can be either HTML color names or hexadecimal color codes. Below you can see an example of defining three channels:
-
-```json
-{
-    "glue": ...,
-    "gateway": ...,
-    "channels": [
-        {
-            "name": "Red",
-            "meta": {
-                "color": "red"
-            }
-        },
-        {
-            "name": "Green",
-            "meta": {
-                "color": "green"
-            }
-        },
-        {
-            "name": "Blue",
-            "meta": {
-                "color": "#66ABFF"
-            }
-        }
-    ]
-}
-```
+<!-- TODO -->
 
 ### Initializing the Channels API
 
@@ -96,9 +69,9 @@ await window.GlueWeb({ channels: true });
 Glue42Ng.forRoot({ factory: GlueWeb, config: { channels: true } })
 ```
 
-*For detailed information on the Channels API, see the [**Channels**](../../../glue42-concepts/data-sharing-between-apps/channels/javascript/index.html) documentation.*
+*For detailed information on the Channels API, see the [Channels](../../../glue42-concepts/data-sharing-between-apps/channels/javascript/index.html) documentation.*
 
-In the next sections, you can see examples of using the Channels API. You can open the embedded examples directly in [CodeSandbox](https://codesandbox.io) to see the code and experiment with it.
+The examples in the next sections demonstrate using the Channels API. To see the code and experiment with it, open the embedded examples directly in [CodeSandbox](https://codesandbox.io). 
 
 ## Discover and Navigate
 

@@ -72,8 +72,16 @@ export namespace Glue42Core {
         /** A way to pass custom token provider for Gateway v.3 tokens. */
         gwTokenProvider?: GwTokenProvider;
 
-        /** Path to the shared worker file that contains glue0 shared worker related code  */
+        /**
+         * @deprecated
+         * Path to the shared worker file that contains glue0 shared worker related code  
+         */
         sharedWorker?: string;
+
+        /**
+         * An object containing the configuration settings when core is operating in a web platform environment 
+         */
+        webPlatform?: WebPlatformConnection;
 
         /** Connect with GW in memory */
         inproc?: InprocGWSettings;
@@ -84,6 +92,11 @@ export namespace Glue42Core {
          * property. Allows out-of-band subscription and replaying of Glue42 messages.
          */
         replaySpecs?: Glue42Core.Connection.MessageReplaySpec[];
+    }
+
+    export interface WebPlatformConnection {
+        port: MessagePort;
+        windowId?: string;
     }
 
     export interface InprocGWSettings {

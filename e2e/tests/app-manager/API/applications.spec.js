@@ -4,7 +4,7 @@ describe('applications()', () => {
     });
 
     it('Should return all applications provided inside of localApplications.', async () => {
-        const localAppNames = (await gtf.appManager.getLocalApplications()).map((localApp) => localApp.name);
+        const localAppNames = gtf.appManager.getLocalApplications().map((localApp) => localApp.name);
 
         const appNames = glue.appManager.applications().map((application) => application.name);
 

@@ -125,7 +125,7 @@ describe('servers()', () => {
             });
             expect(server).to.not.be.undefined;
             expect(server.length).to.eql(1);
-            expect(server[0].application.includes('TestRunner')).to.eql(true);
+            expect(server[0].application.includes(RUNNER)).to.eql(true);
         });
 
         it('Should discover others by registered methods, when passing MethodFilter with name and object types', () => {

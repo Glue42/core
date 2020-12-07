@@ -14,7 +14,7 @@ describe('application()', () => {
 
     it('Should return the application (local application definition).', async () => {
         const appName = 'AppWithDetails-local';
-        const { title, version, details, customProperties: { a: customPropertiesA } } = (await gtf.appManager.getLocalApplications()).find((localApp) => localApp.name === appName);
+        const { title, version, details, customProperties: { a: customPropertiesA } } = gtf.appManager.getLocalApplications().find((localApp) => localApp.name === appName);
 
         const application = glue.appManager.application(appName);
 

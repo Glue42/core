@@ -76,7 +76,7 @@ describe('properties', () => {
                     }
                 }).then(sub1 => {
                     try {
-                        expect(sub1.serverInstance.application.includes('TestRunner')).to.be.true;
+                        expect(sub1.serverInstance.application.includes(RUNNER)).to.be.true;
                         done();
                     } catch (err) {
                         done(err);

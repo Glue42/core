@@ -17,6 +17,7 @@ import WS from "./transports/ws";
 import GW3ProtocolImpl from "./protocols/gw3";
 import { MessageReplayerImpl } from "./replayer";
 import timer from "../utils/timer";
+import WebPlatformTransport from "./transports/webPlatform";
 
 /**
  * A template for gateway connections - this is extended from specific protocols and transports.
@@ -56,6 +57,8 @@ export default class Connection implements Glue42Core.Connection.API {
             this.transport = new InProcTransport(settings.inproc, logger.subLogger("inMemory"));
         } else if (settings.sharedWorker) {
             this.transport = new SharedWorkerTransport(settings.sharedWorker, logger.subLogger("shared-worker"));
+        } else if (settings.webPlatform) {
+            this.transport = new WebPlatformTransport(settings.webPlatform, logger.subLogger("web-platform"), settings.identity);
         } else if (settings.ws !== undefined) {
             this.transport = new WS(settings, logger.subLogger("ws"));
         } else {
@@ -63,7 +66,7 @@ export default class Connection implements Glue42Core.Connection.API {
         }
 
         this.isTrace = logger.canPublish("trace");
-        logger.info(`starting with ${this.transport.name()} transport`);
+        logger.debug(`starting with ${this.transport.name()} transport`);
 
         this.protocol = new GW3ProtocolImpl(this, settings, logger.subLogger("protocol"));
         this.transport.onConnectedChanged(

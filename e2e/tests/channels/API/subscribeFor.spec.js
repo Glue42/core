@@ -41,7 +41,7 @@ describe('subscribeFor()', () => {
     });
 
     it('Should invoke the callback with the current correct data, context (name, meta and data) and updatedId.', async () => {
-        const [channel] = (await gtf.getGlueConfigJson()).channels;
+        const channel = gtf.getChannelsConfigDefinitions()[0];
         const channelName = channel.name;
 
         // The initial data of the first channel.
@@ -83,7 +83,7 @@ describe('subscribeFor()', () => {
         const otherGlue = await GlueWeb({ channels: true });
         gluesToDisconnect.push(otherGlue);
 
-        const [channel] = (await gtf.getGlueConfigJson()).channels;
+        const channel = gtf.getChannelsConfigDefinitions()[0];
         const channelName = channel.name;
 
         // Join the channel together with the other party.
@@ -134,7 +134,7 @@ describe('subscribeFor()', () => {
     });
 
     it('Should invoke the callback with the correct data, context (name, meta and data) and updaterId whenever data is published to the current channel by us.', async () => {
-        const [channel] = (await gtf.getGlueConfigJson()).channels;
+        const channel = gtf.getChannelsConfigDefinitions()[0];
         const channelName = channel.name;
 
         // Join the channel.
@@ -189,7 +189,7 @@ describe('subscribeFor()', () => {
         const otherGlue = await GlueWeb({ channels: true });
         gluesToDisconnect.push(otherGlue);
 
-        const [firstChannel, secondChannel] = (await gtf.getGlueConfigJson()).channels;
+        const [firstChannel, secondChannel] = gtf.getChannelsConfigDefinitions();
         const firstChannelName = firstChannel.name;
         const secondChannelName = secondChannel.name;
 

@@ -1,7 +1,8 @@
 import { Glue42Web } from "../../../packages/web/web.d";
-import { Glue42CoreConfig } from "../../../packages/web/src/glue.config";
 import { GtfApp } from "./app";
 import { CancellablePromise, Gtf } from "./types";
+import { Glue42WebPlatform } from "../../../packages/web-platform/platform.d";
+import { channelsConfig, remoteStoreConfig } from "./config";
 
 export class GtfCore implements Gtf.Core {
     private readonly controlMethodName = "G42Core.E2E.Control";
@@ -79,7 +80,12 @@ export class GtfCore implements Gtf.Core {
     }
 
     public async waitForFetch(): Promise<void> {
-        const pollingInterval = (await this.getGlueConfigJson()).appManager?.remoteSources?.[0]?.pollingInterval || 3000;
+        if (typeof remoteStoreConfig === "undefined") {
+            throw new Error("No remote store provided!");
+        }
+
+        const pollingInterval = remoteStoreConfig.pollingInterval || 3000;
+
         const extraInterval = 2000;
 
         return new Promise((resolve) => {
@@ -94,16 +100,12 @@ export class GtfCore implements Gtf.Core {
         return `${prefix}.${Date.now()}.${this.windowNameCounter}`;
     }
 
-    public async getGlueConfigJson(url = "/glue/glue.config.json"): Promise<Glue42CoreConfig> {
-        const data = await (await fetch(url)).json();
-
-        return data;
+    public getChannelsConfigDefinitions(): Glue42WebPlatform.Channels.ChannelDefinition[] {
+        return channelsConfig.definitions;
     }
 
     public async getChannelNames(): Promise<string[]> {
-        const channelContexts = (await this.getGlueConfigJson()).channels as any[];
-
-        return channelContexts.map<string>((channelContext) => channelContext.name);
+        return channelsConfig.definitions.map((channelContext) => channelContext.name);
     }
 
     public async createApp(appName = "coreSupport"): Promise<Gtf.App> {
@@ -114,10 +116,8 @@ export class GtfCore implements Gtf.Core {
         }
 
         const supportInstance = await foundApp.start();
-        await this.waitForControlInstance(supportInstance.agm.instance);
 
         return new GtfApp(this.glue, supportInstance, this.controlMethodName);
-
     }
 
     public post(url: string, body: string): Promise<Response> {
@@ -130,27 +130,5 @@ export class GtfCore implements Gtf.Core {
         };
 
         return fetch(url, init);
-    }
-
-    private waitForControlInstance(instanceId: string): Promise<void> {
-        return new Promise((resolve) => {
-            const unsubscribe = this.glue.interop.serverMethodAdded(({ server, method }) => {
-
-                if (method.name !== this.controlMethodName) {
-                    return;
-                }
-
-                if (server.instance !== instanceId) {
-                    return;
-                }
-
-                if (unsubscribe) {
-                    unsubscribe();
-                }
-
-                resolve();
-
-            });
-        });
     }
 }

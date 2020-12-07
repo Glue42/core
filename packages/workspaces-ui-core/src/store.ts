@@ -61,7 +61,7 @@ class WorkspaceStore {
         const workspace = this.getById(id);
         if (workspace) {
             workspace.layout = layout;
-            workspace.windows = windows;
+            workspace.windows = this.mergeWindows(workspace.windows, windows);
             return;
         }
 
@@ -74,7 +74,7 @@ class WorkspaceStore {
 
     public getWindow(id: string | string[]) {
         const winId = idAsString(id);
-        return this.layouts.reduce((acc, l) => acc || l.windows.find((w) => w.id === winId), undefined);
+        return this.layouts.reduce((acc, l) => acc || l.windows.find((w) => w.id === winId || w.windowId === winId), undefined);
     }
 
     public getActiveWorkspace(): Workspace {
@@ -87,13 +87,12 @@ class WorkspaceStore {
         const workspace = this.getById(workspaceId);
 
         workspace.windows = workspace.windows.filter(w => w.id !== window.id);
-
         workspace.windows.push(window);
     }
 
     public getByWindowId(windowId: string | string[]): Workspace {
         windowId = idAsString(windowId);
-        return this.layouts.find((l) => l.windows.some((w) => w.id === windowId));
+        return this.layouts.find((l) => l.windows.some((w) => w.id === windowId || w.windowId === windowId));
     }
 
     public getWindowContentItem(windowId: string): GoldenLayout.Component {
@@ -150,6 +149,20 @@ class WorkspaceStore {
         const result = workspaces.find((w) => w.layout.root.getItemsById(id)[0]);
 
         return result;
+    }
+
+    private mergeWindows(oldWindows: Window[], newWindows: Window[]) {
+        return newWindows.map(w => {
+            let windowId = w.windowId;
+            if (!windowId) {
+                const sameWindowInOldWindows = oldWindows.find((oldWin) => oldWin.id === w.id);
+                windowId = sameWindowInOldWindows?.windowId;
+            }
+            return {
+                ...w,
+                windowId
+            }
+        });
     }
 }
 

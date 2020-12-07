@@ -402,7 +402,7 @@ describe('invoke()', () => {
                 });
         });
 
-        it('Should contain the correct application that includes \'TestRunner\' inside of the executed_by Instance inside of the InvokeErrorHandler.', (done) => {
+        it('Should contain the correct application that includes RUNNER inside of the executed_by Instance inside of the InvokeErrorHandler.', (done) => {
             const newName = gtf.agm.getMethodName();
             const newMethodDef = {
                 name: newName,
@@ -420,7 +420,7 @@ describe('invoke()', () => {
                         done('Should not be called');
                     }, (invokeErrorHandler) => {
                         try {
-                            expect(invokeErrorHandler.executed_by.application).to.equal('TestRunner');
+                            expect(invokeErrorHandler.executed_by.application).to.equal(RUNNER);
                             done();
                         } catch (e) {
                             done(e);

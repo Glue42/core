@@ -38,10 +38,7 @@ const resolveGlue = (glue: Glue42.Glue | Glue42Web.API): Glue42.Glue | Glue42Web
 };
 
 const setupGlue42Core = (): void => {
-    (window as WindowType).fdc3GluePromise = GlueWebFactory({
-        ...defaultGlueConfig,
-        appManager: true
-    })
+    (window as WindowType).fdc3GluePromise = GlueWebFactory()
         .then((glue) => {
             return resolveGlue(glue);
         });

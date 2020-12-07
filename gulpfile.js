@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // npm run release -- --addition,subtraction
 const { series } = require('gulp');
 const fs = require('fs');
@@ -122,6 +123,19 @@ const publish = async () => {
     await command.runner;
 };
 
+// exports.release = series(
+//     validateReleasePackages,
+//     checkoutRelease,
+//     syncAllContentsExceptPackages,
+//     syncPackagesToRelease,
+//     bootstrap,
+//     versionSync,
+//     commitIsolatedPackages,
+//     publish,
+//     checkoutMaster
+// );
+
+// stopped publish and checkoutMaster to allow for dist-tags
 exports.release = series(
     validateReleasePackages,
     checkoutRelease,
@@ -129,7 +143,5 @@ exports.release = series(
     syncPackagesToRelease,
     bootstrap,
     versionSync,
-    commitIsolatedPackages,
-    publish,
-    checkoutMaster
+    commitIsolatedPackages
 );

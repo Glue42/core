@@ -2,7 +2,7 @@
 
 - #### What is Glue42 Core?	
 
-**Glue42 Core** enables web applications that share the same origin (protocol, host and port) to share data between each other, expose functionality and manipulate windows. Read more about **Glue42 Core** in the [What is Glue42 Core?](../what-is-glue42-core/index.html) section or visit the [official product site](https://glue42.com/core/).	
+**Glue42 Core** enables web applications to share data between each other, expose functionality and manipulate windows. Read more about **Glue42 Core** in the [What is Glue42 Core?](../what-is-glue42-core/index.html) section or visit the [official product site](https://glue42.com/core/).	
 
 - #### Is Glue42 Core really free?	
 
@@ -22,27 +22,19 @@ With **Glue42 Core** you can enable your web applications to share data between 
 
 - #### How do I use Glue42 Core in my project?	
 
-A **Glue42 Core** project consists of one or more [**Glue42 Client**](../core-concepts/glue42-client/overview/index.html) applications connected to the [**Glue42 Environment**](../core-concepts/environment/overview/index.html). To use **Glue42 Core** in your projects, you have to learn how to [set up the Glue42 Environment](../core-concepts/environment/setup/index.html) and [initialize a Glue42 Client](../core-concepts/glue42-client/overview/index.html#initializing_a_glue42_client). See also the [Quick Start](../getting-started/quick-start/index.html) section for a quick and easy project setup.	
+A **Glue42 Core** project consists of a [Main application]() using the [Glue42 Web Platform]() library and multiple [client applications]() using the [Glue42 Web](../../reference/core/latest/glue42%20web/index.html) library. To use **Glue42 Core** in your projects, you have to learn how to initialize and configure both libraries. See the [Quick Start](../getting-started/quick-start/index.html) section for a quick and easy project setup.	
 
-- #### What is a Glue42 Environment?	
+- #### What is the Glue42 Web Platform?	
 
-The [**Glue42 Environment**](../core-concepts/environment/overview/index.html) is a set of JavaScript and JSON files that provide **Glue42 Core** functionalities to all web applications connected to the **Glue42 Environment**.	
+The [Glue42 Web Platform]() provides the means for communication between the client applications and is also acts as a hub from which the user can access all client applications.
 
-- #### What is a Glue42 Client?	
+- #### What is a client application?	
 
-A [**Glue42 Client**](../core-concepts/glue42-client/overview/index.html) is every web application that initializes the [**Glue42 Web**](../../reference/core/latest/glue42%20web/index.html) library and connects to the [**Glue42 Environment**](../core-concepts/environment/overview/index.html).	
-
-- #### What is the Glue42 CLI?	
-
-The [**Glue42 CLI**](../core-concepts/cli/index.html) is a tool that greatly facilitates setting up and serving a **Glue42 Core** project during development and also bundling the necessary **Glue42 Core** files ready for deployment.	
-
-- #### None of the built-in solutions work for me. How do I configure Glue42 Core to fit my project?	
-
-Go to the [Manual](../core-concepts/environment/setup/index.html#manual) section to see how to completely control and customize the [**Glue42 Environment**](../core-concepts/environment/overview/index.html).	
+A client application in the context of **Glue42 Core** is any web application that has initialized the [Glue42 Web](../../reference/core/latest/glue42%20web/index.html) library and is connected a [Main application]().		
 
 - #### Where can I see a Glue42 Core demo project?	
 
-See a full-blown demo **Glue42 Core** project [here](https://start-of-day.glue42.com/), or see and experiment with the example mini apps demonstrating **Glue42 Core** functionalities in the [Shared Contexts](../capabilities/shared-contexts/index.html), [Interop](../capabilities/interop/index.html) and [Window Management](../capabilities/window-management/index.html) sections.	
+See a full-blown demo **Glue42 Core** project [here](https://start-of-day.glue42.com/), or see and experiment with the example mini apps demonstrating **Glue42 Core** functionalities in the [Capabilities](../capabilities/overview/index.html) section.	
 
 - #### I want to quickly set up a project and test Glue42 Core in practice. How do I do that?	
 

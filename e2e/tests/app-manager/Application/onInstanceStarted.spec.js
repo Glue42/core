@@ -38,7 +38,7 @@ describe('onInstanceStarted()', () => {
     });
 
     it.skip('Should not call the callback when an instance of another application is started. | https://github.com/Glue42/core/issues/148', async () => {
-        const currentAppName = 'TestRunner';
+        const currentAppName = RUNNER;
         const currentApp = glue.appManager.application(currentAppName);
 
         const appNameToStart = 'coreSupport';

@@ -3,7 +3,7 @@ import { Gtf } from "./types";
 import { promisePlus } from "./utils";
 
 export class GtfAgm implements Gtf.Agm {
-    private counter: number = 0;
+    private counter = 0;
     private systemMethodNames = ["T42.HC.GetSaveContext", "T42.Layouts.Events", "GC.Control", "G42Core.E2E.Logger"];
 
     constructor(private readonly glue: Glue42Web.API) {

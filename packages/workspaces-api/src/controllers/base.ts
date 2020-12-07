@@ -5,7 +5,7 @@ import { OPERATIONS } from "../communication/constants";
 import { FrameCreateConfig, WorkspaceIoCCreateConfig, WindowCreateConfig, ParentCreateConfig } from "../types/ioc";
 import { IoC } from "../shared/ioc";
 import { Bridge } from "../communication/bridge";
-import { Instance, GDWindow, WindowsAPI, ContextsAPI, LayoutsAPI } from "../types/glue";
+import { GDWindow, WindowsAPI, ContextsAPI, LayoutsAPI } from "../types/glue";
 import { Glue42Workspaces } from "../../workspaces";
 import { Frame } from "../models/frame";
 import { RefreshChildrenConfig } from "../types/privateData";
@@ -35,8 +35,8 @@ export class BaseController {
         return windowId && this.windows.list().some((win) => win.id === windowId);
     }
 
-    public async createWorkspace(createConfig: WorkspaceCreateConfigProtocol, frameInstance?: Instance): Promise<Workspace> {
-        const snapshot = await this.bridge.send<WorkspaceSnapshotResult>(OPERATIONS.createWorkspace.name, createConfig, frameInstance);
+    public async createWorkspace(createConfig: WorkspaceCreateConfigProtocol): Promise<Workspace> {
+        const snapshot = await this.bridge.send<WorkspaceSnapshotResult>(OPERATIONS.createWorkspace.name, createConfig);
 
         const frameConfig: FrameCreateConfig = {
             summary: snapshot.frameSummary
@@ -48,10 +48,10 @@ export class BaseController {
         return this.ioc.getModel<"workspace">("workspace", workspaceConfig);
     }
 
-    public async restoreWorkspace(name: string, options: Glue42Workspaces.RestoreWorkspaceConfig, frameInstance?: Instance): Promise<Workspace> {
-        const snapshot = await this.bridge.send<WorkspaceSnapshotResult>(OPERATIONS.openWorkspace.name, { name, restoreOptions: options }, frameInstance);
+    public async restoreWorkspace(name: string, options: Glue42Workspaces.RestoreWorkspaceConfig): Promise<Workspace> {
+        const snapshot = await this.bridge.send<WorkspaceSnapshotResult>(OPERATIONS.openWorkspace.name, { name, restoreOptions: options });
 
-        const frameSummary = await this.bridge.send<FrameSummaryResult>(OPERATIONS.getFrameSummary.name, { itemId: snapshot.config.frameId }, frameInstance);
+        const frameSummary = await this.bridge.send<FrameSummaryResult>(OPERATIONS.getFrameSummary.name, { itemId: snapshot.config.frameId });
 
         const frameConfig: FrameCreateConfig = {
             summary: frameSummary
@@ -63,7 +63,7 @@ export class BaseController {
         return this.ioc.getModel<"workspace">("workspace", workspaceConfig);
     }
 
-    public async add(type: "container" | "window", parentId: string, parentType: "row" | "column" | "group" | "workspace", definition: Glue42Workspaces.WorkspaceWindowDefinition | Glue42Workspaces.BoxDefinition, frameInstance?: Instance): Promise<AddItemResult> {
+    public async add(type: "container" | "window", parentId: string, parentType: "row" | "column" | "group" | "workspace", definition: Glue42Workspaces.WorkspaceWindowDefinition | Glue42Workspaces.BoxDefinition): Promise<AddItemResult> {
         let operationName: string;
         const operationArgs = { definition, parentId, parentType };
 
@@ -75,11 +75,11 @@ export class BaseController {
             throw new Error(`Unrecognized add type: ${type}`);
         }
 
-        return await this.bridge.send<AddItemResult>(operationName, operationArgs, frameInstance);
+        return await this.bridge.send<AddItemResult>(operationName, operationArgs);
     }
 
-    public async getFrame(windowId: string, frameInstance?: Instance): Promise<Frame> {
-        const frameSummary = await this.bridge.send<FrameSummaryResult>(OPERATIONS.getFrameSummary.name, { itemId: windowId }, frameInstance);
+    public async getFrame(windowId: string): Promise<Frame> {
+        const frameSummary = await this.bridge.send<FrameSummaryResult>(OPERATIONS.getFrameSummary.name, { itemId: windowId });
 
         const frameConfig: FrameCreateConfig = {
             summary: frameSummary
@@ -153,9 +153,9 @@ export class BaseController {
         return this.layouts.onRemoved(wrappedCallback);
     }
 
-    public async fetchWorkspace(workspaceId: string, frameInstance?: Instance): Promise<Workspace> {
+    public async fetchWorkspace(workspaceId: string): Promise<Workspace> {
 
-        const snapshot = await this.bridge.send<WorkspaceSnapshotResult>(OPERATIONS.getWorkspaceSnapshot.name, { itemId: workspaceId }, frameInstance);
+        const snapshot = await this.bridge.send<WorkspaceSnapshotResult>(OPERATIONS.getWorkspaceSnapshot.name, { itemId: workspaceId });
 
         const frameConfig: FrameCreateConfig = {
             summary: snapshot.frameSummary
@@ -169,8 +169,8 @@ export class BaseController {
 
     }
 
-    public async bundleTo(type: "row" | "column", workspaceId: string, frameInstance?: Instance): Promise<void> {
-        await this.bridge.send(OPERATIONS.bundleWorkspace.name, { type, workspaceId }, frameInstance);
+    public async bundleTo(type: "row" | "column", workspaceId: string): Promise<void> {
+        await this.bridge.send(OPERATIONS.bundleWorkspace.name, { type, workspaceId });
     }
 
     public getWorkspaceContext(workspaceId: string): Promise<any> {
@@ -193,62 +193,62 @@ export class BaseController {
         return this.contexts.subscribe(contextName, callback);
     }
 
-    public async restoreItem(itemId: string, frameInstance?: Instance): Promise<void> {
-        await this.bridge.send(OPERATIONS.restoreItem.name, { itemId }, frameInstance);
+    public async restoreItem(itemId: string): Promise<void> {
+        await this.bridge.send(OPERATIONS.restoreItem.name, { itemId });
     }
 
-    public async maximizeItem(itemId: string, frameInstance?: Instance): Promise<void> {
-        await this.bridge.send(OPERATIONS.maximizeItem.name, { itemId }, frameInstance);
+    public async maximizeItem(itemId: string): Promise<void> {
+        await this.bridge.send(OPERATIONS.maximizeItem.name, { itemId });
     }
 
-    public async focusItem(itemId: string, frameInstance?: Instance): Promise<void> {
-        await this.bridge.send(OPERATIONS.focusItem.name, { itemId }, frameInstance);
+    public async focusItem(itemId: string): Promise<void> {
+        await this.bridge.send(OPERATIONS.focusItem.name, { itemId });
     }
 
-    public async closeItem(itemId: string, frameInstance?: Instance): Promise<void> {
-        await this.bridge.send(OPERATIONS.closeItem.name, { itemId }, frameInstance);
+    public async closeItem(itemId: string): Promise<void> {
+        await this.bridge.send(OPERATIONS.closeItem.name, { itemId });
     }
 
-    public async resizeItem(itemId: string, config: Glue42Workspaces.ResizeConfig, frameInstance?: Instance): Promise<void> {
-        await this.bridge.send(OPERATIONS.resizeItem.name, Object.assign({}, { itemId }, config), frameInstance);
+    public async resizeItem(itemId: string, config: Glue42Workspaces.ResizeConfig): Promise<void> {
+        await this.bridge.send(OPERATIONS.resizeItem.name, Object.assign({}, { itemId }, config));
     }
 
-    public async moveFrame(itemId: string, config: Glue42Workspaces.MoveConfig, frameInstance?: Instance): Promise<void> {
-        await this.bridge.send(OPERATIONS.moveFrame.name, Object.assign({}, { itemId }, config), frameInstance);
+    public async moveFrame(itemId: string, config: Glue42Workspaces.MoveConfig): Promise<void> {
+        await this.bridge.send(OPERATIONS.moveFrame.name, Object.assign({}, { itemId }, config));
     }
 
     public getGDWindow(itemId: string): GDWindow {
         return this.windows.list().find((gdWindow) => gdWindow.id === itemId);
     }
 
-    public async forceLoadWindow(itemId: string, frameInstance?: Instance): Promise<string> {
-        const controlResult = await this.bridge.send<SimpleWindowOperationSuccessResult>(OPERATIONS.forceLoadWindow.name, { itemId }, frameInstance);
+    public async forceLoadWindow(itemId: string): Promise<string> {
+        const controlResult = await this.bridge.send<SimpleWindowOperationSuccessResult>(OPERATIONS.forceLoadWindow.name, { itemId });
 
         return controlResult.windowId;
     }
 
-    public async ejectWindow(itemId: string, frameInstance?: Instance): Promise<SimpleWindowOperationSuccessResult> {
-        return await this.bridge.send<SimpleWindowOperationSuccessResult>(OPERATIONS.ejectWindow.name, { itemId }, frameInstance);
+    public async ejectWindow(itemId: string): Promise<SimpleWindowOperationSuccessResult> {
+        return await this.bridge.send<SimpleWindowOperationSuccessResult>(OPERATIONS.ejectWindow.name, { itemId });
     }
 
-    public async moveWindowTo(itemId: string, newParentId: string, frameInstance?: Instance): Promise<void> {
-        await this.bridge.send(OPERATIONS.moveWindowTo.name, { itemId, containerId: newParentId }, frameInstance);
+    public async moveWindowTo(itemId: string, newParentId: string): Promise<void> {
+        await this.bridge.send(OPERATIONS.moveWindowTo.name, { itemId, containerId: newParentId });
     }
 
-    public async getSnapshot(itemId: string, type: "workspace" | "frame", frameInstance?: Instance): Promise<WorkspaceSnapshotResult | FrameSnapshotResult> {
+    public async getSnapshot(itemId: string, type: "workspace" | "frame"): Promise<WorkspaceSnapshotResult | FrameSnapshotResult> {
         let result: WorkspaceSnapshotResult | FrameSnapshotResult;
 
         if (type === "workspace") {
-            result = await this.bridge.send<WorkspaceSnapshotResult>(OPERATIONS.getWorkspaceSnapshot.name, { itemId }, frameInstance);
+            result = await this.bridge.send<WorkspaceSnapshotResult>(OPERATIONS.getWorkspaceSnapshot.name, { itemId });
         } else if (type === "frame") {
-            result = await this.bridge.send<FrameSnapshotResult>(OPERATIONS.getFrameSnapshot.name, { itemId }, frameInstance);
+            result = await this.bridge.send<FrameSnapshotResult>(OPERATIONS.getFrameSnapshot.name, { itemId });
         }
 
         return result;
     }
 
-    public async setItemTitle(itemId: string, title: string, frameInstance?: Instance): Promise<void> {
-        await this.bridge.send(OPERATIONS.setItemTitle.name, { itemId, title }, frameInstance);
+    public async setItemTitle(itemId: string, title: string): Promise<void> {
+        await this.bridge.send(OPERATIONS.setItemTitle.name, { itemId, title });
     }
 
     public refreshChildren(config: RefreshChildrenConfig): Child[] {

@@ -215,7 +215,7 @@ export default class GW3ProtocolImpl implements GW3Protocol {
             }
             // we've logged in once - set this to false for the rest of the lifetime
             this.initialLogin = false;
-            this.logger.info("login successful with peerId " + welcomeMsg.peer_id);
+            this.logger.debug("login successful with peerId " + welcomeMsg.peer_id);
 
             this.connection.peerId = welcomeMsg.peer_id;
             this.connection.resolvedIdentity = welcomeMsg.resolved_identity;

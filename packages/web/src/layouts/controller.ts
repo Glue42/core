@@ -1,312 +1,153 @@
-/* tslint:disable:no-console no-empty */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Glue42Core } from "@glue42/core";
+import { IoC } from "../shared/ioc";
+import { LibController } from "../shared/types";
+import {
+    default as CallbackRegistryFactory,
+    CallbackRegistry,
+    UnsubscribeFunction,
+} from "callback-registry";
 import { Glue42Web } from "../../web";
-import { LayoutStorage } from "./storage";
-import { Windows } from "../windows/main";
-import { LocalWebWindow } from "../windows/my";
-import { LayoutEventMethodName, SaveContextMethodName } from "./constants";
-import { Control } from "../control/control";
-import { RemoteCommand, LayoutRemoteCommand, SaveAutoLayoutCommandArgs } from "../control/commands";
-import { CallbackRegistry, default as CallbackRegistryFactory, UnsubscribeFunction } from "callback-registry";
-import { LayoutEvent } from "./types";
-import { promisePlus } from "../shared/promise-plus";
+import { GlueBridge } from "../communication/bridge";
+import { glueLayoutDecoder, layoutsOperationTypesDecoder, layoutTypeDecoder, newLayoutOptionsDecoder, nonEmptyStringDecoder, restoreOptionsDecoder } from "../shared/decoders";
+import { AllLayoutsFullConfig, AllLayoutsSummariesResult, GetAllLayoutsConfig, operations, OptionalSimpleLayoutResult, SimpleLayoutConfig } from "./protocol";
 
-export class LayoutsController {
+export class LayoutsController implements LibController {
+    private readonly registry: CallbackRegistry = CallbackRegistryFactory();
+    private bridge!: GlueBridge;
+    private logger!: Glue42Web.Logger.API;
 
-    private autoSaveContext: boolean;
-    private _registry: CallbackRegistry = CallbackRegistryFactory();
-    private readyPromise: Promise<void>;
+    public async start(coreGlue: Glue42Core.GlueCore, ioc: IoC): Promise<void> {
+        this.logger = coreGlue.logger.subLogger("layouts.controller.web");
 
-    constructor(
-        private readonly storage: LayoutStorage,
-        private readonly windows: Windows,
-        private readonly control: Control,
-        private readonly interop: Glue42Web.Interop.API,
-        config?: Glue42Web.Config
-    ) {
-        this.autoSaveContext = config?.layouts?.autoSaveWindowContext ?? false;
-        this.control.subscribe("layouts", this.handleControlMessage.bind(this));
-        this.readyPromise = Promise.all([
-            this.registerRequestMethods(),
-            this.registerEventsMethod()
-        ]).then(() => {
-            console.log("methods are live");
+        this.logger.trace("starting the web layouts controller");
+
+        this.bridge = ioc.bridge;
+
+        this.addOperationsExecutors();
+
+        const api = this.toApi();
+
+        this.logger.trace("no need for platform registration, attaching the layouts property to glue and returning");
+
+        (coreGlue as Glue42Web.API).layouts = api;
+    }
+
+    public async handleBridgeMessage(args: any): Promise<void> {
+        const operationName = layoutsOperationTypesDecoder.runWithException(args.operation);
+
+        const operation = operations[operationName];
+
+        if (!operation.execute) {
             return;
-        });
-    }
-
-    public ready(): Promise<void> {
-        return this.readyPromise;
-    }
-
-    public async export(layoutType?: Glue42Web.Layouts.LayoutType): Promise<Glue42Web.Layouts.Layout[]> {
-        if (layoutType) {
-            return this.storage.getAll(layoutType);
         }
 
-        const [globalLayouts, workspaceLayouts] = await Promise.all([
-            this.storage.getAll("Global"),
-            this.storage.getAll("Workspace")
-        ]);
+        let operationData: any = args.data;
 
-        return globalLayouts.concat(workspaceLayouts);
+        if (operation.dataDecoder) {
+            operationData = operation.dataDecoder.runWithException(args.data);
+        }
+
+        return await operation.execute(operationData);
     }
 
-    public async import(layouts: Glue42Web.Layouts.Layout[]): Promise<void> {
-
-        await Promise.all(layouts.map(async (layout) => {
-            const layoutEvent = (await this.get(layout.name, layout.type)) ? "layoutChanged" : "layoutAdded";
-
-            await this.storage.store(layout, layout.type);
-
-            const { eventPromise, unsubscribe } = this.waitHearLayout(layout.name, layoutEvent);
-
-            this.emitLayoutEvent(layoutEvent, layout);
-
-            try {
-                await eventPromise;
-                unsubscribe();
-            } catch (error) {
-                unsubscribe();
-                return Promise.reject(error);
-            }
-
-        }));
-    }
-
-    public async save(layoutOptions: Glue42Web.Layouts.NewLayoutOptions, autoSave = false): Promise<Glue42Web.Layouts.Layout> {
-        const openedWindows = this.windows.getChildWindows().map((w) => w.id);
-
-        const components = await this.getRemoteWindowsInfo(openedWindows);
-        components.push(this.getLocalLayoutComponent(layoutOptions.context, true));
-
-        const layout: Glue42Web.Layouts.Layout = {
-            type: "Global",
-            name: layoutOptions.name,
-            components,
-            context: layoutOptions.context || {},
-            metadata: layoutOptions.metadata || {}
+    private toApi(): Glue42Web.Layouts.API {
+        const api: Glue42Web.Layouts.API = {
+            get: this.get.bind(this),
+            getAll: this.getAll.bind(this),
+            export: this.export.bind(this),
+            import: this.import.bind(this),
+            save: this.save.bind(this),
+            restore: this.restore.bind(this),
+            remove: this.remove.bind(this),
+            onAdded: this.onAdded.bind(this),
+            onChanged: this.onChanged.bind(this),
+            onRemoved: this.onRemoved.bind(this)
         };
 
-        const layoutEvent = (await this.get(layoutOptions.name, "Global")) ? "layoutChanged" : "layoutAdded";
+        return Object.freeze(api);
+    }
 
-        if (autoSave) {
-            this.storage.storeAutoLayout(layout);
-        } else {
-            await this.storage.store(layout, "Global");
+    private addOperationsExecutors(): void {
+        operations.layoutAdded.execute = this.handleOnAdded.bind(this);
+        operations.layoutChanged.execute = this.handleOnChanged.bind(this);
+        operations.layoutRemoved.execute = this.handleOnRemoved.bind(this);
+    }
+
+    private async get(name: string, type: Glue42Web.Layouts.LayoutType): Promise<Glue42Web.Layouts.Layout | undefined> {
+        nonEmptyStringDecoder.runWithException(name);
+        layoutTypeDecoder.runWithException(type);
+
+        const result = await this.bridge.send<SimpleLayoutConfig, OptionalSimpleLayoutResult>("layouts", operations.get, { name, type });
+
+        return result.layout;
+    }
+
+    private async getAll(type: Glue42Web.Layouts.LayoutType): Promise<Glue42Web.Layouts.LayoutSummary[]> {
+        layoutTypeDecoder.runWithException(type);
+
+        const result = await this.bridge.send<GetAllLayoutsConfig, AllLayoutsSummariesResult>("layouts", operations.getAll, { type });
+
+        return result.summaries;
+    }
+
+    private async export(type?: Glue42Web.Layouts.LayoutType): Promise<Glue42Web.Layouts.Layout[]> {
+        if (type) {
+            layoutTypeDecoder.runWithException(type);
         }
 
-        this.emitLayoutEvent(layoutEvent, layout);
+        // supports only workspaces for the moment
+        const result = await this.bridge.send<GetAllLayoutsConfig, AllLayoutsFullConfig>("layouts", operations.export, { type: "Workspace" });
 
-        return layout;
+        return result.layouts;
     }
 
-    public async autoSave(layoutOptions: Glue42Web.Layouts.NewLayoutOptions): Promise<Glue42Web.Layouts.Layout> {
-        return this.save(layoutOptions, true);
+    private async import(layouts: Glue42Web.Layouts.Layout[]): Promise<void> {
+        layouts.forEach((layout) => glueLayoutDecoder.runWithException(layout));
+
+        await this.bridge.send<AllLayoutsFullConfig, void>("layouts", operations.import, { layouts });
     }
 
-    public async restore(options: Glue42Web.Layouts.RestoreOptions): Promise<void> {
-        const layout = await this.storage.get(options.name, "Global");
+    private async save(layout: Glue42Web.Layouts.NewLayoutOptions): Promise<Glue42Web.Layouts.Layout> {
+        newLayoutOptionsDecoder.runWithException(layout);
 
-        if (!layout) {
-            throw new Error(`can not find layout with name ${options.name}`);
-        }
-
-        this.restoreComponents(layout);
+        throw new Error("Save is not supported in Core at the moment");
     }
 
-    public async restoreAutoSavedLayout(): Promise<void> {
-        const layoutName = `_auto_${document.location.href}`;
-        const layout = await this.storage.getAutoLayout(layoutName);
+    private async restore(options: Glue42Web.Layouts.RestoreOptions): Promise<void> {
+        restoreOptionsDecoder.runWithException(options);
 
-        if (!layout) {
-            return Promise.resolve();
-        }
-
-        const my: LocalWebWindow = this.windows.my() as LocalWebWindow;
-        if (my.parent) {
-            // stop the restore at level 1
-            return;
-        }
-        // set the context to our window
-        const mainComponent = layout.components.find((c) => (c as Glue42Web.Layouts.WindowComponent).state.main) as Glue42Web.Layouts.WindowComponent;
-        my.setContext(mainComponent?.state.context);
-
-        try {
-            this.restoreComponents(layout);
-        } catch (e) {
-            return;
-        }
+        throw new Error("Restore is not supported in Core at the moment");
     }
 
-    public async remove(type: Glue42Web.Layouts.LayoutType, name: string): Promise<void> {
-        const layoutToRemove = await this.get(name, type);
+    private async remove(type: Glue42Web.Layouts.LayoutType, name: string): Promise<void> {
+        layoutTypeDecoder.runWithException(type);
+        nonEmptyStringDecoder.runWithException(name);
 
-        await this.storage.remove(name, type);
-
-        if (layoutToRemove) {
-            this.emitLayoutEvent("layoutRemoved", layoutToRemove);
-        }
+        await this.bridge.send<SimpleLayoutConfig, void>("layouts", operations.remove, { type, name });
     }
 
-    public async getAll(type: Glue42Web.Layouts.LayoutType): Promise<Glue42Web.Layouts.LayoutSummary[]> {
-        const allLayouts = await this.storage.getAll(type);
-        return allLayouts.map((layout) => {
-            return {
-                name: layout.name,
-                type: layout.type,
-                context: layout.context,
-                metadata: layout.metadata
-            };
-        });
+    private onAdded(callback: (layout: Glue42Web.Layouts.Layout) => void): UnsubscribeFunction {
+        return this.registry.add(operations.layoutAdded.name, callback);
     }
 
-    public get(name: string, type: Glue42Web.Layouts.LayoutType): Promise<Glue42Web.Layouts.Layout | undefined> {
-        return this.storage.get(name, type);
+    private onChanged(callback: (layout: Glue42Web.Layouts.Layout) => void): UnsubscribeFunction {
+        return this.registry.add(operations.layoutChanged.name, callback);
     }
 
-    public getLocalLayoutComponent(context?: object, main = false): Glue42Web.Layouts.WindowComponent {
-        let requestResult: Glue42Web.Layouts.SaveRequestResponse | undefined;
-        const my = this.windows.my() as LocalWebWindow;
-
-        try {
-            if (this.autoSaveContext) {
-                requestResult = {
-                    windowContext: my.getContextSync()
-                };
-            }
-        } catch (err) {
-            // todo: log warn
-            // console.warn(`onSaveRequested - error getting data from user function - ${err}`);
-        }
-
-        return {
-            type: "window",
-            componentType: "application",
-            state: {
-                name: my.name,
-                context: requestResult?.windowContext || {},
-                bounds: my.getBoundsSync(),
-                url: window.document.location.href,
-                id: my.id,
-                parentId: my.parent,
-                main
-            }
-        };
+    private onRemoved(callback: (layout: Glue42Web.Layouts.Layout) => void): UnsubscribeFunction {
+        return this.registry.add(operations.layoutRemoved.name, callback);
     }
 
-    public onLayoutAdded(callback: (layout: Glue42Web.Layouts.Layout) => void): UnsubscribeFunction {
-        return this._registry.add("layoutAdded", callback);
+    private async handleOnAdded(layout: Glue42Web.Layouts.Layout): Promise<void> {
+        this.registry.execute(operations.layoutAdded.name, layout);
     }
 
-    public onLayoutChanged(callback: (layout: Glue42Web.Layouts.Layout) => void): UnsubscribeFunction {
-        return this._registry.add("layoutChanged", callback);
+    private async handleOnChanged(layout: Glue42Web.Layouts.Layout): Promise<void> {
+        this.registry.execute(operations.layoutChanged.name, layout);
     }
 
-    public onLayoutRemoved(callback: (layout: Glue42Web.Layouts.Layout) => void): UnsubscribeFunction {
-        return this._registry.add("layoutRemoved", callback);
-    }
-
-    private waitHearLayout(name: string, layoutEvent: "layoutChanged" | "layoutAdded"): { eventPromise: Promise<void>; unsubscribe: UnsubscribeFunction } {
-        let unsubscribe: UnsubscribeFunction;
-
-        const eventPromise = promisePlus<void>(() => {
-            return new Promise((resolve) => {
-
-                const cb = (layout: Glue42Web.Layouts.Layout): void => {
-                    if (layout.name === name) {
-                        resolve();
-                    }
-                };
-
-                unsubscribe = layoutEvent === "layoutAdded" ?
-                    this.onLayoutAdded(cb) :
-                    this.onLayoutChanged(cb);
-            });
-
-        }, 5000, `Timed out waiting to hear ${layoutEvent} for layout name: ${name}`);
-
-        return { eventPromise, unsubscribe };
-    }
-
-    private restoreComponents(layout: Glue42Web.Layouts.Layout): void {
-        layout.components.forEach((c) => {
-            if (c.type === "window") {
-                const state = c.state;
-                // do not restore the parent
-                if (state.main) {
-                    return;
-                }
-                const newWindowOptions: Glue42Web.Windows.CreateOptions = { ...state.bounds, context: state.context };
-                this.windows.open(state.name, state.url, newWindowOptions);
-            }
-        });
-    }
-
-    private async getRemoteWindowsInfo(windows: string[]): Promise<Glue42Web.Layouts.WindowComponent[]> {
-        const promises: Array<Promise<Glue42Web.Interop.InvocationResult<Glue42Web.Layouts.WindowComponent>>> = [];
-        for (const id of windows) {
-            const interopServer = this.interop.servers().find((s) => s.windowId === id);
-            if (!interopServer || !interopServer.getMethods) {
-                continue;
-            }
-            const methods = interopServer.getMethods();
-            if (methods.find((m) => m.name === SaveContextMethodName)) {
-                try {
-                    promises.push(this.interop.invoke<Glue42Web.Layouts.WindowComponent>(SaveContextMethodName, {}, { windowId: id }));
-                } catch {
-                    // swallow
-                }
-            }
-        }
-
-        const responses = await Promise.all(promises);
-        return responses.map((response) => response.returned);
-    }
-
-    private registerRequestMethods(): Promise<void> {
-        return this.interop.register(SaveContextMethodName, (args) => {
-            return this.getLocalLayoutComponent(args);
-        });
-    }
-
-    private async handleControlMessage(command: RemoteCommand): Promise<void> {
-        const layoutCommand = command as LayoutRemoteCommand;
-        if (layoutCommand.command === "saveLayoutAndClose") {
-
-            const args = layoutCommand.args as SaveAutoLayoutCommandArgs;
-
-            const components = await this.getRemoteWindowsInfo(args.childWindows);
-
-            components.push(args.parentInfo);
-
-            await this.storage.storeAutoLayout({
-                type: "Global",
-                name: args.layoutName,
-                components,
-                context: args.context || {},
-                metadata: args.metadata || {}
-            });
-
-            // now close everyone
-            args.childWindows.forEach((cw) => {
-                this.windows.findById(cw)?.close();
-            });
-        }
-    }
-
-    private registerEventsMethod(): Promise<void> {
-        return this.interop.register(LayoutEventMethodName, (args) => {
-            this._registry.execute(args.event, args.layout);
-        });
-    }
-
-    private emitLayoutEvent(event: LayoutEvent, layout: Glue42Web.Layouts.Layout): void {
-
-        const hasLayoutMethod = this.interop.methods().some((m) => m.name === LayoutEventMethodName);
-        if (hasLayoutMethod) {
-            // swallow notification error, because we can't handle it any better for now
-            // eslint-disable-next-line @typescript-eslint/no-empty-function
-            this.interop.invoke(LayoutEventMethodName, { event, layout }, "all").catch(() => { });
-        }
+    private async handleOnRemoved(layout: Glue42Web.Layouts.Layout): Promise<void> {
+        this.registry.execute(operations.layoutRemoved.name, layout);
     }
 }

@@ -1,3 +1,13 @@
+*RAW*
+
+The only things I can add here are a couple of clarifications:
+
+First, the Main application can be ran in Enterprise without code change. In this case the Main app will detect that it is located in enterprise and will NOT initialize ANY of it's platform logic. It will literarily default to just being a normal enterprise client.
+
+The client apps (using @glue42/web) will also auto-detect enterprise and initialize @glue42/desktop with all necessary libraries (like AppManager) enabled and set to the highest possible level ("full") to ensure correct app functionality.
+
+*END*
+
 ## Overview
 
 Your Glue42 Core application can run in [**Glue42 Enterprise**](https://glue42.com/desktop-enterprise/) without modification. This gives you the option to easily experiment with your app running in a functionally richer environment with more integration options.
@@ -22,7 +32,7 @@ Your Glue42 Core application can run in [**Glue42 Enterprise**](https://glue42.c
 }
 ```
 
-*For more details on configuring **Glue42 Enterprise**, see the [**Glue42 Enterprise: System Configuration**](../../developers/configuration/system/index.html) section.*
+*For more details on configuring **Glue42 Enterprise**, see the [Glue42 Enterprise: System Configuration](../../developers/configuration/system/index.html) section.*
 
 3. Create a definition file for your application. Use the template attached below and change the `name`, `title` and `url` properties with the details of your app.
 
@@ -46,7 +56,7 @@ Your Glue42 Core application can run in [**Glue42 Enterprise**](https://glue42.c
 
 Save the configuration file as a `.json` file and place it in the application definitions folder. Usually, this is the `%LocalAppData%\Tick42\UserData\<ENV-REG>\apps` folder where `<ENV-REG>` should be replaced with the region and environment folder name used for the deployment of your **Glue42 Enterprise** - e.g., `T42-DEMO`.
 
-*For more details on configuring a Glue42 enabled applications, see the [**Glue42 Enterprise: Application Configuration**](../../developers/configuration/application/index.html) section.*
+*For more details on configuring a Glue42 enabled applications, see the [Glue42 Enterprise: Application Configuration](../../developers/configuration/application/index.html) section.*
 
 4. Start **Glue42 Enterprise** and open your app from the Glue42 Toolbar.
 

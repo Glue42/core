@@ -44,7 +44,7 @@ describe('onAppAdded()', () => {
     });
 
     it('Should replay existing applications by invoking the callback with all previously added applications provided inside of localApplications and by a remoteSource.', async () => {
-        const localAppNames = (await gtf.appManager.getLocalApplications()).map((localApp) => localApp.name);
+        const localAppNames = gtf.appManager.getLocalApplications().map((localApp) => localApp.name);
         const validRemoteAppNames = (await gtf.appManager.getRemoteSourceApplications()).map((remoteApp) => remoteApp.name).filter((remoteAppName) => remoteAppName !== 'invalid-application');
         const allValidAppNames = [
             ...localAppNames,
@@ -100,7 +100,7 @@ describe('onAppAdded()', () => {
     });
 
     it('Should not invoke the callback when the setup is there but no app is changed (3k ms).', async () => {
-        const localAppNames = (await gtf.appManager.getLocalApplications()).map((localApp) => localApp.name);
+        const localAppNames = gtf.appManager.getLocalApplications().map((localApp) => localApp.name);
         const validRemoteAppNames = (await gtf.appManager.getRemoteSourceApplications()).map((remoteApp) => remoteApp.name).filter((remoteAppName) => remoteAppName !== 'invalid-application');
         const allValidAppNames = [
             ...localAppNames,

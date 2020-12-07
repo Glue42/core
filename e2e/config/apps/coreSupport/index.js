@@ -266,10 +266,8 @@ const handleControl = (args, _, success, error) => {
     foundOperation.execute(params, success, error);
 };
 
-GlueWeb({ appManager: true, application: 'coreSupport' })
-    .then((glue) => {
-        window.glue = glue;
+GlueWeb().then((glue) => {
+    window.glue = glue;
 
-        return glue.interop.registerAsync(controlMethodName, handleControl);
-    })
-    .catch(console.warn);
+    return glue.interop.registerAsync(controlMethodName, handleControl);
+}).catch(console.error);

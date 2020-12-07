@@ -6,7 +6,8 @@
   "ignoreChanges": [
     "**/tests/**",
     "*.md",
-    "*.txt"
+    "*.txt",
+    "**/workspaces-react/**"
   ],
   "changelog": {
     "repo": "Glue42/Core",

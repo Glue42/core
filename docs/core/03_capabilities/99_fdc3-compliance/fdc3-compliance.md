@@ -1,3 +1,7 @@
+*RAW*
+TODO: we are not ready with FDC3 and intents right now.
+*END*
+
 ## Overview
 
 [FDC3](https://fdc3.finos.org/) aims at developing specific protocols and classifications in order to advance the ability of desktop applications in financial workflows to interoperate in a plug-and-play fashion without prior bilateral agreements.
@@ -8,7 +12,7 @@ This guide explains how to run an FDC3 compliant app in a **Glue42 Core** projec
 
 ### Configuration
 
-To enable your app to run in **Glue42 Core**, you have to setup and configure the [**Glue42 Environment**](../../core-concepts/environment/overview/index.html). You can do that using the [**Glue42 CLI**](../../core-concepts/cli/index.html) (recommended) or manually. For step by step guides, see the [**Glue42 Environment: Setup**](../../core-concepts/environment/setup/index.html) section.
+<!-- TODO -->
 
 ### Initialization
 
@@ -29,6 +33,8 @@ Below you can see how to use the different FDC3 features.
 ### Intents
 
 The [FDC3 Intents](https://fdc3.finos.org/docs/next/intents/overview) concept serves the purpose of enabling the creation of cross-application workflows on the desktop. An application declares an Intent through configuration. An Intent specifies what action the application can execute and what data structure it can work with.
+
+<!-- TODO -->
 
 In **Glue42 Core**, Intents are defined in the application definitions in the `glue.config.json` file. For more details on defining applications, see the [**Application Management: Application Definitions**](../application-management/index.html#enabling_application_management-application_definitions) section. Intents can be configured under the `intents` top-level key of the application definition:
 
@@ -78,6 +84,8 @@ In order to be able to properly target applications with `raiseIntent()` the app
 
 An [FDC3 Channel](https://fdc3.finos.org/docs/next/api/ref/Channel) is a named context object that an application can join in order to share and update context data and also be alerted when the context data changes. By [specification](https://fdc3.finos.org/docs/next/api/spec#context-channels), Channels can either be well-known system Channels or Channels created by apps. On a UI level, Channels can be represented by colors and names.
 
+<!-- TODO -->
+
 All system defined Channels in **Glue42 Core** can be found in the `glue.config.json` file. There you can easily define as many custom Channels as you want. For instance, to add a "Purple" channel to the list of system channels, you need to add the following configuration:
 
 ```json
@@ -108,6 +116,8 @@ Glue42 Core applications can interact with FDC3 app channels by using the [Share
 
 The goal of the [FDC3 App Directory](https://fdc3.finos.org/docs/next/app-directory/overview) REST service is to provide trusted identity for desktop apps. Application definitions are provided by one or more App Directory REST services where user entitlements and security can also be handled.
 
+<!-- TODO -->
+
 To configure **Glue42 Core** to retrieve application definitions from remote application stores, you need to add a new entry to the `remoteSources` property of the `appManager` top-level key in the `glue.config.json` file:
 
 ```json
@@ -126,8 +136,6 @@ To configure **Glue42 Core** to retrieve application definitions from remote app
     }
 }
 ```
-
-You can use the [**Glue42 Environment: Configuration File**](../../core-concepts/environment/overview/index.html#configuration_file) section for reference.
 
 *Note that the remote sources can supply both **Glue42 Core** and FDC3 application definitions. **Glue42 Core** supports for both. The only requirement for an FDC3 application definition to be usable in **Glue42 Core** is to have a valid `details.url` or a `url` top-level property in its `manifest` JSON string property.*
 
@@ -172,4 +180,4 @@ The demo consists of a Chart and a Blotter application. Searching and selecting 
 
 Right-clicking on an instrument inside the Blotter opens up a context menu with the intents that can be raised for the instrument. When the chart application is running it would update its context and when there are no instances of the Chart application running it will start a new instance with the given context.
 
-You can use the [code of the demo](https://github.com/Glue42/fdc3-demos/tree/adapt-for-glue42) as a reference when adapting your own applications.
+Use the [code of the demo](https://github.com/Glue42/fdc3-demos/tree/configure-for-glue42-core) as a reference when adapting your own applications.

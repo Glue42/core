@@ -1,5 +1,5 @@
 import { Glue42Web } from "../../../packages/web/web.d";
-import { Glue42CoreConfig, Glue42CoreApplicationConfig, FDC3ApplicationConfig } from "../../../packages/web/src/glue.config";
+import { Glue42WebPlatform } from "../../../packages/web-platform/platform.d";
 
 export interface ControlArgs {
     operation: string;
@@ -69,7 +69,7 @@ export namespace Gtf {
 
         getWindowName(prefix?: string): string;
 
-        getGlueConfigJson(url?: string): Promise<Glue42CoreConfig>;
+        getChannelsConfigDefinitions(): Glue42WebPlatform.Channels.ChannelDefinition[];
 
         getChannelNames(): Promise<string[]>;
 
@@ -83,15 +83,15 @@ export namespace Gtf {
     }
 
     export interface AppManager {
-        getLocalApplications(): Promise<Array<Glue42CoreApplicationConfig | FDC3ApplicationConfig>>;
+        getLocalApplications(): (Glue42WebPlatform.Applications.Glue42CoreDefinition | Glue42WebPlatform.Applications.FDC3Definition)[];
 
-        getRemoteSourceApplications(url?: string): Promise<Glue42Web.AppManager.Application[]>;
+        getRemoteSourceApplications(): Promise<Glue42Web.AppManager.Application[]>;
 
-        addRemoteSourceApplication(application: Glue42Web.AppManager.Application, url?: string): Promise<Glue42Web.AppManager.Application[]>;
+        addRemoteSourceApplication(application: Glue42Web.AppManager.Application): Promise<Glue42Web.AppManager.Application[]>;
 
-        resetRemoteSourceApplications(url?: string): Promise<Glue42Web.AppManager.Application[]>;
+        resetRemoteSourceApplications(): Promise<Glue42Web.AppManager.Application[]>;
 
-        setRemoteSourceApplications(applications: Glue42Web.AppManager.Application[], url?: string): Promise<Glue42Web.AppManager.Application[]>;
+        setRemoteSourceApplications(applications: Glue42Web.AppManager.Application[]): Promise<Glue42Web.AppManager.Application[]>;
 
         stopAllOtherInstances(): Promise<void>;
     }
@@ -112,5 +112,13 @@ export namespace Gtf {
         patchLogMessages(): void;
 
         register(): Promise<void>;
+    }
+
+    export interface Windows {
+        getWindowName(): string;
+
+        compareWindows(actualWindow: Glue42Web.Windows.WebWindow, expectedWindow: Glue42Web.Windows.WebWindow): Promise<boolean>;
+
+        closeAllOtherWindows(): Promise<void>
     }
 }

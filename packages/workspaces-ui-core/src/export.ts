@@ -22,17 +22,17 @@ window.addEventListener("beforeunload", () => {
 const init = (glue: Glue42Web.API, componentFactory?: ComponentFactory) => {
     const isInitialized = manager.initialized;
     if (isInitialized) {
-        manager.init(glue, glue.agm.instance.peerId, componentFactory);
+        manager.init(glue, glue.agm.instance.windowId, componentFactory);
         return;
     }
     facade.subscribeForWorkspaceEvents();
 
-    const result = manager.init(glue, glue.agm.instance.peerId, componentFactory);
+    const result = manager.init(glue, glue.agm.instance.windowId, componentFactory);
 
     done = result.cleanUp;
-    facade.init(glue, glue.agm.instance.peerId).then(() => {
+    facade.init(glue, glue.agm.instance.windowId).then(() => {
         if (!startupReader.config.emptyFrame) {
-            manager.workspacesEventEmitter.raiseFrameEvent({ action: "opened", payload: { frameSummary: { id: glue.agm.instance.peerId } } });
+            manager.workspacesEventEmitter.raiseFrameEvent({ action: "opened", payload: { frameSummary: { id: glue.agm.instance.windowId } } });
         }
     }).catch(console.warn);
 

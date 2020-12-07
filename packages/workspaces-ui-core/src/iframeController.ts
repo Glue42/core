@@ -11,21 +11,10 @@ export class IFrameController {
         this._glue = glue;
     }
 
-    public async startFrame(id: string, url: string, layoutState?: object, context?: object, windowId?: string): Promise<HTMLIFrameElement> {
+    public async startFrame(id: string, url: string, layoutState?: object, windowId?: string): Promise<HTMLIFrameElement> {
         windowId = windowId || generate();
         if (this._idToFrame[id]) {
             return this._idToFrame[id];
-        }
-
-        const glueWinOutsideOfWorkspace = this._glue.windows.findById(windowId);
-        if (glueWinOutsideOfWorkspace) {
-            try {
-                // Glue windows with the given id should be closed
-                await glueWinOutsideOfWorkspace.close();
-            } catch (error) {
-                // because of chrome security policy this call can fail,
-                // however the opening of a new window should continue
-            }
         }
 
         if (!url) {
@@ -33,44 +22,44 @@ export class IFrameController {
         }
 
         const frame: HTMLIFrameElement = document.createElement("iframe");
-        frame.name = windowId;
+        frame.name = `${windowId}#wsp`;
         frame.src = url;
         document.body.appendChild(frame);
 
-        $(frame).on("load", () => {
-            try {
-                const frameDocument = frame.contentDocument || frame.contentWindow.document;
+        // $(frame).on("load", () => {
+        //     try {
+        //         const frameDocument = frame.contentDocument || frame.contentWindow.document;
 
-                frameDocument.onclick = () => {
-                    this._registry.execute("frame-content-clicked", {});
-                };
+        //         frameDocument.onclick = () => {
+        //             this._registry.execute("frame-content-clicked", {});
+        //         };
 
-                if (layoutState) {
-                    // this.sendLayoutState(id, layoutState);
-                }
+        //         if (layoutState) {
+        //             // this.sendLayoutState(id, layoutState);
+        //         }
 
-                const target = frameDocument.querySelector("title");
-                const observer = new MutationObserver(() => {
-                    this._registry.execute("window-title-changed", id, frameDocument.title);
-                });
+        //         const target = frameDocument.querySelector("title");
+        //         const observer = new MutationObserver(() => {
+        //             this._registry.execute("window-title-changed", id, frameDocument.title);
+        //         });
 
-                const config = {
-                    childList: true,
-                };
+        //         const config = {
+        //             childList: true,
+        //         };
 
-                if (target) {
-                    observer.observe(target, config);
-                }
+        //         if (target) {
+        //             observer.observe(target, config);
+        //         }
 
-                if (frameDocument.title) {
-                    this._registry.execute("window-title-changed", id, frameDocument.title);
-                }
+        //         if (frameDocument.title) {
+        //             this._registry.execute("window-title-changed", id, frameDocument.title);
+        //         }
 
-            } catch (error) {
-                // tslint:disable-next-line: no-console
-                console.warn(error);
-            }
-        });
+        //     } catch (error) {
+        //         // tslint:disable-next-line: no-console
+        //         // console.warn(error);
+        //     }
+        // });
 
         this._registry.execute("frameLoaded", id);
 
@@ -80,10 +69,10 @@ export class IFrameController {
         this._idToFrame[id] = frame;
         await this.waitForWindow(windowId);
 
-        if (context) {
-            const glueWindow = this._glue.windows.findById(windowId);
-            glueWindow.setContext(context);
-        }
+        // if (context) {
+        //     const glueWindow = this._glue.windows.findById(windowId);
+        //     glueWindow.setContext(context);
+        // }
 
         return frame;
     }
@@ -150,7 +139,7 @@ export class IFrameController {
                 frame.contentWindow.dispatchEvent(new Event("beforeunload"));
             } catch (error) {
                 // tslint:disable-next-line: no-console
-                console.warn(error);
+                // console.warn(error);
             }
             frame.remove();
         }

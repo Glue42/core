@@ -1,17 +1,13 @@
-## Overview
+*RAW*
 
-In the [Quick Start](../quick-start/index.html) section you learned how to quickly set up the [**Glue42 Environment**](../../core-concepts/environment/overview/index.html) files and create a basic [**Glue42 Client**](../../core-concepts/glue42-client/overview/index.html) app using the [**Glue42 CLI**](../../core-concepts/cli/index.html). Here you will see how to bundle all necessary **Glue42 Core** files ready for deployment using the Glue42 CLI. 
+Deploying a Core V2 project is heaps simpler than V1. Since the whole project basically consists of importing one of two possible packages in your app, all you need to do is just follow your standard deployment procedure.
 
-*If you have decided to set up your project manually, you should already be familiar with the locations of the files you need (see [**Glue42 Environment: Manual Setup**](../../core-concepts/environment/setup/index.html#manual)).*
+One thing to note is that if you are using Workspaces, you need to also make sure that the workspace frame app that you can been using is also deployed in the expected location (set by initializing the web-platform package).
 
-## Deployment
+That's it - you can build your apps with whatever tool you like and deploy however you like.
 
-To bundle all necessary Glue42 Core files for deployment, use the Glue42 CLI and run:
+*END*
 
-```javascript
-gluec build
-```
+## 
 
-This command will gather the Glue42 Core assets from the locations defined in the `glue.config.dev.json` (or from the default locations) and will produce a `/glue` directory at the root level of your project directory. All necessary Glue42 Core files will be inside this directory ready for deployment on a production server.
-
-*Note that, by default, a [**Glue42 Client**](../../core-concepts/glue42-client/overview/index.html) will expect all Glue42 Environment files (with their default names) to be located at `/glue`. If you need to change the expected names and locations, see the [**Glue42 Client: Custom Configuration**](../../core-concepts/glue42-client/overview/index.html#initializing_a_glue42_client-custom_configuration) and the [**Glue42 Environment: Configuration File**](../../core-concepts/environment/overview/index.html#configuration_file) sections.*
+<!-- TODO -->

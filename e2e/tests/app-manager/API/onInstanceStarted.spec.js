@@ -39,7 +39,7 @@ describe('onInstanceStarted()', () => {
 
         await glue.appManager.application(appNameToStart).start();
 
-        const allInstancesAppNames = [appNameToStart, 'TestRunner'];
+        const allInstancesAppNames = [appNameToStart, RUNNER];
         const startedInstancesAppNames = [];
 
         const instanceStartedPromise = new Promise((resolve) => {

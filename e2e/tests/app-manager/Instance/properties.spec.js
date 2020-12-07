@@ -27,18 +27,6 @@ describe('properties', () => {
         });
     });
 
-    describe('context', () => {
-        it.skip('Should be set correctly.', async () => {
-            const context = {
-                test: 42
-            };
-
-            const instance = await glue.appManager.application('coreSupport').start(context);
-
-            expect(instance.context).to.eql(context);
-        });
-    });
-
     describe('agm', () => {
         it('Should be set correctly.', async () => {
             const appName = 'coreSupport';

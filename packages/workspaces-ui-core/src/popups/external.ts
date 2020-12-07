@@ -119,22 +119,24 @@ export class PopupManager {
     }
 
     private async getPopupSize(type: string, payload: object) {
-        const peerId = this.getPopupInteropId();
-        const instance = this._glue.agm.servers().find((i) => i.peerId === peerId);
+        const windowId = this.getPopupInteropId();
+        const instance = this._glue.agm.servers().find((i) => i.windowId === windowId);
 
         return (await this._glue.agm.invoke(this._showPopupMethod, { type, payload }, instance)).returned;
     }
 
     private registerHideMethod() {
-        this._glue.agm.register("T42.Workspaces.HidePopup", () => {
-            this.hidePopup();
-        });
+        // To enable application popups uncomment this
+        // this._glue.agm.register("T42.Workspaces.HidePopup", () => {
+        //     this.hidePopup();
+        // });
     }
 
     private registerResizeMethod() {
-        this._glue.agm.register("T42.Workspaces.ResizePopup", (args: { size: Size }) => {
-            this.resizePopup(args.size);
-        });
+        // To enable application popups uncomment this
+        // this._glue.agm.register("T42.Workspaces.ResizePopup", (args: { size: Size }) => {
+        //     this.resizePopup(args.size);
+        // });
     }
 
     private getPopupInteropId() {

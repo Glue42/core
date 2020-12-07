@@ -1,43 +1,55 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { METHODS } from "./constants";
+import { METHODS, webPlatformMethodName, webPlatformWspStreamName } from "./constants";
 import { promisePlus } from "../shared/promisePlus";
 import { WorkspaceEventType } from "../types/subscription";
-import { InteropAPI, Subscription, Instance, InvocationResult } from "../types/glue";
+import { InteropAPI, Subscription, InvocationResult } from "../types/glue";
+import { Glue42Core } from "@glue42/core";
 
 export class InteropTransport {
 
     private readonly defaultTransportTimeout: number = 30000;
     private coreEventMethodInitiated = false;
-    private coreEventMethodRegistrationPromise: Promise<void>;
+    private corePlatformSubPromise: Promise<Glue42Core.Interop.Subscription>;
 
     constructor(private readonly agm: InteropAPI) { }
 
-    public coreEventMethodReady(eventCallback: (args?: any) => void): Promise<void> {
-        if (!this.coreEventMethodInitiated) {
-            this.registerCoreEventMethod(eventCallback);
-        }
-        return this.coreEventMethodRegistrationPromise;
-    }
-
-    public registerCoreEventMethod(eventCallback: (args?: any) => void): void {
-        this.coreEventMethodInitiated = true;
-        console.log("creating method");
-        this.coreEventMethodRegistrationPromise = this.agm.register(METHODS.coreEvents.name, eventCallback);
-    }
-
-    public async initiate(): Promise<void> {
+    public async initiate(actualWindowId: string): Promise<void> {
 
         if (window.glue42gd) {
             await Promise.all(
                 Object.values(METHODS).map((method) => {
-                    if (method.name === METHODS.coreEvents.name) {
-                        return Promise.resolve();
-                    }
-                    return this.verifyMethodLive(method.name, method.isStream)
+
+                    return this.verifyMethodLive(method.name);
                 })
             );
+
+            return;
         }
 
+        await Promise.all([
+            this.verifyMethodLive(webPlatformMethodName),
+            this.verifyMethodLive(webPlatformWspStreamName)
+        ]);
+
+        await this.transmitControl("frameHello", { windowId: actualWindowId });
+    }
+
+    public coreSubscriptionReady(eventCallback: (args?: any) => void): Promise<Glue42Core.Interop.Subscription> {
+        if (!this.coreEventMethodInitiated) {
+            this.subscribePlatform(eventCallback);
+        }
+        return this.corePlatformSubPromise;
+    }
+
+    public subscribePlatform(eventCallback: (args?: any) => void): void {
+        this.coreEventMethodInitiated = true;
+
+        this.corePlatformSubPromise = this.agm.subscribe(webPlatformWspStreamName);
+
+        this.corePlatformSubPromise
+            .then((sub) => {
+                sub.onData((data) => eventCallback(data.data));
+            });
     }
 
     public async subscribe(streamName: string, streamBranch: string, streamType: WorkspaceEventType): Promise<Subscription> {
@@ -59,15 +71,10 @@ export class InteropTransport {
         return subscription;
     }
 
-    public async transmitControl(operation: string, operationArguments: any, target?: Instance, responseTimeout?: number): Promise<any> {
+    public async transmitControl(operation: string, operationArguments: any): Promise<any> {
 
-        const controlMethod = this.agm.methods().find((method) => method.name === METHODS.control.name);
-
-        if (!controlMethod) {
-            throw new Error(`Cannot complete operation: ${operation}, because no control method was found`);
-        }
-
-        const invocationArguments = { operation, operationArguments };
+        const invocationArguments = window.glue42gd ? { operation, operationArguments } : { operation, domain: "workspaces", data: operationArguments };
+        const methodName = window.glue42gd ? METHODS.control.name : webPlatformMethodName;
 
         let invocationResult: InvocationResult<any>;
         const baseErrorMessage = `Internal Workspaces Communication Error. Attempted operation: ${JSON.stringify(invocationArguments)}. `;
@@ -75,7 +82,7 @@ export class InteropTransport {
         // using the 0 index of the errors and values collections, because we expect only one server and
         // this is to safeguard in case in future we decide to deprecate the default returned/message properties in favor of using only collections
         try {
-            invocationResult = await this.agm.invoke(METHODS.control.name, invocationArguments, target, { methodResponseTimeoutMs: responseTimeout || this.defaultTransportTimeout });
+            invocationResult = await this.agm.invoke(methodName, invocationArguments, "best", { methodResponseTimeoutMs: this.defaultTransportTimeout });
 
             if (!invocationResult) {
                 throw new Error("Received unsupported result from GD - empty result");
@@ -99,20 +106,18 @@ export class InteropTransport {
         return invocationResult.all_return_values[0].returned;
     }
 
-    private verifyMethodLive(name: string, isStream: boolean): Promise<void> {
+    private verifyMethodLive(name: string): Promise<void> {
         return promisePlus(() => {
             return new Promise((resolve) => {
-                const foundMethod = this.agm
-                    .methods()
-                    .find((method) => method.name === name && method.supportsStreaming === isStream);
+                const hasMethod = this.agm.methods().some((method) => method.name === name);
 
-                if (foundMethod) {
+                if (hasMethod) {
                     resolve();
                     return;
                 }
 
                 let unsubscribe = this.agm.methodAdded((method) => {
-                    if (method.name !== name || method.supportsStreaming !== isStream) {
+                    if (method.name !== name) {
                         return;
                     }
 

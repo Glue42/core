@@ -31,11 +31,13 @@ type OperationsTypes = "isWindowInWorkspace" |
     "ping" |
     "changeFrameState" | 
     "getFrameState";
-type MethodsTypes = "control" | "frameStream" | "workspaceStream" | "containerStream" | "windowStream" | "coreEvents";
+type MethodsTypes = "control" | "frameStream" | "workspaceStream" | "containerStream" | "windowStream";
+
+export const webPlatformMethodName = "T42.Web.Platform.Control";
+export const webPlatformWspStreamName = "T42.Web.Platform.WSP.Stream";
 
 export const METHODS: { [key in MethodsTypes]: { name: string; isStream: boolean } } = {
     control: { name: "T42.Workspaces.Control", isStream: false },
-    coreEvents: { name: "T42.Workspaces.Events", isStream: false },
     frameStream: { name: "T42.Workspaces.Stream.Frame", isStream: true },
     workspaceStream: { name: "T42.Workspaces.Stream.Workspace", isStream: true },
     containerStream: { name: "T42.Workspaces.Stream.Container", isStream: true },

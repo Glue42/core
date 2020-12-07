@@ -20,7 +20,7 @@ describe('properties', () => {
 
         it('Should set myInstance.application correctly if the application definition is provided inside of localApplications.', async () => {
             const appName = 'AppWithDetails-local';
-            const { title, version, details, customProperties: { a: customPropertiesA } } = (await gtf.appManager.getLocalApplications()).find((localApp) => localApp.name === appName);
+            const { title, version, details, customProperties: { a: customPropertiesA } } = gtf.appManager.getLocalApplications().find((localApp) => localApp.name === appName);
 
             const newGlue = await GlueWeb({ appManager: true, application: appName });
             gluesToDisconnect.push(newGlue);

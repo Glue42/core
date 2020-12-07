@@ -66,33 +66,9 @@ export namespace Glue42Web {
      */
     export interface Config {
         /**
-         * @ignore
-         * @deprecated
-         * By default @glue42/web will try to connect to a shared worker located in "/glue/worker.js". Use this ot override the shared worker location.
-         * It is recommended to use `worker` to define a custom location for the worker script, if extends has been set to `false`.
-         * @default "/glue/worker.js"
+         * Configure the system logger. Used mostly for during development.
          */
-        worker?: string;
-
-        /**
-         * Change the log level of the internal logger
-         * @ignore
-         * @default error
-         */
-        logger?: Glue42Core.LogLevel;
-
-        /**
-         * Object used to turn on or off the applications auto-save and auto-restore functionality
-         */
-        layouts?: LayoutConfig;
-
-        /**
-         * @ignore
-         * @deprecated
-         * Defines a URL to a hosted `glue.config.json` file which the library will fetch and use to extend the built-in config defaults. We recommend setting thi to `false`, if you do not have said configuration file. Also keep in mind that if you define a custom URL, then the library will expect to find a `worker.js` file next to the config.
-         * @default true
-         */
-        extends?: string | boolean;
+        systemLogger?: SystemLogger;
 
         /**
          * Connect with GW in memory.
@@ -102,28 +78,6 @@ export namespace Glue42Web {
         inproc?: Glue42Core.InprocGWSettings;
 
         /**
-         * Whether to initialize the Channels API or not.
-         * @default false
-         */
-        channels?: boolean;
-
-        /**
-         * Whether to initialize the Application Manager API or not.
-         * @default false
-         */
-        appManager?: boolean;
-
-        /**
-         * Application name. If not specified the Application Manager API won't know about the application and its instances.
-         */
-        application?: string;
-
-        /**
-         * todo: An object exposing settings related to the Glue42 Core resources.
-         */
-        assets?: WebAssets;
-
-        /**
          * A list of glue libraries which will be initiated internally and provide access to specific functionalities
          */
         libraries?: Array<(glue: Glue42Web.API, config?: Glue42Web.Config | Glue42.Config) => Promise<void>>;
@@ -131,6 +85,14 @@ export namespace Glue42Web {
 
     /**
      * @docmenuorder 3
+     */
+    export interface SystemLogger {
+        level?: Glue42Core.LogLevel;
+        callback?: (logInfo: any) => void;
+    }
+
+    /**
+     * @docmenuorder 4
      */
     export interface API extends Glue42Core.GlueCore {
         windows: Glue42Web.Windows.API;
@@ -146,43 +108,7 @@ export namespace Glue42Web {
     }
 
     /**
-     * @docmenuorder 4
-     */
-    export interface LayoutConfig {
-        /**
-         * If true, the set of windows opened by the application will be saved (in local storage) when the window is closed and restored
-         * when the window is started again. The data saved about each window includes URL, bounds and custom window context.
-         * It will also save and restore the window context of the current window.
-         * @default false
-         */
-        autoRestore?: boolean;
-
-        /**
-         * If set to `true`, will return glue.windows.my().context automatically when asked for layout state.
-         * @default false
-         */
-        autoSaveWindowContext?: boolean;
-    }
-
-    /**
      * @docmenuorder 5
-     */
-    export interface WebAssets {
-        /**
-         * This defines the location of the Glue42 Core assets bundle (glue.layouts.json, glue.config.json, workspaces app and more).
-         * @default "/glue"
-         */
-        location?: string;
-
-        /**
-         * If set to true the initialization logic will fetch the glue.config.json and use the defined glue object there to extend the provided config. We recommend setting this to false if you do not have a glue.config.json.
-         * @default true
-         */
-        extendConfig?: boolean;
-    }
-
-    /**
-     * @docmenuorder 6
      * @intro
      */
     export namespace Windows {
@@ -204,7 +130,7 @@ export namespace Glue42Web {
              * @param url The window URL.
              * @param options Options for creating a window.
              */
-            open(name: string, url: string, options?: CreateOptions): Promise<WebWindow>;
+            open(name: string, url: string, options?: Settings): Promise<WebWindow>;
 
             /**
              * Notifies when a new window is opened.
@@ -300,8 +226,8 @@ export namespace Glue42Web {
              */
             onContextUpdated(callback: (context: any, window: WebWindow) => void): UnsubscribeFunction;
         }
-
         export interface Settings {
+
             /**
              * Distance of the top left window corner from the top edge of the screen.
              * @default 0
@@ -344,11 +270,6 @@ export namespace Glue42Web {
             relativeDirection?: RelativeDirection;
         }
 
-        export interface CreateOptions extends Settings {
-            /** Required. The URL of the app to be loaded in the new window */
-            url?: string;
-        }
-
         export type RelativeDirection = "top" | "left" | "right" | "bottom";
 
         export interface Bounds {
@@ -360,6 +281,7 @@ export namespace Glue42Web {
     }
 
     /**
+     * @docmenuorder 6
      * @ignore
      */
     namespace Layouts {
@@ -567,7 +489,7 @@ export namespace Glue42Web {
     }
 
     /**
-     * @docmenuorder 6
+     * @docmenuorder 7
      * @intro
      */
     export namespace Notifications {
@@ -599,7 +521,7 @@ export namespace Glue42Web {
     }
 
     /**
-     * @docmenuorder 7
+     * @docmenuorder 8
      * @intro
      * The **Channels** are globally accessed named contexts that allow users to dynamically group applications, instructing them to work over the same shared data object.
      *
@@ -721,7 +643,7 @@ export namespace Glue42Web {
     }
 
     /**
-     * @docmenuorder 8
+     * @docmenuorder 9
      * @intro
      * The **Application Management** API provides a way to manage Glue42 Core applications. It offers abstractions for:
      *
@@ -802,16 +724,16 @@ export namespace Glue42Web {
             name: string;
 
             /** Application title. */
-            title: string;
+            title?: string;
 
             /** Application version. */
-            version: string;
+            version?: string;
 
             /** Application icon. */
-            icon: string;
+            icon?: string;
 
             /** Application caption. */
-            caption: string;
+            caption?: string;
 
             /** Generic object for passing properties, settings, etc., in the for of key/value pairs. */
             userProperties: PropertiesObject;
@@ -833,20 +755,59 @@ export namespace Glue42Web {
              * @param callback Callback function to handle the newly started instance.
              * @returns Unsubscribe function.
              */
-            onInstanceStarted: (callback: (instance: Instance) => any) => void;
+            onInstanceStarted(callback: (instance: Instance) => any): () => void;
 
             /**
              * Subscribes for the event which fires when an application instance is stopped.
              * @param callback Callback function to handle the newly started instance.
              * @returns Unsubscribe function.
              */
-            onInstanceStopped: (callback: (instance: Instance) => any) => void;
+            onInstanceStopped(callback: (instance: Instance) => any): () => void;
         }
 
         /**
          * Object with options for starting an application.
          */
-        export import ApplicationStartOptions = Glue42Web.Windows.Settings;
+        export interface ApplicationStartOptions {
+
+            /**
+             * Distance of the top left window corner from the top edge of the screen.
+             * @default 0
+             */
+            top?: number;
+
+            /**
+             * Distance of the top left window corner from the left edge of the screen.
+             * @default 0
+             */
+            left?: number;
+
+            /**
+             * Window width.
+             * @default 400
+             */
+            width?: number;
+
+            /**
+             * Window height.
+             * @default 400
+             */
+            height?: number;
+
+            /**
+             * The ID of the window that will be used to relatively position the new window.
+             * Can be combined with `relativeDirection`.
+             */
+            relativeTo?: string;
+
+            /**
+             * Direction (`"bottom"`, `"top"`, `"left"`, `"right"`) of positioning the window relatively to the `relativeTo` window. Considered only if `relativeTo` is supplied.
+             * @default "right"
+             */
+            relativeDirection?: "top" | "left" | "right" | "bottom";
+
+            waitForAGMReady?: boolean;
+        }
 
         /** Generic object for passing properties, settings, etc., in the for of key/value pairs. */
         export interface PropertiesObject {
@@ -858,14 +819,13 @@ export namespace Glue42Web {
             /** Instance ID. */
             id: string;
 
-            /** The application object of that instance. */
-            application: Application;
-
             /** The starting context of the instance. */
-            context: object;
+            getContext(): Promise<object>;
 
             /** Interop instance. Use this to invoke Interop methods for that instance. */
             agm: Interop.Instance;
+
+            application: Application;
 
             /** Stops the instance.
              * @returns Promise that resolves when the instance has been stopped.
@@ -875,7 +835,7 @@ export namespace Glue42Web {
     }
 
     /**
-     * @docmenuorder 9
+     * @docmenuorder 10
      * In certain workflow scenarios, your application may need to start (or activate) a specific application.
      * For instance, you may have an application showing client portfolios with financial instruments.
      * When the user clicks on an instrument, you want to start an application which shows a chart for that instrument.

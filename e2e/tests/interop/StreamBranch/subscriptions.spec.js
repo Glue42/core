@@ -31,8 +31,8 @@ describe('subscriptions()', () => {
                 if (subsCount === 3) {
                     try {
                         expect(stream.branches().find(b => b.key === '1').subscriptions().length).to.eql(2);
-                        expect(stream.branches().find(b => b.key === '1').subscriptions()[0].instance.application.includes('TestRunner')).to.be.true;
-                        expect(stream.branches().find(b => b.key === '1').subscriptions()[1].instance.application.includes('TestRunner')).to.be.true;
+                        expect(stream.branches().find(b => b.key === '1').subscriptions()[0].instance.application.includes(RUNNER)).to.be.true;
+                        expect(stream.branches().find(b => b.key === '1').subscriptions()[1].instance.application.includes(RUNNER)).to.be.true;
                         done();
                     } catch (err) {
                         done(err);

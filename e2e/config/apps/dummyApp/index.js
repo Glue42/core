@@ -1,6 +1,3 @@
-GlueWeb({
-    application: "dummyApp",
-    appManager: true
-}).then((glue) => {
+GlueWeb().then((glue) => {
     window.glue = glue;
-}).catch(console.log);
+}).catch(console.error);

@@ -34,10 +34,10 @@ export class GtfLogger implements Gtf.Logger {
         };
 
         window.console.warn = (...args: any[]): void => {
-            // Ignore warning messages coming from the TestRunner. TODO: Make configurable.
+            // Ignore warning messages coming from the Platform. TODO: Make configurable.
             // oldConsoleWarn(...stringifyMessages(args));
         };
-        console.log('[logger.ts] Ignoring all console.warn messages coming from the TestRunner!');
+        console.log('[logger.ts] Ignoring all console.warn messages coming from the Platform!');
 
         window.console.error = (...args: any[]): void => {
             oldConsoleError(...stringifyMessages(args));

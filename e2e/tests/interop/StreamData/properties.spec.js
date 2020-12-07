@@ -174,7 +174,7 @@ describe('properties', () => {
                 glue.interop.subscribe(methodDefinition).then(sub1 => {
                     sub1.onData((data) => {
                         try {
-                            expect(data.server.application.includes('TestRunner')).to.be.true;
+                            expect(data.server.application.includes(RUNNER)).to.be.true;
                             done();
                         } catch (err) {
                             done(err);

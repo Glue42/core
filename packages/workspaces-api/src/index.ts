@@ -3,11 +3,13 @@ import { composeAPI } from "./main";
 import { WorkspacesFactoryFunction } from "../workspaces";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const factoryFunction: WorkspacesFactoryFunction = async (glue: any, config?: any): Promise<void> => {
+const factoryFunction: WorkspacesFactoryFunction = async (glue: any): Promise<void> => {
 
-    const ioc = new IoC(glue.agm, glue.windows, glue.layouts, glue.contexts, config?.assets?.location);
+    const ioc = new IoC(glue.agm, glue.windows, glue.layouts, glue.contexts);
 
-    await ioc.initiate();
+    const actualWindowId = glue.interop.instance.windowId;
+
+    await ioc.initiate(actualWindowId);
 
     glue.workspaces = composeAPI(glue, ioc);
 };

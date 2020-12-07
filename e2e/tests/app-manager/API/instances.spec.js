@@ -11,7 +11,7 @@ describe('instances()', () => {
         const runningInstancesAtStart = glue.appManager.instances();
 
         expect(runningInstancesAtStart).to.be.of.length(1);
-        expect(runningInstancesAtStart[0].application.name).to.equal('TestRunner');
+        expect(runningInstancesAtStart[0].application.name).to.equal(RUNNER);
 
         await glue.appManager.application('coreSupport').start();
         const runningInstancesAfterStartingSupport = glue.appManager.instances();
@@ -20,7 +20,7 @@ describe('instances()', () => {
 
         const runningInstancesAppNamesAfterStartingSupport = runningInstancesAfterStartingSupport.map((runningInstanceAfterStartingSupport) => runningInstanceAfterStartingSupport.application.name);
 
-        expect(runningInstancesAppNamesAfterStartingSupport.includes('TestRunner')).to.be.true;
+        expect(runningInstancesAppNamesAfterStartingSupport.includes(RUNNER)).to.be.true;
         expect(runningInstancesAppNamesAfterStartingSupport.includes('coreSupport')).to.be.true;
     });
 });

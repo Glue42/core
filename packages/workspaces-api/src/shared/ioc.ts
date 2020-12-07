@@ -1,6 +1,5 @@
 /*eslint indent: [2, 4, {"SwitchCase": 1}]*/
 import CallbackFactory from "callback-registry";
-import { EnterpriseController } from "../controllers/enterprise";
 import { Bridge } from "../communication/bridge";
 import { InteropTransport } from "../communication/interop-transport";
 import { BaseBuilder } from "../builders/baseBuilder";
@@ -19,11 +18,10 @@ import { Column } from "../models/column";
 import { Group } from "../models/group";
 import { Base } from "../models/base/base";
 import { Glue42Workspaces } from "../../workspaces";
-import { CoreController } from "../controllers/core";
 import { WorkspacesController } from "../types/controller";
-import { CoreFrameUtils } from "../communication/core-frame-utils";
 import { InteropAPI, WindowsAPI, LayoutsAPI, ContextsAPI } from "../types/glue";
 import { BaseController } from "../controllers/base";
+import { MainController } from "../controllers/main";
 
 export class IoC {
 
@@ -38,8 +36,7 @@ export class IoC {
         private readonly agm: InteropAPI,
         private readonly windows: WindowsAPI,
         private readonly layouts: LayoutsAPI,
-        private readonly contexts: ContextsAPI,
-        private readonly assetsBaseLocation: string
+        private readonly contexts: ContextsAPI
     ) { }
 
     public get baseController(): BaseController {
@@ -52,9 +49,7 @@ export class IoC {
 
     public get controller(): WorkspacesController {
         if (!this._controllerInstance) {
-            this._controllerInstance = window.glue42gd ?
-                new EnterpriseController(this.bridge, this.baseController) :
-                new CoreController(this.bridge, new CoreFrameUtils(this.agm, this.windows, this.bridge, this.assetsBaseLocation), this.layouts, this.baseController);
+            this._controllerInstance = new MainController(this.bridge, this.baseController);
         }
         return this._controllerInstance;
     }
@@ -89,8 +84,8 @@ export class IoC {
         return this._parentBaseInstance;
     }
 
-    public async initiate(): Promise<void> {
-        await this.transport.initiate();
+    public async initiate(actualWindowId: string): Promise<void> {
+        await this.transport.initiate(actualWindowId);
     }
 
     public getModel<T extends ModelTypes>(type: ModelTypes, createConfig: ModelCreateConfig): ModelMaps[T] {

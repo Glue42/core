@@ -128,7 +128,7 @@ describe('properties', () => {
                 subscriptionRequestHandler,
                 subscriptionAddedHandler: () => {
                     try {
-                        expect(stream.subscriptions()[0].instance.application.includes('TestRunner')).to.be.true;
+                        expect(stream.subscriptions()[0].instance.application.includes(RUNNER)).to.be.true;
                         done();
                     } catch (err) {
                         done(err);

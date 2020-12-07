@@ -45,21 +45,33 @@ export class Frame implements Glue42Workspaces.Frame {
     }
 
     public async state(): Promise<Glue42Workspaces.FrameState> {
+        if (!window.glue42gd) {
+            throw new Error("State operations are not supported in Glue42 Core");
+        }
         const myId = getData(this).summary.id;
         return getData(this).controller.getFrameState(myId);
     }
 
     public async minimize(): Promise<void> {
+        if (!window.glue42gd) {
+            throw new Error("State operations are not supported in Glue42 Core");
+        }
         const myId = getData(this).summary.id;
         return getData(this).controller.changeFrameState(myId, "minimized");
     }
 
     public async maximize(): Promise<void> {
+        if (!window.glue42gd) {
+            throw new Error("State operations are not supported in Glue42 Core");
+        }
         const myId = getData(this).summary.id;
         return getData(this).controller.changeFrameState(myId, "maximized");
     }
 
     public async restore(): Promise<void> {
+        if (!window.glue42gd) {
+            throw new Error("State operations are not supported in Glue42 Core");
+        }
         const myId = getData(this).summary.id;
         return getData(this).controller.changeFrameState(myId, "normal");
     }

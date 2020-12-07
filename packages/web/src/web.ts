@@ -1,197 +1,46 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* tslint:disable:no-console no-empty */
+import { GlueCoreFactoryFunction } from "@glue42/core";
+import { Glue42 } from "@glue42/desktop";
 import { Glue42Web, GlueWebFactoryFunction } from "../web";
-import { Glue42Core, GlueCoreFactoryFunction } from "@glue42/core";
-import { version } from "../package.json";
-import { Windows } from "./windows/main";
-import { Layouts } from "./layouts/main";
-import { Channels } from "./channels/main";
-import { AppManager } from "./app-manager/main";
-import { Intents } from "./intents/main";
-import { Glue42DesktopWindowContext } from "./types";
-import { Notifications } from "./notifications/main";
-import { defaultWorkerLocation, defaultAssetsBaseLocation } from "./config/defaults";
-import { buildConfig } from "./config/config";
-import { Control } from "./control/control";
-import { SaveAutoLayoutCommand } from "./control/commands";
-import { initStartupContext } from "./windows/startup";
-import { LocalWebWindow } from "./windows/my";
-import { LayoutsController } from "./layouts/controller";
-import { LayoutStorage } from "./layouts/storage";
-import { LocalStore } from "./layouts/stores/local";
-import { JSONStore } from "./layouts/stores/json";
-import { AutoStorage } from "./layouts/stores/auto";
-import { RemoteStore } from "./layouts/types";
-import { LocalInstance } from "./app-manager/my";
-import { promisePlus } from "./shared/promise-plus";
-
-const hookCloseEvents = (api: Glue42Web.API, config: Glue42Web.Config, control: Control, layoutsController?: LayoutsController): void => {
-    // hook up page close event's, so we can cleanup properly
-    let done = false;
-    const doneFn = async (): Promise<void> => {
-        if (!done) {
-            done = true;
-            const shouldSave = config?.layouts?.autoRestore;
-            if (shouldSave) {
-                // we don't have enough time to save the layout, we will instruct one of the windows we opened to save it
-                const allChildren = (api.windows as Windows).getChildWindows().map((w) => w.id);
-                const firstChild = allChildren[0];
-                const layoutName = `_auto_${document.location.href}`;
-                if (allChildren.length > 0) {
-                    const command: SaveAutoLayoutCommand = {
-                        domain: "layouts",
-                        command: "saveLayoutAndClose",
-                        args: {
-                            childWindows: allChildren,
-                            closeEveryone: true,
-                            layoutName,
-                            context: {},
-                            metadata: {},
-                            parentInfo: layoutsController?.getLocalLayoutComponent({}, true) as Glue42Web.Layouts.WindowComponent
-                        }
-                    };
-                    control.send(command, { windowId: firstChild });
-                } else {
-                    layoutsController?.autoSave({ name: layoutName });
-                }
-            }
-            api.done();
-        }
-    };
-
-    window.addEventListener("beforeunload", () => {
-        doneFn();
-    });
-};
+import { parseConfig } from "./config";
+import { checkSingleton } from "./config/checkSingleton";
+import { enterprise } from "./enterprise";
+import { IoC } from "./shared/ioc";
+import { PromiseWrap } from "./shared/promise-plus";
 
 /** This function creates the factory function which is the default export of the library */
 export const createFactoryFunction = (coreFactoryFunction: GlueCoreFactoryFunction): GlueWebFactoryFunction => {
 
-    return async (config?: Glue42Web.Config): Promise<Glue42Web.API> => {
-        const builtCoreConfig = await buildConfig(config);
+    return async (userConfig?: Glue42Web.Config): Promise<Glue42Web.API | Glue42.Glue> => {
 
-        // Used for testing in node environment.
-        const isWebEnvironment = typeof window !== "undefined";
+        const config = parseConfig(userConfig);
 
-        // Whether to initialize the Channels API or not.
-        const shouldInitializeChannels = builtCoreConfig.glue?.channels || false;
-
-        // Whether to initialize the AppManager API or not.
-        const shouldInitializeAppManager = builtCoreConfig.glue?.appManager || false;
-
-        // check if we're running in Glue42 Enterprise, if so return @glue42/desktop API
-        if (isWebEnvironment) {
-            const gdWindowContext = window as unknown as Glue42DesktopWindowContext;
-            if (gdWindowContext?.glue42gd && gdWindowContext?.Glue) {
-                return gdWindowContext.Glue({
-                    windows: true,
-                    logger: builtCoreConfig.glue?.logger,
-                    channels: shouldInitializeChannels,
-                    layouts: true,
-                    appManager: shouldInitializeAppManager,
-                    libraries: config.libraries
-                });
-            }
+        if (window.glue42gd) {
+            return enterprise(config);
         }
 
-        // create @glue42/core with the extra libs for @glue42/web
-        const control = new Control();
-        let windows: Windows;
-        let appManager: AppManager;
-        let layoutsController: LayoutsController | undefined;
+        checkSingleton();
 
-        const ext: Glue42Core.Extension = {
-            libs: [
-                {
-                    name: "notifications",
-                    create: (coreLib): Notifications => new Notifications(coreLib.interop)
-                }
-            ],
-            version
-        };
+        const glue = await PromiseWrap<Glue42Web.API>(() => coreFactoryFunction(config) as Promise<Glue42Web.API>, 30000, "Glue Web initialization timed out");
 
-        if (shouldInitializeChannels) {
-            const channelsLib: Glue42Core.ExternalLib = {
-                name: "channels",
-                create: (coreLib): Channels => new Channels(coreLib.contexts, builtCoreConfig.channels)
-            };
-            ext.libs?.push(channelsLib);
-        }
+        const logger = glue.logger.subLogger("web.main.controller");
 
-        if (isWebEnvironment) {
-            ext.libs?.push(
-                {
-                    name: "windows",
-                    create: (coreLib): Windows => {
-                        windows = new Windows(coreLib.interop, control);
-                        return windows;
-                    }
-                },
-                {
-                    name: "layouts",
-                    create: (coreLib): Layouts => {
-                        let remoteStore: RemoteStore | undefined;
+        const ioc = new IoC(glue);
 
-                        if (builtCoreConfig.layouts?.remoteType === "json") {
-                            const baseLocation = builtCoreConfig?.glue.assets?.location || defaultAssetsBaseLocation;
-                            remoteStore = new JSONStore(baseLocation);
-                        }
+        await ioc.bridge.start(ioc.controllers);
+        
+        logger.trace("the bridge has been started, initializing all controllers");
 
-                        const localStore = new LocalStore();
-                        const autoStore = new AutoStorage();
-                        const layoutsStorage = new LayoutStorage(localStore, autoStore, remoteStore);
-                        layoutsController = new LayoutsController(layoutsStorage, windows, control, coreLib.interop, builtCoreConfig?.glue);
+        await Promise.all(Object.values(ioc.controllers).map((controller) => controller.start(glue, ioc)));
 
-                        return new Layouts(layoutsController);
-                    }
-                }
-            );
+        logger.trace("all controllers reported started, starting all additional libraries");
 
-            const appManagerLib: Glue42Core.ExternalLib = {
-                name: "appManager",
-                create: (coreLib): AppManager => {
-                    appManager = new AppManager(windows, coreLib.interop, control, builtCoreConfig.appManager, builtCoreConfig.glue?.application);
-                    // Instantiate AppManager always as Intents depends on it, but only attach it to the glue object when the user passes appManager: true.
-                    return shouldInitializeAppManager ? appManager : undefined;
-                }
-            };
-            const intentsLib: Glue42Core.ExternalLib = {
-                name: "intents",
-                create: (coreLib): Intents => new Intents(coreLib.interop, windows, appManager)
-            };
-            ext.libs?.push(appManagerLib, intentsLib);
-        }
+        await Promise.all(config.libraries.map((lib: any) => lib(glue, config)));
 
-        const coreConfig = {
-            gateway: {
-                sharedWorker: builtCoreConfig.glue?.worker ?? defaultWorkerLocation,
-                inproc: builtCoreConfig.glue?.inproc
-            },
-            logger: builtCoreConfig.glue?.logger,
-            application: builtCoreConfig.glue?.application
-        };
+        logger.trace("all libraries were started, glue is ready, returning it");
 
-        /* eslint-disable @typescript-eslint/no-explicit-any */
-        if (isWebEnvironment && !(window as any).SharedWorker) {
-            throw new Error("Cannot initialize Glue Web, because this environment does not support Shared Workers");
-        }
-
-        const core = await promisePlus<Glue42Web.API>(() => coreFactoryFunction(coreConfig, ext) as Promise<Glue42Web.API>, 10000, "Glue Web initialization timed out");
-
-        if (config?.libraries) {
-            await Promise.all(config.libraries.map((lib) => lib(core, builtCoreConfig?.glue)));
-        }
-
-        if (isWebEnvironment) {
-            // fill in our window context
-            await initStartupContext(core.windows.my() as LocalWebWindow, core.interop, core.appManager?.myInstance as LocalInstance);
-            // if there is a saved layout restore it
-            if (builtCoreConfig.glue?.layouts?.autoRestore) {
-                await layoutsController?.restoreAutoSavedLayout();
-            }
-            await hookCloseEvents(core, builtCoreConfig.glue ?? {}, control, layoutsController);
-        }
-        // Start the control component after the app has received its initial context so that when `serverMethodAdded()` is fired it is already populated.
-        control.start(core.interop, core.logger.subLogger("control"));
-
-        return core;
+        return glue;
     };
 };

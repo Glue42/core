@@ -28,7 +28,7 @@ describe('get()', () => {
     });
 
     it('Should return the context (name, meta and data) of the provided channel.', async () => {
-        const [channel] = (await gtf.getGlueConfigJson()).channels;
+        const channel = gtf.getChannelsConfigDefinitions()[0];
         const channelName = channel.name;
 
         // Join the channel.

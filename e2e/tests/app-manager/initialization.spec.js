@@ -57,7 +57,7 @@ describe('initialization', () => {
     it('Should set the document\'s title to the one from the application definition.', async () => {
         const appName = 'AppWithDetails-local';
 
-        const appTitle = (await gtf.appManager.getLocalApplications()).find((localApp) => localApp.name === appName).title;
+        const appTitle = gtf.appManager.getLocalApplications().find((localApp) => localApp.name === appName).title;
 
         const newGlue = await GlueWeb({ appManager: true, application: appName });
         gluesToDisconnect.push(newGlue);

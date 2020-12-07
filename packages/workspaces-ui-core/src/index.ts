@@ -31,14 +31,14 @@ if (!isInIframe) {
     GlueWeb(config).then((glue) => {
         window.glue = glue;
         facade.subscribeForWorkspaceEvents();
-        return manager.init(window.glue, glue.agm.instance.peerId);
+        return manager.init(window.glue, glue.agm.instance.windowId);
     }).then(({ cleanUp }) => {
         done = cleanUp;
-        return facade.init(window.glue, window.glue.agm.instance.peerId);
+        return facade.init(window.glue, window.glue.agm.instance.windowId);
         // tslint:disable-next-line: no-console
     }).then(() => {
         if (!startupReader.config.emptyFrame) {
-            manager.workspacesEventEmitter.raiseFrameEvent({ action: "opened", payload: { frameSummary: { id: window.glue.agm.instance.peerId } } });
+            manager.workspacesEventEmitter.raiseFrameEvent({ action: "opened", payload: { frameSummary: { id: window.glue.agm.instance.windowId } } });
         }
     }).catch(console.warn);
 }

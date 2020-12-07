@@ -358,7 +358,11 @@ export class LayoutController {
     }
 
     public focusWindow(windowId: string) {
-        const layoutWithWindow = store.layouts.find((l) => l.windows.some((w) => w.id === windowId));
+        const layoutWithWindow = store.getByWindowId(windowId);
+
+        if (!layoutWithWindow) {
+            throw new Error(`Could not find workspace for window ${windowId}`);
+        }
 
         const item = layoutWithWindow.layout.root.getItemsById(windowId)[0];
         item.parent.setActiveContentItem(item);
@@ -370,7 +374,11 @@ export class LayoutController {
     }
 
     public maximizeWindow(windowId: string) {
-        const layoutWithWindow = store.layouts.find((l) => l.windows.some((w) => w.id === windowId));
+        const layoutWithWindow = store.getByWindowId(windowId);
+
+        if (!layoutWithWindow) {
+            throw new Error(`Could not find workspace for window ${windowId}`);
+        }
 
         const item = layoutWithWindow.layout.root.getItemsById(windowId)[0];
         if (item.parent.hasId(this._maximizedId)) {
@@ -380,7 +388,11 @@ export class LayoutController {
     }
 
     public restoreWindow(windowId: string) {
-        const layoutWithWindow = store.layouts.find((l) => l.windows.some((w) => w.id === windowId));
+        const layoutWithWindow = store.getByWindowId(windowId);
+
+        if (!layoutWithWindow) {
+            throw new Error(`Could not find workspace for window ${windowId}`);
+        }
 
         const item = layoutWithWindow.layout.root.getItemsById(windowId)[0];
         if (item.parent.hasId(this._maximizedId)) {

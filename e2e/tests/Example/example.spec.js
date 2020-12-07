@@ -9,30 +9,30 @@ describe('it should work', () => {
     });
 
     it('should initialize interop', async () => {
-        expect(glue.interop).to.not.be.an('undefined');
+        expect(glue.interop).to.not.be.undefined;
     });
 
     it('should initialize windows', async () => {
-        expect(glue.windows).to.not.be.an('undefined');
+        expect(glue.windows).to.not.be.undefined;
     });
 
     it('should initialize appManager', async () => {
-        expect(glue.appManager).to.not.be.an('undefined');
+        expect(glue.appManager).to.not.be.undefined;
     });
 
     it('should initialize layouts', async () => {
-        expect(glue.layouts).to.not.be.an('undefined');
+        expect(glue.layouts).to.not.be.undefined;
     });
 
     it('should initialize contexts', async () => {
-        expect(glue.contexts).to.not.be.an('undefined');
+        expect(glue.contexts).to.not.be.undefined;
     });
 
     it('should initialize channels', async () => {
-        expect(glue.channels).to.not.be.an('undefined');
+        expect(glue.channels).to.not.be.undefined;
     });
 
     it('should initialize channels', async () => {
-        expect(glue.workspaces).to.not.be.an('undefined');
+        expect(glue.workspaces).to.not.be.undefined;
     });
 });

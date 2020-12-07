@@ -1,37 +1,36 @@
 import { Glue42Web } from "../../../packages/web/web.d";
-import { Glue42CoreApplicationConfig, FDC3ApplicationConfig } from "../../../packages/web/src/glue.config";
+import { Glue42WebPlatform } from "../../../packages/web-platform/platform.d";
+import { localApplicationsConfig, remoteStoreConfig } from "./config";
 import { Gtf } from "./types";
 
 export class GtfAppManager implements Gtf.AppManager {
     constructor(private readonly glue: Glue42Web.API, private readonly gtfCore: Gtf.Core) {
     }
 
-    public async getLocalApplications(): Promise<Array<Glue42CoreApplicationConfig | FDC3ApplicationConfig>> {
-        const appManagerConfig = (await this.gtfCore.getGlueConfigJson()).appManager;
-
-        return appManagerConfig.localApplications;
+    public getLocalApplications(): (Glue42WebPlatform.Applications.Glue42CoreDefinition | Glue42WebPlatform.Applications.FDC3Definition)[] {
+        return localApplicationsConfig;
     }
 
-    public async getRemoteSourceApplications(url = "http://localhost:9998/v1/apps/search"): Promise<Glue42Web.AppManager.Application[]> {
-        const data = await (await fetch(url)).json();
+    public async getRemoteSourceApplications(): Promise<Glue42Web.AppManager.Application[]> {
+        const data = await (await fetch(`${this.getRemoteSourceBaseUrl()}/search`)).json();
 
         return data.applications;
     }
 
-    public async addRemoteSourceApplication(application: Glue42Web.AppManager.Application, url = "http://localhost:9998/v1/apps/add"): Promise<Glue42Web.AppManager.Application[]> {
-        const data = await (await this.gtfCore.post(url, JSON.stringify(application))).json();
+    public async addRemoteSourceApplication(application: Glue42Web.AppManager.Application): Promise<Glue42Web.AppManager.Application[]> {
+        const data = await (await this.gtfCore.post(`${this.getRemoteSourceBaseUrl()}/add`, JSON.stringify(application))).json();
 
         return data.applications;
     }
 
-    public async resetRemoteSourceApplications(url = "http://localhost:9998/v1/apps/reset"): Promise<Glue42Web.AppManager.Application[]> {
-        const data = await (await fetch(url)).json();
+    public async resetRemoteSourceApplications(): Promise<Glue42Web.AppManager.Application[]> {
+        const data = await (await fetch(`${this.getRemoteSourceBaseUrl()}/reset`)).json();
 
         return data.applications;
     }
 
-    public async setRemoteSourceApplications(applications: Glue42Web.AppManager.Application[], url = "http://localhost:9998/v1/apps/set"): Promise<Glue42Web.AppManager.Application[]> {
-        const data = await (await this.gtfCore.post(url, JSON.stringify(applications))).json();
+    public async setRemoteSourceApplications(applications: Glue42Web.AppManager.Application[]): Promise<Glue42Web.AppManager.Application[]> {
+        const data = await (await this.gtfCore.post(`${this.getRemoteSourceBaseUrl()}/set`, JSON.stringify(applications))).json();
 
         return data.applications;
     }
@@ -41,8 +40,16 @@ export class GtfAppManager implements Gtf.AppManager {
 
         const otherInstances = this.glue.appManager.instances().filter((instance) => instance.id !== myInstanceId);
 
-        console.log(otherInstances.length > 0 ? `Stopping instances: ${otherInstances.map(instance => instance.id)}` : "No instances to stop");
+        console.log(otherInstances.length > 0 ? `Stopping instances: ${otherInstances.map(instance => instance.id)}` : "No instances to stop!");
 
         await Promise.all(otherInstances.map((instance) => instance.stop().then(() => console.log(`Stopped instance ${instance.id}`))));
+    }
+
+    private getRemoteSourceBaseUrl(): string {
+        if (typeof remoteStoreConfig === "undefined") {
+            throw new Error("No remote store provided!");
+        }
+
+        return remoteStoreConfig.url.replace(/\/search\/?/, '');
     }
 }

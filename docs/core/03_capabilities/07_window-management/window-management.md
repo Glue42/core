@@ -1,16 +1,39 @@
+*RAW*
+
+All windows functionality is enabled by default. However, when initializing @glue42/web-platform there are couple of settings:
+
+These are pretty self-explanatory. The windowResponseTimeoutMs is important to know - when a window operation is being issued (like moving a window), this is the amount of time in MS we will wait for a valid success response from the target window. If we do not get a response in this time, we will assume that this window either does NOT have glue OR has not yet initialized it. There is no way for us to be sure which window upon opening has glue and which doesn't. The other property is clear - we will default to these bounds when opening a window OR an application
+
+```javascript
+const config = {
+    windows: {
+        windowResponseTimeoutMs: 10000,
+        defaultWindowOpenBounds: {
+            top: 0,
+            left: 0,
+            width: 600,
+            height: 600
+        }
+    }
+}
+```
+
+*END*
+
+
 ## Overview
 
 Using the [Window Management API](../../../reference/core/latest/windows/index.html), your application can easily open and manipulate browser windows. This allows you to transform your traditional single-window web app into a multi-window native-like PWA application. The Window Management API enables applications to:
 
-- **open multiple windows**;
-- **manipulate the position and size** of opened windows;
-- **pass context data upon opening new windows**;
-- **listen for and handle events** related to opening and closing windows;
-- **automatically save and restore** the positions and contexts of your application windows;
+- open multiple windows;
+- manipulate the position and size of opened windows;
+- pass context data upon opening new windows;
+- listen for and handle events related to opening and closing windows;
+- automatically save and restore the positions and contexts of your application windows;
 
-*For detailed information on the Window Management API, see the [**Window Management**](../../../glue42-concepts/windows/window-management/javascript/index.html) documentation.*
+*For detailed information on the Window Management API, see the [Window Management](../../../glue42-concepts/windows/window-management/javascript/index.html) documentation.*
 
-In the next sections, you can see examples of using the Interop API. You can open the embedded examples directly in [CodeSandbox](https://codesandbox.io) to see the code and experiment with it.
+The examples in the next sections demonstrate using the Window Management API. To see the code and experiment with it, open the embedded examples directly in [CodeSandbox](https://codesandbox.io). 
 
 ## Opening Windows
 
