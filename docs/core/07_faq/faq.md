@@ -22,15 +22,15 @@ With **Glue42 Core** you can enable your web applications to share data between 
 
 - #### How do I use Glue42 Core in my project?	
 
-A **Glue42 Core** project consists of a [Main application]() using the [Glue42 Web Platform]() library and multiple [client applications]() using the [Glue42 Web](../../reference/core/latest/glue42%20web/index.html) library. To use **Glue42 Core** in your projects, you have to learn how to initialize and configure both libraries. See the [Quick Start](../getting-started/quick-start/index.html) section for a quick and easy project setup.	
+A **Glue42 Core** project consists of a [Main application](../core-concepts/web-platform/overview/index.html) using the Glue42 [Web Platform](https://www.npmjs.com/package/@glue42/web-platform) library and multiple [Web Client](../core-concepts/web-client/overview/index.html) apps using the [Glue42 Web](../../reference/core/latest/glue42%20web/index.html) library. To use **Glue42 Core** in your projects, you have to learn how to initialize and configure both libraries. See the [Quick Start](../getting-started/quick-start/index.html) section for a quick and easy project setup.	
 
 - #### What is the Glue42 Web Platform?	
 
-The [Glue42 Web Platform]() provides the means for communication between the client applications and is also acts as a hub from which the user can access all client applications.
+The Glue42 [Web Platform](https://www.npmjs.com/package/@glue42/web-platform) provides the means for communication between the client applications and is also acts as a hub from which the user can access all client applications.
 
-- #### What is a client application?	
+- #### What is a Web Client application?	
 
-A client application in the context of **Glue42 Core** is any web application that has initialized the [Glue42 Web](../../reference/core/latest/glue42%20web/index.html) library and is connected a [Main application]().		
+A [Web Client](../core-concepts/web-client/overview/index.html) application in the context of **Glue42 Core** is any web application that has initialized the [Glue42 Web](../../reference/core/latest/glue42%20web/index.html) library and is connected to a [Main application](../core-concepts/web-platform/overview/index.html).		
 
 - #### Where can I see a Glue42 Core demo project?	
 

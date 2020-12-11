@@ -6,7 +6,7 @@ In industries and businesses depending on tens or hundreds of different applicat
 
 ## High Level Structure
 
-A **Glue42 Core** project consists of a Main application using the [Glue42 Web Platform]() library and multiple client applications using the [Glue42 Web](../../reference/core/latest/glue42%20web/index.html) library. The Main application acts as a hub through which the user can access all other applications part of the **Glue42 Core** project while the [Glue42 Web Platform]() library it uses provides the communication connection between all client applications. The [Glue42 Web](../../reference/core/latest/glue42%20web/index.html) library provides Glue42 functionality to the client applications through sets of Glue42 APIs (for more details, see the [Capabilities](../capabilities/overview/index.html) section).
+A **Glue42 Core** project consists of a Main application using the Glue42 [Web Platform](https://www.npmjs.com/package/@glue42/web-platform) library and multiple client applications using the [Glue42 Web](../../reference/core/latest/glue42%20web/index.html) library. The Main application acts as a hub through which the user can access all other applications part of the **Glue42 Core** project while the [Web Platform](https://www.npmjs.com/package/@glue42/web-platform) library it uses provides the communication connection between all client applications. The [Glue42 Web](../../reference/core/latest/glue42%20web/index.html) library provides Glue42 functionality to the client applications through sets of Glue42 APIs (for more details, see the [Capabilities](../capabilities/overview/index.html) section).
 
 ## Requirements
 

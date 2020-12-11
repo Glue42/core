@@ -10,7 +10,7 @@ The Application Management API provides a way to manage **Glue42 Core** applicat
 
 ## Application Definitions
 
-To participate in the Application Management API, each application in a **Glue42 Core** project must have an application definition. Application definitions are supplied using the `applications` property of the configuration object when initializing the Glue42 [Web Platform](https://www.npmjs.com/package/@glue42/web-platform) library in the [Main application](../../core-concepts/web-platform/overview/index.html). Use the `local` property of the `applications` object to specify an array of application [`Definition`]() objects.
+To participate in the Application Management API, each application in a **Glue42 Core** project must have an application definition. Application definitions are supplied using the `applications` property of the configuration object when initializing the Glue42 [Web Platform](https://www.npmjs.com/package/@glue42/web-platform) library in the [Main application](../../core-concepts/web-platform/overview/index.html). Use the `local` property of the `applications` object to specify an array of application [`Definition`](../../../https://docs.glue42.com/reference/core/latest/appmanager/index.html#!Definition) objects.
 
 The following example demonstrates defining two applications when initializing the Web Platform library:
 
