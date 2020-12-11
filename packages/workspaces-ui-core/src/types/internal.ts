@@ -237,7 +237,7 @@ interface BasePayloadOptions {
 export interface AddApplicationPopupOptions extends BasePayloadOptions {
     boxId: string;
     workspaceId: string;
-    parentType: string;
+    parentType?: string;
 }
 
 export interface SaveWorkspacePopupOptions extends BasePayloadOptions {

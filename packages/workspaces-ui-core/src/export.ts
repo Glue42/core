@@ -61,6 +61,7 @@ const workspacesManagerAPI: WorkspacesManager = {
         return;
     },
     unmount: () => {
+        manager.unmount();
         return;
     },
     subscribeForWindowFocused: (callback: () => void) => {

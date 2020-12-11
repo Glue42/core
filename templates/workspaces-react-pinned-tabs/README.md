@@ -10,7 +10,7 @@ This project provides a starter for Workspaces applications in Glue42Desktop and
 - Glue42Desktop 3.11 or newer
 
 ### Glue42Core 
-- TODO
+- Glue42Core V2
 
 ## Setup
 ### Glue42Enterprise
@@ -23,7 +23,11 @@ To run the template in Glue42Desktop follow the following steps
 - start the Workspaces UI application
 
 ### Glue42Core
-- TODO
+- npm i
+- npm run start
+- update the workspaces location to `http://localhost:3000` in the web platform configuration
+- start the web platform
+- open a workspace (can be done by invoking `glue.workspaces.createWorkspace({children:[]})`)
 
 ## What does it do
 The template initializes `<Workspaces/>` and adds two buttons with icons whose styles are located in `./src/App.css`, then uses the useGlue hook provided by `@glue42/react-hooks` to open two workspaces with predifined configs located in `./src/workspaceDefinitions.ts` and then assigns them to their corresponding buttons. In useGlue the component subsrcibes for workspaces selection changed to change the color of the icon when the selected workspace changes. Before starting the application please make sure that you have passed valid application names to the `getDocsWorkspace` and `getClientWorkspace` methods in `./CustomWorkspaces.tsx`.

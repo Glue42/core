@@ -1,95 +1,3 @@
-*RAW*
-
-Workspaces provide the same functionality and API as before, but the setup is completely different.
-
-*Simple Client* (@glue42/web) - This is the same as before -> install @glue42/workspaces-api and provide the factory function in the libraries array:
-
-```javascript
-const config = {
-    libraries: [GlueWorkspaces]
-};
-const glue = await GlueWeb(config);
-
-// Now you can access the Workspaces API through `glue.workspaces`.
-```
-
-This is all that is needed for simple clients.
-
-*Workspaces Frame App.* This is the application which was previously available from the @glue42/workspaces-app package. We still need this app, but this package is deprecated. I don't know if this is the right place to explain how to make one and what it is, because it is very long and it is not core-specific. If needed maybe we can add info here about that.
-
-*Main application.* The only thing needed to enable workspaces for you Glue42 Core V2 project is to set the src property inside the workspaces property in the config object give to @glue42/web-platform:
-
-```javascript
-const config = {
-    workspaces: {
-        src: "https://myframeapp.com"
-    }
-}
-```
-
-This tells the platform where to look for the workspaces frame app, which contains all the workspaces logic. Of course, the web-platform is still a Client, so you need to also provide the @glue42/workspaces-api, so the full config example is:
-
-```javascript
-const config = {
-    glue: {
-        libraries: [GlueWorkspaces]
-    },
-    workspaces: {
-        src: "https://myframeapp.com"
-    }
-}
-```
-
-One more thing we need to mention here is Layouts. The Layouts lib is not ready for release, because of some browser limitations regarding global layouts, but it is fully functional and MUST be configured in order for workspaces to function correctly (workspaces use workspaces type layouts).
-
-Layouts operate in three modes (the same as with applications): local, remote and supplier.
-
-*Local*. This is the default mode - it saves and manages all the layouts locally using IndexedDB. Just like with applications this is very useful for quick projects or PoC or just to try out the functionality. Once you set the mode you can provide an array of layouts, which will always be imported and will overwrite any existing layouts with the same names.
-
-```javascript
-const config = {
-    layouts: {
-        mode: "local",
-        local: [//layout definitions]
-    }
-}
-```
-
-Note that the end users can still edit and save and create and restore workspaces layouts. The will be persisted client-side.
-
-*Remote*. This is not available at the moment.
-
-*Supplier*. This works exactly the same way as explain in applications. The difference is that in applications we only get the definitions, here we also need to save and delete the layouts. That's why the same object has 2 more required properties:
-
-```javascript
-const config = {
-    layouts: {
-        mode: "supplier",
-        supplier: {
-            fetch: async () => {
-                // here you can use any custom logic you wish to get the full collection fo application definitions
-            }, 
-            save: async (layouts) => {
-                // you receive an array of layouts to save
-                // here is your custom save logic
-            },
-            delete: async (layouts) => {
-                // you receive an array of layouts to remove
-                // here is your custom delete logic
-            },
-            pollingInterval: 60000,
-            timeout: 10000
-        }
-    }
-}
-```
-
-All three of the functions must return a promise and we will expect that the corresponding operation has been fully completed upon promise resolution.
-
-Just as with applications, this supplier mode offers the most flexibility for managing layouts - you can factor in your custom authentication or authorization logic or communication protocol or anything you need.
-
-*END*
-
 ## Overview
 
 The [Workspaces](../../../reference/core/latest/workspaces/index.html) library offers advanced window management functionalities. Using Workspaces, users are able to arrange multiple applications within the same visual window (called **Frame**). This arrangement can be performed programmatically or by dragging and dropping applications within the Frame. Users can also save Workspace layouts and restore them within the same Frame or even in different Frames.
@@ -102,7 +10,11 @@ The Glue42 Workspaces enable the users to compose a custom arrangement of applic
 
 ### Frame
 
-The Frame is a web application (also called Workspaces App) which comes with the [`@glue42/workspaces-app`](https://www.npmjs.com/package/@glue42/workspaces-app) package. This application is the shell that can hold multiple Workspaces as tabs in a single or multiple windows (frames). The Frame application is a vital element in the Workspaces functionality as it handles opening and closing Workspaces, arranging windows in a Workspace, adding or removing Workspaces and windows.
+The Frame is a web application also called Workspaces App. This application is the shell that can hold multiple Workspaces as tabs in a single or multiple windows (frames). The Frame application is a vital element in the Workspaces functionality as it handles opening and closing Workspaces, arranging windows in a Workspace, adding or removing Workspaces and windows.
+
+A fully functioning Workspaces App is available in **Glue42 Enterprise**. For **Glue42 Core** projects, however, you have to create your own Workspaces App. This is extremely simple, as the Workspaces App functionality is provided as a single React component by the [@glue42/workspaces-ui-react](https://www.npmjs.com/package/@glue42/workspaces-ui-react) library. For more details on how to create and customize your own Workspaces App, see the [Extending Workspaces](../../../glue42-concepts/windows/workspaces/overview/index.html#extending_workspaces) documentation.
+
+*It is important to note that the `<Workspaces>` component provided by the library is not meant to be used as a typical React component. Besides its rendering responsibilities, it also contains heavy logic. This component is meant to allow you to create a dedicated Workspaces App which must function as a standalone window - you must never use it as a part of another application, as this will lead to malfunctioning. The Workspaces App should be customized only using the available extensibility points.*
 
 ### Workspace
 
@@ -110,90 +22,132 @@ A Workspace contains one or more applications (windows) arranged in columns, row
 
 ### Workspace Layout
 
-A Workspace layout is a JSON object which describes the model of a Workspace. It contains the name of the Workspace, the structure of its children and how they are arranged, the names of each application present in the Workspace, context and other settings. This layout is the blueprint used by the API to build the Workspace and its components. 
-<!-- TODO -->
-These layouts are accessible to the end users but cannot be overwritten by them. The users, however, can modify a Workspace and save the modified layout as a new Workspace layout. This new layout is saved locally through the `IndexedDB` API of the user's browser.
+A Workspace layout is a JSON object which describes the model of a Workspace. It contains the name of the Workspace, the structure of its children and how they are arranged, the names of each application present in the Workspace, context and other settings. This layout is the blueprint used by the API to build the Workspace and its components.
+
+Through the Workspaces UI the users can create, modify, save and delete a Workspace layout. The Workspace layouts are saved locally through the `IndexedDB` API of the user's browser.
+
+The example below shows the shape of a simple Workspace layout object containing two applications:
+
+```javascript
+const layout = {
+    children: [
+        {
+            type: "column",
+            children: [
+                {
+                    type: "group",
+                    children: [
+                        {
+                            type: "window",
+                            appName: "clientlist"
+                        }
+                    ]
+                },
+                {
+                    type: "group",
+                    children: [
+                        {
+                            type: "window",
+                            appName: "clientportfolio"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+};
+```
+
+#### Allowing Apps in the "Add Application" Menu 
+
+To control whether an app will be available in the Workspace "Add Application" menu (the dropdown that appears when you click the "+" button to add an application), use the `includeInWorkspaces` property of the `customProperties` top-level key in your application definition:
+
+```javascript
+const config = {
+    applications: {
+        local: [
+            {
+                name: "my-app",
+                title: "My App",
+                details: {
+                    url: "https://my-domain.com/my-app"
+                },
+                customProperties: {
+                    includeInWorkspaces: true
+                }
+            }
+        ]
+    }
+};
+```
+
+By default, this property is set to `false`.
+
+*For more details on application definitions, see the [Application Management](../application-management/index.html#application_definitions) section.*
 
 ## Enabling Workspaces
 
-Enabling Workspaces includes:
+The Workspaces Frame is mandatory for using any Workspaces functionality (see [Frame](#workspaces_concepts-frame) in the previous section).
 
-<!-- TODO -->
-- modifying the initialization configuration of the [**Glue42 Client**](../../core-concepts/glue42-client/overview/index.html#initializing_a_glue42_client) applications (adding the Workspaces API to [**Glue42 Web**](../../../reference/core/latest/glue42%20web/index.html)). 
+Enabling Workspaces means including the [Workspaces API](../../../reference/core/latest/workspaces/index.html) library in your [Main app](../../core-concepts/web-platform/overview/index.html) and [Web Client](../../core-concepts/web-client/overview/index.html) applications and configuring the [Web Platform](https://www.npmjs.com/package/@glue42/web-platform) library in your Main application to support Workspaces.
 
-#### Defining Applications
+### Main Application
 
-<!-- TODO -->
+The [Main app](../../core-concepts/web-platform/overview/index.html) is the place where you must specify the location of your Workspaces App. Use the `workspaces` property of the configuration object when initializing the Glue42 [Web Platform](https://www.npmjs.com/package/@glue42/web-platform) library in the [Main application](../../core-concepts/web-platform/overview/index.html) to do so:
 
-#### Creating Workspace Layouts
-
-<!-- TODO -->
-
-
-#### Manual Setup
-
-<!-- TODO -->
-
-If you need to setup the support for Workspaces manually, follow these steps:
-
-1. Install the [`@glue42/workspaces-app`](https://www.npmjs.com/package/@glue42/workspaces-app) package that contains a built version of the Workspaces App.
-
-```cmd
-npm install --save @glue42/workspaces-app
+```javascript
+const config = {
+    workspaces: {
+        src: "https://my-workspaces-app.com"
+    }
+};
 ```
 
-2. Define the applications you want the use in Workspaces in the `glue.config.json` file. For information on how to do that, see the [**Application Management: Application Definitions**](../application-management/index.html#enabling_application_management-application_definitions) section.
+This points the Glue42 Web Platform where to look for the Workspaces App, which handles all Workspaces logic. Of course, the Web Platform app is also a Web Client, so you must provide the [Workspaces API](../../../reference/core/latest/workspaces/index.html) library too:
 
-3. Define your Workspace layouts using this layout as a base skeleton:
-
-```json
-{
-    "name": "workspace-name",
-    "type": "Workspace",
-    "components": [
-        {
-            "type": "Workspace",
-            "state": {
-                "children": [
-                    {
-                        "type": "column",
-                        "children": [
-                            {
-                                "type": "group",
-                                "children": [
-                                    {
-                                        "type": "window",
-                                        "config": {
-                                            "appName": "app-one"
-                                        }
-                                    }
-                                ]
-                            },
-                            {
-                                "type": "group",
-                                "children": [
-                                    {
-                                        "type": "window",
-                                        "config": {
-                                            "appName": "app-two"
-                                        }
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            }
-        }
-    ]
-}
+```javascript
+const config = {
+    workspaces: {
+        src: "https://my-workspaces-app.com"
+    },
+    glue: {
+        libraries: [GlueWorkspaces]
+    }
+};
 ```
 
-4. Serve the Workspaces App from the same directory where all other Glue42 Environment files are located - e.g., `/glue/workspaces`.
+Finally, you must configure the `layouts` property to ensure that the Workspace layouts will function properly:
 
-### Client Applications
+```javascript
+import GlueWebPlatform from "@glue42/web-platform";
+import GlueWorkspaces from "@glue42/workspaces-api";
 
-To enable the [Workspaces API](../../../reference/core/latest/workspaces/index.html) in your applications, install the [`@glue42/web`](https://www.npmjs.com/package/@glue42/web) and [`@glue42/workspaces-api`](https://www.npmjs.com/package/@glue42/workspaces-api) packages and initialize the [Glue42 Web](../../../reference/core/latest/glue42%20web/index.html) library by passing the `GlueWorkspaces()` factory function in the configuration object. When `GlueWeb()` resolves, the Workspaces API will be accessible through the `workspaces` property of the returned object - e.g., `glue.workspaces`. Below you can see examples of how to enable the Workspaces API in JavaScript, React and Angular applications.
+// Provide the location of your Workspaces App,
+// the Workspaces API library and configure the Layouts library.
+const config = {
+    workspaces: {
+        src: "https://my-workspaces-app.com"
+    },
+    glue: {
+        libraries: [GlueWorkspaces]
+    },
+    layouts: {
+        mode: "session",
+        // Workspace layout definition objects.
+        local: [ {...}, {...}]
+    }
+};
+
+const { glue } = await GlueWebPlatform(config);
+```
+
+The `mode` property accepts two values - `"session"` or `"idb"`. Use the `"idb"` setting if you want the Workspace layouts to be persisted using the `IndexedDB` API of the browser.This option is useful for testing and PoC purposes, because it simulates persisting and manipulating Workspace layouts on a server. The `"session"` setting means that the Workspace layouts will be handled using the browser session storage. Once the browser session is over (e.g., the user closes the Main app window), all user-created layouts will be lost. If the Main app is only refreshed, however, the Workspace layouts will still be available.
+
+The `local` property expects an array of Workspaces layout objects (see [Workspace Layout](#workspaces_concepts-workspace_layout) in the previous section). On startup, these predefined layouts will be imported and merged with the already existing Workspace layouts and the layouts with the same names will be replaced. This ensures that the user-created layouts will not be removed when in `"idb"` mode.
+
+### Web Client Applications
+
+To enable the [Workspaces API](../../../reference/core/latest/workspaces/index.html) in your [Web Client](../../core-concepts/web-client/overview/index.html) applications, install the [`@glue42/web`](https://www.npmjs.com/package/@glue42/web) and [`@glue42/workspaces-api`](https://www.npmjs.com/package/@glue42/workspaces-api) packages and initialize the [Glue42 Web](../../../reference/core/latest/glue42%20web/index.html) library by passing the `GlueWorkspaces()` factory function in the configuration object. When `GlueWeb()` resolves, the Workspaces API will be accessible through the `workspaces` property of the returned object - e.g., `glue.workspaces`. Below you can see examples of how to enable the Workspaces API in JavaScript, React and Angular applications.
 
 #### JavaScript
 
@@ -291,19 +245,7 @@ import GlueWorkspaces from "@glue42/workspaces-api";
     bootstrap: [AppComponent]
 })
 export class AppModule { }
-```
-
-## Workspace Routing
-
-<!-- TODO -->
-
-- `/glue/workspaces?workspaceName=myWorkspace` - will open a new Frame and load the Workspace with the specified name in it;
-- `/glue/workspaces?workspaceNames=["myWorkspaceOne", "myWorkspaceTwo"]` - will open a new Frame and load all specified Workspaces in it;
-- `/glue/workspaces?workspaceName=myWorkspace&context={}` - will open a new Frame, load the specified Workspace and set the provided JSON object as a context for all applications included in the Workspace;
-
-As an example, this will allow you to configure your server to resolve `yourdomain.com` to `/glue/workspaces?workspaceName=myWorkspace`.
-
-The examples in the next sections demonstrate using the Workspaces API. To see the code and experiment with it, open the embedded examples directly in [CodeSandbox](https://codesandbox.io). 
+``` 
 
 ## Manipulating a Workspace
 

@@ -332,6 +332,15 @@ class WorkspacesManager {
         return this._layoutsManager.generateLayout(name, workspace);
     }
 
+    public unmount() {
+        try {
+            this._popupManager.hidePopup();
+        } catch (error) {
+            // tslint:disable-next-line: no-console
+            console.warn(error);
+        }
+    }
+
     private async initLayout() {
         const config = await this._layoutsManager.getInitialConfig();
         this.subscribeForPopups();
@@ -520,6 +529,7 @@ class WorkspacesManager {
         });
 
         this._controller.emitter.onSelectionChanged(async (toBack, toFront) => {
+            this._popupManager.hidePopup();
             this._frameController.selectionChanged(toFront.map((tf) => tf.id), toBack.map((t) => t.id));
         });
 
@@ -564,6 +574,7 @@ class WorkspacesManager {
         });
 
         this._controller.emitter.onWorkspaceSelectionChanged((workspace, toBack) => {
+            this._popupManager.hidePopup();
             if (!workspace.layout) {
                 this._frameController.selectionChangedDeep([], toBack.map((w) => w.id));
                 this._workspacesEventEmitter.raiseWorkspaceEvent({

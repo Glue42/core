@@ -759,11 +759,17 @@ export class LayoutController {
                 const saveButton = document.createElement("div");
                 saveButton.classList.add("lm_saveButton");
                 saveButton.onclick = (e) => {
-                    e.stopPropagation();
+                    // e.stopPropagation();
                     this.emitter.raiseEvent("workspace-save-requested", { workspaceId: idAsString(tab.contentItem.config.id) });
                 };
                 if (!this._options.disableCustomButtons) {
                     tab.element[0].prepend(saveButton);
+                    tab.element[0].onclick = (e) => {
+                        if (e.composedPath().indexOf(saveButton) !== -1) {
+                            (document.activeElement as any).blur();
+                        }
+                        e.stopPropagation();
+                    }
                 }
 
                 this.refreshTabSizeClass(tab);

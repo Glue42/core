@@ -1,0 +1,5 @@
+## Deployment
+
+Deploying a Glue42 Core project is extremely simple since the only necessary imports in your apps are the Glue42 [Web Platform](https://www.npmjs.com/package/@glue42/web-platform) library for your [Main app](../../core-concepts/web-platform/overview/index.html) and the [Glue42 Web](https://www.npmjs.com/package/@glue42/web) library for your [Web Client](../../core-concepts/web-client/overview/index.html) apps. This enables you to deploy your project by following your standard deployment procedures and using any tools you may need.
+
+If you are using [Workspaces](../../capabilities/workspaces/index.html), you must ensure that your [Workspaces App](../../capabilities/workspaces/index.html#workspaces_concepts-frame) is deployed at the expected location - this location is specified when you initialize the [Web Platform](https://www.npmjs.com/package/@glue42/web-platform) library in your [Main app](../../core-concepts/web-platform/overview/index.html).

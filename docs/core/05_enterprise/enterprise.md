@@ -1,20 +1,10 @@
-*RAW*
-
-The only things I can add here are a couple of clarifications:
-
-First, the Main application can be ran in Enterprise without code change. In this case the Main app will detect that it is located in enterprise and will NOT initialize ANY of it's platform logic. It will literarily default to just being a normal enterprise client.
-
-The client apps (using @glue42/web) will also auto-detect enterprise and initialize @glue42/desktop with all necessary libraries (like AppManager) enabled and set to the highest possible level ("full") to ensure correct app functionality.
-
-*END*
-
 ## Overview
 
-Your Glue42 Core application can run in [**Glue42 Enterprise**](https://glue42.com/desktop-enterprise/) without modification. This gives you the option to easily experiment with your app running in a functionally richer environment with more integration options.
+The [Main application](../core-concepts/web-platform/overview/index.html)  and all [Web Client](../core-concepts/web-client/overview/index.html) apps can run [**Glue42 Enterprise**](https://glue42.com/desktop-enterprise/) without any code modification. The Main app will automatically detect that it is running in **Glue42 Enterprise** and won't initialize any of its [Web Platform](https://www.npmjs.com/package/@glue42/web-platform) logic - it will default to being a normal **Glue42 Enterprise** client application. The Web Client apps will also auto detect the environment and will initialize the [`@glue42/desktop`](https://www.npmjs.com/package/@glue42/desktop) library (instead of [Glue42 Web](https://www.npmjs.com/package/@glue42/web)) with all necessary features enabled and set to the highest possible level (e.g., the Aplication Management API will be initialized in `"full"` mode) to ensure correct app functionality. This gives you the option to easily experiment with your apps running in a functionally richer environment with more integration options.
 
 ## How To 
 
-1. You need to have **Glue42 Enterprise** version 3.9 or newer. You can download the trial version of **Glue42 Enterprise** from [here](https://glue42.com/free-trial/).
+1. Install **Glue42 Enterprise** version 3.9 or newer. Download the trial version of **Glue42 Enterprise** from [here](https://glue42.com/free-trial/).
 
 2. Make sure that **Glue42 Enterprise** runs with auto injection on:
 
@@ -34,7 +24,7 @@ Your Glue42 Core application can run in [**Glue42 Enterprise**](https://glue42.c
 
 *For more details on configuring **Glue42 Enterprise**, see the [Glue42 Enterprise: System Configuration](../../developers/configuration/system/index.html) section.*
 
-3. Create a definition file for your application. Use the template attached below and change the `name`, `title` and `url` properties with the details of your app.
+3. Create a definition file for your application. Use the template below and change the `name`, `title` and `url` properties with the details of your app.
 
 ```json
 [
@@ -86,7 +76,7 @@ if (typeof glue42gd !== "undefined") {
 }
 ```
 
-If you are using TypeScript, you can cast your Glue42 Web API (`@glue42/web`) to the **Glue42 Enterprise** API (`@glue42/desktop`) to get better types:
+If you are using TypeScript, cast your Glue42 Web API (`@glue42/web`) to the **Glue42 Enterprise** API (`@glue42/desktop`) to get better types:
 
 ```typescript
 // Import the types.

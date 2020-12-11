@@ -1,10 +1,3 @@
-*RAW*
-
-No changes here.
-
-*END*
-
-
 ## Overview
 
 The [Interop API](../../../reference/core/latest/interop/index.html) enables applications to:

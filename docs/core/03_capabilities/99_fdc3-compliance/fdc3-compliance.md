@@ -1,7 +1,3 @@
-*RAW*
-TODO: we are not ready with FDC3 and intents right now.
-*END*
-
 ## Overview
 
 [FDC3](https://fdc3.finos.org/) aims at developing specific protocols and classifications in order to advance the ability of desktop applications in financial workflows to interoperate in a plug-and-play fashion without prior bilateral agreements.
@@ -9,10 +5,6 @@ TODO: we are not ready with FDC3 and intents right now.
 ## FDC3 for Glue42 Core
 
 This guide explains how to run an FDC3 compliant app in a **Glue42 Core** project. For detailed information on the FDC3 API itself, see the [FDC3 documentation](https://fdc3.finos.org/docs/next/api/overview).
-
-### Configuration
-
-<!-- TODO -->
 
 ### Initialization
 
@@ -28,33 +20,31 @@ The Glue42 FDC3 library determines internally the environment it runs in (**Glue
 fdc3.addContextListener(context => console.log(`Context: ${context}.`));
 ```
 
-Below you can see how to use the different FDC3 features.
+See below how to use the different FDC3 features.
 
 ### Intents
 
-The [FDC3 Intents](https://fdc3.finos.org/docs/next/intents/overview) concept serves the purpose of enabling the creation of cross-application workflows on the desktop. An application declares an Intent through configuration. An Intent specifies what action the application can execute and what data structure it can work with.
+The [FDC3 Intents](https://fdc3.finos.org/docs/next/intents/overview) concept enables the creation of cross-application workflows on the desktop. An application declares an Intent through configuration. An Intent specifies what action the application can execute and what data structure it can work with.
 
-<!-- TODO -->
+In **Glue42 Core**, Intents are defined in the application configuration objects when initializing the Glue42 [Web Platform](https://www.npmjs.com/package/@glue42/web-platform) library in the [Main application](../../core-concepts/web-platform/overview/index.html). For more details on defining applications, see the [Application Management: Application Definitions](../application-management/index.html#application_definitions) section. Intents can be configured under the `intents` top-level key of the application definition:
 
-In **Glue42 Core**, Intents are defined in the application definitions in the `glue.config.json` file. For more details on defining applications, see the [**Application Management: Application Definitions**](../application-management/index.html#enabling_application_management-application_definitions) section. Intents can be configured under the `intents` top-level key of the application definition:
+```javascript
+import GlueWebPlatform from "@glue42/web-platform";
 
-```json
-{
-    "glue": ...,
-    "gateway": ...,
-    "channels": ...,
-    "appManager": {
-        "localApplications": [
+const config = {
+    applications: {
+        local: [
             {
-                "name": "Clients",
-                "details": {
-                    "url": "http://localhost:4242/clients"
+                name: "Clients",
+                details: {
+                    url: "http://localhost:4242/clients"
                 },
-                "intents": [
+                // Intent definitions.
+                intents: [
                     {
-                        "name": "ShowClientInfo",
-                        "displayName": "Client Info",
-                        "contexts": [
+                        name: "ShowClientInfo",
+                        displayName: "Client Info",
+                        contexts: [
                             "ClientName"
                         ]
                     }
@@ -62,12 +52,16 @@ In **Glue42 Core**, Intents are defined in the application definitions in the `g
             }
         ]
     }
-}
+};
+
+const { glue } = await GlueWebPlatform(config);
 ```
 
-- `name` - **Required**. The name of the Intent;
-- `displayName` - The human readable name of the Intent. Can be used in context menus, etc., to visualize the Intent;
-- `contexts` - **Required**. The type of predefined data structures that the application can work with (see [FDC3 Contexts](https://fdc3.finos.org/docs/next/context/overview)).
+| Property | Description |
+|----------|-------------|
+| `name` | **Required**. The name of the Intent. |
+| `displayName` | The human readable name of the Intent. Can be used in context menus, etc., to visualize the Intent. |
+| `contexts` | The type of predefined data structures with which the application can work (see [FDC3 Contexts](https://fdc3.finos.org/docs/next/context/overview)). |
 
 In order to be able to properly target applications with `raiseIntent()` the applications need to pass their application name to `@glue42/fdc3`. This is needed by the implementation so it can check whether there is a running instance of the targeted application or a new instance has to be started. Because the FDC3 specification doesn't specify any initialization logic, `@glue42/fdc3` relies on a global variable called `fdc3AppName` being present prior to importing `@glue42/fdc3`:
 
@@ -84,31 +78,40 @@ In order to be able to properly target applications with `raiseIntent()` the app
 
 An [FDC3 Channel](https://fdc3.finos.org/docs/next/api/ref/Channel) is a named context object that an application can join in order to share and update context data and also be alerted when the context data changes. By [specification](https://fdc3.finos.org/docs/next/api/spec#context-channels), Channels can either be well-known system Channels or Channels created by apps. On a UI level, Channels can be represented by colors and names.
 
-<!-- TODO -->
+Channels are defined when initializing the Glue42 [Web Platform](https://www.npmjs.com/package/@glue42/web-platform) library in the [Main application](../../core-concepts/web-platform/overview/index.html):
 
-All system defined Channels in **Glue42 Core** can be found in the `glue.config.json` file. There you can easily define as many custom Channels as you want. For instance, to add a "Purple" channel to the list of system channels, you need to add the following configuration:
+```javascript
+import GlueWebPlatform from "@glue42/web-platform";
 
-```json
-
-{
-    "glue": ...,
-    "gateway": ...,
-    "channels": [
-        {
-            "name": "Purple",
-            "meta": {
-                "color": "#6400b0"
+const config = {
+    channels: {
+        // Channel definitions.
+        definitions: [
+            {
+                name: "Red",
+                meta: {
+                    color: "red"
+                },
+                data: { glue: 42 }
+            },
+            {
+                name: "Green",
+                meta: {
+                    color: "#008000"
+                }
             }
-        }
-    ]
-}
+        ]
+    }
+};
+
+const { glue } = await GlueWebPlatform(config);
 ```
 
-All Glue42 Core channels are available as FDC3 system channels.
+All Glue42 Channels are available as FDC3 system Channels.
 
-Glue42 Core applications can interact with FDC3 app channels by using the [Shared Contexts API](../shared-contexts/index.html). For each FDC3 app channel there is a shard context with the same name. You can use the `get()`, `set()`, `update()` and `subscribe()` methods to interact with it.
+Glue42 Core applications can interact with FDC3 app Channels by using the [Shared Contexts API](../shared-contexts/index.html). For each FDC3 app Channel there is a shared context with the same name. You can use the `get()`, `set()`, `update()` and `subscribe()` methods to interact with it.
 
-*For a sample Channel Selector widget implementation, see the [**Channels: Channel Selector UI**](../channels/index.html#channel_selector_ui) section. There you can see example implementations for the most popular JavaScript frameworks. Note that internally the examples use the **Glue42 Core** Channels API and not the FDC3 Channels API.*
+*For a sample Channel Selector widget implementation, see the [Channels: Channel Selector UI](../channels/index.html#channel_selector_ui) section, which offers example implementations for the most popular JavaScript frameworks. Note that internally the examples use the **Glue42 Core** Channels API and not the FDC3 Channels API.*
 
 *For more information on using Channels, see the [FDC3 Channels API](https://fdc3.finos.org/docs/next/api/ref/Channel).*
 
@@ -116,55 +119,25 @@ Glue42 Core applications can interact with FDC3 app channels by using the [Share
 
 The goal of the [FDC3 App Directory](https://fdc3.finos.org/docs/next/app-directory/overview) REST service is to provide trusted identity for desktop apps. Application definitions are provided by one or more App Directory REST services where user entitlements and security can also be handled.
 
-<!-- TODO -->
-
-To configure **Glue42 Core** to retrieve application definitions from remote application stores, you need to add a new entry to the `remoteSources` property of the `appManager` top-level key in the `glue.config.json` file:
-
-```json
-{
-    "glue": ...,
-    "gateway": ...,
-    "channels": ...,
-    "appManager": {
-        "remoteSources": [
-            {
-                "url": "http://localhost:3001/v1/apps/search",
-                "pollingInterval": 5000,
-                "requestTimeout": 10000
-            }
-        ]
-    }
-}
-```
-
 *Note that the remote sources can supply both **Glue42 Core** and FDC3 application definitions. **Glue42 Core** supports for both. The only requirement for an FDC3 application definition to be usable in **Glue42 Core** is to have a valid `details.url` or a `url` top-level property in its `manifest` JSON string property.*
 
 Below is an example FDC3 application definition:
 
 ```json
 {
-    "glue": ...,
-    "gateway": ...,
-    "channels": ...,
-    "appManager": {
-        "localApplications": [
-            {
-                "name": "Clients",
-                "appId": "clients",
-                "manifestType": "Glue42",
-                "manifest": "{\"details\":{\"url\":\"http://localhost:4242/clients\"}}",
-                "intents": [
-                    {
-                        "name": "ShowClientInfo",
-                        "displayName": "Client Info",
-                        "contexts": [
-                            "ClientName"
-                        ]
-                    }
-                ]
-            }
-        ]
-    }
+    "name": "Clients",
+    "appId": "clients",
+    "manifestType": "Glue42",
+    "manifest": "{\"details\":{\"url\":\"http://localhost:4242/clients\"}}",
+    "intents": [
+        {
+            "name": "ShowClientInfo",
+            "displayName": "Client Info",
+            "contexts": [
+                "ClientName"
+            ]
+        }
+    ]
 }
 ```
 
@@ -180,4 +153,4 @@ The demo consists of a Chart and a Blotter application. Searching and selecting 
 
 Right-clicking on an instrument inside the Blotter opens up a context menu with the intents that can be raised for the instrument. When the chart application is running it would update its context and when there are no instances of the Chart application running it will start a new instance with the given context.
 
-Use the [code of the demo](https://github.com/Glue42/fdc3-demos/tree/configure-for-glue42-core) as a reference when adapting your own applications.
+Use the [code of the demo](https://github.com/Glue42/fdc3-demos/tree/adapt-for-glue42) as a reference when adapting your own applications.

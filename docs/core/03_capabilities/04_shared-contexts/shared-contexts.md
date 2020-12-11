@@ -1,9 +1,3 @@
-*RAW*
-
-No changes here.
-
-*END*
-
 ## Overview
 
 A **Shared Context** is a named object (holding a `map` of `key`/`value` pairs) that stores cross application data. A context object can hold any cross-application data. Any application can update a context or subscribe for context update notifications (by using the name of the context) and also react to context changes (by subscribing for context updates) or update the context at runtime.

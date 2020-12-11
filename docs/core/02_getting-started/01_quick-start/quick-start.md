@@ -1,89 +1,63 @@
-*RAW*
+## Guide
 
-Quick starting a Glue42 Core project is very simple, all you need is to set up a main application and optionally a second applications - a client.
+Starting a basic **Glue42 Core** project is easy and intuitive, as this guide will show you. To quick start your project, you have to set up a [Web Platform](../../core-concepts/web-platform/overview/index.html) application (also called "Main application") and optionally a second application - a [Web Client](../../core-concepts/web-client/overview/index.html).
 
-To set up a main applications you need to:
-1. create a basic html file + a basic index.js file
-2. in the html -> 
+### Main Application
+
+1. Create standard basic `index.html` and `index.js` files for your Main app.
+
+2. Reference the Glue42 [Web Platform](https://www.npmjs.com/package/@glue42/web-platform) library and your `index.js` in the `index.html` file:
+
 ```html
 <script src="https://unpkg.com/@glue42/web-platform@latest/dist/platform.web.umd.js"></script>
 <script src="./index.js"></script>
 ```
-3. in the index.js ->
+
+3. Initialize the [Web Platform](https://www.npmjs.com/package/@glue42/web-platform) library in the `index.js` file using the `GlueWebPlatform()` factory function:
+
 ```javascript
 const init = async () => {
     const { glue } = await window.GlueWebPlatform();
-    console.log(`Glue42 initialized successfully! Glue42 version: ${glue.version}`);
-};
 
-init().catch(console.error);
-```
-Now we have a fully working Main application
-In order to add another application -> repeat the same steps, but use different package and factory function:
-```html
-<script src="https://unpkg.com/@glue42/web@latest/dist/web.umd.js"></script>
-<script src="./index.js"></script>
-```
-```javascript
-const init = async () => {
-    const glue = await window.GlueWeb();
     console.log(`Glue42 initialized successfully! Glue42 version: ${glue.version}`);
 };
 
 init().catch(console.error);
 ```
 
-Now we also have a client, which can be opened by using the windows library and the url that the app was deployed to.
+Now you have a fully functioning Main application.
 
-*END*
+### Web Client
 
-## Guide
+1. Create standard basic `index.html` and `index.js` files for your Web Client app.
 
-This guide will show you how to easily create, setup and run a simple **Glue42 Core** project.
-
-<!-- TODO -->
-
-2. Create a root project directory with basic `index.html` and `index.js` files in it and reference the `index.js` file in the `index.html` file with a `<script>` tag.
-
-Your project directory should look like something this:
-
-```cmd
-/myApp
-    /index.html
-    /index.js
-```
-
-Your `index.html` should contain this:
-
-```html
-<script src="index.js"></script>
-```
-
-
-4. In your `index.html` file, reference the latest [**Glue42 Web**](../../../reference/core/latest/glue42%20web/index.html) library module from `UNPKG`:
+2. Reference the [Glue42 Web](https://www.npmjs.com/package/@glue42/web) library and your `index.js` in the `index.html` file:
 
 ```html
 <script src="https://unpkg.com/@glue42/web@latest/dist/web.umd.js"></script>
 <script src="./index.js"></script>
 ```
 
-5. Go to your `index.js` file and declare a simple initialization function like the one below:
+3. Initialize the [Glue42 Web](https://www.npmjs.com/package/@glue42/web) library in the `index.js` file using the `GlueWeb()` factory function:
 
 ```javascript
 const init = async () => {
     const glue = await window.GlueWeb();
+
     console.log(`Glue42 initialized successfully! Glue42 version: ${glue.version}`);
 };
 
 init().catch(console.error);
 ```
 
-
+Now you also have a fully functioning [Web Client](../../core-concepts/web-client/overview/index.html) app that can be opened from the Main app - e.g., by using the [Window Management](../../capabilities/window-management/index.html) library and the URL where the app was deployed.
 
 ## Next Steps
 
-Congratulations, you now have your very first **Glue42 Core** app! 
+Congratulations, you have created your very first **Glue42 Core** project! 
 
 *For deploying your project, see the [Project Deployment](../project-deployment/index.html) section.*
+
+*For more information on the Web Platform and Web Client apps, see the [Web Platform](../../core-concepts/web-platform/overview/index.html) and [Web Client](../../core-concepts/web-client/overview/index.html) sections.*
 
 *For more information on the **Glue42 Web** library, see the [Reference](../../../reference/core/latest/glue42%20web/index.html) section.*
