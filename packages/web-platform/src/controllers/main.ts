@@ -1,4 +1,4 @@
-import { Glue42Web, GlueWebFactoryFunction } from "@glue42/web";
+import { Glue42Web } from "@glue42/web";
 import { CoreClientData, InternalPlatformConfig, LibController, LibDomains } from "../common/types";
 import { libDomainDecoder } from "../shared/decoders";
 import { GlueController } from "./glue";
@@ -10,6 +10,9 @@ import logger from "../shared/logger";
 import { generate } from "shortid";
 import { LayoutsController } from "../libs/layouts/controller";
 import { WorkspacesController } from "../libs/workspaces/controller";
+import { IntentsController } from "../libs/intents/controller";
+import { ChannelsController } from "../libs/channels/controller";
+import { Glue42WebPlatform } from "../../platform";
 
 export class PlatformController {
 
@@ -17,7 +20,9 @@ export class PlatformController {
         windows: this.windowsController,
         appManager: this.applicationsController,
         layouts: this.layoutsController,
-        workspaces: this.workspacesController
+        workspaces: this.workspacesController,
+        intents: this.intentsController,
+        channels: this.channelsController
     }
 
     constructor(
@@ -26,6 +31,8 @@ export class PlatformController {
         private readonly applicationsController: ApplicationsController,
         private readonly layoutsController: LayoutsController,
         private readonly workspacesController: WorkspacesController,
+        private readonly intentsController: IntentsController,
+        private readonly channelsController: ChannelsController,
         private readonly portsBridge: PortsBridge,
         private readonly stateController: StateController
     ) { }
@@ -42,18 +49,30 @@ export class PlatformController {
 
         await this.glueController.start(config);
 
-        await Promise.all(Object.values(this.controllers).map((controller) => controller.start(config)));
-
         await Promise.all([
             this.glueController.createPlatformSystemMethod(this.handleControlMessage.bind(this)),
             this.glueController.createPlatformSystemStream()
         ]);
 
         this.stateController.start();
+
+        await Promise.all(Object.values(this.controllers).map((controller) => controller.start(config)));
+
+        await this.glueController.initClientGlue(config?.glue, config?.glueFactory);
+
+        config.plugins?.definitions.forEach(this.startPlugin.bind(this));
     }
 
-    public initNewGlue(config?: Glue42Web.Config, factory?: GlueWebFactoryFunction): Promise<Glue42Web.API> {
-        return this.glueController.initGlue(config, factory);
+    public getClientGlue(): Glue42Web.API {
+        return this.glueController.clientGlue;
+    }
+
+    private startPlugin(definition: Glue42WebPlatform.Plugins.PluginDefinition): void {
+        try {
+            definition.start(this.glueController.clientGlue, definition.config);
+        } catch (error) {
+            this.logger?.warn(`Plugin: ${definition.name} threw while initiating: ${JSON.stringify(error.message)}`);
+        }
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -92,7 +111,7 @@ export class PlatformController {
 
         Object.values(this.controllers).forEach((controller, idx) => {
             try {
-                controller.handleClientUnloaded(client.windowId, client.win);
+                controller.handleClientUnloaded?.(client.windowId, client.win);
             } catch (error) {
                 const controllerName = Object.keys(this.controllers)[idx];
                 this.logger?.error(`${controllerName} controller threw when handling unloaded client ${client.windowId} with error message: ${JSON.stringify(error.message)}`);

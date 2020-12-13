@@ -12,7 +12,7 @@ describe('join()', () => {
             await glue.channels.join(1);
             throw new Error('join() should have thrown an error because there wasn\'t a channel with the provided name!');
         } catch (error) {
-            expect(error.message).to.equal('Please provide the channel name as a string!');
+            expect(error.message).to.equal('expected a string, got a number');
         }
     });
 
@@ -24,7 +24,7 @@ describe('join()', () => {
             await glue.channels.join(nonExistentChannelName);
             throw new Error('join() should have thrown an error because name wasn\'t of type string!');
         } catch (error) {
-            expect(error.message).to.equal(`A channel with name: ${nonExistentChannelName} doesn't exist!`);
+            expect(error.message).to.equal("Expected a valid channel name");
         }
     });
 

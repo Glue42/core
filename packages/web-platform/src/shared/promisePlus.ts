@@ -35,7 +35,7 @@ export const PromiseWrap = <T>(promise: () => Promise<T>, timeoutMilliseconds: n
     });
 };
 
-export const PromisePlus = <T>(executor: (resolve: (value?: T | PromiseLike<T> | undefined) => void, reject: (reason?: any) => void) => void, timeoutMilliseconds: number, timeoutMessage?: string): Promise<T> => {
+export const PromisePlus = <T>(executor: (resolve: (value?: T | PromiseLike<T>) => void, reject: (reason?: any) => void) => void, timeoutMilliseconds: number, timeoutMessage?: string): Promise<T> => {
 
     return new Promise<T>((resolve, reject) => {
         const timeout = setTimeout(() => {

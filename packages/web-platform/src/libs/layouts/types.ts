@@ -43,6 +43,11 @@ export interface AllLayoutsFullConfig {
     layouts: Glue42Web.Layouts.Layout[];
 }
 
+export interface LayoutsImportConfig {
+    layouts: Glue42Web.Layouts.Layout[];
+    mode: "replace" | "merge";
+}
+
 export interface AllLayoutsSummariesResult {
     summaries: Glue42Web.Layouts.LayoutSummary[];
 }

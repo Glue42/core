@@ -19,7 +19,8 @@
     ],
     "sideEffects": false,
     "scripts": {
-        "test": "jest --coverage --runInBand",
+        "test": "echo no tests found",
+        "test:V1": "jest --coverage --runInBand",
         "test:watch": "jest --watchAll",
         "build": "rollup -c",
         "lint": "eslint . --ext .js,.ts,.tsx --max-warnings 0",
@@ -74,6 +75,7 @@
     "dependencies": {
         "@glue42/desktop": "^5.3.2",
         "@glue42/web": "^2.0.0-beta.0",
+        "@glue42/web-platform": "^0.0.1-beta.1",
         "prop-types": "^15.7.2"
     }
 }

@@ -49,6 +49,10 @@ export class WindowsController implements LibController {
         return this.operations.moveResize;
     }
 
+    public get setTitleOperation(): BridgeOperation {
+        return this.operations.setTitle;
+    }
+
     public async start(config: InternalPlatformConfig): Promise<void> {
         this.clientResponseTimeoutMs = config.windows.windowResponseTimeoutMs;
         this.defaultBounds = config.windows.defaultWindowOpenBounds;
@@ -94,6 +98,11 @@ export class WindowsController implements LibController {
         this.logger?.trace(`[${commandId}] ${operationName} command was executed successfully`);
 
         return result;
+    }
+
+    public async getWindowTitle(windowId: string, commandId: string): Promise<string> {
+        const boundsResult = await this.handleGetTitle({ windowId }, commandId);
+        return boundsResult.title;
     }
 
     public async getWindowBounds(windowId: string, commandId: string): Promise<Glue42Web.Windows.Bounds> {
@@ -153,7 +162,7 @@ export class WindowsController implements LibController {
 
         this.sessionController.saveWindowData({ windowId: data.windowId, name: data.name });
 
-        this.sessionController.saveWorkspaceClient({ windowId: data.windowId, frameId: data.frameId });
+        this.sessionController.saveWorkspaceClient({ windowId: data.windowId, frameId: data.frameId, initialTitle: data.title });
 
         if (data.context) {
             await this.glueController.setWindowStartContext(data.windowId, data.context);
@@ -181,7 +190,7 @@ export class WindowsController implements LibController {
 
         const windowData: SessionWindowData = {
             name: config.name,
-            windowId: generate()
+            windowId: (config as any).options?.windowId ?? generate()
         };
 
         const openBounds = await this.getStartingBounds(config, commandId);
@@ -208,6 +217,16 @@ export class WindowsController implements LibController {
 
         if (client.windowId) {
             this.stateController.remove(client.windowId);
+
+            const workspaceClient = this.sessionController.getWorkspaceClientById(client.windowId);
+
+            if (workspaceClient && workspaceClient.initialTitle) {
+                const windowId = client.windowId;
+                const title = workspaceClient.initialTitle;
+
+                PromiseWrap<void>(() => this.glueController.callWindow<WindowTitleConfig, void>(this.operations.setTitle, { windowId, title }, windowId), this.clientResponseTimeoutMs)
+                    .catch((err) => this.logger?.trace(`[${commandId}] error while setting the workspace window title: ${err.message}`));
+            }
         }
 
         const isWorkspaceFrame = !!(client.windowId && this.sessionController.getFrameData(client.windowId));
@@ -248,18 +267,24 @@ export class WindowsController implements LibController {
         return PromiseWrap<WindowTitleConfig>(() => this.glueController.callWindow<SimpleWindowCommand, WindowTitleConfig>(this.operations.getTitle, data, data.windowId), this.clientResponseTimeoutMs, timeoutMessage);
     }
 
-    private handleSetTitle(data: WindowTitleConfig, commandId: string): Promise<void> {
+    private async handleSetTitle(data: WindowTitleConfig, commandId: string): Promise<void> {
         const windowData = this.sessionController.getWindowDataById(data.windowId);
 
         if (!windowData) {
             throw new Error(`Cannot set the title of window: ${data.windowId}, because it is does not exist for the platform`);
         }
 
+        const workspaceClient = this.sessionController.getWorkspaceClientById(data.windowId);
+
+        if (workspaceClient) {
+            await this.ioc.workspacesController.setItemTitle({ itemId: data.windowId, title: data.title }, commandId);
+        }
+
         this.logger?.trace(`[${commandId}] handling a set title request for window ${data.windowId} and title: ${data.title}`);
 
         const timeoutMessage = `Cannot set the title of window: ${data.windowId}, because it is either a non-glue window or it hasn't initiated it's glue yet`;
 
-        return PromiseWrap<void>(() => this.glueController.callWindow<WindowTitleConfig, void>(this.operations.setTitle, data, data.windowId), this.clientResponseTimeoutMs, timeoutMessage);
+        await PromiseWrap<void>(() => this.glueController.callWindow<WindowTitleConfig, void>(this.operations.setTitle, data, data.windowId), this.clientResponseTimeoutMs, timeoutMessage);
     }
 
     private handleMoveResize(data: WindowMoveResizeConfig, commandId: string): Promise<void> {

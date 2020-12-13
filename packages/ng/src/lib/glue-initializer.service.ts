@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from "@angular/core";
-import { Glue42NgConfig, Glue42NgFactory } from "./types";
 import { Glue42 } from "@glue42/desktop";
 import { Glue42Web } from "@glue42/web";
 import { Subject, Observable } from "rxjs";
@@ -15,21 +14,27 @@ export class Glue42Initializer {
 
     public start(): Promise<void> {
 
-        const config = this.configService.getSettings().config;
-        const factory = this.configService.getSettings().factory;
+        try {
+            this.configService.verifyConfig();
+        } catch (error) {
+            this.initializationSource.next({ error: { message: error.message } });
+            this.initializationSource.complete();
+            return Promise.resolve();
+        }
 
-        const glueFactory = factory || this.getGlueFactory();
+        const config = this.configService.getConfig();
+        const factory = this.configService.getFactory();
 
-        if (!glueFactory) {
-            const errorMessage = "Initialization failed, because no Glue Factory function was found. Please provide a factory function when importing the Glue42Ng module. Alternatively make sure there is a GlueWeb or Glue function attached to the global window object";
+        if (!factory) {
+            const errorMessage = "Initialization failed, because no Glue Factory function was found. Please provide a factory function when importing the Glue42Ng module. Alternatively make sure there is a GlueWeb or Glue or GlueWebPlatform function attached to the global window object";
             this.initializationSource.next({ error: { message: errorMessage } });
             this.initializationSource.complete();
             return Promise.resolve();
         }
 
-        const gluePromise = this.safeCallFactory(config, glueFactory, this.defaultInitTimeoutMilliseconds, `Glue factory timeout hit. Set at: ${this.defaultInitTimeoutMilliseconds} milliseconds`)
-            .then((glueInstance) => {
-                this.initializationSource.next({ glueInstance });
+        const gluePromise = this.safeCallFactory(config, factory, this.defaultInitTimeoutMilliseconds, `Glue factory timeout hit. Set at: ${this.defaultInitTimeoutMilliseconds} milliseconds`)
+            .then((glueResult) => {
+                this.initializationSource.next({ glueInstance: glueResult.glue });
                 this.initializationSource.complete();
             })
             .catch((error) => {
@@ -44,11 +49,7 @@ export class Glue42Initializer {
         return this.initializationSource.asObservable();
     }
 
-    private getGlueFactory(): Glue42NgFactory {
-        return (window as any).GlueWeb || (window as any).Glue;
-    }
-
-    private safeCallFactory(config: Glue42NgConfig, factory: Glue42NgFactory, timeoutMilliseconds: number, timeoutMessage: string): Promise<Glue42Web.API | Glue42.Glue> {
+    private safeCallFactory(config: any, factory: any, timeoutMilliseconds: number, timeoutMessage: string): Promise<{ glue: Glue42.Glue | Glue42Web.API }> {
         return new Promise((resolve, reject) => {
             let timeoutHit = false;
 
@@ -61,13 +62,16 @@ export class Glue42Initializer {
             }, timeoutMilliseconds);
 
             factory(config)
-                .then((result) => {
+                .then((result: any) => {
                     if (!timeoutHit) {
                         clearTimeout(timeout);
-                        resolve(result);
+
+                        const glue = result.glue || result;
+
+                        resolve({ glue });
                     }
                 })
-                .catch((error) => {
+                .catch((error: any) => {
                     if (!timeoutHit) {
                         clearTimeout(timeout);
                         reject(error);

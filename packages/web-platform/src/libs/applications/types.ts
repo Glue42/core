@@ -1,11 +1,13 @@
+import { Glue42Web } from "@glue42/web";
 import { Glue42WebPlatform } from "../../../platform";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export type AppManagerOperationTypes = "appHello" | "applicationStart" | "instanceStop" | "registerWorkspaceApp" | "unregisterWorkspaceApp";
+export type AppManagerOperationTypes = "appHello" | "applicationStart" | "instanceStop" |
+    "registerWorkspaceApp" | "unregisterWorkspaceApp" | "export" | "import" | "remove";
 
 export interface BaseApplicationData {
     name: string;
-    createOptions: Glue42WebPlatform.Applications.CreateOptions;
+    createOptions: Glue42Web.AppManager.DefinitionDetails;
     userProperties?: any;
     title?: string;
     version?: string;
@@ -47,21 +49,22 @@ export interface AppHello {
     windowId?: string;
 }
 
-export interface ApplicationStartConfig {
-    name: string;
-    context?: any;
-    top?: number;
-    left?: number;
-    width?: number;
-    height?: number;
-    relativeTo?: string;
-    relativeDirection?: "top" | "left" | "right" | "bottom";
-    waitForAGMReady?: boolean;
-}
-
 export interface InstanceLock {
     keyOne: Promise<void>;
     keyTwo: Promise<void>;
     openKeyOne: (value?: void | PromiseLike<void> | undefined) => void;
     openKeyTwo: (value?: void | PromiseLike<void> | undefined) => void;
+}
+
+export interface AppRemoveConfig {
+    name: string;
+}
+
+export interface AppsImportOperation {
+    definitions: Array<Glue42Web.AppManager.Definition | Glue42WebPlatform.Applications.FDC3Definition>;
+    mode: "replace" | "merge";
+}
+
+export interface AppsExportOperation {
+    definitions: Glue42Web.AppManager.Definition[];
 }

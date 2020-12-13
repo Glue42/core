@@ -7,11 +7,11 @@ The [Interop API](../../../reference/core/latest/interop/index.html) enables app
 - invoke registered Interop methods;
 - stream and subscribe to real-time data using the streaming methods of the Interop API;
 
-We call applications which offer methods and streams *Interop servers*, and applications which consume them - *Interop clients*, and collectively - **Interop instances**.
+Applications which offer methods and streams are called *Interop servers*, and applications which consume them - *Interop clients*, and collectively - **Interop instances**.
 
-*For detailed information on the Interop API (methods, streams, discovery and more), see the [**Interop**](../../../glue42-concepts/data-sharing-between-apps/interop/javascript/index.html) documentation.*
+*For detailed information on the Interop API (methods, streams, discovery and more), see the [Interop](../../../glue42-concepts/data-sharing-between-apps/interop/javascript/index.html) documentation.*
 
-In the next sections, you can see examples of using the Interop API. You can open the embedded examples directly in [CodeSandbox](https://codesandbox.io) to see the code and experiment with it.
+The examples in the next sections demonstrate using the Interop API. To see the code and experiment with it, open the embedded examples directly in [CodeSandbox](https://codesandbox.io). 
 
 ## Registering and Invoking Methods
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Workspaces, { WorkspaceContents, CloseFrameButton, getFrameId, MinimizeFrameButton, MaximizeFrameButton } from "@glue42/workspaces-ui-react";
 import { useGlue } from "@glue42/react-hooks";
+import { Glue42 } from "@glue42/desktop";
 import { Glue42Workspaces } from "@glue42/workspaces-api";
 import { Glue42Web } from '@glue42/web';
 import CustomWorkspaceContents from './CustomWorkspaceContents';
@@ -12,7 +13,7 @@ const CustomWorkspaces = () => {
     const [showContents, setShowContents] = useState(true);
     const [selectedWorkspaceId, setSelectedWorkspaceId] = useState("");
 
-    const waitForMyFrame = (glue: Glue42Web.API) => {
+    const waitForMyFrame = (glue: Glue42Web.API | Glue42.Glue) => {
         return new Promise<Glue42Workspaces.Frame>(async (res, rej) => {
             const unsub = await glue.workspaces?.onFrameOpened((f) => {
                 if (f.id === getFrameId()) {
@@ -34,7 +35,7 @@ const CustomWorkspaces = () => {
         });
     };
 
-    useGlue(async (glue: Glue42Web.API) => {
+    useGlue(async (glue) => {
         const myFrame = await waitForMyFrame(glue);
         const docsWorkspace = await myFrame.createWorkspace(getDocsWorkspace("dummyApp"));
         const clientWorkspace = await myFrame.createWorkspace(getClientWorkspace("dummyApp", "dummyApp"));

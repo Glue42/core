@@ -72,7 +72,7 @@ export class LayoutStateResolver {
         const placementId = idAsString(id);
         const windowContentItem = store.getWindowContentItem(placementId);
 
-        return windowContentItem?.parent.isMaximized;
+        return !!windowContentItem?.parent.isMaximized;
     }
 
     public isWindowSelected(id: string | string[]): boolean {
@@ -172,7 +172,7 @@ export class LayoutStateResolver {
     private getWindowSummaryCore(windowContentItem: GoldenLayout.Component, winId: string) {
         const isFocused = windowContentItem.parent.getActiveContentItem().config.id === windowContentItem.config.id;
         const isLoaded = windowContentItem.config.componentState.windowId !== undefined;
-        const positionIndex = windowContentItem.parent.contentItems.indexOf(windowContentItem);
+        const positionIndex = this.getWindowPositionIndex(windowContentItem);
         const workspaceId = store.getByWindowId(winId).id;
         const { appName, url, windowId } = windowContentItem.config.componentState;
 
@@ -194,6 +194,12 @@ export class LayoutStateResolver {
                 title: windowContentItem.config.title
             }
         };
+    }
+
+    private getWindowPositionIndex(windowContentItem: GoldenLayout.ContentItem) {
+        const index = windowContentItem.parent.contentItems.indexOf(windowContentItem);
+
+        return index === -1 ? windowContentItem.parent.contentItems.length : index;
     }
 
     private getUserFriendlyParent(contentItem: GoldenLayout.ContentItem): GoldenLayout.ContentItem {

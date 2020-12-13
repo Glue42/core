@@ -4,7 +4,7 @@ import { promisePlus } from "./utils";
 
 export class GtfAgm implements Gtf.Agm {
     private counter = 0;
-    private systemMethodNames = ["T42.HC.GetSaveContext", "T42.Layouts.Events", "GC.Control", "G42Core.E2E.Logger"];
+    private readonly systemMethodNames = ["T42.Web.Platform.WSP.Stream", "T42.Workspaces.Events", "T42.Web.Platform.Control", "T42.Web.Platform.Stream", "T42.Web.Client.Control", "G42Core.E2E.Logger"];
 
     constructor(private readonly glue: Glue42Web.API) {
     }

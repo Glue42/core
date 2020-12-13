@@ -2,15 +2,42 @@
 
 Using the [Window Management API](../../../reference/core/latest/windows/index.html), your application can easily open and manipulate browser windows. This allows you to transform your traditional single-window web app into a multi-window native-like PWA application. The Window Management API enables applications to:
 
-- **open multiple windows**;
-- **manipulate the position and size** of opened windows;
-- **pass context data upon opening new windows**;
-- **listen for and handle events** related to opening and closing windows;
-- **automatically save and restore** the positions and contexts of your application windows;
+- open multiple windows;
+- manipulate the position and size of opened windows;
+- pass context data upon opening new windows;
+- listen for and handle events related to opening and closing windows;
+- automatically save and restore the positions and contexts of your application windows;
 
-*For detailed information on the Window Management API, see the [**Window Management**](../../../glue42-concepts/windows/window-management/javascript/index.html) documentation.*
+*For detailed information on the Window Management API, see the [Window Management](../../../glue42-concepts/windows/window-management/javascript/index.html) documentation.* 
 
-In the next sections, you can see examples of using the Interop API. You can open the embedded examples directly in [CodeSandbox](https://codesandbox.io) to see the code and experiment with it.
+## Configuration
+
+Use the `windows` property of the configuration object when initializing the Glue42 [Web Platform](https://www.npmjs.com/package/@glue42/web-platform) library in the [Main application](../../core-concepts/web-platform/overview/index.html) to specify custom settings for the Window Management library:
+
+```javascript
+import GlueWebPlatform from "@glue42/web-platform";
+
+const config = {
+    windows: {
+        windowResponseTimeoutMs: 10000,
+        defaultWindowOpenBounds: {
+            top: 0,
+            left: 0,
+            width: 600,
+            height: 600
+        }
+    }
+};
+
+const { glue } = await GlueWebPlatform(config);
+```
+
+| Property | Description |
+|----------|-------------|
+| `windowResponseTimeout` | Sets the timeout (in ms) that the Glue42 library will wait for a valid success response from the target window when a window operation is being executed (e.g., moving a window). If no response has been received within this period, the Glue42 library will assume that either the window is not Glue42 enabled, or Glue42 has not been initialized yet. |
+| `defaultWindowOpenBounds` | Default bounds for opening a new window or an application instance. |
+
+The examples in the next sections demonstrate using the Window Management API. To see the code and experiment with it, open the embedded examples directly in [CodeSandbox](https://codesandbox.io).
 
 ## Opening Windows
 

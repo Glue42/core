@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import { Glue42Workspaces } from "@glue42/workspaces-api";
 import { anyJson, array, boolean, constant, Decoder, intersection, lazy, number, object, oneOf, optional, string } from "decoder-validate";
 import { nonEmptyStringDecoder, nonNegativeNumberDecoder } from "../../shared/decoders";
-import { AddContainerConfig, AddItemResult, AddWindowConfig, BaseChildSnapshotConfig, BundleConfig, ChildSnapshotResult, ContainerStreamData, ContainerSummaryResult, DeleteLayoutConfig, ExportedLayoutsResult, FrameHello, FrameSnapshotResult, FrameStateConfig, FrameStateResult, FrameStreamData, FrameSummariesResult, FrameSummaryResult, GetFrameSummaryConfig, IsWindowInSwimlaneResult, LayoutSummariesResult, LayoutSummary, MoveFrameConfig, MoveWindowConfig, OpenWorkspaceConfig, ParentSnapshotConfig, PingResult, ResizeItemConfig, SetItemTitleConfig, SimpleItemConfig, SimpleWindowOperationSuccessResult, SwimlaneWindowSnapshotConfig, WindowStreamData, WorkspaceConfigResult, WorkspaceCreateConfigProtocol, WorkspaceEventAction, WorkspaceEventType, WorkspaceSnapshotResult, WorkspacesOperationsTypes, WorkspaceStreamData, WorkspaceSummariesResult, WorkspaceSummaryResult, WorkspaceWindowData } from "./types";
+import { AddContainerConfig, AddItemResult, AddWindowConfig, BaseChildSnapshotConfig, BundleConfig, ChildSnapshotResult, ContainerStreamData, ContainerSummaryResult, DeleteLayoutConfig, ExportedLayoutsResult, FrameHello, FrameSnapshotResult, FrameStateConfig, FrameStateResult, FrameStreamData, FrameSummariesResult, FrameSummaryResult, GetFrameSummaryConfig, IsWindowInSwimlaneResult, LayoutSummariesResult, LayoutSummary, MoveFrameConfig, MoveWindowConfig, OpenWorkspaceConfig, ParentSnapshotConfig, PingResult, ResizeItemConfig, SetItemTitleConfig, SimpleItemConfig, SimpleWindowOperationSuccessResult, SwimlaneWindowSnapshotConfig, WindowStreamData, WorkspaceConfigResult, WorkspaceCreateConfigProtocol, WorkspaceEventAction, WorkspaceEventType, WorkspacesLayoutImportConfig, WorkspaceSnapshotResult, WorkspacesOperationsTypes, WorkspaceStreamData, WorkspaceSummariesResult, WorkspaceSummaryResult, WorkspaceWindowData } from "./types";
 
 export const workspacesOperationDecoder: Decoder<WorkspacesOperationsTypes> = oneOf<
     "isWindowInWorkspace" | "createWorkspace" | "getAllFramesSummaries" | "getFrameSummary" |
@@ -52,7 +53,8 @@ export const workspaceWindowDataDecoder: Decoder<WorkspaceWindowData> = object({
     windowId: nonEmptyStringDecoder,
     frameId: nonEmptyStringDecoder,
     appName: optional(nonEmptyStringDecoder),
-    context: optional(anyJson())
+    context: optional(anyJson()),
+    title: optional(nonEmptyStringDecoder)
 });
 
 export const isWindowInSwimlaneResultDecoder: Decoder<IsWindowInSwimlaneResult> = object({
@@ -278,24 +280,37 @@ export const workspaceConfigResultDecoder: Decoder<WorkspaceConfigResult> = obje
     layoutName: optional(nonEmptyStringDecoder)
 });
 
+// todo: remove number positionIndex when fixed
 export const baseChildSnapshotConfigDecoder: Decoder<BaseChildSnapshotConfig> = object({
     frameId: nonEmptyStringDecoder,
     workspaceId: nonEmptyStringDecoder,
-    positionIndex: nonNegativeNumberDecoder
+    positionIndex: number()
 });
 
 export const parentSnapshotConfigDecoder: Decoder<ParentSnapshotConfig> = anyJson();
 
+// export const swimlaneWindowSnapshotConfigDecoder: Decoder<SwimlaneWindowSnapshotConfig> = intersection(
+//     baseChildSnapshotConfigDecoder,
+//     object({
+//         windowId: optional(nonEmptyStringDecoder),
+//         isMaximized: boolean(),
+//         isFocused: boolean(),
+//         title: optional(string()),
+//         appName: optional(nonEmptyStringDecoder)
+//     })
+// );
+
+// todo: remove this after isMaximized is fixed
 export const swimlaneWindowSnapshotConfigDecoder: Decoder<SwimlaneWindowSnapshotConfig> = intersection(
     baseChildSnapshotConfigDecoder,
     object({
         windowId: optional(nonEmptyStringDecoder),
-        isMaximized: boolean(),
+        isMaximized: optional(boolean()),
         isFocused: boolean(),
         title: optional(string()),
         appName: optional(nonEmptyStringDecoder)
     })
-);
+) as any;
 
 export const childSnapshotResultDecoder: Decoder<ChildSnapshotResult> = object({
     id: nonEmptyStringDecoder,
@@ -389,6 +404,14 @@ export const workspaceLayoutDecoder: Decoder<Glue42Workspaces.WorkspaceLayout> =
             ))
         })
     }))
+});
+
+export const workspacesLayoutImportConfigDecoder: Decoder<WorkspacesLayoutImportConfig> = object({
+    layout: workspaceLayoutDecoder,
+    mode: oneOf<"replace" | "merge">(
+        constant("replace"),
+        constant("merge")
+    )
 });
 
 export const exportedLayoutsResultDecoder: Decoder<ExportedLayoutsResult> = object({

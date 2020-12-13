@@ -17,6 +17,10 @@ export const GlueWebPlatformWorkspacesStreamName = "T42.Web.Platform.WSP.Stream"
 
 export const GlueWorkspaceFrameClientControlName = "T42.Workspaces.Control";
 
+export const GlueWebIntentsPrefix = "Tick42.FDC3.Intents.";
+
+export const ChannelContextPrefix = "___channel___";
+
 export const dbName = "glue42core";
 
 export const dbVersion = 1;

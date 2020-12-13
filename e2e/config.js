@@ -1,3 +1,12 @@
+/*
+    Example test group:
+        {
+            groupName: 'Example',
+            timesToRun: 1,
+            processes: ['exampleServer']
+        }
+*/
+
 const basePolling = require('./ready-conditions/base-polling');
 
 module.exports = {
@@ -6,40 +15,29 @@ module.exports = {
         'packages/workspaces-api/dist/workspaces.umd.js'
     ],
     run: [
-        // {
-        //     groupName: 'Example',
-        //     timesToRun: 1,
-        //     processes: ['exampleServer']
-        // },
-        // {
-        //     groupName: 'contexts'
-        // },
         {
-            groupName: 'interop',
-            timesToRun: 1
+            groupName: 'appManager'
         },
-        // {
-        //     groupName: 'channels'
-        // },
-        // {
-        //     groupName: 'app-manager',
-        //     processes: ['remoteSource']
-        // }
+        {
+            groupName: 'channels'
+        },
+        {
+            groupName: 'contexts'
+        },
+        {
+            groupName: 'intents'
+        },
+        {
+            groupName: 'interop'
+        },
+        {
+            groupName: 'windows'
+        },
+        {
+            groupName: 'workspaces'
+        }
     ],
     processes: [
-        {
-            name: 'exampleServer',
-            path: './exampleServer/index.js',
-            args: ['first', 'second', 'third'],
-            readyCondition: basePolling({
-                hostname: 'localhost',
-                port: 7777,
-                path: '/',
-                method: 'GET',
-                pollingInterval: 100,
-                pollingTimeout: 30 * 1000
-            })
-        },
         {
             name: 'remoteSource',
             path: './remote-source/index.js',

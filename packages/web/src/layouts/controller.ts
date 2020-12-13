@@ -9,8 +9,8 @@ import {
 } from "callback-registry";
 import { Glue42Web } from "../../web";
 import { GlueBridge } from "../communication/bridge";
-import { glueLayoutDecoder, layoutsOperationTypesDecoder, layoutTypeDecoder, newLayoutOptionsDecoder, nonEmptyStringDecoder, restoreOptionsDecoder } from "../shared/decoders";
-import { AllLayoutsFullConfig, AllLayoutsSummariesResult, GetAllLayoutsConfig, operations, OptionalSimpleLayoutResult, SimpleLayoutConfig } from "./protocol";
+import { glueLayoutDecoder, importModeDecoder, layoutsOperationTypesDecoder, layoutTypeDecoder, newLayoutOptionsDecoder, nonEmptyStringDecoder, restoreOptionsDecoder } from "../shared/decoders";
+import { AllLayoutsFullConfig, AllLayoutsSummariesResult, GetAllLayoutsConfig, LayoutsImportConfig, operations, OptionalSimpleLayoutResult, SimpleLayoutConfig } from "./protocol";
 
 export class LayoutsController implements LibController {
     private readonly registry: CallbackRegistry = CallbackRegistryFactory();
@@ -102,10 +102,11 @@ export class LayoutsController implements LibController {
         return result.layouts;
     }
 
-    private async import(layouts: Glue42Web.Layouts.Layout[]): Promise<void> {
+    private async import(layouts: Glue42Web.Layouts.Layout[], mode: "replace" | "merge" = "replace"): Promise<void> {
         layouts.forEach((layout) => glueLayoutDecoder.runWithException(layout));
+        importModeDecoder.runWithException(mode);
 
-        await this.bridge.send<AllLayoutsFullConfig, void>("layouts", operations.import, { layouts });
+        await this.bridge.send<LayoutsImportConfig, void>("layouts", operations.import, { layouts, mode });
     }
 
     private async save(layout: Glue42Web.Layouts.NewLayoutOptions): Promise<Glue42Web.Layouts.Layout> {

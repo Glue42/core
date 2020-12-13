@@ -12,7 +12,7 @@ describe('changed()', () => {
             glue.channels.changed('string');
             throw new Error(`changed() should have thrown an error because callback wasn't of type function!`);
         } catch (error) {
-            expect(error.message).to.equal('Please provide the callback as a function!');
+            expect(error.message).to.equal('Cannot subscribe to channel changed, because the provided callback is not a function!');
         }
     });
 

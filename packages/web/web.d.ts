@@ -10,8 +10,8 @@ import { Glue42Workspaces } from "@glue42/workspaces-api";
  * Factory function that creates a new glue instance.
  * If your application is running in Glue42 Enterprise this will return a Glue42.Glue API, which is a super-set of the Glue42Web API.
  */
-export type GlueWebFactoryFunction = (config?: Glue42Web.Config) => Promise<Glue42Web.API | Glue42.Glue>;
-declare const GlueWebFactory: GlueWebFactoryFunction;
+export type Glue42WebFactoryFunction = (config?: Glue42Web.Config) => Promise<Glue42Web.API | Glue42.Glue>;
+declare const GlueWebFactory: Glue42WebFactoryFunction;
 export default GlueWebFactory;
 
 /**
@@ -337,7 +337,7 @@ export namespace Glue42Web {
              * Stores a full layout.
              * @param layout The layout object to be stored.
              */
-            import(layouts: Layout[]): Promise<void>;
+            import(layouts: Layout[], mode?: "replace" | "merge"): Promise<void>;
 
             /**
              * Saves a new layout.
@@ -664,6 +664,22 @@ export namespace Glue42Web {
             myInstance: Instance;
 
             /**
+             * Imports the provided collection of application definitions.
+             * @param definitions A collection of application definition objects to be imported.
+             * @param mode Import mode, by default it is "replace". "replace" mode replaces all existing definitions with the provided collection, "merge" mode adds (if new) or updates (if already existing) the provided definitions.
+             */
+            import?(definitions: Definition[], mode?: "replace" | "merge"): Promise<void>;
+
+            /**
+             * Removed an application definition. This method will fire onAppRemoved if a definition was removed and it will do nothing if an app with this was was not found.
+             * @param name The name of the definition to be removed.
+             */
+            remove?(name: string): Promise<void>;
+
+            /** Exports all known application definitions */
+            export?(): Promise<Definition[]>;
+
+            /**
              * Returns an application by name.
              * @param name Name of the desired application.
              * @returns The application.
@@ -718,6 +734,101 @@ export namespace Glue42Web {
             onAppChanged(callback: (app: Application) => any): UnsubscribeFunction;
         }
 
+        export interface DefinitionDetails {
+            url: string;
+
+            /**
+             * Distance of the top left window corner from the top edge of the screen.
+             * @default 0
+             */
+            top?: number;
+
+            /**
+             * Distance of the top left window corner from the left edge of the screen.
+             * @default 0
+             */
+            left?: number;
+
+            /**
+             * Window width.
+             * @default 400
+             */
+            width?: number;
+
+            /**
+             * Window height.
+             * @default 400
+             */
+            height?: number;
+        }
+
+        /**
+         * An intent definition.
+         */
+        export interface Intent {
+            /**
+             * The name of the intent to 'launch'. In this case the name of an Intent supported by an Application.
+             */
+            name: string;
+
+            /**
+             * An optional display name for the intent that may be used in UI instead of the name.
+             */
+            displayName?: string;
+
+            /**
+             * A comma separated list of the types of contexts the intent offered by the application can process, here the first part of the context type is the namespace e.g."fdc3.contact, org.symphony.contact".
+             */
+            contexts?: string[];
+
+            /**
+             * Custom configuration for the intent that may be required for a particular desktop agent.
+             */
+            customConfig?: object;
+        }
+
+        export interface Definition {
+            /**
+             * Application name. Should be unique.
+             */
+            name: string;
+
+            /**
+             * The title of the application. Sets the window's title.
+             */
+            title?: string;
+
+            /**
+             * Application version.
+             */
+            version?: string;
+
+            /**
+             * Detailed configuration.
+             */
+            details: DefinitionDetails;
+
+            /**
+             * Generic object for passing properties, settings, etc., in the for of key/value pairs. Accessed using the app.userProperties property.
+             */
+            customProperties?: PropertiesObject;
+
+            /**
+             * Application icon.
+             */
+            icon?: string;
+
+            /**
+             * Application caption.
+             */
+            caption?: string;
+
+            /**
+             * The list of intents implemented by the Application
+             */
+            intents?: Intent[];
+        }
+
         /** Object describing an application. */
         export interface Application {
             /** Application name. */
@@ -755,14 +866,14 @@ export namespace Glue42Web {
              * @param callback Callback function to handle the newly started instance.
              * @returns Unsubscribe function.
              */
-            onInstanceStarted(callback: (instance: Instance) => any): () => void;
+            onInstanceStarted(callback: (instance: Instance) => any): void;
 
             /**
              * Subscribes for the event which fires when an application instance is stopped.
              * @param callback Callback function to handle the newly started instance.
              * @returns Unsubscribe function.
              */
-            onInstanceStopped(callback: (instance: Instance) => any): () => void;
+            onInstanceStopped(callback: (instance: Instance) => any): void;
         }
 
         /**

@@ -3,7 +3,7 @@
 /* tslint:disable:no-console no-empty */
 import { GlueCoreFactoryFunction } from "@glue42/core";
 import { Glue42 } from "@glue42/desktop";
-import { Glue42Web, GlueWebFactoryFunction } from "../web";
+import { Glue42Web, Glue42WebFactoryFunction } from "../web";
 import { parseConfig } from "./config";
 import { checkSingleton } from "./config/checkSingleton";
 import { enterprise } from "./enterprise";
@@ -11,7 +11,7 @@ import { IoC } from "./shared/ioc";
 import { PromiseWrap } from "./shared/promise-plus";
 
 /** This function creates the factory function which is the default export of the library */
-export const createFactoryFunction = (coreFactoryFunction: GlueCoreFactoryFunction): GlueWebFactoryFunction => {
+export const createFactoryFunction = (coreFactoryFunction: GlueCoreFactoryFunction): Glue42WebFactoryFunction => {
 
     return async (userConfig?: Glue42Web.Config): Promise<Glue42Web.API | Glue42.Glue> => {
 

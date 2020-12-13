@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import GlueCore, { Glue42Core } from "@glue42/core";
-import GlueWeb, { Glue42Web, GlueWebFactoryFunction } from "@glue42/web";
+import GlueWeb, { Glue42Web, Glue42WebFactoryFunction } from "@glue42/web";
 import { GlueClientControlName, GlueWebPlatformControlName, GlueWebPlatformStreamName, GlueWebPlatformWorkspacesStreamName, GlueWorkspaceFrameClientControlName } from "../common/constants";
 import { BridgeOperation, InternalPlatformConfig, LibDomains } from "../common/types";
 import { PortsBridge } from "../connection/portsBridge";
@@ -9,6 +9,7 @@ import { SessionStorageController } from "./session";
 import logger from "../shared/logger";
 import { PromisePlus } from "../shared/promisePlus";
 import { waitFor } from "../shared/utils";
+import { UnsubscribeFunction } from "callback-registry";
 
 export class GlueController {
     private _systemGlue!: Glue42Core.GlueCore;
@@ -22,6 +23,10 @@ export class GlueController {
         private readonly sessionStorage: SessionStorageController
     ) { }
 
+    public get clientGlue(): Glue42Web.API {
+        return this._clientGlue;
+    }
+
     public get platformWindowId(): string {
         return this._platformClientWindowId.slice();
     }
@@ -31,7 +36,7 @@ export class GlueController {
         logger.setLogger(this._systemGlue.logger);
     }
 
-    public async initGlue(config?: Glue42Web.Config, factory?: GlueWebFactoryFunction): Promise<Glue42Web.API> {
+    public async initClientGlue(config?: Glue42Web.Config, factory?: Glue42WebFactoryFunction): Promise<Glue42Web.API> {
         const port = await this.portsBridge.createInternalClient();
 
         const platformWindowData = this.sessionStorage.getWindowDataByName("Platform");
@@ -165,6 +170,22 @@ export class GlueController {
         }, 10000, `Timed out waiting to set the window context for: ${windowId}`);
     }
 
+    public getServers(): Glue42Web.Interop.Instance[] {
+        return this._clientGlue.interop.servers();
+    }
+
+    public subscribeForServerAdded(callback: (server: Glue42Web.Interop.Instance) => void): UnsubscribeFunction {
+        return this._clientGlue.interop.serverAdded(callback);
+    }
+
+    public subscribeForMethodAdded(callback: (method: Glue42Web.Interop.Method) => void): UnsubscribeFunction {
+        return this._clientGlue.interop.methodAdded(callback);
+    }
+
+    public invokeMethod<T>(method: string | Glue42Web.Interop.MethodDefinition, argumentObj?: object, target?: Glue42Web.Interop.InstanceTarget, options?: Glue42Web.Interop.InvokeOptions, success?: Glue42Web.Interop.InvokeSuccessHandler<T>, error?: Glue42Web.Interop.InvokeErrorHandler): Promise<Glue42Web.Interop.InvocationResult<T>> {
+        return this._clientGlue.interop.invoke(method, argumentObj, target, options, success, error);
+    }
+
     private async initSystemGlue(config?: Glue42Web.Config): Promise<Glue42Core.GlueCore> {
 
         const port = await this.portsBridge.createInternalClient();
@@ -176,6 +197,10 @@ export class GlueController {
             gateway: { webPlatform: { port } },
             logger: logLevel
         });
+    }
+
+    public setContext(name: string, data: any): Promise<void> {
+        return this._systemGlue.contexts.set(name, data);
     }
 
     private async createMethodAsync(name: string, handler: (args: unknown, caller: Glue42Web.Interop.Instance, success: (args?: unknown) => void, error: (error?: string | object) => void) => void): Promise<void> {

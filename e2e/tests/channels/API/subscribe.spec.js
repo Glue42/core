@@ -1,14 +1,20 @@
 describe('subscribe()', () => {
-    let gluesToDisconnect = [];
+    let glueApplication;
 
     before(() => {
         return coreReady;
     });
 
     afterEach(async () => {
-        await Promise.all([gtf.channels.resetContexts(), glue.channels.leave(), gtf.connection.disconnectGlues(gluesToDisconnect)]);
+        const promisesToAwait = [gtf.channels.resetContexts(), glue.channels.leave()];
 
-        gluesToDisconnect = [];
+        if (typeof glueApplication !== "undefined") {
+            promisesToAwait.push(glueApplication.stop());
+
+            glueApplication = undefined;
+        }
+
+        await Promise.all(promisesToAwait);
     });
 
     it('Should throw an error when callback isn\'t of type function.', () => {
@@ -16,20 +22,18 @@ describe('subscribe()', () => {
             glue.channels.subscribe('string');
             throw new Error('subscribe() should have thrown an error because callback wasn\'t of type function!');
         } catch (error) {
-            expect(error.message).to.equal('Please provide the callback as a function!');
+            expect(error.message).to.equal('Cannot subscribe to channels, because the provided callback is not a function!');
         }
     });
 
     it('Should invoke the callback with the correct data, context (name, meta and data) and updaterId whenever data is published to the current channel by another party.', async () => {
-        // Create a new Glue for the other party.
-        const otherGlue = await GlueWeb({ channels: true });
-        gluesToDisconnect.push(otherGlue);
+        glueApplication = await gtf.createApp();
 
         const channel = gtf.getChannelsConfigDefinitions()[0];
         const channelName = channel.name;
 
-        // Join the channel together with the other party.
-        await Promise.all([glue.channels.join(channelName), otherGlue.channels.join(channelName)]);
+        // Join the channel.
+        await glue.channels.join(channelName);
 
         // Subscribe for channel context update.
         const subscriptionPromise = new Promise((resolve) => {
@@ -48,7 +52,7 @@ describe('subscribe()', () => {
             test: 42
         };
         // Publish the data by the other party.
-        await otherGlue.channels.publish(data);
+        await glueApplication.channels.publish(data, channelName);
 
         // The received channel context update.
         const result = await subscriptionPromise;
@@ -61,7 +65,7 @@ describe('subscribe()', () => {
 
         expect(result.context).to.eql(context);
         expect(result.data).to.eql(data);
-        expect(otherGlue.connection.peerId).to.equal(result.updaterId);
+        expect(glueApplication.agm.instance.peerId).to.equal(result.updaterId);
     });
 
     it('Should invoke the callback with the correct data, context (name, meta and data) and updaterId whenever data is published to the current channel by us.', async () => {
@@ -105,9 +109,7 @@ describe('subscribe()', () => {
     });
 
     it('Should invoke the callback with the correct data, context (name, meta and data) and updaterId whenever a new channel is joined and data is published to that channel by another party.', async () => {
-        // Create a new Glue for the other party.
-        const otherGlue = await GlueWeb({ channels: true });
-        gluesToDisconnect.push(otherGlue);
+        glueApplication = await gtf.createApp();
 
         const [firstChannel, secondChannel] = gtf.getChannelsConfigDefinitions();
         const firstChannelName = firstChannel.name;
@@ -135,15 +137,15 @@ describe('subscribe()', () => {
             });
         });
 
-        // Join the second channel together with the other party.
-        await Promise.all([glue.channels.join(secondChannelName), otherGlue.channels.join(secondChannelName)]);
+        // Join the second channel.
+        await glue.channels.join(secondChannelName);
 
         // The data to be published by the other party.
         const data = {
             test: 42
         };
         // Publish the data by the other party.
-        await otherGlue.channels.publish(data);
+        await glueApplication.channels.publish(data, secondChannelName);
 
         // The received channel context update.
         const result = await subscriptionPromise;
@@ -156,7 +158,7 @@ describe('subscribe()', () => {
 
         expect(result.context).to.eql(context);
         expect(result.data).to.eql(data);
-        expect(otherGlue.connection.peerId).to.equal(result.updaterId);
+        expect(glueApplication.agm.instance.peerId).to.equal(result.updaterId);
     });
 
     it('Should invoke the callback with the correct data, context (name, meta and data) and updaterId whenever a new channel is joined and data is published to that channel by us.', async () => {

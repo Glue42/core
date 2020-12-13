@@ -23,13 +23,10 @@ const logLevelDecoder: Decoder<Glue42WebPlatform.Gateway.LogLevel> = oneOf<"trac
     constant("error")
 );
 
-const channelMetaDecoder: Decoder<Glue42WebPlatform.Channels.ChannelMeta> = anyJson().andThen((result) => {
-    const colorType = typeof result.color;
-
-    return colorType === "string" ?
-        anyJson() :
-        fail(`The channel meta must have a defined property color of type string, provided: ${colorType}`);
-});
+const channelMetaDecoder: Decoder<Glue42WebPlatform.Channels.ChannelMeta> = anyJson().where(
+    (meta: Glue42WebPlatform.Channels.ChannelMeta) => typeof meta["color"] === "string" && meta["color"].length > 0,
+    "Expected color to be a non-empty string"
+);
 
 const layoutTypeDecoder: Decoder<Glue42Web.Layouts.LayoutType> = oneOf<"Global" | "Activity" | "ApplicationDefault" | "Swimlane" | "Workspace">(
     constant("Global"),
@@ -73,11 +70,12 @@ export const windowLayoutComponentDecoder: Decoder<Glue42Web.Layouts.WindowCompo
     })
 });
 
-export const libDomainDecoder: Decoder<LibDomains> = oneOf<"windows" | "appManager" | "layouts" | "workspaces">(
+export const libDomainDecoder: Decoder<LibDomains> = oneOf<"windows" | "appManager" | "layouts" | "workspaces" | "intents">(
     constant("windows"),
     constant("appManager"),
     constant("layouts"),
-    constant("workspaces")
+    constant("workspaces"),
+    constant("intents")
 );
 
 export const windowLayoutItemDecoder: Decoder<Glue42Workspaces.WindowLayoutItem> = object({
@@ -133,13 +131,6 @@ export const workspaceLayoutComponentDecoder: Decoder<Glue42Workspaces.Workspace
     })
 });
 
-export const intentDecoder: Decoder<Glue42WebPlatform.Applications.Intent> = object({
-    name: nonEmptyStringDecoder,
-    displayName: optional(nonEmptyStringDecoder),
-    contexts: optional(array(nonEmptyStringDecoder)),
-    customConfig: anyJson()
-});
-
 export const glueLayoutDecoder: Decoder<Glue42Web.Layouts.Layout> = object({
     name: nonEmptyStringDecoder,
     type: layoutTypeDecoder,
@@ -151,7 +142,7 @@ export const glueLayoutDecoder: Decoder<Glue42Web.Layouts.Layout> = object({
     metadata: optional(anyJson())
 });
 
-export const applicationCreateOptionsDecoder: Decoder<Glue42WebPlatform.Applications.CreateOptions> = object({
+export const applicationDetailsDecoder: Decoder<Glue42Web.AppManager.DefinitionDetails> = object({
     url: nonEmptyStringDecoder,
     top: optional(number()),
     left: optional(number()),
@@ -159,14 +150,22 @@ export const applicationCreateOptionsDecoder: Decoder<Glue42WebPlatform.Applicat
     height: optional(nonNegativeNumberDecoder)
 });
 
-export const glueCoreAppDefinitionDecoder: Decoder<Glue42WebPlatform.Applications.Glue42CoreDefinition> = object({
+export const intentDefinitionDecoder: Decoder<Glue42Web.AppManager.Intent> = object({
+    name: nonEmptyStringDecoder,
+    displayName: optional(string()),
+    contexts: optional(array(string())),
+    customConfig: optional(object())
+});
+
+export const glueCoreAppDefinitionDecoder: Decoder<Glue42Web.AppManager.Definition> = object({
     name: nonEmptyStringDecoder,
     title: optional(nonEmptyStringDecoder),
     version: optional(nonEmptyStringDecoder),
     customProperties: optional(anyJson()),
     icon: optional(nonEmptyStringDecoder),
     caption: optional(nonEmptyStringDecoder),
-    details: applicationCreateOptionsDecoder
+    details: applicationDetailsDecoder,
+    intents: optional(array(intentDefinitionDecoder))
 });
 
 export const fdc3AppDefinitionDecoder: Decoder<Glue42WebPlatform.Applications.FDC3Definition> = object({
@@ -184,7 +183,7 @@ export const fdc3AppDefinitionDecoder: Decoder<Glue42WebPlatform.Applications.FD
     images: optional(array(object({ url: optional(nonEmptyStringDecoder) }))),
     icons: optional(array(object({ icon: optional(nonEmptyStringDecoder) }))),
     customConfig: anyJson(),
-    intents: optional(array(intentDecoder))
+    intents: optional(array(intentDefinitionDecoder))
 });
 
 export const remoteStoreDecoder: Decoder<Glue42WebPlatform.RemoteStore> = object({
@@ -209,58 +208,27 @@ export const channelDefinitionDecoder: Decoder<Glue42WebPlatform.Channels.Channe
 
 export const pluginDefinitionDecoder: Decoder<Glue42WebPlatform.Plugins.PluginDefinition> = object({
     name: nonEmptyStringDecoder,
-    start: anyJson()
+    start: anyJson(),
+    config: anyJson()
 });
 
-export const allApplicationDefinitionsDecoder: Decoder<Glue42WebPlatform.Applications.Glue42CoreDefinition | Glue42WebPlatform.Applications.FDC3Definition> = oneOf<Glue42WebPlatform.Applications.Glue42CoreDefinition | Glue42WebPlatform.Applications.FDC3Definition>(
+export const allApplicationDefinitionsDecoder: Decoder<Glue42Web.AppManager.Definition | Glue42WebPlatform.Applications.FDC3Definition> = oneOf<Glue42Web.AppManager.Definition | Glue42WebPlatform.Applications.FDC3Definition>(
     glueCoreAppDefinitionDecoder,
     fdc3AppDefinitionDecoder
 );
 
-export const appsCollectionDecoder: Decoder<Array<Glue42WebPlatform.Applications.Glue42CoreDefinition | Glue42WebPlatform.Applications.FDC3Definition>> = array(allApplicationDefinitionsDecoder);
+export const appsCollectionDecoder: Decoder<Array<Glue42Web.AppManager.Definition | Glue42WebPlatform.Applications.FDC3Definition>> = array(allApplicationDefinitionsDecoder);
 
 export const applicationsConfigDecoder: Decoder<Glue42WebPlatform.Applications.Config> = object({
-    mode: oneOf<"local" | "remote" | "supplier">(
-        constant("local"),
-        constant("remote"),
-        constant("supplier")
-    ),
-    local: optional(array(allApplicationDefinitionsDecoder)),
-    remote: optional(remoteStoreDecoder),
-    supplier: optional(supplierDecoder)
-}).andThen((result) => {
-
-    if (result.mode === "remote" && typeof result.remote === "undefined") {
-        return fail("The applications mode is selected as remote, but the remote property is not defined.");
-    }
-
-    if (result.mode === "supplier" && typeof result.supplier === "undefined") {
-        return fail("The applications mode is selected as supplier, but the supplier property is not defined.");
-    }
-
-    return anyJson();
+    local: optional(array(allApplicationDefinitionsDecoder))
 });
 
 export const layoutsConfigDecoder: Decoder<Glue42WebPlatform.Layouts.Config> = object({
-    mode: oneOf<"local" | "remote" | "supplier">(
-        constant("local"),
-        constant("remote"),
-        constant("supplier")
+    mode: oneOf<"idb" | "session">(
+        constant("idb"),
+        constant("session")
     ),
-    local: optional(array(glueLayoutDecoder)),
-    remote: optional(remoteStoreDecoder),
-    supplier: optional(supplierDecoder)
-}).andThen((result) => {
-
-    if (result.mode === "remote" && typeof result.remote === "undefined") {
-        return fail("The layouts mode is selected as remote, but the remote property is not defined.");
-    }
-
-    if (result.mode === "supplier" && typeof result.supplier === "undefined") {
-        return fail("The layouts mode is selected as supplier, but the supplier property is not defined.");
-    }
-
-    return anyJson();
+    local: optional(array(glueLayoutDecoder))
 });
 
 export const channelsConfigDecoder: Decoder<Glue42WebPlatform.Channels.Config> = object({
@@ -307,3 +275,12 @@ export const platformConfigDecoder: Decoder<Glue42WebPlatform.Config> = object({
     glueFactory: optional(anyJson().andThen((result) => functionCheck(result, "glueFactory")))
 });
 
+export const windowOpenSettingsDecoder: Decoder<Glue42Web.Windows.Settings> = object({
+    top: optional(number()),
+    left: optional(number()),
+    width: optional(nonNegativeNumberDecoder),
+    height: optional(nonNegativeNumberDecoder),
+    context: optional(anyJson()),
+    relativeTo: optional(nonEmptyStringDecoder),
+    relativeDirection: optional(windowRelativeDirectionDecoder)
+});

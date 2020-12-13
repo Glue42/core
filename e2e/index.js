@@ -14,11 +14,13 @@ const {
     HTTP_SERVER_PORT,
     WARN_TIMES_TO_RUN
 } = require('./constants');
+const startWorkspacesServer = require("./workspacesServer");
 
 const karmaConfigPath = path.resolve(process.cwd());
 const npxCommand = os.type() === 'Windows_NT' ? 'npx.cmd' : 'npx';
 const runningProcesses = [];
 let httpServer;
+let wspServer;
 
 const deleteTestCollectionDir = () => {
     rimraf.sync(PATH_TO_TEST_COLLECTION_DIR);
@@ -32,8 +34,8 @@ const cleanUp = () => {
         }
     }
 
-    // Stop http server.
     httpServer.close();
+    wspServer.close();
 
     // Delete the test collection directory.
     deleteTestCollectionDir();
@@ -160,13 +162,16 @@ const prepareTestCollection = async () => {
     fs.mkdirSync(PATH_TO_TEST_COLLECTION_DIR);
 
     const groupsWithNameAndTimesToRun = config.run.map(({ groupName, timesToRun }) => {
-        if (typeof groupName === 'undefined') {
-            throw new Error('Please provide a groupName');
+        if (typeof groupName !== 'string') {
+            throw new Error('Please provide groupName as a string!');
+        }
+        if (typeof timesToRun !== 'undefined' && typeof timesToRun !== 'number') {
+            throw new Error('When provided, please make sure timesToRun is a number!');
         }
 
         return {
-            groupName: groupName.toLowerCase(),
-            timesToRun: timesToRun || 1
+            groupName: groupName,
+            timesToRun: typeof timesToRun === "undefined" ? 1 : timesToRun
         };
     });
 
@@ -196,7 +201,7 @@ const prepareTestCollection = async () => {
 
 const startProcessController = async () => {
     try {
-        [httpServer] = await Promise.all([runHttpServer(), runConfigProcesses(), prepareTestCollection()]);
+        [httpServer, wspServer] = await Promise.all([runHttpServer(), startWorkspacesServer(), runConfigProcesses(), prepareTestCollection()]);
 
         spawnKarmaServer();
     } catch (error) {

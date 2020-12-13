@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import { Decoder, object, boolean, string, optional, array, oneOf, constant, lazy, number, anyJson, intersection } from "decoder-validate";
 import { IsWindowInSwimlaneResult, WorkspaceSnapshotResult, ChildSnapshotResult, WorkspaceConfigResult, FrameSummaryResult, WorkspaceCreateConfigProtocol, GetFrameSummaryConfig, WorkspaceSummaryResult, LayoutSummariesResult, LayoutSummary, OpenWorkspaceConfig, FrameSummariesResult, WorkspaceSummariesResult, ExportedLayoutsResult, DeleteLayoutConfig, SimpleItemConfig, ResizeItemConfig, MoveFrameConfig, FrameSnapshotResult, BaseChildSnapshotConfig, ParentSnapshotConfig, SwimlaneWindowSnapshotConfig, SimpleWindowOperationSuccessResult, SetItemTitleConfig, MoveWindowConfig, AddWindowConfig, AddContainerConfig, AddItemResult, BundleConfig, WorkspaceStreamData, FrameStreamData, ContainerStreamData, ContainerSummaryResult, WindowStreamData, PingResult, FrameStateConfig, FrameStateResult } from "../types/protocol";
@@ -230,24 +231,26 @@ export const workspaceConfigResultDecoder: Decoder<WorkspaceConfigResult> = obje
     layoutName: optional(nonEmptyStringDecoder)
 });
 
+// todo: remove number positionIndex when fixed
 export const baseChildSnapshotConfigDecoder: Decoder<BaseChildSnapshotConfig> = object({
     frameId: nonEmptyStringDecoder,
     workspaceId: nonEmptyStringDecoder,
-    positionIndex: nonNegativeNumberDecoder
+    positionIndex: number()
 });
 
 export const parentSnapshotConfigDecoder: Decoder<ParentSnapshotConfig> = anyJson();
 
+// todo: remove optional isMaximized when fixed
 export const swimlaneWindowSnapshotConfigDecoder: Decoder<SwimlaneWindowSnapshotConfig> = intersection(
     baseChildSnapshotConfigDecoder,
     object({
         windowId: optional(nonEmptyStringDecoder),
-        isMaximized: boolean(),
+        isMaximized: optional(boolean()),
         isFocused: boolean(),
         title: optional(string()),
         appName: optional(nonEmptyStringDecoder)
     })
-);
+) as any;
 
 export const childSnapshotResultDecoder: Decoder<ChildSnapshotResult> = object({
     id: nonEmptyStringDecoder,
@@ -341,6 +344,14 @@ export const workspaceLayoutDecoder: Decoder<Glue42Workspaces.WorkspaceLayout> =
             ))
         })
     }))
+});
+
+export const workspacesImportLayoutDecoder: Decoder<{ layout: Glue42Workspaces.WorkspaceLayout; mode: "replace" | "merge" }> = object({
+    layout: workspaceLayoutDecoder,
+    mode: oneOf<"replace" | "merge">(
+        constant("replace"),
+        constant("merge")
+    )
 });
 
 export const exportedLayoutsResultDecoder: Decoder<ExportedLayoutsResult> = object({

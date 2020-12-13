@@ -8,17 +8,19 @@ import { GtfLogger } from "./logger";
 import { GtfConnection } from "./connection";
 import { GtfWindows } from "./windows";
 import { Glue42Web } from "../../../packages/web/web.d";
-import { Glue42WebPlatform, WebPlatformFactoryFunction } from "../../../packages/web-platform/platform.d";
+import { Glue42WebPlatform, GlueWebPlatformFactoryFunction } from "../../../packages/web-platform/platform.d";
 import { WorkspacesFactoryFunction } from "../../../packages/workspaces-api/workspaces";
 // TODO: Add building and serving the Workspaces application to the e2e script.
-import { channelsConfig, localApplicationsConfig, remoteStoreConfig } from "./config";
+import { channelsConfig, localApplicationsConfig } from "./config";
 
-// Make the RUNNER environment variable available inside of the tests (resolved during the gtf build process).
-window.RUNNER = process.env.RUNNER;
+// Make the RUNNER environment variable available inside of the tests (resolved during the gtf build process) and set it as window title.
+const RUNNER = process.env.RUNNER;
+window.RUNNER = RUNNER;
+document.title = RUNNER;
 
 declare const window: any;
 declare const GlueWorkspaces: WorkspacesFactoryFunction;
-declare const GlueWebPlatform: WebPlatformFactoryFunction;
+declare const GlueWebPlatform: GlueWebPlatformFactoryFunction;
 
 const startGtf = async () => {
     const glueWebConfig: Glue42Web.Config = {
@@ -29,14 +31,16 @@ const startGtf = async () => {
     const gluePlatformConfig: Glue42WebPlatform.Config = {
         // TODO: Test supplier and remote applications modes.
         applications: {
-            mode: "local",
             local: localApplicationsConfig
+        },
+        layouts: {
+            mode: "session"
         },
         channels: channelsConfig,
         glue: glueWebConfig,
         workspaces: {
             // TODO: Add building and serving the Workspaces application to the e2e script.
-            src: "http://localhost:3000"
+            src: "http://localhost:7654"
         },
         gateway: {
             logging: {
@@ -60,7 +64,7 @@ const startGtf = async () => {
         gtfCore,
         { agm: new GtfAgm(glue) },
         { channels: new GtfChannels(glue) },
-        { appManager: new GtfAppManager(glue, gtfCore) },
+        { appManager: new GtfAppManager(glue) },
         { intents: new GtfIntents(glue) },
         { connection: new GtfConnection() },
         { windows: new GtfWindows(glue) }

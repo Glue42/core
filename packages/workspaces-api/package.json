@@ -27,7 +27,7 @@
     "dependencies": {
         "@glue42/core": "^5.2.8-beta.0",
         "callback-registry": "^2.5.2",
-        "decoder-validate": "0.0.1"
+        "decoder-validate": "0.0.2"
     },
     "devDependencies": {
         "@rollup/plugin-commonjs": "^13.0.0",

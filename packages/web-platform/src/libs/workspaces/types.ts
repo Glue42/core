@@ -7,6 +7,7 @@ export interface WorkspaceWindowData {
     frameId: string;
     appName?: string;
     context?: any;
+    title?: string;
 }
 
 export type WorkspaceEventType = "frame" | "workspace" | "container" | "window";
@@ -70,6 +71,11 @@ export interface FrameSessionData {
 // #region incoming
 export interface IsWindowInSwimlaneResult {
     inWorkspace: boolean;
+}
+
+export interface WorkspacesLayoutImportConfig {
+    layout: Glue42Workspaces.WorkspaceLayout;
+    mode: "replace" | "merge";
 }
 
 export interface WorkspaceConfigResult {
@@ -183,7 +189,7 @@ export interface GetFrameSummaryConfig {
 
 export interface OpenWorkspaceConfig {
     name: string;
-    options?: Glue42Workspaces.RestoreWorkspaceConfig;
+    restoreOptions?: Glue42Workspaces.RestoreWorkspaceConfig;
 }
 
 export interface DeleteLayoutConfig {

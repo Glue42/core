@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Glue42Web } from "../../web";
 import { AppManagerController } from "./controller";
-import { ApplicationData } from "./protocol";
+import { BaseApplicationData } from "./protocol";
 
 export class ApplicationModel {
     private me!: Glue42Web.AppManager.Application;
 
     constructor(
-        private readonly data: ApplicationData,
+        private readonly data: BaseApplicationData,
         private readonly instances: Glue42Web.AppManager.Instance[],
         private readonly controller: AppManagerController,
     ) { }
@@ -26,30 +26,30 @@ export class ApplicationModel {
             onInstanceStopped: this.onInstanceStopped.bind(this)
         };
 
-        this.me = Object.freeze(api);
+        this.me = api;
 
         return this.me;
     }
 
-    private onInstanceStarted(callback: (instance: Glue42Web.AppManager.Instance) => any): () => void {
+    private onInstanceStarted(callback: (instance: Glue42Web.AppManager.Instance) => any): void {
 
         if (typeof callback !== "function") {
             throw new Error("OnInstanceStarted requires a single argument of type function");
         }
 
-        return this.controller.onInstanceStarted((instance) => {
+        this.controller.onInstanceStarted((instance) => {
             if (instance.application.name === this.data.name) {
                 callback(instance);
             }
         });
     }
 
-    private onInstanceStopped(callback: (instance: Glue42Web.AppManager.Instance) => any): () => void {
+    private onInstanceStopped(callback: (instance: Glue42Web.AppManager.Instance) => any): void {
         if (typeof callback !== "function") {
             throw new Error("OnInstanceStarted requires a single argument of type function");
         }
 
-        return this.controller.onInstanceStopped((instance) => {
+        this.controller.onInstanceStopped((instance) => {
             if (instance.application.name === this.data.name) {
                 callback(instance);
             }

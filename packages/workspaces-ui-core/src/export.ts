@@ -17,17 +17,19 @@ window.addEventListener("beforeunload", () => {
     if (done) {
         done();
     }
+
+    return "Are you sure you want to leave? changes will be lost";
 });
 
 const init = (glue: Glue42Web.API, componentFactory?: ComponentFactory) => {
     const isInitialized = manager.initialized;
     if (isInitialized) {
-        manager.init(glue, glue.agm.instance.windowId, componentFactory);
+        manager.init(glue, glue.agm.instance.windowId, facade, componentFactory);
         return;
     }
     facade.subscribeForWorkspaceEvents();
 
-    const result = manager.init(glue, glue.agm.instance.windowId, componentFactory);
+    const result = manager.init(glue, glue.agm.instance.windowId, facade, componentFactory);
 
     done = result.cleanUp;
     facade.init(glue, glue.agm.instance.windowId).then(() => {
@@ -61,6 +63,7 @@ const workspacesManagerAPI: WorkspacesManager = {
         return;
     },
     unmount: () => {
+        manager.unmount();
         return;
     },
     subscribeForWindowFocused: (callback: () => void) => {

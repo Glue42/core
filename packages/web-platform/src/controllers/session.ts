@@ -1,6 +1,6 @@
 import { Glue42Core } from "@glue42/core";
 import { SessionNonGlueData, SessionWindowData, WorkspaceWindowSession } from "../common/types";
-import { BridgeInstanceData, InstanceData } from "../libs/applications/types";
+import { BaseApplicationData, BridgeInstanceData, InstanceData } from "../libs/applications/types";
 import { LayoutsSnapshot } from "../libs/layouts/types";
 import { FrameSessionData } from "../libs/workspaces/types";
 import logger from "../shared/logger";
@@ -14,6 +14,7 @@ export class SessionStorageController {
     private readonly workspaceWindowsNamespace = "g42_core_workspace_clients";
     private readonly workspaceFramesNamespace = "g42_core_workspace_frames";
     private readonly layoutNamespace = "g42_core_layouts";
+    private readonly appDefsNamespace = "g42_core_app_definitions";
 
     constructor() {
         this.sessionStorage = window.sessionStorage;
@@ -25,7 +26,8 @@ export class SessionStorageController {
             this.nonGlueNamespace,
             this.workspaceWindowsNamespace,
             this.workspaceFramesNamespace,
-            this.layoutNamespace
+            this.layoutNamespace,
+            this.appDefsNamespace
         ].forEach((namespace) => {
             const data = this.sessionStorage.getItem(namespace);
 
@@ -37,6 +39,28 @@ export class SessionStorageController {
 
     private get logger(): Glue42Core.Logger.API | undefined {
         return logger.get("session.storage");
+    }
+
+    public getAllApps(): BaseApplicationData[] {
+        const appsString = JSON.parse(this.sessionStorage.getItem(this.appDefsNamespace) as string);
+
+        return appsString;
+    }
+
+    public overwriteApps(apps: BaseApplicationData[]): void {
+        this.sessionStorage.setItem(this.appDefsNamespace, JSON.stringify(apps));
+    }
+
+    public removeApp(name: string): BaseApplicationData | undefined {
+        const all = this.getAllApps();
+
+        const app = all.find((app) => app.name === name);
+
+        if (app) {
+            this.sessionStorage.setItem(this.appDefsNamespace, JSON.stringify(all.filter((a) => a.name !== name)));
+        }
+
+        return app;
     }
 
     public getLayoutSnapshot(): LayoutsSnapshot {

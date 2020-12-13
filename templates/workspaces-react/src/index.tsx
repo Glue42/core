@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { GlueProvider } from '@glue42/react-hooks';
+import { GlueProvider, Glue42ReactConfig } from '@glue42/react-hooks';
 import Glue, { Glue42 } from "@glue42/desktop";
 import GlueWeb, { Glue42Web } from "@glue42/web";
 import GlueWorkspaces from "@glue42/workspaces-api";
@@ -12,15 +12,15 @@ declare const window: Window & { glue42gd: any };
 
 ReactDOM.render(
   <React.StrictMode>
-    <GlueProvider glueFactory={(config: Glue42.Config | Glue42Web.Config | undefined) => {
+    <GlueProvider glueFactory={(config: Glue42ReactConfig | undefined) => {
       return window.glue42gd ?
-        Glue(Object.assign(config, { libraries: [GlueWorkspaces], appManager: "skipIcons" }) as Glue42.Config) :
-        GlueWeb(Object.assign(config, { libraries: [GlueWorkspaces] }) as Glue42Web.Config)
+        Glue(Object.assign(config || {}, { libraries: [GlueWorkspaces], appManager: "skipIcons" }) as Glue42.Config) :
+        GlueWeb(Object.assign(config || {}, { libraries: [GlueWorkspaces], appManager: true }) as Glue42Web.Config)
     }}>
       <App />
     </GlueProvider>
   </React.StrictMode>,
-  document.getElementById('root') 
+  document.getElementById('root')
 );
 
 // If you want to start measuring performance in your app, pass a function

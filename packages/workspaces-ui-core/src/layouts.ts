@@ -150,7 +150,7 @@ export class LayoutsManager {
             }]
         };
 
-        await this._glue.layouts.import([layoutToImport as Glue42Web.Layouts.Layout]);
+        await this._glue.layouts.import([layoutToImport as Glue42Web.Layouts.Layout], "merge");
 
         return layoutToImport;
     }

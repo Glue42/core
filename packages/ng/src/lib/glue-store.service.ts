@@ -20,11 +20,11 @@ export class Glue42Store {
         return this.readySource.asObservable();
     }
 
-    public get initError(): any {
+    public getInitError(): any {
         return this._initError;
     }
 
-    public get glue(): Glue42.Glue | Glue42Web.API {
+    public getGlue(): Glue42.Glue | Glue42Web.API {
         if (!this.glueInstance) {
             throw new Error("Accessing uninitialized glue. This might happen, because Glue is not initialized yet or because there was an error during Glue initialization. Please check the initError object or subscribe to the ready observable.");
         }
@@ -41,7 +41,7 @@ export class Glue42Store {
 
         if (result.error) {
             this._initError = result.error;
-            this.readySource.next({ error: this.initError });
+            this.readySource.next({ error: this.getInitError() });
             return;
         }
     }

@@ -1,18 +1,20 @@
 import { Glue42Workspaces } from "@glue42/workspaces-api";
 import { Decoder, string, number, object, constant, oneOf, optional, array, boolean, anyJson, lazy } from "decoder-validate";
 import { Glue42Web } from "../../web";
-import { AppHelloSuccess, ApplicationData, ApplicationStartConfig, AppManagerOperationTypes, BaseApplicationData, BasicInstanceData, InstanceData } from "../appManager/protocol";
-import { AllLayoutsFullConfig, AllLayoutsSummariesResult, GetAllLayoutsConfig, LayoutsOperationTypes, OptionalSimpleLayoutResult, SimpleLayoutConfig, SimpleLayoutResult } from "../layouts/protocol";
+import { AppsImportOperation, AppHelloSuccess, ApplicationData, ApplicationStartConfig, AppManagerOperationTypes, AppRemoveConfig, BaseApplicationData, BasicInstanceData, InstanceData, AppsExportOperation } from "../appManager/protocol";
+import { AllLayoutsFullConfig, AllLayoutsSummariesResult, GetAllLayoutsConfig, LayoutsImportConfig, LayoutsOperationTypes, OptionalSimpleLayoutResult, SimpleLayoutConfig, SimpleLayoutResult } from "../layouts/protocol";
 import { HelloSuccess, OpenWindowConfig, CoreWindowData, WindowHello, WindowOperationTypes, SimpleWindowCommand, WindowTitleConfig, WindowBoundsResult, WindowMoveResizeConfig, WindowUrlResult } from "../windows/protocol";
+import { IntentsOperationTypes, WrappedIntentFilter, WrappedIntents } from "../intents/protocol";
 import { LibDomains } from "./types";
 
 export const nonEmptyStringDecoder: Decoder<string> = string().where((s) => s.length > 0, "Expected a non-empty string");
 export const nonNegativeNumberDecoder: Decoder<number> = number().where((num) => num >= 0, "Expected a non-negative number");
 
-export const libDomainDecoder: Decoder<LibDomains> = oneOf<"windows" | "appManager" | "layouts">(
+export const libDomainDecoder: Decoder<LibDomains> = oneOf<"windows" | "appManager" | "layouts" | "intents">(
     constant("windows"),
     constant("appManager"),
-    constant("layouts")
+    constant("layouts"),
+    constant("intents")
 );
 
 export const windowOperationTypesDecoder: Decoder<WindowOperationTypes> = oneOf<"openWindow" | "getBounds" | "windowHello" | "windowAdded" | "windowRemoved" | "getUrl" | "moveResize" | "focus" | "close" | "getTitle" | "setTitle">(
@@ -65,7 +67,8 @@ export const windowOpenSettingsDecoder: Decoder<Glue42Web.Windows.Settings | und
     height: optional(nonNegativeNumberDecoder),
     context: optional(anyJson()),
     relativeTo: optional(nonEmptyStringDecoder),
-    relativeDirection: optional(windowRelativeDirectionDecoder)
+    relativeDirection: optional(windowRelativeDirectionDecoder),
+    windowId: optional(nonEmptyStringDecoder)
 }));
 
 
@@ -135,6 +138,48 @@ export const boundsDecoder: Decoder<Partial<Glue42Web.Windows.Bounds>> = object(
 export const instanceDataDecoder: Decoder<InstanceData> = object({
     id: nonEmptyStringDecoder,
     applicationName: nonEmptyStringDecoder
+});
+
+export const applicationDetailsDecoder: Decoder<Glue42Web.AppManager.DefinitionDetails> = object({
+    url: nonEmptyStringDecoder,
+    top: optional(number()),
+    left: optional(number()),
+    width: optional(nonNegativeNumberDecoder),
+    height: optional(nonNegativeNumberDecoder)
+});
+
+export const intentDefinitionDecoder: Decoder<Glue42Web.AppManager.Intent> = object({
+    name: nonEmptyStringDecoder,
+    displayName: optional(string()),
+    contexts: optional(array(string())),
+    customConfig: optional(object())
+});
+
+export const applicationDefinitionDecoder: Decoder<Glue42Web.AppManager.Definition> = object({
+    name: nonEmptyStringDecoder,
+    title: optional(nonEmptyStringDecoder),
+    version: optional(nonEmptyStringDecoder),
+    customProperties: optional(anyJson()),
+    icon: optional(nonEmptyStringDecoder),
+    caption: optional(nonEmptyStringDecoder),
+    details: applicationDetailsDecoder,
+    intents: optional(array(intentDefinitionDecoder))
+});
+
+export const appDefinitionOperationDecoder: Decoder<AppsImportOperation> = object({
+    definitions: array(applicationDefinitionDecoder),
+    mode: oneOf<"replace" | "merge">(
+        constant("replace"),
+        constant("merge")
+    )
+});
+
+export const appRemoveConfigDecoder: Decoder<AppRemoveConfig> = object({
+    name: nonEmptyStringDecoder
+});
+
+export const appsExportOperationDecoder: Decoder<AppsExportOperation> = object({
+    definitions: array(applicationDefinitionDecoder)
 });
 
 export const applicationDataDecoder: Decoder<ApplicationData> = object({
@@ -304,6 +349,16 @@ export const allLayoutsFullConfigDecoder: Decoder<AllLayoutsFullConfig> = object
     layouts: array(glueLayoutDecoder)
 });
 
+export const importModeDecoder: Decoder<"replace" | "merge"> = oneOf<"replace" | "merge">(
+    constant("replace"),
+    constant("merge")
+);
+
+export const layoutsImportConfigDecoder: Decoder<LayoutsImportConfig> = object({
+    layouts: array(glueLayoutDecoder),
+    mode: importModeDecoder
+});
+
 export const allLayoutsSummariesResultDecoder: Decoder<AllLayoutsSummariesResult> = object({
     summaries: array(layoutSummaryDecoder)
 });
@@ -315,3 +370,95 @@ export const simpleLayoutResult: Decoder<SimpleLayoutResult> = object({
 export const optionalSimpleLayoutResult: Decoder<OptionalSimpleLayoutResult> = object({
     layout: optional(glueLayoutDecoder)
 });
+
+export const intentsOperationTypesDecoder: Decoder<IntentsOperationTypes> = oneOf<"findIntent" | "getIntents" | "raiseIntent">(
+    constant("findIntent"),
+    constant("getIntents"),
+    constant("raiseIntent")
+);
+
+const intentHandlerDecoder: Decoder<Glue42Web.Intents.IntentHandler> = object({
+    applicationName: nonEmptyStringDecoder,
+    applicationTitle: string(),
+    applicationDescription: optional(string()),
+    applicationIcon: optional(string()),
+    type: oneOf<"app" | "instance">(constant("app"), constant("instance")),
+    displayName: optional(string()),
+    contextTypes: optional(array(nonEmptyStringDecoder)),
+    instanceId: optional(string()),
+    instanceTitle: optional(string())
+});
+
+const intentDecoder: Decoder<Glue42Web.Intents.Intent> = object({
+    name: nonEmptyStringDecoder,
+    handlers: array(intentHandlerDecoder)
+});
+
+const intentTargetDecoder: Decoder<"startNew" | "reuse" | { app?: string; instance?: string }> = oneOf<"startNew" | "reuse" | { app?: string; instance?: string }>(
+    constant("startNew"),
+    constant("reuse"),
+    object({
+        app: optional(nonEmptyStringDecoder),
+        instance: optional(nonEmptyStringDecoder)
+    })
+);
+
+const intentContextDecoder: Decoder<Glue42Web.Intents.IntentContext> = object({
+    type: optional(nonEmptyStringDecoder),
+    data: optional(object())
+});
+
+export const intentsDecoder: Decoder<Glue42Web.Intents.Intent[]> = array(intentDecoder);
+
+export const wrappedIntentsDecoder: Decoder<WrappedIntents> = object({
+    intents: intentsDecoder
+});
+
+export const intentFilterDecoder: Decoder<Glue42Web.Intents.IntentFilter> = object({
+    name: optional(nonEmptyStringDecoder),
+    contextType: optional(nonEmptyStringDecoder)
+});
+
+export const findFilterDecoder: Decoder<string | Glue42Web.Intents.IntentFilter> = oneOf<string | Glue42Web.Intents.IntentFilter>(
+    nonEmptyStringDecoder,
+    intentFilterDecoder
+);
+
+export const wrappedIntentFilterDecoder: Decoder<WrappedIntentFilter> = object({
+    filter: optional(intentFilterDecoder)
+});
+
+export const intentRequestDecoder: Decoder<Glue42Web.Intents.IntentRequest> = object({
+    intent: nonEmptyStringDecoder,
+    target: optional(intentTargetDecoder),
+    context: optional(intentContextDecoder),
+    options: optional(windowOpenSettingsDecoder)
+});
+
+export const raiseRequestDecoder: Decoder<string | Glue42Web.Intents.IntentRequest> = oneOf<string | Glue42Web.Intents.IntentRequest>(
+    nonEmptyStringDecoder,
+    intentRequestDecoder
+);
+
+export const intentResultDecoder: Decoder<Glue42Web.Intents.IntentResult> = object({
+    request: intentRequestDecoder,
+    handler: intentHandlerDecoder,
+    result: anyJson()
+});
+
+export const addIntentListenerRequestDecoder: Decoder<Glue42Web.Intents.AddIntentListenerRequest> = object({
+    intent: nonEmptyStringDecoder,
+    contextTypes: optional(array(nonEmptyStringDecoder)),
+    displayName: optional(string()),
+    icon: optional(string()),
+    description: optional(string())
+});
+
+export const addIntentListenerIntentDecoder: Decoder<string | Glue42Web.Intents.AddIntentListenerRequest> = oneOf<string | Glue42Web.Intents.AddIntentListenerRequest>(
+    nonEmptyStringDecoder,
+    addIntentListenerRequestDecoder
+);
+
+export const channelNameDecoder = (channelNames: string[]): Decoder<string> => {
+    return nonEmptyStringDecoder.where(s => channelNames.includes(s), "Expected a valid channel name");
+};

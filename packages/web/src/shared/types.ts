@@ -8,7 +8,7 @@ export interface LibController {
     handleBridgeMessage(args: any): Promise<void>;
 }
 
-export type LibDomains = "windows" | "appManager" | "layouts" | "notifications";
+export type LibDomains = "windows" | "appManager" | "layouts" | "notifications" | "intents" | "channels";
 
 export interface BridgeOperation {
     name: string;

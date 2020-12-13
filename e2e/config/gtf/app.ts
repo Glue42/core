@@ -156,16 +156,30 @@ export class GtfApp implements Gtf.App {
     public get intents() {
         return {
             addIntentListener: (intent: string | Glue42Web.Intents.AddIntentListenerRequest): Promise<ReturnType<Glue42Web.Intents.API['addIntentListener']>> => {
-                const intentName = typeof intent === "string" ? intent : intent.intent;
-
                 const controlArgs: ControlArgs = {
                     operation: 'addIntentListener',
                     params: {
-                        intent: intentName
+                        intent: typeof intent === "string" ? { intent } : intent
                     }
                 };
 
                 return this.sendControl<ReturnType<Glue42Web.Intents.API['addIntentListener']>>(controlArgs);
+            }
+        };
+    }
+
+    public get channels() {
+        return {
+            publish: (data: any, name: string): Promise<void> => {
+                const controlArgs: ControlArgs = {
+                    operation: 'publish',
+                    params: {
+                        data,
+                        name
+                    }
+                };
+
+                return this.sendControl<void>(controlArgs);
             }
         };
     }

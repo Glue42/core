@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { appHelloSuccessDecoder, applicationStartConfigDecoder, baseApplicationDataDecoder, basicInstanceDataDecoder, instanceDataDecoder, windowHelloDecoder } from "../shared/decoders";
+import { Glue42Web } from "../../web";
+import { appHelloSuccessDecoder, applicationStartConfigDecoder, appRemoveConfigDecoder, appsExportOperationDecoder, baseApplicationDataDecoder, basicInstanceDataDecoder, instanceDataDecoder, windowHelloDecoder } from "../shared/decoders";
 import { BridgeOperation } from "../shared/types";
 
 export type AppManagerOperationTypes = "appHello" | "applicationAdded" |
     "applicationRemoved" | "applicationChanged" | "instanceStarted" | "instanceStopped" |
-    "applicationStart" | "instanceStop";
+    "applicationStart" | "instanceStop" | "import" | "remove" | "export";
 
 export const operations: { [key in AppManagerOperationTypes]: BridgeOperation } = {
     appHello: { name: "appHello", dataDecoder: windowHelloDecoder, resultDecoder: appHelloSuccessDecoder },
@@ -14,7 +15,10 @@ export const operations: { [key in AppManagerOperationTypes]: BridgeOperation } 
     instanceStarted: { name: "instanceStarted", dataDecoder: instanceDataDecoder },
     instanceStopped: { name: "instanceStopped", dataDecoder: instanceDataDecoder },
     applicationStart: { name: "applicationStart", dataDecoder: applicationStartConfigDecoder, resultDecoder: instanceDataDecoder },
-    instanceStop: { name: "instanceStop", dataDecoder: basicInstanceDataDecoder }
+    instanceStop: { name: "instanceStop", dataDecoder: basicInstanceDataDecoder },
+    import: { name: "import" },
+    remove: {name: "remove", dataDecoder: appRemoveConfigDecoder } ,
+    export: {name: "export", resultDecoder: appsExportOperationDecoder} 
 };
 
 export interface InstanceData {
@@ -33,6 +37,19 @@ export interface BaseApplicationData {
 
 export interface ApplicationData extends BaseApplicationData {
     instances: InstanceData[];
+}
+
+export interface AppRemoveConfig {
+    name: string;
+}
+
+export interface AppsExportOperation {
+    definitions: Glue42Web.AppManager.Definition[];
+}
+
+export interface AppsImportOperation {
+    definitions: Glue42Web.AppManager.Definition[];
+    mode: "replace" | "merge";
 }
 
 export interface AppHelloSuccess {

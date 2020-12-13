@@ -3,11 +3,11 @@
 import { Glue42Core } from "@glue42/core";
 import { Glue42Web } from "../../web";
 import { GlueBridge } from "../communication/bridge";
-import { appManagerOperationTypesDecoder, nonEmptyStringDecoder } from "../shared/decoders";
+import { applicationDefinitionDecoder, appManagerOperationTypesDecoder, nonEmptyStringDecoder } from "../shared/decoders";
 import { IoC } from "../shared/ioc";
 import { LibController } from "../shared/types";
 import { WindowHello } from "../windows/protocol";
-import { AppHelloSuccess, ApplicationData, ApplicationStartConfig, InstanceData, operations } from "./protocol";
+import { AppsImportOperation, AppHelloSuccess, ApplicationData, ApplicationStartConfig, AppRemoveConfig, InstanceData, operations, BaseApplicationData } from "./protocol";
 import {
     default as CallbackRegistryFactory,
     CallbackRegistry,
@@ -71,7 +71,7 @@ export class AppManagerController implements LibController {
     }
 
     public onInstanceStarted(callback: (instance: Glue42Web.AppManager.Instance) => any): UnsubscribeFunction {
-        return this.registry.add("instance-started", callback);
+        return this.registry.add("instance-started", callback, this.instances);
     }
 
     public onInstanceStopped(callback: (instance: Glue42Web.AppManager.Instance) => any): UnsubscribeFunction {
@@ -101,6 +101,9 @@ export class AppManagerController implements LibController {
     private toApi(): Glue42Web.AppManager.API {
         const api: Glue42Web.AppManager.API = {
             myInstance: this.me as unknown as Glue42Web.AppManager.Instance,
+            import: this.import.bind(this),
+            remove: this.remove.bind(this),
+            export: this.export.bind(this),
             application: this.getApplication.bind(this),
             applications: this.getApplications.bind(this),
             instances: this.getInstances.bind(this),
@@ -123,7 +126,7 @@ export class AppManagerController implements LibController {
     }
 
     private onAppAdded(callback: (app: Glue42Web.AppManager.Application) => any): UnsubscribeFunction {
-        return this.registry.add("application-added", callback);
+        return this.registry.add("application-added", callback, this.applications);
     }
 
     private onAppRemoved(callback: (app: Glue42Web.AppManager.Application) => any): UnsubscribeFunction {
@@ -135,13 +138,13 @@ export class AppManagerController implements LibController {
     }
 
 
-    private async handleApplicationAddedMessage(appData: ApplicationData): Promise<void> {
+    private async handleApplicationAddedMessage(appData: BaseApplicationData): Promise<void> {
 
         if (this.applications.some((app) => app.name === appData.name)) {
             return;
         }
 
-        const app = await this.ioc.buildApplication(appData);
+        const app = await this.ioc.buildApplication(appData, []);
 
         const instances = this.instances.filter((instance) => instance.application.name === app.name);
 
@@ -152,7 +155,7 @@ export class AppManagerController implements LibController {
         this.registry.execute("application-added", app);
     }
 
-    private async handleApplicationRemovedMessage(appData: ApplicationData): Promise<void> {
+    private async handleApplicationRemovedMessage(appData: BaseApplicationData): Promise<void> {
         const appIndex = this.applications.findIndex((app) => app.name === appData.name);
 
         if (appIndex < 0) {
@@ -166,7 +169,7 @@ export class AppManagerController implements LibController {
         this.registry.execute("application-removed", app);
     }
 
-    private async handleApplicationChangedMessage(appData: ApplicationData): Promise<void> {
+    private async handleApplicationChangedMessage(appData: BaseApplicationData): Promise<void> {
         const app = this.applications.find((app) => app.name === appData.name);
 
         if (!app) {
@@ -223,6 +226,23 @@ export class AppManagerController implements LibController {
         this.registry.execute("instance-stopped", instance);
     }
 
+    private async import(definitions: Glue42Web.AppManager.Definition[], mode: "replace" | "merge" = "replace"): Promise<void> {
+        await this.bridge.send<AppsImportOperation, void>("appManager", operations.import, { definitions, mode });
+    }
+
+    private async remove(name: string): Promise<void> {
+        nonEmptyStringDecoder.runWithException(name);
+
+        await this.bridge.send<AppRemoveConfig, void>("appManager", operations.remove, { name });
+    }
+
+    private async export(): Promise<Glue42Web.AppManager.Definition[]> {
+
+        const response = await this.bridge.send<void, AppsImportOperation>("appManager", operations.export, undefined);
+
+        return response.definitions;
+    }
+
     private getApplication(name: string): Glue42Web.AppManager.Application {
         const verifiedName = nonEmptyStringDecoder.runWithException(name);
 
@@ -242,7 +262,7 @@ export class AppManagerController implements LibController {
 
         this.logger.trace("the platform responded to the hello message with a full list of apps");
 
-        this.applications = await Promise.all(result.apps.map((app) => this.ioc.buildApplication(app)));
+        this.applications = await Promise.all(result.apps.map((app) => this.ioc.buildApplication(app, app.instances)));
 
         this.instances = this.applications.reduce<Glue42Web.AppManager.Instance[]>((instancesSoFar, app) => {
 

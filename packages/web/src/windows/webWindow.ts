@@ -55,7 +55,7 @@ export class WebWindowModel {
             setContext: this.setContext.bind(this),
             onContextUpdated: this.onContextUpdated.bind(this)
         };
-        
+
         this.me = Object.freeze(api);
 
         return this.me;
@@ -172,7 +172,7 @@ export class WebWindowModel {
 
     private onContextUpdated(callback: (context: any, window: Glue42Web.Windows.WebWindow) => void): UnsubscribeFunction {
         if (typeof callback !== "function") {
-            throw new Error("Cannot subscribe to context changes, because the provided callback is not a function");
+            throw new Error("Cannot subscribe to context changes, because the provided callback is not a function!");
         }
 
         const wrappedCallback = (data: any): void => {

@@ -4,37 +4,30 @@ import { Glue42Core } from "@glue42/core";
 import { Glue42Web } from "@glue42/web";
 import { BridgeOperation, InternalLayoutsConfig, InternalPlatformConfig, LibController } from "../../common/types";
 import { GlueController } from "../../controllers/glue";
+import { SessionStorageController } from "../../controllers/session";
 import logger from "../../shared/logger";
-import { allLayoutsFullConfigDecoder, allLayoutsSummariesResultDecoder, getAllLayoutsConfigDecoder, layoutsOperationTypesDecoder, optionalSimpleLayoutResult, simpleLayoutConfigDecoder } from "./decoders";
-import { LocalLayoutsMode } from "./modes/local";
-import { RemoteLayoutsMode } from "./modes/remote";
-import { SupplierLayoutsMode } from "./modes/supplier";
-import { AllLayoutsFullConfig, AllLayoutsSummariesResult, GetAllLayoutsConfig, LayoutModeExecutor, LayoutsOperationTypes, OptionalSimpleLayoutResult, SimpleLayoutConfig } from "./types";
+import { objEqual } from "../../shared/utils";
+import { allLayoutsFullConfigDecoder, allLayoutsSummariesResultDecoder, getAllLayoutsConfigDecoder, layoutsImportConfigDecoder, layoutsOperationTypesDecoder, optionalSimpleLayoutResult, simpleLayoutConfigDecoder } from "./decoders";
+import { IdbStore } from "./idbStore";
+import { AllLayoutsFullConfig, AllLayoutsSummariesResult, GetAllLayoutsConfig, LayoutsImportConfig, LayoutsOperationTypes, OptionalSimpleLayoutResult, SimpleLayoutConfig } from "./types";
 
 export class LayoutsController implements LibController {
 
     private started = false;
     private config!: InternalLayoutsConfig;
 
-    private modesExecutors: { [key in "local" | "remote" | "supplier"]: LayoutModeExecutor } = {
-        local: this.localMode,
-        remote: this.removeMode,
-        supplier: this.supplierMode
-    };
-
     private operations: { [key in LayoutsOperationTypes]: BridgeOperation } = {
         get: { name: "get", dataDecoder: simpleLayoutConfigDecoder, resultDecoder: optionalSimpleLayoutResult, execute: this.handleGetLayout.bind(this) },
         getAll: { name: "getAll", dataDecoder: getAllLayoutsConfigDecoder, resultDecoder: allLayoutsSummariesResultDecoder, execute: this.handleGetAll.bind(this) },
         export: { name: "export", dataDecoder: getAllLayoutsConfigDecoder, resultDecoder: allLayoutsFullConfigDecoder, execute: this.handleExport.bind(this) },
-        import: { name: "import", dataDecoder: allLayoutsFullConfigDecoder, execute: this.handleImport.bind(this) },
+        import: { name: "import", dataDecoder: layoutsImportConfigDecoder, execute: this.handleImport.bind(this) },
         remove: { name: "remove", dataDecoder: simpleLayoutConfigDecoder, execute: this.handleRemove.bind(this) }
     }
 
     constructor(
         private readonly glueController: GlueController,
-        private readonly localMode: LocalLayoutsMode,
-        private readonly removeMode: RemoteLayoutsMode,
-        private readonly supplierMode: SupplierLayoutsMode
+        private readonly idbStore: IdbStore,
+        private readonly sessionStore: SessionStorageController
     ) { }
 
     private get logger(): Glue42Core.Logger.API | undefined {
@@ -46,9 +39,9 @@ export class LayoutsController implements LibController {
 
         this.logger?.trace(`initializing with mode: ${this.config.mode}`);
 
-        await this.modesExecutors[this.config.mode].setup(config.layouts);
-
-        this.modesExecutors[this.config.mode].onLayoutEvent((payload) => this.emitStreamData(payload.operation, payload.data));
+        if (this.config.local && this.config.local.length) {
+            await this.mergeImport(this.config.local);
+        }
 
         this.started = true;
 
@@ -94,11 +87,6 @@ export class LayoutsController implements LibController {
         return result;
     }
 
-    public handleClientUnloaded(windowId: string): void {
-        this.logger?.trace(`skipping unload handling for ${windowId}, because this controller has does not care`);
-        // this controller does not care about disconnected clients
-    }
-
     public async handleGetAll(config: GetAllLayoutsConfig, commandId: string): Promise<AllLayoutsSummariesResult> {
         this.logger?.trace(`[${commandId}] handling get all layout summaries request for type: ${config.type}`);
 
@@ -128,10 +116,16 @@ export class LayoutsController implements LibController {
         return { layouts };
     }
 
-    public async handleImport(config: AllLayoutsFullConfig, commandId: string): Promise<void> {
+    public async handleImport(config: LayoutsImportConfig, commandId: string): Promise<void> {
         this.logger?.trace(`[${commandId}] handling mass import request for layout names: ${config.layouts.map((l) => l.name).join(", ")}`);
 
-        await this.save(config.layouts);
+        if (config.mode === "merge") {
+            this.logger?.trace(`[${commandId}] importing the layouts in merge mode`);
+            await this.mergeImport(config.layouts);
+        } else {
+            this.logger?.trace(`[${commandId}] importing the layouts in replace mode`);
+            await this.replaceImport(config.layouts);
+        }
 
         this.logger?.trace(`[${commandId}] mass import completed, responding to caller`);
     }
@@ -139,9 +133,14 @@ export class LayoutsController implements LibController {
     public async handleRemove(config: SimpleLayoutConfig, commandId: string): Promise<void> {
         this.logger?.trace(`[${commandId}] handling remove request for ${JSON.stringify(config)}`);
 
-        const success = await this.delete(config.name, config.type);
+        const layout = await (await this.getAll(config.type)).find((l) => l.name === config.name && l.type === config.type);
 
-        const operationMessage = success ? "has been removed" : "has not been removed, because it does not exist";
+        if (layout) {
+            await this.delete(config.name, config.type);
+            this.emitStreamData("layoutRemoved", layout);
+        }
+
+        const operationMessage = layout ? "has been removed" : "has not been removed, because it does not exist";
 
         this.logger?.trace(`[${commandId}] ${config.name} of type ${config.type} ${operationMessage}`);
     }
@@ -164,15 +163,103 @@ export class LayoutsController implements LibController {
         this.glueController.pushSystemMessage("layouts", operation, data);
     }
 
-    private getAll(type: Glue42Web.Layouts.LayoutType): Promise<Glue42Web.Layouts.Layout[]> {
-        return this.modesExecutors[this.config.mode].getAll(type);
+    public async mergeImport(layouts: Glue42Web.Layouts.Layout[]): Promise<void> {
+        const currentLayouts = await this.getAll("Workspace");
+        const pendingEvents: Array<{ operation: "layoutChanged" | "layoutAdded" | "layoutRemoved"; layout: Glue42Web.Layouts.Layout }> = [];
+
+        for (const layout of layouts) {
+            const defCurrentIdx = currentLayouts.findIndex((app) => app.name === layout.name);
+
+            if (defCurrentIdx > -1 && !objEqual(layout, currentLayouts[defCurrentIdx])) {
+                this.logger?.trace(`change detected at layout ${layout.name}`);
+                pendingEvents.push({ operation: "layoutChanged", layout });
+
+                currentLayouts[defCurrentIdx] = layout;
+
+                continue;
+            }
+
+            if (defCurrentIdx < 0) {
+                this.logger?.trace(`new layout: ${layout.name} detected, adding and announcing`);
+                pendingEvents.push({ operation: "layoutAdded", layout });
+                currentLayouts.push(layout);
+            }
+        }
+
+        await this.cleanSave(currentLayouts);
+        pendingEvents.forEach((pending) => this.emitStreamData(pending.operation, pending.layout));
     }
 
-    private save(layouts: Glue42Web.Layouts.Layout[]): Promise<void> {
-        return this.modesExecutors[this.config.mode].save(layouts);
+    public async replaceImport(layouts: Glue42Web.Layouts.Layout[]): Promise<void> {
+        const currentLayouts = await this.getAll("Workspace");
+        const pendingEvents: Array<{ operation: "layoutChanged" | "layoutAdded" | "layoutRemoved"; layout: Glue42Web.Layouts.Layout }> = [];
+
+        for (const layout of layouts) {
+            const defCurrentIdx = currentLayouts.findIndex((app) => app.name === layout.name);
+
+            if (defCurrentIdx < 0) {
+                this.logger?.trace(`new layout: ${layout.name} detected, adding and announcing`);
+                pendingEvents.push({ operation: "layoutAdded", layout });
+                continue;
+            }
+
+            if (!objEqual(layout, currentLayouts[defCurrentIdx])) {
+                this.logger?.trace(`change detected at layout ${layout.name}`);
+                pendingEvents.push({ operation: "layoutChanged", layout });
+            }
+
+            currentLayouts.splice(defCurrentIdx, 1);
+        }
+
+        // everything that is left in the old snap here, means it is removed in the latest one
+        currentLayouts.forEach((layout) => {
+            this.logger?.trace(`layout ${layout.name} missing, removing and announcing`);
+            pendingEvents.push({ operation: "layoutRemoved", layout });
+        });
+
+        await this.cleanSave(layouts);
+        pendingEvents.forEach((pending) => this.emitStreamData(pending.operation, pending.layout));
     }
 
-    private delete(name: string, type: Glue42Web.Layouts.LayoutType): Promise<boolean> {
-        return this.modesExecutors[this.config.mode].delete(name, type);
+    private async getAll(type: Glue42Web.Layouts.LayoutType): Promise<Glue42Web.Layouts.Layout[]> {
+        let all: Glue42Web.Layouts.Layout[];
+
+        if (this.config.mode === "idb") {
+            all = await this.idbStore.getAll(type);
+        } else {
+            all = this.sessionStore.getLayoutSnapshot().layouts;
+        }
+
+        return all;
+    }
+
+    private async cleanSave(layouts: Glue42Web.Layouts.Layout[]): Promise<void> {
+        if (this.config.mode === "idb") {
+            await this.idbStore.clear("Workspace");
+
+            for (const layout of layouts) {
+                await this.idbStore.store(layout, layout.type);
+            }
+            return;
+        }
+
+        this.sessionStore.saveLayoutSnapshot({ layouts });
+    }
+
+    private async delete(name: string, type: Glue42Web.Layouts.LayoutType): Promise<void> {
+        if (this.config.mode === "idb") {
+            await this.idbStore.delete(name, type);
+            return;
+        }
+
+        const all = this.sessionStore.getLayoutSnapshot().layouts;
+
+        const idxToRemove = all.findIndex((l) => l.name === name && l.type);
+
+        if (idxToRemove > -1) {
+            all.splice(idxToRemove, 1);
+        }
+
+        this.sessionStore.saveLayoutSnapshot({ layouts: all });
     }
 }

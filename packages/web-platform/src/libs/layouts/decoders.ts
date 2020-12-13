@@ -2,7 +2,7 @@ import { Glue42Web } from "@glue42/web";
 import { Glue42Workspaces } from "@glue42/workspaces-api";
 import { Decoder, oneOf, constant, anyJson, array, object, optional } from "decoder-validate";
 import { layoutSummaryDecoder, nonEmptyStringDecoder, windowLayoutComponentDecoder, workspaceLayoutComponentDecoder } from "../../shared/decoders";
-import { GetAllLayoutsConfig, AllLayoutsSummariesResult, AllLayoutsFullConfig, LayoutsOperationTypes, SimpleLayoutConfig, SimpleLayoutResult, OptionalSimpleLayoutResult } from "./types";
+import { GetAllLayoutsConfig, AllLayoutsSummariesResult, AllLayoutsFullConfig, LayoutsOperationTypes, SimpleLayoutConfig, SimpleLayoutResult, OptionalSimpleLayoutResult, LayoutsImportConfig } from "./types";
 
 export const layoutTypeDecoder: Decoder<Glue42Web.Layouts.LayoutType> = oneOf<Glue42Web.Layouts.LayoutType>(
     constant("Global"),
@@ -39,6 +39,16 @@ export const getAllLayoutsConfigDecoder: Decoder<GetAllLayoutsConfig> = object({
 
 export const allLayoutsFullConfigDecoder: Decoder<AllLayoutsFullConfig> = object({
     layouts: array(layoutDecoder)
+});
+
+export const importModeDecoder: Decoder<"replace" | "merge"> = oneOf<"replace" | "merge">(
+    constant("replace"),
+    constant("merge")
+);
+
+export const layoutsImportConfigDecoder: Decoder<LayoutsImportConfig> = object({
+    layouts: array(layoutDecoder),
+    mode: importModeDecoder
 });
 
 export const allLayoutsSummariesResultDecoder: Decoder<AllLayoutsSummariesResult> = object({

@@ -14,7 +14,7 @@ module.exports = (config) => {
         colors: true,
         client: {
             mocha: {
-                timeout: 20000
+                timeout: 10000
             },
             captureConsole: true
         },

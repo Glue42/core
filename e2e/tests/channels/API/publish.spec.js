@@ -17,7 +17,7 @@ describe('publish()', () => {
             await glue.channels.publish(1);
             throw new Error('publish() should have thrown an error because data wasn\'t of type object!');
         } catch (error) {
-            expect(error.message).to.equal('Please provide the data as an object!');
+            expect(error.message).to.equal('Cannot publish to channel, because the provided data is not an object!');
         }
     });
 
@@ -36,7 +36,7 @@ describe('publish()', () => {
             await glue.channels.publish(data, 1);
             throw new Error('publish() should have thrown an error because name wasn\'t of type string!');
         } catch (error) {
-            expect(error.message).to.equal('Please provide the name as a string!');
+            expect(error.message).to.equal('expected a string, got a number');
         }
     });
 
@@ -50,7 +50,7 @@ describe('publish()', () => {
             await glue.channels.publish(data);
             throw new Error('publish() should have thrown an error because not joined to any channel!');
         } catch (error) {
-            expect(error.message).to.equal('Not joined to any channel!');
+            expect(error.message).to.equal('Cannot publish to channel, because not joined to a channel!');
         }
     });
 

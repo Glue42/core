@@ -9,11 +9,10 @@ import { SessionStorageController } from "../controllers/session";
 import { StateController } from "../controllers/state";
 import { ApplicationsController } from "../libs/applications/controller";
 import { LayoutsController } from "../libs/layouts/controller";
-import { LocalLayoutsMode } from "../libs/layouts/modes/local";
-import { RemoteLayoutsMode } from "../libs/layouts/modes/remote";
-import { SupplierLayoutsMode } from "../libs/layouts/modes/supplier";
-import { IdbStore } from "../libs/layouts/modes/idbStore";
+import { IdbStore } from "../libs/layouts/idbStore";
 import { WorkspacesController } from "../libs/workspaces/controller";
+import { IntentsController } from "../libs/intents/controller";
+import { ChannelsController } from "../libs/channels/controller";
 import { FramesController } from "../libs/workspaces/frames";
 
 export class IoC {
@@ -26,12 +25,11 @@ export class IoC {
     private _applicationsController!: ApplicationsController;
     private _layoutsController!: LayoutsController;
     private _workspacesController!: WorkspacesController;
+    private _intentsController!: IntentsController;
+    private _channelsController!: ChannelsController;
     private _sessionController!: SessionStorageController;
     private _stateChecker!: StateController;
     private _framesController!: FramesController;
-    private _localLayoutsMode!: LocalLayoutsMode;
-    private _remoteLayoutsMode!: RemoteLayoutsMode;
-    private _supplierLayoutsMode!: SupplierLayoutsMode;
     private _idbStore!: IdbStore;
 
     constructor(private readonly config?: Glue42WebPlatform.Config) { }
@@ -60,6 +58,8 @@ export class IoC {
                 this.applicationsController,
                 this.layoutsController,
                 this.workspacesController,
+                this.intentsController,
+                this.channelsController,
                 this.portsBridge,
                 this.stateController
             );
@@ -117,9 +117,8 @@ export class IoC {
         if (!this._layoutsController) {
             this._layoutsController = new LayoutsController(
                 this.glueController,
-                this.localLayoutsMode,
-                this.remoteLayoutsMode,
-                this.supplierLayoutsMode
+                this.idbStore,
+                this.sessionController
             );
         }
 
@@ -139,6 +138,28 @@ export class IoC {
         return this._workspacesController;
     }
 
+    public get intentsController(): IntentsController {
+        if (!this._intentsController) {
+            this._intentsController = new IntentsController(
+                this.glueController,
+                this.sessionController,
+                this
+            );
+        }
+
+        return this._intentsController;
+    }
+
+    public get channelsController(): ChannelsController {
+        if (!this._channelsController) {
+            this._channelsController = new ChannelsController(
+                this.glueController
+            );
+        }
+
+        return this._channelsController;
+    }
+
     public get framesController(): FramesController {
         if (!this._framesController) {
             this._framesController = new FramesController(
@@ -149,30 +170,6 @@ export class IoC {
         }
 
         return this._framesController;
-    }
-
-    public get localLayoutsMode(): LocalLayoutsMode {
-        if (!this._localLayoutsMode) {
-            this._localLayoutsMode = new LocalLayoutsMode(this.idbStore);
-        }
-
-        return this._localLayoutsMode;
-    }
-
-    public get remoteLayoutsMode(): RemoteLayoutsMode {
-        if (!this._remoteLayoutsMode) {
-            this._remoteLayoutsMode = new RemoteLayoutsMode();
-        }
-
-        return this._remoteLayoutsMode;
-    }
-
-    public get supplierLayoutsMode(): SupplierLayoutsMode {
-        if (!this._supplierLayoutsMode) {
-            this._supplierLayoutsMode = new SupplierLayoutsMode(this.sessionController);
-        }
-
-        return this._supplierLayoutsMode;
     }
 
     public get idbStore(): IdbStore {

@@ -11,11 +11,10 @@ export const defaultPlatformConfig: InternalPlatformConfig = {
         }
     },
     applications: {
-        mode: "local",
         local: []
     },
     layouts: {
-        mode: "local",
+        mode: "idb",
         local: []
     },
     channels: {

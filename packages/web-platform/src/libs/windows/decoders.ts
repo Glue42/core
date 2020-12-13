@@ -1,6 +1,6 @@
 import { Glue42Web } from "@glue42/web";
 import { anyJson, boolean, constant, Decoder, number, object, oneOf, optional, string } from "decoder-validate";
-import { nonEmptyStringDecoder, nonNegativeNumberDecoder, windowRelativeDirectionDecoder } from "../../shared/decoders";
+import { nonEmptyStringDecoder, nonNegativeNumberDecoder, windowOpenSettingsDecoder } from "../../shared/decoders";
 import { OpenWindowConfig, OpenWindowSuccess, SimpleWindowCommand, WindowBoundsResult, WindowMoveResizeConfig, WindowOperationsTypes, WindowTitleConfig, WindowUrlResult } from "./types";
 
 export const windowOperationDecoder: Decoder<WindowOperationsTypes> = oneOf<"openWindow" | "windowHello" | "getUrl" | "getTitle" | "setTitle" | "moveResize" | "focus" | "close" | "getBounds" | "registerWorkspaceWindow" | "unregisterWorkspaceWindow">(
@@ -16,16 +16,6 @@ export const windowOperationDecoder: Decoder<WindowOperationsTypes> = oneOf<"ope
     constant("registerWorkspaceWindow"),
     constant("unregisterWorkspaceWindow")
 );
-
-export const windowOpenSettingsDecoder: Decoder<Glue42Web.Windows.Settings> = object({
-    top: optional(number()),
-    left: optional(number()),
-    width: optional(nonNegativeNumberDecoder),
-    height: optional(nonNegativeNumberDecoder),
-    context: optional(anyJson()),
-    relativeTo: optional(nonEmptyStringDecoder),
-    relativeDirection: optional(windowRelativeDirectionDecoder)
-});
 
 export const openWindowConfigDecoder: Decoder<OpenWindowConfig> = object({
     name: nonEmptyStringDecoder,

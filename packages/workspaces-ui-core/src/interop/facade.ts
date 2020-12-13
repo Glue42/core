@@ -34,7 +34,7 @@ import { ConfigConverter } from "../config/converter";
 
 declare const window: Window & { glue: Glue42Web.API };
 
-class GlueFacade {
+export class GlueFacade {
     private readonly _workspacesControlMethod = "T42.Workspaces.Control";
     private readonly _workspacesEventMethod = "T42.Workspaces.Events";
     private _configFactory: WorkspacesConfigurationFactory;
@@ -42,6 +42,7 @@ class GlueFacade {
     private _inDisposing = false;
     private _frameId: string;
     private _converter: ConfigConverter;
+    private _controlPromise: Promise<any>;
 
     public async init(glue: Glue42Web.API, frameId: string): Promise<void> {
         this._frameId = frameId;
@@ -76,16 +77,21 @@ class GlueFacade {
         });
     }
 
+    public executeAfterControlIsDone(cb: () => Promise<void> | void) {
+        this._controlPromise.finally(() => {
+            return cb();
+        });
+    }
+
     private async registerAgmMethods(): Promise<void> {
         await this._glue.agm.registerAsync({
             name: this._workspacesControlMethod
         }, this.handleControl);
     }
 
-    private handleControl = async (args: ControlArguments, caller: object, successCallback: (result: object) => void, errorCallback: (error: string) => void) => {
+    private handleControlCore = async (args: ControlArguments, caller: object, successCallback: (result: object) => void, errorCallback: (error: string) => void) => {
         try {
             await manager.initPromise;
-
             switch (args.operation) {
                 case "isWindowInWorkspace":
                     successCallback(this.handleIsWindowInWorkspace(args.operationArguments));
@@ -182,7 +188,13 @@ class GlueFacade {
         } catch (error) {
             errorCallback(error.message);
         }
-    }
+    };
+
+    private handleControl = async (args: ControlArguments, caller: object, successCallback: (result: object) => void, errorCallback: (error: string) => void) => {
+        const controlPromise = this.handleControlCore(args, caller, successCallback, errorCallback);
+        this._controlPromise = controlPromise;
+        await controlPromise;
+    };
 
     private async handleOpenWorkspace(operationArguments: OpenWorkspaceArguments): Promise<OpenWorkspaceResult> {
         const id = await manager.openWorkspace(operationArguments.name, operationArguments.restoreOptions);

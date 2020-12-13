@@ -119,14 +119,14 @@ export const composeAPI = (glue: any, ioc: IoC): Glue42Workspaces.API => {
             checkThrowCallback(predicate, true);
             return controller.exportLayout(predicate);
         },
-        import: async (layouts: Glue42Workspaces.WorkspaceLayout[]): Promise<void> => {
+        import: async (layouts: Glue42Workspaces.WorkspaceLayout[], mode: "replace" | "merge" = "replace"): Promise<void> => {
 
             if (!Array.isArray(layouts)) {
                 throw new Error(`The provided layouts argument is not an array: ${JSON.stringify(layouts)}`);
             }
 
             layouts.forEach((layout) => workspaceLayoutDecoder.runWithException(layout));
-            return controller.importLayout(layouts);
+            return controller.importLayout(layouts, mode);
         },
         save: async (config: Glue42Workspaces.WorkspaceLayoutSaveConfig): Promise<Glue42Workspaces.WorkspaceLayout> => {
             const verifiedConfig = workspaceLayoutSaveConfigDecoder.runWithException(config);

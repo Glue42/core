@@ -916,7 +916,7 @@ export namespace Glue42Workspaces {
          * Saves the provided layouts into Glue42. In Glue42 Core this will fail with an error if a provided layout's name matches a read-only layout.
          * @param layouts A collection of layouts to add to Glue42.
          */
-        import(layouts: WorkspaceLayout[]): Promise<void>;
+        import(layouts: WorkspaceLayout[], mode?: "replace" | "merge"): Promise<void>;
 
         /**
          * Saves an existing, open workspace as a layout.

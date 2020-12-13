@@ -1,9 +1,9 @@
 import GlueWeb, { Glue42Web } from "@glue42/web";
-import { WebPlatformFactoryFunction, Glue42WebPlatform } from "../platform";
+import { Glue42WebPlatformFactoryFunction, Glue42WebPlatform } from "../platform";
 import { Glue42API } from "./common/types";
 import { IoC } from "./shared/ioc";
 
-export const glueWebPlatformFactory: WebPlatformFactoryFunction = async (config?: Glue42WebPlatform.Config): Promise<{ glue: Glue42Web.API | Glue42API; platform?: Glue42WebPlatform.API }> => {
+export const glueWebPlatformFactory: Glue42WebPlatformFactoryFunction = async (config?: Glue42WebPlatform.Config): Promise<{ glue: Glue42Web.API | Glue42API; platform?: Glue42WebPlatform.API }> => {
 
     // when running the package in Enterprise, we do not initialize anything from the platform
     // because we cannot provide runtime environment configuration to Enterprise
@@ -19,7 +19,7 @@ export const glueWebPlatformFactory: WebPlatformFactoryFunction = async (config?
 
     await ioc.platform.ready();
 
-    const glue = await ioc.platform.createClientGlue(config?.glue, config?.glueFactory);
+    const glue = await ioc.platform.getClientGlue();
 
     return { glue, platform: ioc?.platform.exposeAPI() };
 };

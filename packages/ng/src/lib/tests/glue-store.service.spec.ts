@@ -122,33 +122,33 @@ describe("Glue42Store ", () => {
         it("this.initError should be set to the error object provided by the initializer, when error", () => {
             initObs.next({ error: { test: 24 } });
 
-            expect(service.initError).toEqual({ test: 24 });
+            expect(service.getInitError()).toEqual({ test: 24 });
         });
 
         it("initError should be undefined when created", () => {
-            expect(service.initError).toBeUndefined();
+            expect(service.getInitError()).toBeUndefined();
         });
 
         it("should be undefined when init onState was heard without error object", () => {
             initObs.next({ glueInstance: { test: 42 } });
 
-            expect(service.initError).toBeUndefined();
+            expect(service.getInitError()).toBeUndefined();
         });
 
         it("accessing glue should throw when no glueInstance was set", () => {
-            expect(() => service.glue).toThrow();
+            expect(() => service.getGlue()).toThrow();
         });
 
         it("accessing glue should return the glueInstance when the initializer emitted success", () => {
             initObs.next({ glueInstance: { test: 42 } });
 
-            expect(service.glue).toEqual((service as any).glueInstance);
+            expect(service.getGlue()).toEqual((service as any).glueInstance);
         });
 
         it("accessing glue should return the same object emitted from the initializer", () => {
             initObs.next({ glueInstance: { test: 42 } });
 
-            expect(service.glue).toEqual({ test: 42 } as unknown as Glue42.Glue);
+            expect(service.getGlue()).toEqual({ test: 42 } as unknown as Glue42.Glue);
         });
     });
 });

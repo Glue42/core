@@ -9,6 +9,7 @@ build/
 coverage/
 .DS_Store
 .cache
+.eslintcache
 
 yarn.lock
 *.log

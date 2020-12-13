@@ -1,5 +1,5 @@
 import { Glue42Web } from "../../web";
-import { allLayoutsFullConfigDecoder, allLayoutsSummariesResultDecoder, getAllLayoutsConfigDecoder, glueLayoutDecoder, optionalSimpleLayoutResult, simpleLayoutConfigDecoder } from "../shared/decoders";
+import { allLayoutsFullConfigDecoder, allLayoutsSummariesResultDecoder, getAllLayoutsConfigDecoder, glueLayoutDecoder, layoutsImportConfigDecoder, optionalSimpleLayoutResult, simpleLayoutConfigDecoder } from "../shared/decoders";
 import { BridgeOperation } from "../shared/types";
 
 export type LayoutsOperationTypes = "layoutAdded" | "layoutChanged" | "layoutRemoved" |
@@ -12,7 +12,7 @@ export const operations: { [key in LayoutsOperationTypes]: BridgeOperation } = {
     get: { name: "get", dataDecoder: simpleLayoutConfigDecoder, resultDecoder: optionalSimpleLayoutResult },
     getAll: { name: "getAll", dataDecoder: getAllLayoutsConfigDecoder, resultDecoder: allLayoutsSummariesResultDecoder },
     export: { name: "export", dataDecoder: getAllLayoutsConfigDecoder, resultDecoder: allLayoutsFullConfigDecoder },
-    import: { name: "import", dataDecoder: allLayoutsFullConfigDecoder },
+    import: { name: "import", dataDecoder: layoutsImportConfigDecoder },
     remove: { name: "remove", dataDecoder: simpleLayoutConfigDecoder }
 };
 
@@ -23,6 +23,11 @@ export interface SimpleLayoutConfig {
 
 export interface GetAllLayoutsConfig {
     type: Glue42Web.Layouts.LayoutType;
+}
+
+export interface LayoutsImportConfig {
+    layouts: Glue42Web.Layouts.Layout[];
+    mode: "replace" | "merge";
 }
 
 export interface AllLayoutsFullConfig {

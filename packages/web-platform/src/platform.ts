@@ -5,7 +5,7 @@ import { defaultPlatformConfig } from "./common/defaultConfig";
 import deepMerge from "deepmerge";
 import { version } from "../package.json";
 import { PlatformController } from "./controllers/main";
-import { Glue42Web, GlueWebFactoryFunction } from "@glue42/web";
+import { Glue42Web } from "@glue42/web";
 import { InternalPlatformConfig } from "./common/types";
 
 export class Platform {
@@ -24,14 +24,8 @@ export class Platform {
         await this.controller.start(this.platformConfig);
     }
 
-    public createClientGlue(config: Glue42Web.Config = {}, factory?: GlueWebFactoryFunction): Promise<Glue42Web.API> {
-        const validatedConfig = glueConfigDecoder.runWithException(config);
-
-        if (factory && typeof factory !== "function") {
-            throw new Error(`The factory parameter must be of type function, provided: ${typeof factory}`);
-        }
-
-        return this.controller.initNewGlue(validatedConfig, factory);
+    public getClientGlue(): Glue42Web.API {
+        return this.controller.getClientGlue();
     }
 
     public exposeAPI(): Glue42WebPlatform.API {
@@ -72,7 +66,7 @@ export class Platform {
         if (verifiedConfig.plugins?.definitions) {
 
             const badDefinitions = verifiedConfig.plugins.definitions.reduce<Array<{ name: string; startType: string }>>((soFar, definition) => {
-                const startType = typeof definition;
+                const startType = typeof definition.start;
                 const name = definition.name;
 
                 if (startType !== "function") {

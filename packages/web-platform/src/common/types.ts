@@ -6,7 +6,7 @@ import { Glue42WebPlatform } from "../../platform";
 
 export type Glue42API = Glue42.Glue;
 export type Glue42Config = Glue42.Config;
-export type LibDomains = "windows" | "appManager" | "layouts" | "workspaces";
+export type LibDomains = "windows" | "appManager" | "layouts" | "workspaces" | "intents" | "channels";
 
 export interface InternalWindowsConfig {
     windowResponseTimeoutMs: number;
@@ -14,17 +14,12 @@ export interface InternalWindowsConfig {
 }
 
 export interface InternalApplicationsConfig {
-    mode: "local" | "remote" | "supplier";
-    local: Array<Glue42WebPlatform.Applications.Glue42CoreDefinition | Glue42WebPlatform.Applications.FDC3Definition>;
-    remote?: Glue42WebPlatform.RemoteStore;
-    supplier?: Glue42WebPlatform.Supplier<Array<Glue42WebPlatform.Applications.Glue42CoreDefinition | Glue42WebPlatform.Applications.FDC3Definition>>;
+    local: Array<Glue42Web.AppManager.Definition | Glue42WebPlatform.Applications.FDC3Definition>;
 }
 
 export interface InternalLayoutsConfig {
-    mode: "local" | "remote" | "supplier";
+    mode: "idb" | "session";
     local: Array<Glue42Web.Layouts.Layout>;
-    remote?: Glue42WebPlatform.RemoteStore;
-    supplier?: Glue42WebPlatform.Supplier<Array<Glue42Web.Layouts.Layout>>;
 }
 
 export interface InternalPlatformConfig {
@@ -51,7 +46,7 @@ export interface CoreClientData {
 export interface LibController {
     start(config: InternalPlatformConfig): Promise<void>;
     handleControl(args: any): Promise<void>;
-    handleClientUnloaded(windowId: string, win: Window): void;
+    handleClientUnloaded?(windowId: string, win: Window): void;
 }
 
 export interface SessionNonGlueData {
@@ -66,6 +61,7 @@ export interface SessionWindowData {
 export interface WorkspaceWindowSession {
     windowId: string;
     frameId: string;
+    initialTitle?: string;
 }
 
 export interface BridgeOperation {
@@ -77,4 +73,16 @@ export interface BridgeOperation {
 
 export interface ModeExecutor {
     setup(): Promise<void>;
+}
+
+export interface ApplicationStartConfig {
+    name: string;
+    context?: any;
+    top?: number;
+    left?: number;
+    width?: number;
+    height?: number;
+    relativeTo?: string;
+    relativeDirection?: "top" | "left" | "right" | "bottom";
+    waitForAGMReady?: boolean;
 }

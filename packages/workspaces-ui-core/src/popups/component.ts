@@ -83,7 +83,6 @@ export class ComponentPopupManager {
         this._componentFactory.createAddApplicationPopup({
             domNode: this._popup,
             boxId,
-            parentType,
             resizePopup: (s) => this.resizePopup(s, this._addApplicationType, $(this._popup)),
             hidePopup: this.hidePopup,
             workspaceId,
@@ -107,6 +106,12 @@ export class ComponentPopupManager {
                 this.hidePopup();
             }
         };
+
+        document.body.onblur = (e) => {
+            if (document.activeElement.tagName.toLowerCase() === "iframe") {
+                this.hidePopup();
+            }
+        }
 
         $(element)
             .css("visibility", "visible")

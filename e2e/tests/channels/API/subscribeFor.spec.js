@@ -1,14 +1,20 @@
 describe('subscribeFor()', () => {
-    let gluesToDisconnect = [];
+    let glueApplication;
 
     before(() => {
         return coreReady;
     });
 
     afterEach(async () => {
-        await Promise.all([gtf.channels.resetContexts(), glue.channels.leave(), gtf.connection.disconnectGlues(gluesToDisconnect)]);
+        const promisesToAwait = [gtf.channels.resetContexts(), glue.channels.leave()];
 
-        gluesToDisconnect = [];
+        if (typeof glueApplication !== "undefined") {
+            promisesToAwait.push(glueApplication.stop());
+
+            glueApplication = undefined;
+        }
+
+        await Promise.all(promisesToAwait);
     });
 
     it('Should reject with an error when name isn\'t of type string.', async () => {
@@ -16,16 +22,18 @@ describe('subscribeFor()', () => {
             await glue.channels.subscribeFor(1, () => { });
             throw new Error('subscribeFor() should have thrown an error because name wasn\'t of type string!');
         } catch (error) {
-            expect(error.message).to.equal('Please provide the name as a string!');
+            expect(error.message).to.equal('expected a string, got a number');
         }
     });
 
     it('Should reject with an error when callback isn\'t of type function.', async () => {
+        const [channelName] = await gtf.getChannelNames();
+
         try {
-            await glue.channels.subscribeFor('red', 'string');
+            await glue.channels.subscribeFor(channelName, 'string');
             throw new Error('subscribeFor() should have thrown an error because callback wasn\'t of type function!');
         } catch (error) {
-            expect(error.message).to.equal('Please provide the callback as a function!');
+            expect(error.message).to.equal(`Cannot subscribe to channel ${channelName}, because the provided callback is not a function!`);
         }
     });
 
@@ -36,7 +44,7 @@ describe('subscribeFor()', () => {
             await glue.channels.subscribeFor(nonExistentChannelName, () => { });
             throw new Error('subscribeFor() should have thrown an error because there isn\'t a channel with the provided name!');
         } catch (error) {
-            expect(error.message).to.equal(`Channel with name: ${nonExistentChannelName} doesn't exist!`);
+            expect(error.message).to.equal("Expected a valid channel name");
         }
     });
 
@@ -79,15 +87,13 @@ describe('subscribeFor()', () => {
     });
 
     it('Should invoke the callback with the correct data, context (name, meta and data) and updaterId whenever data is published to the current channel by another party.', async () => {
-        // Create a new Glue for the other party.
-        const otherGlue = await GlueWeb({ channels: true });
-        gluesToDisconnect.push(otherGlue);
+        glueApplication = await gtf.createApp();
 
         const channel = gtf.getChannelsConfigDefinitions()[0];
         const channelName = channel.name;
 
-        // Join the channel together with the other party.
-        await Promise.all([glue.channels.join(channelName), otherGlue.channels.join(channelName)]);
+        // Join the channel.
+        await glue.channels.join(channelName);
 
         // After subscribing using subscribeFor our callback will be called with the current context. We want to skip it and wait for the publish by the other party.
         let initialContextReceived = false;
@@ -113,7 +119,7 @@ describe('subscribeFor()', () => {
             test: 42
         };
         // Publish the data by the other party.
-        await otherGlue.channels.publish(data);
+        await glueApplication.channels.publish(data, channelName);
 
         // The received channel context update.
         const result = await subscriptionPromise;
@@ -126,7 +132,7 @@ describe('subscribeFor()', () => {
 
         expect(result.context).to.eql(context);
         expect(result.data).to.eql(data);
-        expect(otherGlue.connection.peerId).to.equal(result.updaterId);
+        expect(glueApplication.agm.instance.peerId).to.equal(result.updaterId);
 
         // Clean up.
         const unsubscribeFunc = await result.unsubscribeFuncPromise;
@@ -185,16 +191,14 @@ describe('subscribeFor()', () => {
     });
 
     it('Should invoke the callback with the correct data, context (name, meta and data) and updaterId whenever data is published to another channel by another party.', async () => {
-        // Create a new Glue for the other party.
-        const otherGlue = await GlueWeb({ channels: true });
-        gluesToDisconnect.push(otherGlue);
+        glueApplication = await gtf.createApp();
 
         const [firstChannel, secondChannel] = gtf.getChannelsConfigDefinitions();
         const firstChannelName = firstChannel.name;
         const secondChannelName = secondChannel.name;
 
-        // Join the first channel and join the second channel by the other party.
-        await Promise.all([glue.channels.join(firstChannelName), otherGlue.channels.join(secondChannelName)]);
+        // Join the first channel.
+        await glue.channels.join(firstChannelName);
 
         // After subscribing to the second channel using subscribeFor our callback will be called with the current context. We want to skip it and wait for the publish by the other party.
         let secondChannelInitialContextReceived = false;
@@ -220,7 +224,7 @@ describe('subscribeFor()', () => {
             test: 42
         };
         // Publish the data by the other party.
-        await otherGlue.channels.publish(data);
+        await glueApplication.channels.publish(data, secondChannelName);
 
         // The received channel context update.
         const result = await subscriptionPromise;
@@ -233,7 +237,7 @@ describe('subscribeFor()', () => {
 
         expect(result.context).to.eql(context);
         expect(result.data).to.eql(data);
-        expect(otherGlue.connection.peerId).to.equal(result.updaterId);
+        expect(glueApplication.agm.instance.peerId).to.equal(result.updaterId);
 
         // Clean up.
         const unsubscribeFunc = await result.unsubscribeFuncPromise;

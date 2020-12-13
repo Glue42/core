@@ -32,35 +32,7 @@ export namespace Glue42WebPlatform {
 
     export namespace Applications {
 
-        export interface CreateOptions {
-            url: string;
-            
-            /**
-             * Distance of the top left window corner from the top edge of the screen.
-             * @default 0
-             */
-            top?: number;
-
-            /**
-             * Distance of the top left window corner from the left edge of the screen.
-             * @default 0
-             */
-            left?: number;
-
-            /**
-             * Window width.
-             * @default 400
-             */
-            width?: number;
-
-            /**
-             * Window height.
-             * @default 400
-             */
-            height?: number;
-        }
-
-        export interface BaseDefinition {
+        export interface FDC3Definition {
             /**
              * Application name. Should be unique.
              */
@@ -75,31 +47,7 @@ export namespace Glue42WebPlatform {
              * Application version.
              */
             version?: string;
-        }
 
-        export interface Glue42CoreDefinition extends BaseDefinition {
-            /**
-             * Detailed configuration.
-             */
-            details: CreateOptions;
-
-            /**
-             * Generic object for passing properties, settings, etc., in the for of key/value pairs. Accessed using the app.userProperties property.
-             */
-            customProperties?: PropertiesObject;
-
-            /**
-             * Application icon.
-             */
-            icon?: string;
-
-            /**
-             * Application caption.
-             */
-            caption?: string;
-        }
-
-        export interface FDC3Definition extends BaseDefinition {
             /**
              * The unique application identifier located within a specific application directory instance.
              */
@@ -209,20 +157,14 @@ export namespace Glue42WebPlatform {
         }
 
         export interface Config {
-            mode: "local" | "remote" | "supplier";
-            local?: Array<Glue42CoreDefinition | FDC3Definition>;
-            remote?: RemoteStore;
-            supplier?: Supplier<Array<Glue42CoreDefinition | FDC3Definition>>;
+            local?: Array<Glue42Web.AppManager.Definition | FDC3Definition>;
         }
-
     }
 
     export namespace Layouts {
         export interface Config {
-            mode: "local" | "remote" | "supplier";
+            mode?: "idb" | "session";
             local?: Glue42Web.Layouts.Layout[];
-            remote?: RemoteStore;
-            supplier?: Supplier<Array<Glue42Web.Layouts.Layout>>;
         }
     }
 
@@ -247,6 +189,7 @@ export namespace Glue42WebPlatform {
 
         export interface PluginDefinition {
             name: string;
+            config: unknown;
             start: (glue: Glue42Web.API, config: unknown) => void;
         }
 
@@ -309,8 +252,8 @@ export namespace Glue42WebPlatform {
     }
 }
 
-export type WebPlatformFactoryFunction = (config?: Glue42WebPlatform.Config) => Promise<{ glue: Glue42Web.API | Glue42API; platform?: Glue42WebPlatform.API }>;
+export type Glue42WebPlatformFactoryFunction = (config?: Glue42WebPlatform.Config) => Promise<{ glue: Glue42Web.API | Glue42API; platform?: Glue42WebPlatform.API }>;
 
-declare const WebPlatformFactory: WebPlatformFactoryFunction;
+declare const WebPlatformFactory: Glue42WebPlatformFactoryFunction;
 
 export default WebPlatformFactory;

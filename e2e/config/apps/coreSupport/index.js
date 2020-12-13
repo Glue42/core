@@ -235,6 +235,12 @@ const addIntentListener = async ({ intent }, success, error) => {
     }
 };
 
+const publish = async ({ data, name }, success) => {
+    await glue.channels.publish(data, name);
+
+    success();
+};
+
 const operations = [
     { name: 'setContext', execute: setContext },
     { name: 'updateContext', execute: updateContext },
@@ -249,7 +255,8 @@ const operations = [
     { name: 'subscribe', execute: subscribe },
     { name: 'unsubscribe', execute: unsubscribe },
     { name: 'waitForMethodAdded', execute: waitForMethodAdded },
-    { name: 'addIntentListener', execute: addIntentListener }
+    { name: 'addIntentListener', execute: addIntentListener },
+    { name: 'publish', execute: publish }
 ];
 
 const handleControl = (args, _, success, error) => {

@@ -3,12 +3,12 @@ import { GlueContext } from "./Glue";
 import { Glue42Web } from "@glue42/web";
 import { Glue42 } from "@glue42/desktop";
 
-export const useGlue = <T = undefined>(
-    cb: (glue: Glue42Web.API | Glue42.Glue, ...dependencies: any[]) => void | Promise<T> | T,
+export const useGlue = <K = Glue42Web.API | Glue42.Glue, T = void>(
+    cb: (glue: K, ...dependencies: any[]) => Promise<T> | T,
     dependencies: any[] = []
 ): T => {
     const [result, setResult] = useState<T>();
-    const glue = useContext(GlueContext);
+    const glue: any = useContext(GlueContext);
     useEffect(() => {
         const callback = async () => {
             try {

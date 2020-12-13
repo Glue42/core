@@ -121,10 +121,18 @@ export class WindowsController implements LibController {
     }
 
     private onWindowAdded(callback: (window: Glue42Web.Windows.WebWindow) => void): UnsubscribeFunction {
+        if (typeof callback !== "function") {
+            throw new Error("Cannot subscribe to window added, because the provided callback is not a function!");
+        }
+
         return this.registry.add("window-added", callback);
     }
 
     private onWindowRemoved(callback: (window: Glue42Web.Windows.WebWindow) => void): UnsubscribeFunction {
+        if (typeof callback !== "function") {
+            throw new Error("Cannot subscribe to window removed, because the provided callback is not a function!");
+        }
+
         return this.registry.add("window-removed", callback);
     }
 
@@ -227,7 +235,7 @@ export class WindowsController implements LibController {
         const moveMethod = config.relative ? window.moveBy : window.moveTo;
         const resizeMethod = config.relative ? window.resizeBy : window.resizeTo;
 
-        moveMethod(targetTop, targetLeft);
+        moveMethod(targetLeft, targetTop);
         resizeMethod(targetWidth, targetHeight);
     }
 

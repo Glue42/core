@@ -83,15 +83,7 @@ export namespace Gtf {
     }
 
     export interface AppManager {
-        getLocalApplications(): (Glue42WebPlatform.Applications.Glue42CoreDefinition | Glue42WebPlatform.Applications.FDC3Definition)[];
-
-        getRemoteSourceApplications(): Promise<Glue42Web.AppManager.Application[]>;
-
-        addRemoteSourceApplication(application: Glue42Web.AppManager.Application): Promise<Glue42Web.AppManager.Application[]>;
-
-        resetRemoteSourceApplications(): Promise<Glue42Web.AppManager.Application[]>;
-
-        setRemoteSourceApplications(applications: Glue42Web.AppManager.Application[]): Promise<Glue42Web.AppManager.Application[]>;
+        getLocalApplications(): (Glue42Web.AppManager.Definition | Glue42WebPlatform.Applications.FDC3Definition)[];
 
         stopAllOtherInstances(): Promise<void>;
     }
@@ -119,6 +111,14 @@ export namespace Gtf {
 
         compareWindows(actualWindow: Glue42Web.Windows.WebWindow, expectedWindow: Glue42Web.Windows.WebWindow): Promise<boolean>;
 
-        closeAllOtherWindows(): Promise<void>
+        closeAllOtherWindows(): Promise<void>;
+
+        getPlatformWindow(): Promise<Glue42Web.Windows.WebWindow>;
+
+        resetTitles(): Promise<void>;
+
+        resetWindowContexts(): Promise<void>;
+
+        resetWindowDimensions(): Promise<void>;
     }
 }
