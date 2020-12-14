@@ -51,10 +51,7 @@ const updateClientStatus = (client, stock) => {
 };
 
 const start = async () => {
-    window.glue = await window.GlueWeb({
-        appManager: true,
-        application: 'Stock Details'
-    });
+    window.glue = await window.GlueWeb();
     toggleGlueAvailable();
 
     const subscription = await window.glue.interop.subscribe('LivePrices');
@@ -67,7 +64,7 @@ const start = async () => {
         updateStockPrices(selectedStockPrice.Bid, selectedStockPrice.Ask);
     });
 
-    const context = glue.windows.my().context;
+    const context = await glue.windows.my().getContext();
     let selectedStock;
 
     if (context && context.stock) {
@@ -82,9 +79,9 @@ const start = async () => {
         }
     });
 
-    // const stock = window.glue.windows.my().context;
+    // const stock = await window.glue.windows.my().getContext();
 
-    // const stock = window.glue.appManager.myInstance.context;
+    // const stock = await window.glue.appManager.myInstance.getContext();
 
     // setFields(stock);
 

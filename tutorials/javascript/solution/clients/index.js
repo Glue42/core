@@ -75,11 +75,187 @@ const start = async () => {
 
     setupClients(clients);
 
-    window.glue = await window.GlueWeb({
-        appManager: true,
-        application: 'Clients',
-        libraries: [window.GlueWorkspaces]
-    });
+    const channels = {
+        definitions: [
+            {
+                name: "Red",
+                meta: {
+                    color: "red"
+                }
+            },
+            {
+                name: "Green",
+                meta: {
+                    color: "green"
+                }
+            },
+            {
+                name: "Blue",
+                meta: {
+                    color: "#66ABFF"
+                }
+            },
+            {
+                name: "Pink",
+                meta: {
+                    color: "#F328BB"
+                }
+            },
+            {
+                name: "Yellow",
+                meta: {
+                    color: "#FFE733"
+                }
+            },
+            {
+                name: "Dark Yellow",
+                meta: {
+                    color: "#b09b00"
+                }
+            },
+            {
+                name: "Orange",
+                meta: {
+                    color: "#fa5a28"
+                }
+            },
+            {
+                name: "Purple",
+                meta: {
+                    color: "#c873ff"
+                }
+            },
+            {
+                name: "Lime",
+                meta: {
+                    color: "#8af59e"
+                }
+            },
+            {
+                name: "Cyan",
+                meta: {
+                    color: "#80f3ff"
+                }
+            }
+        ]
+    };
+
+    const applications = {
+        local: [
+            {
+                name: "Clients",
+                details: {
+                    url: "http://localhost:9000/"
+                }
+            },
+            {
+                name: "Stocks",
+                details: {
+                    url: "http://localhost:9100/",
+                    "left": 0,
+                    "top": 0,
+                    "width": 860,
+                    "height": 600
+                }
+            },
+            {
+                name: "Stock Details",
+                details: {
+                    url: "http://localhost:9100/details",
+                    "left": 100,
+                    "top": 100,
+                    "width": 400,
+                    "height": 400
+                }
+            },
+            {
+                name: "Client Details",
+                details: {
+                    url: "http://localhost:9200/"
+                }
+            }
+        ]
+    };
+
+    const layouts = {
+        mode: "idb",
+        local: [
+            {
+                name: "client-space",
+                type: "Workspace",
+                metadata: {},
+                components: [
+                    {
+                        type: "Workspace",
+                        state: {
+                            children: [
+                                {
+                                    type: "column",
+                                    children: [
+                                        {
+                                            type: "row",
+                                            children: [
+                                                {
+                                                    type: "group",
+                                                    children: [
+                                                        {
+                                                            type: "window",
+                                                            config: {
+                                                                appName: "Client Details",
+                                                                title: "Client Details"
+                                                            }
+                                                        }
+                                                    ],
+                                                    config: {}
+                                                },
+                                                {
+                                                    type: "column",
+                                                    children: [
+                                                        {
+                                                            type: "group",
+                                                            children: [
+                                                                {
+                                                                    type: "window",
+                                                                    config: {
+                                                                        appName: "Stocks",
+                                                                        title: "Stocks"
+                                                                    }
+                                                                }
+                                                            ],
+                                                            config: {}
+                                                        }
+                                                    ],
+                                                    config: {}
+                                                }
+                                            ],
+                                            config: {}
+                                        }
+                                    ],
+                                    config: {}
+                                }
+                            ],
+                            config: {
+                                name: "client-space",
+                                title: "Untitled 1"
+                            },
+                            context: {}
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+
+    const config = {
+        glue: { libraries: [window.GlueWorkspaces] },
+        workspaces: { src: "http://localhost:9300/" },
+        channels,
+        applications,
+        layouts
+    };
+
+    const { glue } = await GlueWebPlatform(config);
+    window.glue = glue;
 
     toggleGlueAvailable();
 

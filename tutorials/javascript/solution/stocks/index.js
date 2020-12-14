@@ -134,7 +134,7 @@ const newPricesHandler = (priceUpdate) => {
 };
 
 const stockClickedHandler = async (stock) => {
-    // window.glue.windows.open(`${stock.BPOD} Details`, 'http://localhost:4242/stocks/details/', openConfig).catch(console.error);
+    // window.glue.windows.open(`${stock.BPOD} Details`, 'http://localhost:9100/details/', openConfig).catch(console.error);
 
     // const detailsApplication = window.glue.appManager.application('Stock Details');
     // detailsApplication.start(stock).catch(console.error);
@@ -161,8 +161,7 @@ const stockClickedHandler = async (stock) => {
 
         detailsGdWindow = detailsWorkspaceWindow.getGdWindow();
     }
-
-    detailsGdWindow.updateContext({ stock });
+    detailsGdWindow.update({ stock });
 };
 
 const start = async () => {
@@ -180,8 +179,6 @@ const start = async () => {
     generateStockPrices(newPricesHandler);
 
     window.glue = await window.GlueWeb({
-        appManager: true,
-        application: 'Stocks',
         libraries: [window.GlueWorkspaces]
     });
 
@@ -194,6 +191,18 @@ const start = async () => {
             setupStocks(stockToShow);
         }
     });
+
+    const myWorkspace = await glue.workspaces.getMyWorkspace();
+
+    if (myWorkspace) {
+        myWorkspace.onContextUpdated((ctx) => {
+            if (ctx.client) {
+                const clientPortfolio = ctx.client.portfolio;
+                const stockToShow = stocks.filter((stock) => clientPortfolio.includes(stock.RIC));
+                setupStocks(stockToShow);
+            }
+        });
+    }
 
     // window.glue.interop.register('SelectClient', (args) => {
     //     const clientPortfolio = args.client.portfolio;
@@ -250,7 +259,7 @@ const start = async () => {
     //     updateChannelSelectorWidget(channelName);
     // });
 
-    // const channelToJoin = window.glue.appManager.myInstance.context.channel;
+    // const channelToJoin = (await window.glue.appManager.myInstance.getContext()).channel;
 
     // if (channelToJoin) {
     //     window.glue.channels.join(channelToJoin);

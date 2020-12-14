@@ -137,7 +137,7 @@ const stockClickedHandler = (stock) => {
     sessionStorage.setItem('stock', JSON.stringify(stock));
 
     // TODO: Chapter 4.1
-    window.location.href = `http://${window.location.host}/stocks/details/index.html`;
+    window.location.href = `http://${window.location.host}/details/index.html`;
 
     // TODO: Chapter 7.2
 

@@ -1,14 +1,19 @@
 {
   "name": "js-tutorial",
   "version": "1.0.0",
-  "description": "Glue42 Core Vanilla JS Tutorial",
-  "scripts": {},
+  "description": "Glue42 Core JavaScript Tutorial",
+  "scripts": {
+    "start:clients": "http-server ./Clients -p 9000",
+    "start:stocks": "http-server ./Stocks -p 9100",
+    "start:clientDetails": "http-server ./client-details -p 9200",
+    "start:workspace": "http-server ./workspace -p 9300",
+    "start": "concurrently \"npm run start:clients\" \"npm run start:stocks\" \"npm run start:clientDetails\" \"npm run start:workspace\""
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@glue42/gateway-web": "^3.0.8",
-    "@glue42/worker-web": "^1.0.0",
-    "@glue42/workspaces-app": "^1.1.0"
+    "concurrently": "^5.3.0",
+    "http-server": "^0.12.3"
   }
 }

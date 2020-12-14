@@ -1,16 +1,16 @@
 ## Overview
 
-This tutorial is designed to walk you through every aspect of **Glue42 Core** - setting up a project with the [**Glue42 CLI**](../../../core/core-concepts/cli/index.html), initializing [**Glue42 Clients**](../../../core/core-concepts/glue42-client/overview/index.html) and extending your applications with [Shared Contexts](../../../core/capabilities/shared-contexts/index.html), [Interop](../../../core/capabilities/interop/index.html), [Window Management](../../../core/capabilities/window-management/index.html), [Channels](../../../core/capabilities/channels/index.html), [Application Management](../../../core/capabilities/application-management/index.html) and [Workspaces](../../../core/capabilities/workspaces/index.html).
+This tutorial is designed to walk you through every aspect of **Glue42 Core** - setting up a project, initializing a [**Main Applications**](../../../core/core-concepts/web-platform/overview/index.html), multiple [**Glue42 Clients**](../../../core/core-concepts/web-client/overview/index.html) and extending your applications with [Shared Contexts](../../../core/capabilities/shared-contexts/index.html), [Interop](../../../core/capabilities/interop/index.html), [Window Management](../../../core/capabilities/window-management/index.html), [Channels](../../../core/capabilities/channels/index.html), [Application Management](../../../core/capabilities/application-management/index.html) and [Workspaces](../../../core/capabilities/workspaces/index.html).
 
 This guide uses plain JavaScript and its goal is to allow you to put the basic concepts of **Glue42 Core** to practice. There are also [React](../react/index.html) and [Angular](../angular/index.html) tutorials for **Glue42 Core**, but it is recommended that you go through the JavaScript tutorial first in order to get acquainted with **Glue42 Core** without the distractions of additional libraries and frameworks.
 
 ## Introduction
 
-You are a part of the IT department of a big multi-national bank and you have been tasked to create an application which will be used by the Asset Management department of the bank. The project will consist of two applications:
+You are a part of the IT department of a big multi-national bank and you have been tasked to lead the creation of a project which will be used by the Asset Management department of the bank. The project will consist of two applications:
 - **Clients** - displays a full list of clients and details about them;
 - **Stocks** - displays a full list of stocks with prices. When the user clicks on a stock, details about the selected stock should be displayed.
 
-The two applications must be hosted on the same domain where `/clients` resolves to the **Clients** application and `/stocks` resolves to the **Stocks** application.
+All applications are being developed by different teams within the organizations and therefore are being hosted at different origins. 
 
 As an end result, the users want to be able to run two apps as Progressive Web Apps in separate windows in order to take advantage of their multi-monitor setups. Also, they want the apps, even though in separate windows, to be able to communicate with each other. For example, when a client is selected in the **Clients** app, the **Stocks** app should display only the stocks of the selected client.
 
@@ -18,7 +18,7 @@ As an end result, the users want to be able to run two apps as Progressive Web A
 
 This tutorial assumes that you are familiar with the concepts of JavaScript and asynchronous programming.
 
-It is also recommended to have the [**Glue42 CLI**](../../../core/core-concepts/cli/index.html), [**Glue42 Environment**](../../../core/core-concepts/environment/overview/index.html), [**Glue42 Clients**](../../../core/core-concepts/glue42-client/overview/index.html) and [**Glue42 Web**](../../../reference/core/latest/glue42%20web/index.html) documentation available for reference.
+It is also recommended to have the [**Web Platform**](../../../core/core-concepts/web-platform/overview/index.html), [**Web Client**](../../../core/core-concepts/glue42-client/overview/index.html) and [**Glue42 Web**](../../../reference/core/latest/glue42%20web/index.html) documentation available for reference.
 
 ## Tutorial Structure
 
@@ -58,29 +58,38 @@ Clone the **Glue42 Core** [**GitHub repo**](https://github.com/Glue42/core) to g
 Next, go to the `/tutorials/javascript/start` directory which contains the starting files for the project. The tutorial examples assume that you will be working in the `/start` directory, but, of course, you can move the files and work from another directory.
 
 The `/start` directory contains the following:
-- `/assets` - holds shared assets for both applications (icons);
-- `/lib` - holds common libraries used by both applications(the [**Glue42 Web**](../../../reference/core/latest/glue42%20web/index.html) library, CSS and other files);
-- `/clients` - this is the **Clients** app which consists of an `index.html` file, script file and a `manifest.json` file;
-- `/stocks` - this is the **Stocks** app which consists of the same elements as the **Clients** app, with the addition of a `/details` directory which contains the `.html` and `.js` files for the Stock Details view;
-- `/client-details` - this is the **Client Details** app which will be used later in the tutorial (in the [Workspaces](#8_workspaces) chapter) to display detailed information about a selected client;
-- `favicon.ico` - a standard favicon;
-- `index.html` - the project landing page;
+- `/clients` - this is the **Clients** app and this directory encapsulates everything needed for this to be a standalone web app:  an `index.html` file, script file, a `manifest.json` file, `lib` directory, `assets` directory, a `service-worker.js` and a favicon;
+- `/stocks` - this is the **Stocks** app and this directory encapsulates everything needed for this to be a standalone web app:  an `index.html` file, script file, a `manifest.json` file, `lib` directory, `assets` directory, a `service-worker.js` and a favicon;
+- `/client-details` - this is the **Client Details** app which will be used later in the tutorial (in the [Workspaces](#8_workspaces) chapter) to display detailed information about a selected client. This directory encapsulates everything needed for this to be a standalone web app:  an `index.html` file, script file, a `manifest.json` file, `lib` directory, `assets` directory, a `service-worker.js` and a favicon;
 - `package.json` - standard `package.json` file;
-- `service-worker.js` - a Service Worker script used by both applications. The Service Worker and the manifests classify the application as an installable [**Progressive Web App**](https://developer.mozilla.org/nl/docs/Web/Progressive_web_apps). Does not contain any meaningful logic;
+- `/workspace` - this is a **Workspaces** app, which will be used in the [Workspaces](#8_workspaces) chapter;
+
+All of the three available apps are fully functional and can be ran. To do that you need to:
+
+```cmd
+npm install
+npm start
+```
+
+These commands will install the necessary dependencies and launch three separate servers hosting the three separate apps as follows:
+- `http://localhost:9000/` - **Clients** app
+- `http://localhost:9100/` - **Stocks** app
+- `http://localhost:9200/` - **Client Details** app
+
 
 ### 1.2. Solution Files
 
 Before you continue, take a look at the solution files. You are free to use the solution as you like - you can check after each section to see how it solves the problem, or you can use it as a reference point in case you get stuck.
 
-Go to the `/rest-server` directory and start the REST Server (as described in the [REST Server](#setup-rest_server) chapter). Go to the `/javascript/solution` directory, open a command prompt and run the following commands to install the necessary dependencies and run the project (assuming the Glue42 CLI is installed globally):
+Go to the `/rest-server` directory and start the REST Server (as described in the [REST Server](#setup-rest_server) chapter). Go to the `/javascript/solution` directory, open a command prompt and run the following commands to install the necessary dependencies and run the project:
 
 ```cmd
 npm install
 
-gluec serve
+npm start
 ```
 
-You can now access the **Clients** app at `localhost:4242/clients` and the **Stocks** app at `localhost:4242/stocks`.
+You can now access the entry point of the project (the **Clients** app) at `http://localhost:9000/`.
 
 ### 1.3. REST Server
 
@@ -94,121 +103,58 @@ npm start
 
 This will launch the server at port 8080.
 
-### 1.4. Glue42 Environment
+## 2. Setting up
 
-Now, you will use the [**Glue42 CLI**](../../../core/core-concepts/cli/index.html) to set up the [**Glue42 Environment**](../../../core/core-concepts/environment/overview/index.html) files. For that purpose, you need to install the Glue42 CLI and run the `init` command which will automatically set up your development environment. Go to the `/tutorials/javascript/start` directory, open a command prompt and run the following:
+### 2.1. Creating the Main Application
 
-```cmd
-npm install --global @glue42/cli-core
+Every Glue42 Core project must have **one** central application, we call it [**Main Application**](../../../core/core-concepts/web-platform/overview/index.html) or "platform app". In a more real-world scenario this would be an application used to discover and list available applications, workspaces, handle notifications and much more. However, our goal now is to touch on all of these aspects with a little complexity as possible. That's why our **Clients** app will serve as our Main applications. The idea is that our users will open the **Clients** app and from there, they will be able to click on a client, see his or her stocks and so on.
 
-gluec init
-```
-Or you can also do it this way:
+Setting up an app as a "Main application" is just as simple as calling a function. First you have to reference the Glue42 Web Platform script in the `index.html` inside the `/Clients` directory and initialize the library in the respective `index.js` file.
 
-```cmd
-npm install --save-dev @glue42/cli-core
-
-npx gluec init
-```
-
-The `init` command installs the necessary dependencies and creates the necessary configuration files with default settings.
-
-Next, you have to configure the development server that comes with the Glue42 CLI. It will allow you to serve or proxy to your apps, define shared resources and serve the [**Glue42 Environment**](../../../core/core-concepts/environment/overview/index.html) files correctly. To do that, open the `glue.config.dev.json` file that was created with the `init` command and add the locations and routes for the shared resources and the **Clients** and **Stocks** apps. Your configuration should look something like this:
-
-```json
-{
-    "glueAssets": ...,
-    "server": {
-        "settings": ...,
-        "apps": [
-            {
-                "route": "/",
-                "file": {
-                    "path": "./"
-                }
-            },
-            {
-                "route": "/clients",
-                "file": {
-                    "path": "./clients/"
-                }
-            },
-            {
-                "route": "/stocks",
-                "file": {
-                    "path": "./stocks/"
-                }
-            }
-        ],
-        "sharedAssets": [
-            {
-                "route": "/assets",
-                "path": "./assets/"
-            },
-            {
-                "route": "/lib",
-                "path": "./lib/"
-            },
-            {
-                "route": "/favicon.ico",
-                "path": "./favicon.ico"
-            },
-            {
-                "route": "/service-worker.js",
-                "path": "./service-worker.js"
-            }
-        ]
-    },
-    "logging": "default"
-}
-```
-
-*For more information on how to configure the Glue42 CLI development server, see the [**Glue42 CLI: Configuration**](../../../core/core-concepts/cli/index.html#configuration) section.*
-
-Next, open a command prompt in the project base directory and run:
-
-```cmd
-gluec serve
-```
-
-The `serve` command launches a development server at port 4242 which will serve all defined apps and resources together with the [**Glue42 Environment**](../../../core/core-concepts/environment/overview/index.html) files.
-
-Now, you can open the apps at `localhost:4242/clients` for the **Clients** app and at `localhost:4242/stocks` for the **Stocks** app or access them directly from the project landing page at `localhost:4242/`.
-
-Landing page:
-
-![Landing Page](../../../images/tutorials/core-js/landing-page.png)
-
-Clients:
-
-![Clients](../../../images/tutorials/core-js/clients.png)
-
-Stocks:
-
-![Stocks](../../../images/tutorials/core-js/stocks.png)
-
-At the right side of the address bar you will see an install icon from which you can install the app on your desktop:
-
-![Install](../../../images/tutorials/core-js/install.png)
-
-Once installed, you can launch it from the shortcut created on your desktop or by going to `chrome://apps` (if you are using Google Chrome) and clicking its icon.
-
-## 2. Initializing the Glue42 Web Library
-
-Now, you need to initialize the [**Glue42 Web**](../../../reference/core/latest/glue42%20web/index.html) library in each of the applications. To do that, you have to reference the Glue42 Web script in the `index.html` file of each app and initialize the library in the respective `index.js` file of each app.
-
-Open the `index.html` files located in `/clients`, `client-details`, `/stocks` and `stocks/details` and add a new `<script>` tag just below the `TODO: Chapter 2` comment and reference the Glue42 Web script from the `/lib` directory:
+Open the `index.html` inside `/Clients` and add a new `<script>` tag just below the `TODO: Chapter 2` comment and reference the Glue42 Web Platform script from the `/Clients/lib` directory:
 
 ```html
-<script src="/lib/web.umd.min.js"></script>
+<script src="/lib/platform.web.umd.js"></script>
 ```
 
-Next, open the `index.js` files located in `/clients`, `/stocks` and `stocks/details` and find the `TODO: Chapter 2` comment inside the `start()` function. Initialize the [**Glue42 Web**](../../../reference/core/latest/glue42%20web/index.html) library by using the `GlueWeb()` factory function attached to the global `window` object. Assign the returned object as a property of the global `window` object for easy use:
+Next, open the `index.js` file located in `/Clients` and find the `TODO: Chapter 2` comment inside the `start()` function. Initialize the [**Glue42 Web Platform**](../../../core/core-concepts/web-platform/overview/index.html) library by using the `GlueWebPlatform()` factory function attached to the global `window` object. Assign the returned object as a property of the global `window` object for easy use:
+
+```javascript
+// In `start()`.
+const { glue } = await GlueWebPlatform();
+window.glue = glue;
+```
+
+Find the `toggleGlueAvailable` function and uncomment it. Call it once the `GlueWebPlatform()` factory function has resolved.
+
+```javascript
+// In `start()`.
+toggleGlueAvailable();
+```
+
+After refreshing the app, you should see in the top left corner that Glue42 is available. This means that you have successfully initiated a [**Main Application**](../../../core/core-concepts/web-platform/overview/index.html).
+
+Next, you need to repeat almost the same steps for the rest3 of the apps in order to connect them as Clients.
+
+### 2.2. Initializing the Glue42 Web Clients
+
+Now, that you have a fully functional main application, you need to initialize the [**Glue42 Web**](../../../reference/core/latest/glue42%20web/index.html) library in each of the applications. To do that, you have to reference the Glue42 Web script in the `index.html` file of each app and initialize the library in the respective `index.js` file of each app. Doing so will allow these apps to connect to the **Clients** app and communicate with each other.
+
+Open the `index.html` files located in `client-details`, `/stocks` and `stocks/details` and add a new `<script>` tag just below the `TODO: Chapter 2` comment and reference the Glue42 Web script from the `/lib` directory:
+
+```html
+<script src="/lib/web.umd.js"></script>
+```
+
+Next, open the `index.js` files located in, `/stocks` and `stocks/details` and find the `TODO: Chapter 2` comment inside the `start()` function. Initialize the [**Glue42 Web**](../../../reference/core/latest/glue42%20web/index.html) library by using the `GlueWeb()` factory function attached to the global `window` object. Assign the returned object as a property of the global `window` object for easy use:
 
 ```javascript
 // In `start()`.
 window.glue = await GlueWeb();
 ```
+
+Note that, the `GlueWeb` factory function's promise returns a ready `glue` object unlike the `GlueWebPlatform`, which wrapped it in an object.
+
 Find the `toggleGlueAvailable` function and uncomment it. Call it once the `GlueWeb()` factory function has resolved.
 
 ```javascript
@@ -216,7 +162,15 @@ Find the `toggleGlueAvailable` function and uncomment it. Call it once the `Glue
 toggleGlueAvailable();
 ```
 
-After refreshing the apps, you should see in the top left corner of each of them that Glue42 is available. This means that you have successfully connected to the [**Glue42 Environment**](../../../core/core-concepts/environment/overview/index.html).
+Note that right now, if you refresh these apps and access them by typing in the URL, you will not see a successful Glue initialization. The reason is that apart from the [**Main Application**](../../../core/core-concepts/web-platform/overview/index.html), all other applications must be opened via the Glue APIs in order for the apps to be able to discover and interact with each other.
+
+However, it would be nice to verify that your work so far is correct. Todo that you can open the **Clients** app, the open it's console (type F12) and type in:
+
+```javascript
+glue.windows.open("my-stocks", "http://localhost:9100/").then(() => console.log("success")).catch(console.error);
+```
+
+It is normal to not be able to recognize this API at this moment, don't worry, we will cover the Windows API in depth in a couple of chapters. All you need to know is that for now, this a way you can open the other Clients so that they can initialize Glue and communicate with each other.
 
 Next, you will start to add more functionalities to the apps.
 
@@ -400,7 +354,7 @@ Next, you need to update the **Stock Details** app to correctly get the `stock` 
 ```javascript
 // In `start()`.
 const currentWindow = glue.windows.my();
-const stock = currentWindow.context;
+const stock = await currentWindow.getContext();
 
 setFields(stock);
 ```
@@ -415,7 +369,7 @@ const start = async () => {
     toggleGlueAvailable();
 
     const currentWindow = glue.windows.my();
-    const stock = currentWindow.context;
+    const stock = await currentWindow.getContext();
 
     setFields(stock);
 
@@ -487,86 +441,83 @@ The latest requirement from the users is to be able work with multiple clients a
 
 ### 6.1. Channels Configuration
 
-First, you need to add channel definitions to the [**Glue42 Environment**](../../../core/core-concepts/environment/overview/index.html). Add the following configuration to the `glue.config.json` file located at the base directory of your project. After that, restart the Glue42 CLI by quitting it and running the `gluec serve` command again for the changes to take effect:
+Up until this moment, you have called the `GlueWebPlatform` factory function with no arguments, because you didn't need to to define anything. From now on this changes, **Clients** is the Main applications of the project, therefore it is it's responsibility to initiate and maintain all channels. To achieve all of this, we need to define an configuration object and pass it to the `GlueWebPlatform` factory function:
 
-```json
-{
-    "glue": ...,
-    "gateway": ...,
-    "channels": [
+
+```javascript
+// In start()
+const channels = {
+    definitions: [
         {
-            "name": "Red",
-            "meta": {
-                "color": "red"
+            name: "Red",
+            meta: {
+                color: "red"
             }
         },
         {
-            "name": "Green",
-            "meta": {
-                "color": "green"
+            name: "Green",
+            meta: {
+                color: "green"
             }
         },
         {
-            "name": "Blue",
-            "meta": {
-                "color": "#66ABFF"
+            name: "Blue",
+            meta: {
+                color: "#66ABFF"
             }
         },
         {
-            "name": "Pink",
-            "meta": {
-                "color": "#F328BB"
+            name: "Pink",
+            meta: {
+                color: "#F328BB"
             }
         },
         {
-            "name": "Yellow",
-            "meta": {
-                "color": "#FFE733"
+            name: "Yellow",
+            meta: {
+                color: "#FFE733"
             }
         },
         {
-            "name": "Dark Yellow",
-            "meta": {
-                "color": "#b09b00"
+            name: "Dark Yellow",
+            meta: {
+                color: "#b09b00"
             }
         },
         {
-            "name": "Orange",
-            "meta": {
-                "color": "#fa5a28"
+            name: "Orange",
+            meta: {
+                color: "#fa5a28"
             }
         },
         {
-            "name": "Purple",
-            "meta": {
-                "color": "#c873ff"
+            name: "Purple",
+            meta: {
+                color: "#c873ff"
             }
         },
         {
-            "name": "Lime",
-            "meta": {
-                "color": "#8af59e"
+            name: "Lime",
+            meta: {
+                color: "#8af59e"
             }
         },
         {
-            "name": "Cyan",
-            "meta": {
-                "color": "#80f3ff"
+            name: "Cyan",
+            meta: {
+                color: "#80f3ff"
             }
         }
     ]
-}
+};
+const config = {
+    channels
+};
+const { glue } = await GlueWebPlatform(config);
+window.glue = glue;
 ```
 
-To enable the Channels API, you need to initialize the [**Glue42 Web**](../../../reference/core/latest/glue42%20web/index.html) library by passing a configuration object to the `GlueWeb()` factory function. Go to the `index.js` files of the **Clients** and **Stocks** apps and modify the initialization of the library:
-
-```javascript
-// In `start()`.
-
-const config = { channels: true };
-
-window.glue = await GlueWeb(config);
-```
+This is everything you need to do. When **Clients** starts, the channels will already be initialized and ready for interaction.
 
 ### 6.2. Channel Selector Widget
 
@@ -667,62 +618,55 @@ Up until now the **Stocks** app had to use the Window Management API to open the
 
 ### 7.1. Application Configuration
 
-To take advantage of the [Application Management API](../../../reference/core/latest/appmanager/index.html), you need to define configurations for your applications in the `glue.config.json` file of your project and enable the Application Management API by passing a [`Config`](../../../reference/core/latest/glue42%20web/index.html#!Config) object during the initialization of the [**Glue42 Web**](../../../reference/core/latest/glue42%20web/index.html) library in each application.
-
-First, open the `glue.config.json` and add the following application configurations using the `appManager` top-level key. Restart the Glue42 CLI by quitting it and running the `gluec serve` command again for the changes to take effect:
-
-```json
-{
-    "glue": ...,
-    "gateway": ...,
-    "channels": ...,
-    "appManager": {
-        "localApplications": [
-            {
-                "name": "Clients",
-                "details": {
-                    "url": "http://localhost:4242/clients"
-                }
-            },
-            {
-                "name": "Stocks",
-                "details": {
-                    "url": "http://localhost:4242/stocks",
-                    "left": 0,
-                    "top": 0,
-                    "width": 860,
-                    "height": 600
-                }
-            },
-            {
-                "name": "Stock Details",
-                "details": {
-                    "url": "http://localhost:4242/stocks/details",
-                    "left": 100,
-                    "top": 100,
-                    "width": 400,
-                    "height": 400
-                }
-            }
-        ]
-    }
-}
-```
-
-After that enable the Application Management API by passing `{ appManager: true }` and the application name to the `GlueWeb()` factory function:
+To take advantage of the [Application Management API](../../../reference/core/latest/appmanager/index.html), you need to define the configurations for your applications. To do this, (similarly to Channels) you need to define an `applications` property, containing all of the required definitions, in the `GlueWebPlatform` config inside **Clients**.
 
 ```javascript
-// In `start()`.
-const config = {
-    channels: true,
-    appManager: true,
-    application: "Clients"
+// In `start()`
+const applications = {
+    local: [
+        {
+            name: "Clients",
+            details: {
+                url: "http://localhost:9000/"
+            }
+        },
+        {
+            name: "Stocks",
+            details: {
+                url: "http://localhost:9100/",
+                "left": 0,
+                "top": 0,
+                "width": 860,
+                "height": 600
+            }
+        },
+        {
+            name: "Stock Details",
+            details: {
+                url: "http://localhost:9100/details",
+                "left": 100,
+                "top": 100,
+                "width": 400,
+                "height": 400
+            }
+        },
+        {
+            name: "Client Details",
+            details: {
+                url: "http://localhost:9200/"
+            }
+        }
+    ]
 };
-
-window.glue = await GlueWeb(config);
+const config = {
+    channels,
+    applications
+};
+const { glue } = await GlueWebPlatform(config);
+window.glue = glue;
 ```
 
-Do this for all three applications, passing in the correct application name. The application name is used by the platform to map it to the respective local/remote application definition that is then accessible through the `application` property of [`glue.appManager.myInstance`](../../../reference/core/latest/appmanager/index.html#!API-myInstance). For the mapping to work, it is important that the application name provided to `GlueWeb()` is the same as the application name defined in the local/remote application configuration.
+Just like with Channels, this is the only configuration required and when **Clients** starts, the applications will be ready.
 
 ### 7.2. Starting Applications
 
@@ -742,7 +686,7 @@ To get the `stock` from the starting context in the **Stock Details** applicatio
 ```javascript
 // In `start()`.
 
-const stock = glue.appManager.myInstance.context;
+const stock = await glue.appManager.myInstance.getContext();
 
 setFields(stock);
 ```
@@ -770,7 +714,7 @@ Now go to the **Stocks** application, find the `TODO: Chapter 7.3` comment and u
 ```javascript
 // In `start()`.
 
-const channelToJoin = glue.appManager.myInstance.context.channel;
+const channelToJoin = (await glue.appManager.myInstance.getContext()).channel;
 
 if (channelToJoin) {
     glue.channels.join(channelToJoin);
@@ -810,75 +754,99 @@ Use the [Workspaces API](../../../reference/core/latest/workspaces/index.html) d
 
 ### 8.1. Setup
 
-Configure your current development environment for Workspaces by running the following command in the Glue42 CLI:
-
-```cmd
-gluec workspaces init
-```
-
-This command will add the necessary Workspaces packages to your project and set up the Workspaces default settings in your configuration files.
-
-*Note that this command only works if the current directory has already been initialized with the `gluec init` command. In case of a brand new **Glue42 Core** project, you have to use the `gluec init -w` command to set up the basic **Glue42 Core** files and Workspaces at the same time.*
+All workspaces are contained in a specialized, standalone web application called "Workspaces Frame". It is outside the scope of this tutorial to cover building and customizing this applications, so you have a ready-to-go application located at `/workspace`. This application is already being hosted by the `npm start` script at `http://localhost:9300/`, so there is nothing you need to do.
 
 ### 8.2. Workspace Layouts
 
-Next, you need to build a Workspace layout which will be the blueprint of the Workspace that the **Clients** app will restore when the user clicks on a client. This layout should contain the **Client Details** and **Stocks** apps.
+Next, you a Workspace layout which will be the blueprint of the Workspace that the **Clients** app will restore when the user clicks on a client. You already have all the necessary application definitions defined from the previous section, so there is no additional work in regards to applications.
 
-Define the **Client Details** app in the `glue.config.dev.json` file so that the [**Glue42 CLI**](../../../core/core-concepts/cli/index.html) will be able to serve it:
+*Note that you have to define all apps that will be used in the Workspace. This is necessary in order for the applications to become available in the "Add Application" menu of the [Workspaces App](../../../core/capabilities/workspaces/index.html#workspaces_concepts-frame).*
 
-```json
-{
-    "glueAssets": ...,
-    "server": {
-        "apps": [
-            ...,
-            {
-                "route": "/clientdetails",
-                "file": {
-                    "path": "./client-details/"
+In order to build a Workspace layout, you can create a new empty workspace with the Workspaces API (`glue.workspaces.createWorkspace({children: []})`), arrange apps as you see fit and then use `glue.workspaces.layouts.export()` to get the layouts JSON objects.
+
+We have done this for you, so all that is left for you to do is define a `layouts` property inside the `GlueWebPlatform` configuration object. This property shouldbe an object, containing the operation mode and a collection of layouts, similarly to applications and channels:
+
+```javascript
+const layouts = {
+    mode: "idb",
+    local: [
+        {
+            name: "client-space",
+            type: "Workspace",
+            metadata: {},
+            components: [
+                {
+                    type: "Workspace",
+                    state: {
+                        children: [
+                            {
+                                type: "column",
+                                children: [
+                                    {
+                                        type: "row",
+                                        children: [
+                                            {
+                                                type: "group",
+                                                children: [
+                                                    {
+                                                        type: "window",
+                                                        config: {
+                                                            appName: "Client Details",
+                                                            title: "Client Details"
+                                                        }
+                                                    }
+                                                ],
+                                                config: {}
+                                            },
+                                            {
+                                                type: "column",
+                                                children: [
+                                                    {
+                                                        type: "group",
+                                                        children: [
+                                                            {
+                                                                type: "window",
+                                                                config: {
+                                                                    appName: "Stocks",
+                                                                    title: "Stocks"
+                                                                }
+                                                            }
+                                                        ],
+                                                        config: {}
+                                                    }
+                                                ],
+                                                config: {}
+                                            }
+                                        ],
+                                        config: {}
+                                    }
+                                ],
+                                config: {}
+                            }
+                        ],
+                        config: {
+                            name: "client-space",
+                            title: "Untitled 1"
+                        },
+                        context: {}
+                    }
                 }
-            }
-        ],
-        "settings": ...,
-        "sharedAssets": ...
-    },
-    "logging": "dev"
+            ]
+        }
+    ]
 }
+
+const config = {
+    channels,
+    applications,
+    layouts
+};
+
+const { glue } = await GlueWebPlatform(config);
+window.glue = glue;
 ```
 
-Define the **Client Details** app as a **Glue42 Core** application in the `glue.config.json` file (see the [Application Management](#7_application_management-71_application_configuration) chapter for more details):
-
-```json
-{
-    "glue": ...,
-    "channels": ...,
-    "appManager": {
-        "localApplications": [
-            ...,
-            {
-                "name": "Client Details",
-                "details": {
-                    "url": "http://localhost:4242/clientdetails"
-                }
-            }
-        ]
-    }
-}
-```
-
-*Note that you have to define all apps that will be used in the Workspace in the `glue.config.json` file. Also, you have to specify the application name in the [`applications`](../../../reference/core/latest/glue42%20web/index.html#!Config-application) property of the configuration object when initializing them as [Glue42 Clients](../../../core/core-concepts/glue42-client/overview/index.html). This is necessary in order for the applications to become available in the "Add Application" menu of the [Workspaces App](../../../core/capabilities/workspaces/index.html#workspaces_concepts-frame).*
-
-The [**Glue42 CLI**](../../../core/core-concepts/cli/index.html) offers access to a [Workspace Builder](../../../core/capabilities/workspaces/index.html#creating_workspace_layouts) which you can use to compose and save a Workspace layout:
-
-```cmd
-gluec workspaces build
-```
-
-*Note that in order for this command to work, the Glue42 development server must be running.*
-
-This will open the Workspace Builder in your default browser. Add the **Client Details** app by clicking on the `+` icon in the center and then add the **Stocks** app by clicking the `+` icon in the top right corner of the newly formed group. You should have both apps open next to each other in the new Workspace.
-
-Save the Workspace layout by clicking the "Save" icon on the left of the Workspace title and name it (e.g., "client-space"). Next, click the "Download" button and save the `.txt` file in the project directory. Copy the contents of the downloaded `.txt` file and paste it in the `workspaces` array of the `glue.layouts.json` file.
+The layouts mode is selected as `idb`, which means that the layouts will be persisted in IndexedDB. This is very convenient for demos and tutorials, because it allows layouts persistence without coding a specialized server.
 
 Now this Workspace layout can be restored by name using the [Workspaces API](../../../reference/core/latest/workspaces/index.html).
 
@@ -887,24 +855,39 @@ Now this Workspace layout can be restored by name using the [Workspaces API](../
 To be able to use Workspaces functionalities, you need to initialize the [Workspaces API](../../../reference/core/latest/workspaces/index.html) in the **Clients**, **Client Details** and **Stocks** apps. The **Stock Details** app will participate in the Workspace, but will not need to use any Workspaces functionality. Find the `TODO: Chapter 8.3` comment in the `index.html` files of the **Clients**, **Client Details** and **Stocks** apps and reference the Workspaces library:
 
 ```html
-<script src="/lib/workspaces.umd.min.js"></script>
+<script src="/lib/workspaces.umd.js"></script>
 ```
 
 The Workspaces script attaches the `GlueWorkspaces()` factory function to the global `window` object. Go to the `index.js` files of the **Clients**, **Client Details** and **Stocks** apps and add `GlueWorkspaces` to the `libraries` array of the configuration object when initializing the Glue42 Web library:
 
+
+Example for**Client Details** and **Stocks** apps
 ```javascript
 // In `start()`.
 
 const config = {
-    appManager: true,
-    application: "Client Details",
     libraries: [GlueWorkspaces]
 };
 
 window.glue = await GlueWeb(config);
 ```
 
-*Remember to pass the correct name for each application in the `application` property of the configuration object when initializing the Glue42 Web library so that the application will be available in the "Add Application" menu of the Workspaces App.*
+Example for **Clients**
+```javascript
+// In `start()`.
+const config = {
+    glue: { libraries: [window.GlueWorkspaces] },
+    workspaces: { src: "http://localhost:9300/" },
+    channels,
+    applications,
+    layouts
+};
+
+const { glue } = await GlueWebPlatform(config);
+window.glue = glue;
+```
+
+Note that the Workspaces API initialization is a bit different in **Clients**, because it is the Main application. Apart from providing the workspaces factory, you also needed to define a `workspaces` property, which describes where the Workspaces Frame application is located.
 
 ### 8.4. Opening Workspaces
 
@@ -947,7 +930,7 @@ glue.windows.my().onContextUpdated((context) => {
 });
 ```
 
-Go to the **Stocks** app, find the `TODO: Chapter 8.5` comment, subscribe to the [`onContextUpdated()`](../../../reference/core/latest/windows/index.html#!WebWindow-onContextUpdated) event and set up the stocks for the selected client:
+Go to the **Stocks** app, find the `TODO: Chapter 8.5` comment, subscribe to the [`onContextUpdated()`](../../../reference/core/latest/windows/index.html#!WebWindow-onContextUpdated) for both the Contexts API and Workspaces API events and set up the stocks for the selected client:
 
 ```javascript
 // In `start()`.
@@ -960,6 +943,17 @@ glue.windows.my().onContextUpdated((context) => {
         setupStocks(stocksToShow);
     };
 });
+
+const myWorkspace = await glue.workspaces.getMyWorkspace();
+if (myWorkspace) {
+    myWorkspace.onContextUpdated((ctx) => {
+        if (ctx.client) {
+            const clientPortfolio = ctx.client.portfolio;
+            const stockToShow = stocks.filter((stock) => clientPortfolio.includes(stock.RIC));
+            setupStocks(stockToShow);
+        }
+    });
+}
 ```
 
 Now when you select a client in the **Clients** app, a new Workspace should open with the **Client Details** and **Stocks** apps showing the relevant client information.
@@ -1015,7 +1009,7 @@ Now, go to the **Stock Details** app, find the `TODO: Chapter 8.6` comment in th
 ```javascript
 // In `start()`.
 
-const context = glue.windows.my().context;
+const context = glue.windows.my().getContext();
 let selectedStock;
 
 subscription.onData((streamData) => {
