@@ -12,6 +12,7 @@ export class IntentsController implements LibController {
     private bridge!: GlueBridge;
     private logger!: Glue42Web.Logger.API;
     private interop!: Glue42Core.AGM.API;
+    private myIntents = new Set<string>();
 
     private readonly GlueWebIntentsPrefix = "Tick42.FDC3.Intents.";
 
@@ -95,11 +96,19 @@ export class IntentsController implements LibController {
         // `addIntentListener()` is sync.
         const intentName = typeof intent === "string" ? intent : intent.intent;
         const methodName = `${this.GlueWebIntentsPrefix}${intentName}`;
+
+        const alreadyRegistered = this.myIntents.has(intentName);
+        if (alreadyRegistered) {
+            throw new Error(`Intent listener for intent ${intentName} already registered!`);
+        }
+        this.myIntents.add(intentName);
+
         const result = {
             unsubscribe: (): void => {
                 subscribed = false;
                 try {
                     this.interop.unregister(methodName);
+                    this.myIntents.delete(intentName);
                 } catch (error) {
                     this.logger.trace(`Unsubscribed intent listener, but ${methodName} unregistration failed!`);
                 }

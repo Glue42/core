@@ -49,7 +49,16 @@ export const localApplicationsConfig = [
         name: "coreSupport",
         details: {
             url: "http://localhost:4242/coreSupport/index.html"
-        }
+        },
+        intents: [
+            {
+                name: "core-intent",
+                displayName: "core-intent-displayName",
+                contexts: [
+                    "test-context"
+                ]
+            }
+        ]
     },
     {
         name: "Test",

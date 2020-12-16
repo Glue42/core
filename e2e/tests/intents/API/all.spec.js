@@ -21,7 +21,7 @@ describe('all()', () => {
         }
     });
 
-    it('Should return all intents registered by localApplications.', async () => {
+    it('Should return all app intents.', async () => {
         const localAppIntentsWithAppInfo = gtf.appManager.getLocalApplications().filter((localApp) => typeof localApp.intents !== 'undefined').flatMap((localApp) => localApp.intents.map((intent) => ({ ...localApp, ...intent, applicationName: localApp.name, intentName: intent.name })));
 
         const allIntents = await glue.intents.all();
@@ -38,9 +38,10 @@ describe('all()', () => {
         });
     });
 
-    it('Should return all dynamic intents registered by another party.', async () => {
+    it('Should return all instance intents registered by another party.', async () => {
+        const intentName = 'another-party-intent';
         const intent = {
-            intent: 'another-party-intent',
+            intent: intentName,
             contextTypes: ['test-context'],
             displayName: 'another-party-intent-displayName',
             icon: 'another-party-intent-icon',
@@ -53,21 +54,22 @@ describe('all()', () => {
         const allIntents = await glue.intents.all();
         const instanceIntentHandlers = gtf.intents.flattenIntentsToIntentHandlers(allIntents).filter((handler) => handler.type === 'instance');
 
-        expect(instanceIntentHandlers).to.be.of.length(1);
-        const onlyInstanceIntentHandler = instanceIntentHandlers[0];
+        // The coreSupport application also registers a listener for the core-support intent.
+        expect(instanceIntentHandlers).to.be.of.length(2);
+        const intentInstanceIntentHandler = instanceIntentHandlers.find((instanceIntentHandler) => instanceIntentHandler.intentName === intentName);
 
-        expect(onlyInstanceIntentHandler.intentName).to.equal(intent.intent);
-        expect(onlyInstanceIntentHandler.applicationName).to.equal('coreSupport');
-        expect(onlyInstanceIntentHandler.displayName).to.equal(intent.displayName);
-        expect(onlyInstanceIntentHandler.contextTypes).to.be.of.length(1);
-        expect(onlyInstanceIntentHandler.contextTypes[0]).to.equal(intent.contextTypes[0]);
-        expect(onlyInstanceIntentHandler.applicationIcon).to.equal(intent.icon);
-        expect(onlyInstanceIntentHandler.applicationDescription).to.equal(intent.description);
-        expect(onlyInstanceIntentHandler.instanceId).to.equal(glueApplication.myInstance.id);
+        expect(intentInstanceIntentHandler.intentName).to.equal(intent.intent);
+        expect(intentInstanceIntentHandler.applicationName).to.equal('coreSupport');
+        expect(intentInstanceIntentHandler.displayName).to.equal(intent.displayName);
+        expect(intentInstanceIntentHandler.contextTypes).to.be.of.length(1);
+        expect(intentInstanceIntentHandler.contextTypes[0]).to.equal(intent.contextTypes[0]);
+        expect(intentInstanceIntentHandler.applicationIcon).to.equal(intent.icon);
+        expect(intentInstanceIntentHandler.applicationDescription).to.equal(intent.description);
+        expect(intentInstanceIntentHandler.instanceId).to.equal(glueApplication.myInstance.id);
     });
 
-    it('Should return all dynamic intents registered by us.', async () => {
-        const intentName = 'our-intent'
+    it('Should return all instance intents registered by us.', async () => {
+        const intentName = 'our-intent';
         const intent = {
             intent: intentName,
             contextTypes: ['test-context'],
@@ -77,8 +79,6 @@ describe('all()', () => {
         };
         unsubObj = glue.intents.addIntentListener(intent, () => { });
         unsubObj.intent = intentName;
-        // `addIntentListener()` is sync so we need to wait for the intent listener to be added before calling `all()`.
-        await gtf.intents.waitForIntentListenerAdded(intentName);
 
         const allIntents = await glue.intents.all();
 
@@ -94,5 +94,55 @@ describe('all()', () => {
         expect(onlyInstanceIntentHandler.applicationIcon).to.equal(intent.icon);
         expect(onlyInstanceIntentHandler.applicationDescription).to.equal(intent.description);
         expect(onlyInstanceIntentHandler.instanceId).to.equal(glue.interop.instance.windowId);
+    });
+
+    it('Should be populated before `addIntentListener()` resolves.', async () => {
+        const intentName = 'another-party-intent';
+        const intent = {
+            intent: intentName,
+            contextTypes: ['test-context'],
+            displayName: 'another-party-intent-displayName',
+            icon: 'another-party-intent-icon',
+            description: 'another-party-intent-description'
+        };
+
+        glueApplication = await gtf.createApp();
+        await glueApplication.intents.addIntentListener(intent);
+
+        const allIntents = await glue.intents.all();
+        const instanceIntentHandlers = gtf.intents.flattenIntentsToIntentHandlers(allIntents).filter((handler) => handler.type === 'instance');
+
+        // The coreSupport application also registers a listener for the core-support intent.
+        expect(instanceIntentHandlers).to.be.of.length(2);
+        const intentInstanceIntentHandler = instanceIntentHandlers.find((instanceIntentHandler) => instanceIntentHandler.intentName === intentName);
+
+        expect(intentInstanceIntentHandler.intentName).to.equal(intentName);
+        expect(intentInstanceIntentHandler.applicationName).to.equal('coreSupport');
+        expect(intentInstanceIntentHandler.displayName).to.equal(intent.displayName);
+        expect(intentInstanceIntentHandler.contextTypes).to.be.of.length(1);
+        expect(intentInstanceIntentHandler.contextTypes[0]).to.equal(intent.contextTypes[0]);
+        expect(intentInstanceIntentHandler.applicationIcon).to.equal(intent.icon);
+        expect(intentInstanceIntentHandler.applicationDescription).to.equal(intent.description);
+        expect(intentInstanceIntentHandler.instanceId).to.equal(glueApplication.myInstance.id);
+    });
+
+    it('Should be populated before `unregister()` resolves.', async () => {
+        const intent = {
+            intent: 'another-party-intent',
+            contextTypes: ['test-context'],
+            displayName: 'another-party-intent-displayName',
+            icon: 'another-party-intent-icon',
+            description: 'another-party-intent-description'
+        };
+
+        glueApplication = await gtf.createApp();
+        await glueApplication.intents.addIntentListener(intent);
+        await glueApplication.intents.unregisterIntent(intent);
+
+        const allIntents = await glue.intents.all();
+        const instanceIntentHandlers = gtf.intents.flattenIntentsToIntentHandlers(allIntents).filter((handler) => handler.type === 'instance');
+
+        // The coreSupport application also registers a listener for the core-support intent.
+        expect(instanceIntentHandlers).to.be.of.length(1);
     });
 });

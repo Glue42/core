@@ -40,7 +40,7 @@ export class GtfApp implements Gtf.App {
             },
             unregister: (methodDefinition: string | Glue42Web.Interop.MethodDefinition): Promise<void> => {
                 const controlArgs: ControlArgs = {
-                    operation: "unregister",
+                    operation: "unregisterMethod",
                     params: methodDefinitionToParams(methodDefinition)
                 };
                 return this.sendControl<void>(controlArgs);
@@ -164,6 +164,16 @@ export class GtfApp implements Gtf.App {
                 };
 
                 return this.sendControl<ReturnType<Glue42Web.Intents.API['addIntentListener']>>(controlArgs);
+            },
+            unregisterIntent: (intent: string | Glue42Web.Intents.AddIntentListenerRequest): Promise<void> => {
+                const controlArgs: ControlArgs = {
+                    operation: 'unregisterIntent',
+                    params: {
+                        intent: typeof intent === "string" ? { intent } : intent
+                    }
+                };
+
+                return this.sendControl<void>(controlArgs);
             }
         };
     }

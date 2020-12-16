@@ -64,7 +64,7 @@ const register = async ({ methodDefinition }, success) => {
     success();
 };
 
-const unregister = async ({ methodDefinition }, success) => {
+const unregisterMethod = async ({ methodDefinition }, success) => {
     glue.interop.unregister(methodDefinition);
     success();
 };
@@ -220,18 +220,30 @@ const waitForMethodAdded = async ({ methodDefinition, targetAgmInstance }, succe
     success();
 };
 
-// TODO: (optional) If necessary add an `unregisterIntent()` method that will call the unsub function from the unsubObj and will remove the obj from the intentToUnsubObj collection.
 const addIntentListener = async ({ intent }, success, error) => {
-    if (typeof intentToUnsubObj[intent] === 'undefined') {
+    const intentName = intent.intent;
+    if (typeof intentToUnsubObj[intentName] === 'undefined') {
         const unsubObj = glue.intents.addIntentListener(intent, (context) => {
             return context;
         });
 
-        intentToUnsubObj[intent] = unsubObj;
-
+        intentToUnsubObj[intentName] = unsubObj;
         success();
     } else {
-        error(`Intent ${intent} already registered!`);
+        error(`Intent ${intentName} already registered!`);
+    }
+};
+
+const unregisterIntent = ({ intent }, success, error) => {
+    const intentName = intent.intent;
+    if (typeof intentToUnsubObj[intentName] === 'undefined') {
+        error(`Intent ${intentName} already unregistered!`);
+    } else {
+        intentToUnsubObj[intentName].unsubscribe();
+
+        delete intentToUnsubObj[intentName];
+
+        success();
     }
 };
 
@@ -247,7 +259,7 @@ const operations = [
     { name: 'getContext', execute: getContext },
     { name: 'getAllContextNames', execute: getAllContextNames },
     { name: 'register', execute: register },
-    { name: 'unregister', execute: unregister },
+    { name: 'unregisterMethod', execute: unregisterMethod },
     { name: 'registerAsync', execute: registerAsync },
     { name: 'createStream', execute: createStream },
     { name: 'pushStream', execute: pushStream },
@@ -256,6 +268,7 @@ const operations = [
     { name: 'unsubscribe', execute: unsubscribe },
     { name: 'waitForMethodAdded', execute: waitForMethodAdded },
     { name: 'addIntentListener', execute: addIntentListener },
+    { name: 'unregisterIntent', execute: unregisterIntent },
     { name: 'publish', execute: publish }
 ];
 
@@ -275,6 +288,8 @@ const handleControl = (args, _, success, error) => {
 
 GlueWeb().then((glue) => {
     window.glue = glue;
+
+    glue.intents.addIntentListener('core-intent', (context) => context);
 
     return glue.interop.registerAsync(controlMethodName, handleControl);
 }).catch(console.error);
