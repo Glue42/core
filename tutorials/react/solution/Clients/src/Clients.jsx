@@ -21,7 +21,6 @@ function Clients() {
 
     const glue = useContext(GlueContext);
     const openWorkspace = useGlue(startAppWithWorkspace);
-
     return (
         <div className="container-fluid">
             <div className="row">

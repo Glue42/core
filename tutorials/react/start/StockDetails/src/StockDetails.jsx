@@ -1,7 +1,8 @@
 import React from 'react';
 
 function StockDetails() {
-    const stockData = JSON.parse(sessionStorage.getItem('stock')) || {};
+    // this will be replaced during the course of the tutorial
+    const stockData = {};
     const { RIC, BPOD, Bloomberg, Description, Exchange, Venues, Bid, Ask } = stockData;
 
     return (

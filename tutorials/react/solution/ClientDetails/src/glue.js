@@ -1,9 +1,11 @@
-export const setClientFromWorkspace = setClient => glue => {
-    glue.windows.my().onContextUpdated(context => {
-        if (context) {
-            setClient(context);
-            glue.workspaces.getMyWorkspace()
-                .then(workspace => workspace.setTitle(context.clientName));
-        }
-    });
-}
+export const setClientFromWorkspace = setClient => glue =>
+    glue.workspaces.getMyWorkspace()
+        .then(myWorkspace => {
+            myWorkspace
+                .onContextUpdated(context => {
+                    if (context) {
+                        setClient(context);
+                        myWorkspace.setTitle(context.clientName);
+                    }
+                })
+        });

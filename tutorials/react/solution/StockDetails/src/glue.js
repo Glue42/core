@@ -1,10 +1,14 @@
 import {
-    SET_PRICES_STREAM, 
-    SHARED_CONTEXT_NAME
+    SET_PRICES_STREAM,
 } from './constants';
 
 export const getMyWindowContext = setWindowContext => glue => {
-    glue.windows.my().onContextUpdated(context => {
+    const myWindow = glue.windows.my();
+    myWindow.getContext()
+        .then(context => {
+            setWindowContext({ symbol: context.stock });
+        })
+    myWindow.onContextUpdated(context => {
         if (context.stock) {
             setWindowContext({ symbol: context.stock });
         }
@@ -25,8 +29,4 @@ export const subscribeForInstrumentStream = handler => async (glue, symbol) => {
 
         return subscription;
     }
-};
-
-export const subscribeForSharedContext = handler => glue => {
-    glue.contexts.subscribe(SHARED_CONTEXT_NAME, handler);
 };

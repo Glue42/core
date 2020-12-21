@@ -8,8 +8,14 @@ import './App.css';
 import StockDetails from './StockDetails';
 import * as serviceWorker from './serviceWorker';
 
+const settings = {
+    webPlatform: {
+        factory: GlueWeb
+    }
+}
+
 ReactDOM.render(
-    <GlueProvider config={{ channels: true, appManager: true, application: 'Stock Details' }} glueFactory={GlueWeb}>
+    <GlueProvider settings={settings}>
         <StockDetails />
     </GlueProvider>,
     document.getElementById('root')

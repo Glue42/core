@@ -9,8 +9,17 @@ import './App.css';
 import Stocks from './Stocks';
 import * as serviceWorker from './serviceWorker';
 
+const settings  = {
+    webPlatform: {
+        factory: GlueWeb,
+        config: {
+          libraries: [GlueWorkspaces]
+        }
+    }
+  }
+
 ReactDOM.render(
-    <GlueProvider config={{ channels: true, appManager: true, application: 'Stocks', libraries: [GlueWorkspaces] }} glueFactory={GlueWeb}>
+    <GlueProvider settings={settings}>
         <Stocks />
     </GlueProvider>,
     document.getElementById('root')

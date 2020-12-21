@@ -8,8 +8,17 @@ import ClientDetails from './ClientDetails';
 import GlueWorkspaces from '@glue42/workspaces-api';
 import * as serviceWorker from './serviceWorker';
 
+const settings  = {
+  webPlatform: {
+      factory: GlueWeb,
+      config: {
+        libraries: [GlueWorkspaces]
+      }
+  }
+}
+
 ReactDOM.render(
-  <GlueProvider config={{ channels: true, appManager: true, application: 'Client Details', libraries: [GlueWorkspaces] }} glueFactory={GlueWeb}>
+  <GlueProvider settings={settings}>
     <ClientDetails />
   </GlueProvider>,
   document.getElementById('root')

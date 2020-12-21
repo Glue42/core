@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start:workspace": "http-server ./workspace -p 9300",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -12,6 +13,7 @@
   "dependencies": {
     "@glue42/gateway-web": "^3.0.8",
     "@glue42/worker-web": "^1.0.0",
-    "@glue42/workspaces-app": "^1.1.4"
+    "@glue42/workspaces-app": "^1.1.4",
+    "http-server": "^0.12.3"
   }
 }

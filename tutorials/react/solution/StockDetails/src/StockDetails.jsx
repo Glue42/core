@@ -3,7 +3,6 @@ import { useGlue, GlueContext } from '@glue42/react-hooks';
 import {
     subscribeForInstrumentStream,
     getMyWindowContext,
-    subscribeForSharedContext,
 } from './glue';
 
 function StockDetails() {
@@ -14,7 +13,6 @@ function StockDetails() {
     const { symbol: { RIC, BPOD, Bloomberg, Description, Exchange, Venues } = {} } = windowContext;
     const [{ Bid, Ask }, setPrices] = useState({ Bid: windowContext.Bid, Ask: windowContext.Ask });
     useGlue(subscribeForInstrumentStream(setPrices), [RIC]);
-    useGlue(subscribeForSharedContext(setClient));
     return (
         <div className="container-fluid">
             <div className="row">

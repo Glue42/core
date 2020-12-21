@@ -1,9 +1,6 @@
 import {
-    SET_PRICES_STREAM, 
-    NO_CHANNEL_VALUE
+    SET_PRICES_STREAM
 } from './constants';
-
-export const getMyWindowContext = glue => glue.appManager.myInstance.context;
 
 export const createInstrumentStream = glue =>
     glue.interop.createStream(SET_PRICES_STREAM).then(publishInstrumentPrice);
@@ -80,38 +77,17 @@ export const subscribeForInstrumentStream = handler => async (glue, symbol) => {
     }
 };
 
-// Get the channel names and colors using the Channels API.
-export const getChannelNamesAndColors = async glue => {
-    const channelContexts = await glue.channels.list();
-    const channelNamesAndColors = channelContexts.map(channelContext => ({
-        name: channelContext.name,
-        color: channelContext.meta.color
-    }));
-    return channelNamesAndColors;
-};
-
-// Join the given channel (or leave the current channel if NO_CHANNEL_VALUE is selected).
-export const joinChannel = glue => ({ value: channelName }) => {
-    if (channelName === NO_CHANNEL_VALUE) {
-        if (glue.channels.my()) {
-            glue.channels.leave();
-        }
-    } else {
-        glue.channels.join(channelName);
-    }
-};
-
-// Subscribe for the current channel with the provided callback.
-export const subscribeForChannels = handler => glue => {
-    glue.channels.subscribe(handler);
-};
-
 export const setClientFromWorkspace = setClient => glue => {
-    glue.windows.my().onContextUpdated(context => {
-        if (context) {
-            setClient({ clientId: context.clientId, clientName: context.clientName });
-        }
-    });
+    glue.workspaces.getMyWorkspace()
+        .then(myWorkspace => {
+            myWorkspace
+                .onContextUpdated(context => {
+                    if (context) {
+                        setClient(context);
+                        myWorkspace.setTitle(context.clientName);
+                    }
+                })
+        });
 }
 
 export const openStockDetailsInWorkspace = glue => async stock => {

@@ -16,10 +16,6 @@ function Stocks() {
         };
         fetchPortfolio();
     }, []);
-    const showStockDetails = stock => {
-        sessionStorage.setItem('stock', JSON.stringify(stock));
-        window.location.href = `http://${window.location.host}/details`;
-    };
 
     return (
         <div className="container-fluid">
@@ -45,9 +41,6 @@ function Stocks() {
                             {portfolio.map(({ RIC, Description, Bid, Ask, ...rest }) => (
                                 <tr
                                     key={RIC}
-                                    onClick={() =>
-                                        showStockDetails({ RIC, Description, Bid, Ask, ...rest })
-                                    }
                                 >
                                     <td>{RIC}</td>
                                     <td>{Description}</td>
