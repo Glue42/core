@@ -114,7 +114,19 @@ const createIntentsAgent = (): Partial<DesktopAgent> => {
             }
         }
 
-        const glueIntentResult = await (window as WindowType).glue.intents.raise({ intent, context, target: glueTarget });
+        const glue42Context = {
+            type: context.type,
+            data: {
+                ...context
+            }
+        };
+        const intentRequest = {
+            intent,
+            context: glue42Context,
+            target: glueTarget
+        };
+
+        const glueIntentResult = await (window as WindowType).glue.intents.raise(intentRequest);
 
         return {
             source: glueIntentResult.handler.applicationName,
@@ -134,8 +146,12 @@ const createIntentsAgent = (): Partial<DesktopAgent> => {
             unsubscribe: (): void => console.error("Failed to unsubscribe!")
         };
 
+        const wrappedHandler = (glue42Context: Glue42.Intents.IntentContext): void => {
+            handler({ ...glue42Context.data, type: glue42Context.type || "" });
+        };
+
         (window as WindowType).fdc3GluePromise.then(() => {
-            unsub.unsubscribe = (window as WindowType).glue.intents.addIntentListener(intent, handler as (context: object) => void).unsubscribe;
+            unsub.unsubscribe = (window as WindowType).glue.intents.addIntentListener(intent, wrappedHandler).unsubscribe;
         });
 
         return unsub;

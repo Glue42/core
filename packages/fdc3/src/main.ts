@@ -6,13 +6,7 @@ import { version } from "../package.json";
 import { WindowType } from "./types/windowtype";
 import { DesktopAgent } from "@finos/fdc3";
 import { Glue42GD, Glue42GDOriginalGlue } from "./types/glue42gd";
-
-const defaultGlueConfig = {
-    application: (window as WindowType).fdc3AppName,
-    context: true,
-    channels: true,
-    agm: true
-};
+import WebPlatformFactory from "@glue42/web-platform";
 
 const validateGlue = (glue: Glue42.Glue | Glue42Web.API): void => {
     const apisFDC3ReliesUpon: ["contexts", "intents", "channels", "agm", "appManager"] = [
@@ -38,10 +32,20 @@ const resolveGlue = (glue: Glue42.Glue | Glue42Web.API): Glue42.Glue | Glue42Web
 };
 
 const setupGlue42Core = (): void => {
-    (window as WindowType).fdc3GluePromise = GlueWebFactory()
-        .then((glue) => {
-            return resolveGlue(glue);
-        });
+    const webPlatformConfig = (window as WindowType).webPlatformConfig;
+    const isPlatform = typeof webPlatformConfig !== "undefined";
+
+    if (isPlatform) {
+        (window as WindowType).fdc3GluePromise = WebPlatformFactory(webPlatformConfig)
+            .then(({ glue }) => {
+                return resolveGlue(glue);
+            });
+    } else {
+        (window as WindowType).fdc3GluePromise = GlueWebFactory()
+            .then((glue) => {
+                return resolveGlue(glue);
+            });
+    }
 };
 
 const setupGlue42Enterprise = (): void => {
@@ -55,7 +59,7 @@ const setupGlue42Enterprise = (): void => {
                 const GlueFactory = (window as WindowType).Glue || Glue;
 
                 return GlueFactory({
-                    ...defaultGlueConfig,
+                    channels: true,
                     appManager: "full"
                 });
             } else {

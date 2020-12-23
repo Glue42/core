@@ -14,11 +14,33 @@ The [`@glue42/fdc3`](https://www.npmjs.com/package/@glue42/fdc3) library is the 
 <script src="https://unpkg.com/@glue42/fdc3@latest/dist/fdc3-glue42.js"></script>
 ```
 
-The Glue42 FDC3 library determines internally the environment it runs in (**Glue42 Core** or **Glue42 Enterprise**) and initializes the correct Glue42 library - [`@glue42/web`](https://www.npmjs.com/package/@glue42/web) in a **Glue42 Core** project. You don't need to call the `GlueWeb()` factory function. The FDC3 API entry point `fdc3` is available as a property of the global `window` object:
+The Glue42 FDC3 library determines internally the environment it runs in (**Glue42 Core** or **Glue42 Enterprise**) and initializes the correct Glue42 library. In a **Glue42 Core** project that can be either [`@glue42/web-platform`](https://www.npmjs.com/package/@glue42/web-platform) or [`@glue42/web`](https://www.npmjs.com/package/@glue42/web) depending on whether your application is [a Main application](../../core-concepts/web-platform/overview/index.html) or [a web client](../../core-concepts/web-client/overview/index.html). You don't need to call the `GlueWeb()`/`GlueWebPlatform()` factory functions yourself. The FDC3 API entry point `fdc3` is available as a property of the global `window` object:
 
 ```javascript
 fdc3.addContextListener(context => console.log(`Context: ${context}.`));
 ```
+
+To provide a platform config to **an FDC3 Main application** you need to attach it to the global `window` object like so before referencing [`@glue42/fdc3`](https://www.npmjs.com/package/@glue42/fdc3):
+
+```html
+<script>
+    window.webPlatformConfig = {
+        applications: {
+            local: [
+                ...
+            ]
+        },
+        channels: {
+            definitions: [
+                ...
+            ]
+        }
+    };
+</script>
+<script src="https://unpkg.com/@glue42/fdc3@latest/dist/fdc3-glue42.js"></script>
+```
+
+*Note: that the config object needs to be named `webPlatformConfig`!*
 
 See below how to use the different FDC3 features.
 
@@ -26,35 +48,34 @@ See below how to use the different FDC3 features.
 
 The [FDC3 Intents](https://fdc3.finos.org/docs/next/intents/overview) concept enables the creation of cross-application workflows on the desktop. An application declares an Intent through configuration. An Intent specifies what action the application can execute and what data structure it can work with.
 
-In **Glue42 Core**, Intents are defined in the application configuration objects when initializing the Glue42 [Web Platform](https://www.npmjs.com/package/@glue42/web-platform) library in the [Main application](../../core-concepts/web-platform/overview/index.html). For more details on defining applications, see the [Application Management: Application Definitions](../application-management/index.html#application_definitions) section. Intents can be configured under the `intents` top-level key of the application definition:
+To define Intents add them to the application configuration objects inside of the [Main application's](../../core-concepts/web-platform/overview/index.html) Glue42 [Web Platform](https://www.npmjs.com/package/@glue42/web-platform) config. For more details on defining applications, see the [Application Management: Application Definitions](../application-management/index.html#application_definitions) section. Intents can be configured under the `intents` top-level key of the application definition:
 
-```javascript
-import GlueWebPlatform from "@glue42/web-platform";
-
-const config = {
-    applications: {
-        local: [
-            {
-                name: "Clients",
-                details: {
-                    url: "http://localhost:4242/clients"
-                },
-                // Intent definitions.
-                intents: [
-                    {
-                        name: "ShowClientInfo",
-                        displayName: "Client Info",
-                        contexts: [
-                            "ClientName"
-                        ]
-                    }
-                ]
-            }
-        ]
-    }
-};
-
-const { glue } = await GlueWebPlatform(config);
+```html
+<script>
+    window.webPlatformConfig = {
+        applications: {
+            local: [
+                {
+                    name: "Clients",
+                    details: {
+                        url: "http://localhost:4242/clients"
+                    },
+                    // Intent definitions.
+                    intents: [
+                        {
+                            name: "ShowClientInfo",
+                            displayName: "Client Info",
+                            contexts: [
+                                "ClientName"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    };
+</script>
+<script src="https://unpkg.com/@glue42/fdc3@latest/dist/fdc3-glue42.js"></script>
 ```
 
 | Property | Description |
@@ -63,48 +84,38 @@ const { glue } = await GlueWebPlatform(config);
 | `displayName` | The human readable name of the Intent. Can be used in context menus, etc., to visualize the Intent. |
 | `contexts` | The type of predefined data structures with which the application can work (see [FDC3 Contexts](https://fdc3.finos.org/docs/next/context/overview)). |
 
-In order to be able to properly target applications with `raiseIntent()` the applications need to pass their application name to `@glue42/fdc3`. This is needed by the implementation so it can check whether there is a running instance of the targeted application or a new instance has to be started. Because the FDC3 specification doesn't specify any initialization logic, `@glue42/fdc3` relies on a global variable called `fdc3AppName` being present prior to importing `@glue42/fdc3`:
-
-```html
-<script>
-    window.fdc3AppName = "TradingView Blotter";
-</script>
-<script src="https://unpkg.com/@glue42/fdc3@latest/dist/fdc3-glue42.js"></script>
-```
-
 *For more information on using intents, see the [FDC3 Intents API](https://fdc3.finos.org/docs/next/intents/overview).*
 
 ### Channels
 
 An [FDC3 Channel](https://fdc3.finos.org/docs/next/api/ref/Channel) is a named context object that an application can join in order to share and update context data and also be alerted when the context data changes. By [specification](https://fdc3.finos.org/docs/next/api/spec#context-channels), Channels can either be well-known system Channels or Channels created by apps. On a UI level, Channels can be represented by colors and names.
 
-Channels are defined when initializing the Glue42 [Web Platform](https://www.npmjs.com/package/@glue42/web-platform) library in the [Main application](../../core-concepts/web-platform/overview/index.html):
+To define Channels add them to the [Main application's](../../core-concepts/web-platform/overview/index.html) Glue42 [Web Platform](https://www.npmjs.com/package/@glue42/web-platform) config.
 
-```javascript
-import GlueWebPlatform from "@glue42/web-platform";
-
-const config = {
-    channels: {
-        // Channel definitions.
-        definitions: [
-            {
-                name: "Red",
-                meta: {
-                    color: "red"
+```html
+<script>
+    window.webPlatformConfig = {
+        channels: {
+            // Channel definitions.
+            definitions: [
+                {
+                    name: "Red",
+                    meta: {
+                        color: "red"
+                    },
+                    data: { glue: 42 }
                 },
-                data: { glue: 42 }
-            },
-            {
-                name: "Green",
-                meta: {
-                    color: "#008000"
+                {
+                    name: "Green",
+                    meta: {
+                        color: "#008000"
+                    }
                 }
-            }
-        ]
-    }
-};
-
-const { glue } = await GlueWebPlatform(config);
+            ]
+        }
+    };
+</script>
+<script src="https://unpkg.com/@glue42/fdc3@latest/dist/fdc3-glue42.js"></script>
 ```
 
 All Glue42 Channels are available as FDC3 system Channels.
@@ -154,3 +165,9 @@ The demo consists of a Chart and a Blotter application. Searching and selecting 
 Right-clicking on an instrument inside the Blotter opens up a context menu with the intents that can be raised for the instrument. When the chart application is running it would update its context and when there are no instances of the Chart application running it will start a new instance with the given context.
 
 Use the [code of the demo](https://github.com/Glue42/fdc3-demos/tree/adapt-for-glue42) as a reference when adapting your own applications.
+
+#### Extension
+
+Inside of the demo project you will also find [a Chrome extension](https://github.com/Glue42/fdc3-demos/tree/adapt-for-glue42/extension) that auto injects `@glue42/fdc3` inside of all web pages. It can save you time from referencing the implementation inside of all of your projects and redeploying them, but also when integrating with 3rd party closed source applications.
+
+To install the extension simply follow the instructions inside of the [README.md](https://github.com/Glue42/fdc3-demos/blob/adapt-for-glue42/README.md).
