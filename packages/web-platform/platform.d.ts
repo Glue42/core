@@ -236,6 +236,7 @@ export namespace Glue42WebPlatform {
     }
 
     export interface Config {
+        clientOnly?: boolean;
         windows?: Windows.Config;
         applications?: Applications.Config;
         layouts?: Layouts.Config;
