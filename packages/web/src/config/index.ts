@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import { Glue42Web } from "../../web";
 
 const defaultConfig = {

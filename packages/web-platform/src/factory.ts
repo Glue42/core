@@ -7,7 +7,8 @@ export const glueWebPlatformFactory: Glue42WebPlatformFactoryFunction = async (c
 
     // when running the package in Enterprise, we do not initialize anything from the platform
     // because we cannot provide runtime environment configuration to Enterprise
-    if (window.glue42gd) {
+    // the same is valid when the platform is instructed to start as a client only
+    if (window.glue42gd || config?.clientOnly) {
         const glue = config?.glueFactory ?
             await config?.glueFactory(config?.glue) :
             await GlueWeb(config?.glue);

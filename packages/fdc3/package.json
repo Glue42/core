@@ -1,6 +1,6 @@
 {
     "name": "@glue42/fdc3",
-    "version": "1.2.13-beta.0",
+    "version": "1.2.14-beta.0",
     "private": true,
     "description": "Glue42 implementation of the FDC3 standard",
     "main": "./dist/fdc3-glue42.js",
@@ -30,8 +30,8 @@
     "license": "MIT",
     "dependencies": {
         "@glue42/desktop": "^5.4.1",
-        "@glue42/web": "^2.0.1",
-        "@glue42/web-platform": "^1.0.0"
+        "@glue42/web": "^2.0.2",
+        "@glue42/web-platform": "^1.0.1"
     },
     "devDependencies": {
         "@finos/fdc3": "^1.1.0-alpha.3",
