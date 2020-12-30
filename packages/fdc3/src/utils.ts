@@ -34,32 +34,6 @@ export const getChannelsList = async (): Promise<Array<Glue42.ChannelContext>> =
     return channelContents;
 };
 
-export const isEmptyObject = (obj: object): boolean => {
-    return Object.keys(obj).length === 0 && obj.constructor === Object;
-};
-
-export const isGlue42Core = !navigator.userAgent.toLowerCase().includes(" electron/");
-
-export const AsyncListener = (actualUnsub:
-    (() => void)
-    | Promise<() => void>
-): Listener => {
-    return {
-        unsubscribe(): void {
-            if (!actualUnsub) {
-                console.error("Failed to unsubscribe!");
-                return;
-            }
-
-            if (typeof actualUnsub === "function") {
-                actualUnsub();
-            } else {
-                (actualUnsub as Promise<() => void>).then((unsubFunc: () => void) => unsubFunc());
-            }
-        }
-    };
-};
-
 export const waitFor = <T>(predicate: () => boolean, retryMs: number, resolution?: () => T): Promise<T> => {
     return new Promise((resolve) => {
         const resolvePromise: () => void = () => {
@@ -86,4 +60,54 @@ export const waitFor = <T>(predicate: () => boolean, retryMs: number, resolution
             interval = setInterval(callback, retryMs);
         }
     });
+};
+
+export const fetchTimeout = (url: string, timeoutMilliseconds = 3000): Promise<Response> => {
+    return new Promise((resolve, reject) => {
+        let timeoutHit = false;
+        const timeout = setTimeout(() => {
+            timeoutHit = true;
+            reject(new Error(`Fetch request for: ${url} timed out at: ${timeoutMilliseconds} milliseconds`));
+        }, timeoutMilliseconds);
+
+        fetch(url)
+            .then((response) => {
+                if (!timeoutHit) {
+                    clearTimeout(timeout);
+                    resolve(response);
+                }
+            })
+            .catch((err) => {
+                if (!timeoutHit) {
+                    clearTimeout(timeout);
+                    reject(err);
+                }
+            });
+    });
+};
+
+export const isEmptyObject = (obj: object): boolean => {
+    return Object.keys(obj).length === 0 && obj.constructor === Object;
+};
+
+export const isGlue42Core = !navigator.userAgent.toLowerCase().includes(" electron/");
+
+export const AsyncListener = (actualUnsub:
+    (() => void)
+    | Promise<() => void>
+): Listener => {
+    return {
+        unsubscribe(): void {
+            if (!actualUnsub) {
+                console.error("Failed to unsubscribe!");
+                return;
+            }
+
+            if (typeof actualUnsub === "function") {
+                actualUnsub();
+            } else {
+                (actualUnsub as Promise<() => void>).then((unsubFunc: () => void) => unsubFunc());
+            }
+        }
+    };
 };

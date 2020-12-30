@@ -20,7 +20,7 @@ The Glue42 FDC3 library determines internally the environment it runs in (**Glue
 fdc3.addContextListener(context => console.log(`Context: ${context}.`));
 ```
 
-To provide a platform config to **an FDC3 Main application** you need to attach it to the global `window` object like so before referencing [`@glue42/fdc3`](https://www.npmjs.com/package/@glue42/fdc3):
+To provide a platform config to **an FDC3 Main application** you need to attach a `webPlatformConfig` config object to the global `window` object like so before referencing [`@glue42/fdc3`](https://www.npmjs.com/package/@glue42/fdc3):
 
 ```html
 <script>
@@ -48,7 +48,7 @@ See below how to use the different FDC3 features.
 
 The [FDC3 Intents](https://fdc3.finos.org/docs/next/intents/overview) concept enables the creation of cross-application workflows on the desktop. An application declares an Intent through configuration. An Intent specifies what action the application can execute and what data structure it can work with.
 
-To define Intents add them to the application configuration objects inside of the [Main application's](../../core-concepts/web-platform/overview/index.html) Glue42 [Web Platform](https://www.npmjs.com/package/@glue42/web-platform) config. For more details on defining applications, see the [Application Management: Application Definitions](../application-management/index.html#application_definitions) section. Intents can be configured under the `intents` top-level key of the application definition:
+To define Intents add them to the application configuration objects inside of the [Main application's config](../../core-concepts/web-platform/setup/index.html#configuration) or inside of the application definitions provided by a remote source. For more details on defining applications, see the [Application Management: Application Definitions](../application-management/index.html#application_definitions) section. Intents can be configured under the `intents` top-level key of the application definition:
 
 ```html
 <script>
@@ -90,7 +90,7 @@ To define Intents add them to the application configuration objects inside of th
 
 An [FDC3 Channel](https://fdc3.finos.org/docs/next/api/ref/Channel) is a named context object that an application can join in order to share and update context data and also be alerted when the context data changes. By [specification](https://fdc3.finos.org/docs/next/api/spec#context-channels), Channels can either be well-known system Channels or Channels created by apps. On a UI level, Channels can be represented by colors and names.
 
-To define Channels add them to the [Main application's](../../core-concepts/web-platform/overview/index.html) Glue42 [Web Platform](https://www.npmjs.com/package/@glue42/web-platform) config.
+To define Channels add them to the [Main application's config](../../core-concepts/web-platform/setup/index.html#configuration).
 
 ```html
 <script>
@@ -130,7 +130,34 @@ Glue42 Core applications can interact with FDC3 app Channels by using the [Share
 
 The goal of the [FDC3 App Directory](https://fdc3.finos.org/docs/next/app-directory/overview) REST service is to provide trusted identity for desktop apps. Application definitions are provided by one or more App Directory REST services where user entitlements and security can also be handled.
 
-*Note that the remote sources can supply both **Glue42 Core** and FDC3 application definitions. **Glue42 Core** supports for both. The only requirement for an FDC3 application definition to be usable in **Glue42 Core** is to have a valid `details.url` or a `url` top-level property in its `manifest` JSON string property.*
+To connect to remote sources of applications you need to attach a `remoteSources` config object to the global `window` object like so before referencing [`@glue42/fdc3`](https://www.npmjs.com/package/@glue42/fdc3):
+
+```html
+<script>
+    window.remoteSources = [
+        {
+            url: 'http://localhost:3001/v1/apps/search',
+            pollingInterval: 1000,
+            requestTimeout: 5000
+        }
+    ];
+</script>
+<script src="https://unpkg.com/@glue42/fdc3@latest/dist/fdc3-glue42.js"></script>
+```
+
+| Property | Description |
+|----------|-------------|
+| `url` | **Required**. The url of the remote source of application definitions. The remote source needs to follow the [FDC3 AppDirectory standard](https://github.com/finos/FDC3). The applications provided by the remote need to either be of type Glue42WebApplicationDefinition or FDC3Definition. |
+| `pollingInterval` | The polling interval for fetching application definitions from the remote source in milliseconds. Defaults to 3000. |
+| `requestTimeout` | The request timeout for fetching application definitions from the remote source in milliseconds. Defaults to 3000. |
+
+*Note: that the config object needs to be named `remoteSources`!*
+
+*Note: that any application can connect to remote sources and not only the Main application. The application definitions from all remote sources are then merged by the Main application.*
+
+*Note: that the remote sources can supply both **Glue42 Core** and FDC3 application definitions. **Glue42 Core** supports for both. The only requirement for an FDC3 application definition to be usable in **Glue42 Core** is to have a valid `details.url` or a `url` top-level property in its `manifest` JSON string property.*
+
+Alternatively you could supply the application definitions locally to the Main application by adding them to `webPlatformConfig.applications.local` (see [Intents](#Intents)).
 
 Below is an example FDC3 application definition:
 

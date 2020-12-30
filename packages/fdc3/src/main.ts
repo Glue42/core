@@ -1,12 +1,12 @@
 import createDesktopAgent from "./agent";
 import Glue, { Glue42 } from "@glue42/desktop";
-import GlueWebFactory, { Glue42Web } from "@glue42/web";
-import { isGlue42Core, waitFor } from "./utils";
+import { Glue42Web } from "@glue42/web";
+import { isGlue42Core, waitFor, fetchTimeout } from "./utils";
 import { version } from "../package.json";
 import { WindowType } from "./types/windowtype";
-import { DesktopAgent } from "@finos/fdc3";
 import { Glue42GD, Glue42GDOriginalGlue } from "./types/glue42gd";
-import WebPlatformFactory from "@glue42/web-platform";
+import WebPlatformFactory, { Glue42WebPlatform } from "@glue42/web-platform";
+import { Glue42FDC3DesktopAgent } from "./types/glue42FDC3DesktopAgent";
 
 const validateGlue = (glue: Glue42.Glue | Glue42Web.API): void => {
     const apisFDC3ReliesUpon: ["contexts", "intents", "channels", "agm", "appManager"] = [
@@ -33,19 +33,15 @@ const resolveGlue = (glue: Glue42.Glue | Glue42Web.API): Glue42.Glue | Glue42Web
 
 const setupGlue42Core = (): void => {
     const webPlatformConfig = (window as WindowType).webPlatformConfig;
+    const webClientConfig: Glue42WebPlatform.Config = {
+        clientOnly: true
+    };
     const isPlatform = typeof webPlatformConfig !== "undefined";
 
-    if (isPlatform) {
-        (window as WindowType).fdc3GluePromise = WebPlatformFactory(webPlatformConfig)
-            .then(({ glue }) => {
-                return resolveGlue(glue);
-            });
-    } else {
-        (window as WindowType).fdc3GluePromise = GlueWebFactory()
-            .then((glue) => {
-                return resolveGlue(glue);
-            });
-    }
+    (window as WindowType).fdc3GluePromise = WebPlatformFactory(isPlatform ? webPlatformConfig : webClientConfig)
+        .then(({ glue }) => {
+            return resolveGlue(glue);
+        });
 };
 
 const setupGlue42Enterprise = (): void => {
@@ -85,8 +81,39 @@ const setupGlue = (): void => {
     }
 };
 
-const fdc3Factory = (): DesktopAgent & { version: string } => {
+const connectToRemoteSources = (): void => {
+    if (isGlue42Core) {
+        (window as WindowType).fdc3GluePromise.then(() => {
+            const validRemoteSources = (window as WindowType).remoteSources?.filter((remoteSource) => typeof remoteSource.url === "string" && remoteSource.url !== "") || [];
+
+            for (const remoteSource of validRemoteSources) {
+                const DEFAULT_POLLING_INTERVAL = 3000;
+                const DEFAULT_REQUEST_TIMEOUT = 3000;
+
+                const url = remoteSource.url;
+
+                const appsFetch = async (): Promise<void> => {
+                    const response = await fetchTimeout(url, remoteSource.requestTimeout || DEFAULT_REQUEST_TIMEOUT);
+                    const json = (await response.json()) as { message: string; applications: Array<Glue42Web.AppManager.Definition | Glue42WebPlatform.Applications.FDC3Definition> };
+
+                    if (json.message === "OK") {
+                        // Import also works with FDC3Definitions even though the typings say otherwise.
+                        ((window as WindowType).glue as Glue42Web.API).appManager.import?.((json.applications as Array<Glue42Web.AppManager.Definition>), "merge");
+                    }
+                };
+
+                setInterval(() => appsFetch().catch(console.warn), remoteSource.pollingInterval || DEFAULT_POLLING_INTERVAL);
+            }
+        });
+    } else {
+        console.warn("The app definitions from the remoteSource are only fetched when running inside of Glue42 Core. Please refer to the G4E documentation (https://docs.glue42.com/getting-started/fdc3-compliance/index.html#fdc3_for_glue42_enterprise-app_directory).");
+    }
+};
+
+const fdc3Factory = (): Glue42FDC3DesktopAgent => {
     setupGlue();
+
+    connectToRemoteSources();
 
     const agentApi = createDesktopAgent();
 
