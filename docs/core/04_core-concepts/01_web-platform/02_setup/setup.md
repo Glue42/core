@@ -48,8 +48,8 @@ Use this configuration object to set various important aspects of your **Glue42 
 | Property | Description |
 |----------|-------------|
 | `windows` | Override various timeouts for the [Window Management](../../../capabilities/window-management/index.html) operations. |
-| `applications` | Set a source for application definitions (e.g., `"local"`, `"remote"` or `"supplier"`) and the mode of the [Application Management](../../../capabilities/application-management/index.html) library. |
-| `layouts` | Set a source for Layout definitions (e.g., `"local"`, `"remote"` or `"supplier"`) and the mode of the Layouts library. |
+| `applications` | Set a source for application definitions by passing an array of application definition objects to the `local` property of this object. |
+| `layouts` | Set a source for Layout definitions by passing an array of Layout definition objects to the `local` property of this object. Set the mode of the Layouts library (`"idb"` or `"session"`) with the `mode` property. |
 | `channels` | Configure the Glue42 [Channels](../../../capabilities/channels/index.html) that will be available in your project. |
 | `workspaces` | Set a location of your [Workspaces App](../../../capabilities/workspaces/index.html#workspaces_concepts-frame) and other options for [Workspaces](../../../capabilities/workspaces/index.html). |
 | `plugins` | Provide your custom Glue42-specific logic, which will be included in the boot sequence of the Main app. |
