@@ -14,7 +14,7 @@ window.createChannelSelectorWidget = (
                 textAlign: "center"
             });
 
-            const color = item.element.attr("color");
+            const color = item.element.attr("color") || "#f5f5f5";;
             const channelSelectorWidgetButtonElement = $("#channel-selector-widget-button");
             channelSelectorWidgetButtonElement.css('background-color', color);
 
@@ -49,7 +49,12 @@ window.createChannelSelectorWidget = (
 
     channelSelectorWidgetElement.channelSelectorWidget({
         // Whenever an item inside the channel selector widget menu is selected join the corresponding channel (or leave the current channel if NO_CHANNEL_VALUE is selected).
-        select: (_, ui) => onChannelSelected(ui.item.value)
+        select: (event, ui) => {
+            // Do not call onChannelSelected when the channel is changed programmatically.
+            if (event.originalEvent.type === "menuselect") {
+                onChannelSelected(ui.item.value);
+            }
+        }
     });
 
     $("#channel-selector-widget-button").css({

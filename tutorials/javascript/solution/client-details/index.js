@@ -30,14 +30,16 @@ const start = async () => {
 
     toggleGlueAvailable();
 
-    glue.windows.my().onContextUpdated((ctx) => {
-        if (ctx.client) {
-            setFields(ctx.client);
-            glue.workspaces.getMyWorkspace()
-                .then((wsp) => wsp.setTitle(ctx.client.name))
-                .catch(console.error);
-        }
-    }); 
+    const myWorkspace = await glue.workspaces.getMyWorkspace();
+
+    if (myWorkspace) {
+        myWorkspace.onContextUpdated((ctx) => {
+            if (ctx.client) {
+                setFields(ctx.client);
+                myWorkspace.setTitle(ctx.client.name);
+            }
+        });
+    }
 };
 
 start().catch(console.error);

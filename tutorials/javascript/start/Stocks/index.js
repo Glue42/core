@@ -4,62 +4,62 @@ const generateStockPrices = (handleNewPrices) => {
         const priceUpdate = {
             stocks: [
                 {
-                    RIC: 'VOD.L',
+                    RIC: "VOD.L",
                     Bid: Number(70 - Math.random() * 10).toFixed(2),
                     Ask: Number(70 + Math.random() * 10).toFixed(2)
                 },
                 {
-                    RIC: 'TSCO.L',
+                    RIC: "TSCO.L",
                     Bid: Number(90 - Math.random() * 10).toFixed(2),
                     Ask: Number(90 + Math.random() * 10).toFixed(2)
                 },
                 {
-                    RIC: 'BARC.L',
+                    RIC: "BARC.L",
                     Bid: Number(105 - Math.random() * 10).toFixed(2),
                     Ask: Number(105 + Math.random() * 10).toFixed(2)
                 },
                 {
-                    RIC: 'BMWG.DE',
+                    RIC: "BMWG.DE",
                     Bid: Number(29 - Math.random() * 10).toFixed(2),
                     Ask: Number(29 + Math.random() * 10).toFixed(2)
                 },
                 {
-                    RIC: 'AAL.L',
+                    RIC: "AAL.L",
                     Bid: Number(46 - Math.random() * 10).toFixed(2),
                     Ask: Number(46 + Math.random() * 10).toFixed(2)
                 },
                 {
-                    RIC: 'IBM.N',
+                    RIC: "IBM.N",
                     Bid: Number(70 - Math.random() * 10).toFixed(2),
                     Ask: Number(70 + Math.random() * 10).toFixed(2)
                 },
                 {
-                    RIC: 'AAPL.OQ',
+                    RIC: "AAPL.OQ",
                     Bid: Number(90 - Math.random() * 10).toFixed(2),
                     Ask: Number(90 + Math.random() * 10).toFixed(2)
                 },
                 {
-                    RIC: 'BA.N',
+                    RIC: "BA.N",
                     Bid: Number(105 - Math.random() * 10).toFixed(2),
                     Ask: Number(105 + Math.random() * 10).toFixed(2)
                 },
                 {
-                    RIC: 'TSLA:OQ',
+                    RIC: "TSLA:OQ",
                     Bid: Number(29 - Math.random() * 10).toFixed(2),
                     Ask: Number(29 + Math.random() * 10).toFixed(2)
                 },
                 {
-                    RIC: 'ENBD.DU',
+                    RIC: "ENBD.DU",
                     Bid: Number(46 - Math.random() * 10).toFixed(2),
                     Ask: Number(46 + Math.random() * 10).toFixed(2)
                 },
                 {
-                    RIC: 'AMZN.OQ',
+                    RIC: "AMZN.OQ",
                     Bid: Number(29 - Math.random() * 10).toFixed(2),
                     Ask: Number(29 + Math.random() * 10).toFixed(2)
                 },
                 {
-                    RIC: 'MSFT:OQ',
+                    RIC: "MSFT:OQ",
                     Bid: Number(46 - Math.random() * 10).toFixed(2),
                     Ask: Number(46 + Math.random() * 10).toFixed(2)
                 }
@@ -71,12 +71,12 @@ const generateStockPrices = (handleNewPrices) => {
 };
 
 const setupStocks = (stocks) => {
-    const table = document.getElementById('stocksTable').getElementsByTagName('tbody')[0];
+    const table = document.getElementById("stocksTable").getElementsByTagName("tbody")[0];
 
-    table.innerHTML = '';
+    table.innerHTML = "";
     const addRowCell = (row, cellData, cssClass) => {
 
-        const cell = document.createElement('td');
+        const cell = document.createElement("td");
 
         cell.innerText = cellData;
 
@@ -87,13 +87,13 @@ const setupStocks = (stocks) => {
     };
 
     const addRow = (table, stock) => {
-        const row = document.createElement('tr');
-        addRowCell(row, stock.RIC || '');
-        addRowCell(row, stock.Description || '');
-        addRowCell(row, stock.Bid || '');
-        addRowCell(row, stock.Ask || '');
+        const row = document.createElement("tr");
+        addRowCell(row, stock.RIC || "");
+        addRowCell(row, stock.Description || "");
+        addRowCell(row, stock.Bid || "");
+        addRowCell(row, stock.Ask || "");
 
-        row.setAttribute('data-ric', stock.RIC);
+        row.setAttribute("data-ric", stock.RIC);
 
         row.onclick = () => {
             stockClickedHandler(stock);
@@ -108,15 +108,15 @@ const setupStocks = (stocks) => {
 
 // TODO: Chapter 2
 // const toggleGlueAvailable = () => {
-//     const span = document.getElementById('glueSpan');
-//     span.classList.remove('label-warning');
-//     span.classList.add('label-success');
-//     span.textContent = 'Glue42 is available';
+//     const span = document.getElementById("glueSpan");
+//     span.classList.remove("label-warning");
+//     span.classList.add("label-success");
+//     span.textContent = "Glue42 is available";
 // };
 
 const newPricesHandler = (priceUpdate) => {
     priceUpdate.stocks.forEach((stock) => {
-        const row = document.querySelectorAll(`[data-ric='${stock.RIC}']`)[0];
+        const row = document.querySelectorAll(`[data-ric="${stock.RIC}"]`)[0];
 
         if (!row) {
             return;
@@ -129,15 +129,14 @@ const newPricesHandler = (priceUpdate) => {
         askElement.innerText = stock.Ask;
     });
 
-    // TODO: Chapter 3.1
+    // TODO: Chapter 4.1
 };
 
 const stockClickedHandler = (stock) => {
-    // TODO: Chapter 4.3
-    sessionStorage.setItem('stock', JSON.stringify(stock));
-
-    // TODO: Chapter 4.1
+    // TODO: Chapter 3.1
     window.location.href = `http://${window.location.host}/details/index.html`;
+
+    // TODO: Chapter 3.3
 
     // TODO: Chapter 7.2
 
@@ -146,11 +145,11 @@ const stockClickedHandler = (stock) => {
 
 const start = async () => {
 
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/service-worker.js');
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/service-worker.js");
     }
 
-    const stocksResponse = await fetch('http://localhost:8080/api/portfolio');
+    const stocksResponse = await fetch("http://localhost:8080/api/portfolio");
 
     const stocks = await stocksResponse.json();
 
@@ -160,17 +159,17 @@ const start = async () => {
 
     // TODO: Chapter 2
 
-    // TODO: Chapter 3.1
+    // TODO: Chapter 4.1
 
     // TODO: Chapter 5.2
 
     // TODO: Chapter 6.2
 
+    // TODO: Chapter 7.2
+
     // TODO: Chapter 6.3
 
-    // TODO: Chapter 7.3
-
-    // TODO: Chapter 8.3
+    // TODO: Chapter 8.5
 };
 
 start().catch(console.error);
