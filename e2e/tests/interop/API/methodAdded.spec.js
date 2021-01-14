@@ -230,12 +230,14 @@ describe('methodAdded()', () => {
             'getServers',
             'name',
             'objectTypes',
+            'flags',
             'returns',
             'supportsStreaming',
         ];
 
         const fullMethodOptions = {
             objectTypes: ['otherApp'],
+            flags: { a: 'test', b: true, c: 42, d: ['43'], e: { f: 44 }, g: { h: { i: '45' } } },
             description: 'same description',
             displayName: 'awesome display name',
             accepts: 'String name',
@@ -345,6 +347,7 @@ describe('methodAdded()', () => {
             'getServers',
             'name',
             'objectTypes',
+            'flags',
             'returns',
             'supportsStreaming',
         ];

@@ -25,14 +25,14 @@ describe('getMethods()', () => {
         return gtf.agm.unregisterAllMyNonSystemMethods();
     });
 
-    it.skip('Should return the same count of method like .methodsForInstance. | PR: https://github.com/Glue42/core/pull/158', async () => {
+    it('Should return the same count of method like .methodsForInstance.', async () => {
         const getMethodResult = glue.interop.instance.getMethods();
         const methodResult = glue.interop.methodsForInstance(glue.interop.instance);
 
         expect(getMethodResult.length).to.equal(methodResult.length);
     });
 
-    it.skip('Should return all methods registered by that instance. | PR: https://github.com/Glue42/core/pull/158', async () => {
+    it('Should return all methods registered by that instance.', async () => {
         const allMethods = glue.interop.instance.getMethods();
         expect([name1, name2, name3].every(myName => allMethods.some((сMethod) => сMethod.name === myName))).to.equal(true);
     });

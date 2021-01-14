@@ -21,6 +21,8 @@ describe('subscribe()', () => {
         glueApplicationTwo = null;
 
         myStreams = [];
+
+        await Promise.all(promisesToAwait);
     });
 
     describe('for single-server-stream', () => {

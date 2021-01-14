@@ -2,14 +2,16 @@ import generate from "shortid";
 import { Glue42Core } from "./../../glue";
 
 export class InstanceWrapper {
-    public static API: Glue42Core.AGM.API;
+    private wrapped: Glue42Core.Interop.Instance = {};
 
-    private wrapped: Glue42Core.Interop.Instance = {
-        getMethods,
-        getStreams,
-    };
+    constructor(API: Glue42Core.AGM.API, instance?: Glue42Core.AGM.Instance, connection?: Glue42Core.Connection.API) {
+        this.wrapped.getMethods = function (): Glue42Core.Interop.Method[] {
+            return API.methodsForInstance(this);
+        };
+        this.wrapped.getStreams = function (): Glue42Core.Interop.Method[] {
+            return API.methodsForInstance(this).filter((m) => m.supportsStreaming);
+        };
 
-    constructor(instance?: Glue42Core.AGM.Instance, connection?: Glue42Core.Connection.API) {
         if (instance) {
             this.refreshWrappedObject(instance);
         }
@@ -51,12 +53,4 @@ export class InstanceWrapper {
         this.wrapped.service = resolvedIdentity.service;
         this.wrapped.peerId = resolvedIdentity.peerId;
     }
-}
-
-function getMethods(this: any): Glue42Core.Interop.Method[] {
-    return InstanceWrapper.API?.methodsForInstance(this);
-}
-
-function getStreams(this: any): Glue42Core.Interop.Method[] {
-    return InstanceWrapper.API?.methodsForInstance(this).filter((m) => m.supportsStreaming);
 }

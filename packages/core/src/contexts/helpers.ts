@@ -194,6 +194,15 @@ export function setValueToPath(obj: any, value: any, path: string) {
     obj[pathArr[i]] = value;
 }
 
+export function isSubset(superObj: any, subObj: any): boolean {
+    return Object.keys(subObj).every((ele) => {
+        if (typeof subObj[ele] === "object") {
+            return isSubset(superObj?.[ele] || {}, subObj[ele] || {});
+        }
+        return subObj[ele] === superObj?.[ele];
+    });
+}
+
 function deletePath(obj: any, path: string) {
     const pathArr = path.split(".");
     let i;

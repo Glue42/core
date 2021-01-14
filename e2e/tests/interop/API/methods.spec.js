@@ -324,7 +324,7 @@ describe('methods()', () => {
                 expect(server.length).to.eql(2);
             });
 
-            it.skip('Should discover correct methods (methods and streams) using getMethods() after the instance is received from .servers() | PR: https://github.com/Glue42/core/pull/158', () => {
+            it('Should discover correct methods (methods and streams) using getMethods() after the instance is received from .servers()', () => {
                 const server = glue.interop.servers(appOneMethodOptions)[0];
                 const methods = server.getMethods();
 
@@ -334,7 +334,7 @@ describe('methods()', () => {
                 expect(methods.some(m => m.name === appOneStreamOptions.name)).to.eql(true);
             });
 
-            it.skip('Should discover correct streams using getStreams() after the instance is received from .servers() | PR: https://github.com/Glue42/core/pull/158', () => {
+            it('Should discover correct streams using getStreams() after the instance is received from .servers()', () => {
                 const server = glue.interop.servers(appTwoStreamOptions)[0];
                 const streams = server.getStreams();
 
@@ -370,12 +370,14 @@ describe('methods()', () => {
             'getServers',
             'name',
             'objectTypes',
+            'flags',
             'returns',
             'supportsStreaming',
         ];
 
         const fullMethodOptions = {
             objectTypes: ['otherApp'],
+            flags: { a: 'test', b: true, c: 42, d: ['43'], e: { f: 44 }, g: { h: { i: '45' } } },
             description: 'same description',
             displayName: 'awesome display name',
             accepts: 'String name',
@@ -500,6 +502,31 @@ describe('methods()', () => {
                     ready();
                 })
                 .catch(done);
+        });
+
+        it('Should correctly filter when flags are provided - no results (methodDefinition).', async () => {
+            await glue.interop.register(fullMethodOptions, callbackNeverCalled);
+
+            const matchingMethods = glue.interop.methods({ flags: { b: { c: 42 } } });
+            expect(matchingMethods).to.be.empty;
+        });
+        it('Should correctly filter when flags are provided - single results (methodDefinition).', async () => {
+            await glue.interop.register(fullMethodOptions, callbackNeverCalled);
+
+            const matchingMethods = glue.interop.methods({ flags: { a: 'test' } });
+            expect(matchingMethods).to.be.of.length(1);
+            expect(matchingMethods[0].name).to.equal(fullMethodOptions.name);
+        });
+
+        it('Should correctly filter when flags are provided - multiple results (methodDefinition).', async () => {
+            await glue.interop.register(fullMethodOptions, callbackNeverCalled);
+            const otherName = gtf.agm.getMethodName();
+            await glue.interop.register({ ...fullMethodOptions, name: otherName }, callbackNeverCalled);
+
+            const matchingMethods = glue.interop.methods({ flags: { a: 'test' } });
+            const matchingMethodsNames = matchingMethods.map((method) => method.name);
+            expect(matchingMethods).to.be.of.length(2);
+            expect(matchingMethodsNames).to.include.members([otherName, fullMethodOptions.name]);
         });
     });
 

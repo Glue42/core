@@ -112,15 +112,7 @@ export class IntentsController implements LibController {
                     intents[intentName] = [];
                 }
 
-                let info: Glue42Web.Intents.AddIntentListenerRequest | undefined;
-
-                if (method.description) {
-                    try {
-                        info = JSON.parse(method.description);
-                    } catch {
-                        this.logger?.trace(`[${commandId}] Parsing method ${method.name}'s description failed!`);
-                    }
-                }
+                const info = method.flags as Glue42Web.Intents.AddIntentListenerRequest;
 
                 const app = apps.find((appDef) => appDef.name === server.application);
                 let appIntent: IntentInfo | undefined;
@@ -139,11 +131,11 @@ export class IntentsController implements LibController {
                     // IFrames do not have windowIds but can still register intents.
                     instanceId: server.windowId || server.instance,
                     applicationName: server.application || "",
-                    applicationIcon: info?.icon || app?.icon,
+                    applicationIcon: info.icon || app?.icon,
                     applicationTitle: app?.title || "",
-                    applicationDescription: info?.description || app?.caption,
-                    displayName: info?.displayName || appIntent?.displayName,
-                    contextTypes: info?.contextTypes || appIntent?.contexts,
+                    applicationDescription: info.description || app?.caption,
+                    displayName: info.displayName || appIntent?.displayName,
+                    contextTypes: info.contextTypes || appIntent?.contexts,
                     instanceTitle: title,
                     type: "instance"
                 };

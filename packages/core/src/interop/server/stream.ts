@@ -50,6 +50,7 @@ export default class ServerStream implements Glue42Core.AGM.Stream {
             objectTypes: def2.objectTypes,
             returns: def2.returns,
             supportsStreaming: def2.supportsStreaming,
+            flags: def2.flags?.metadata,
         };
     }
 

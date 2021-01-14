@@ -26,7 +26,7 @@ describe('getStreams()', () => {
         myStreams = [];
     });
 
-    it.skip('Should return the same count of method like .methodsForInstance. | PR: https://github.com/Glue42/core/pull/158', async () => {
+    it('Should return the same count of method like .methodsForInstance.', async () => {
         const getMethodResult = glue.interop.instance.getStreams();
         const methodResult = glue.interop.methodsForInstance(glue.interop.instance).filter(m => m.supportsStreaming);
 
@@ -34,7 +34,7 @@ describe('getStreams()', () => {
     });
 
 
-    it.skip('Should return all streams registered by that instance. | PR: https://github.com/Glue42/core/pull/158', (done) => {
+    it('Should return all streams registered by that instance.', (done) => {
         try {
             const allStreams = glue.interop.instance.getStreams();
             expect([name1, name2, name3].every(myName => allStreams.some(serverS => serverS.name === myName))).to.equal(true);

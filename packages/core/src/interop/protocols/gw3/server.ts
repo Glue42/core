@@ -34,7 +34,7 @@ export default class ServerProtocol implements ServerProtocolDefinition {
 
     public register(repoMethod: ServerMethodInfo, isStreaming?: boolean): Promise<void> {
         const methodDef = repoMethod.definition;
-        const flags = { streaming: isStreaming || false };
+        const flags = Object.assign({}, { metadata: methodDef.flags ?? {} }, { streaming: isStreaming || false });
 
         const registerMsg: RegisterMethodMessage = {
             type: "register",

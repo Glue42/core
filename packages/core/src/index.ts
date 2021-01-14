@@ -345,7 +345,7 @@ const GlueCore = (userConfig?: Glue42Core.Config, ext?: Glue42Core.Extension): P
                 return function () {
                     // tslint:disable-next-line:no-console
                     glue.logger.warn(`glue.js - 'glue.agm.${wrong}' method is deprecated, use 'glue.interop.${proper}' instead.`);
-                    fn.apply(glue.agm, arguments);
+                    return fn.apply(glue.agm, arguments);
                 };
             };
             // extend glue.agm with legacy support

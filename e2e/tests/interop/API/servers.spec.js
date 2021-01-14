@@ -36,35 +36,41 @@ describe('servers()', () => {
         appOneMethodOptions = {
             name: gtf.agm.getMethodName(),
             objectTypes: ['otherApp'],
+            flags: { a: 'test' },
             description: 'same description'
         };
 
         appOneStreamOptions = {
             name: gtf.agm.getMethodName(),
             objectTypes: ['otherStream', 'integration.test'],
+            flags: { a: 'test', b: true },
             description: 'app one stream'
         };
 
         appTwoMethodOptions = {
             name: gtf.agm.getMethodName(),
             objectTypes: ['otherApp'],
+            flags: { a: 'test', b: true, c: 42 },
             description: 'same description'
         };
 
         appTwoStreamOptions = {
             name: gtf.agm.getMethodName(),
-            objectTypes: ['otherStream', 'integration.test']
+            objectTypes: ['otherStream', 'integration.test'],
+            flags: { a: 'test', b: true, c: 42, d: ['43'] }
         };
 
         selfMethodOptions = {
             name: gtf.agm.getMethodName(),
             objectTypes: ['self'],
+            flags: { a: 'test', b: true, c: 42, d: ['43'], e: { f: 44 } },
             description: 'my method'
         };
 
         selfStreamOptions = {
             name: gtf.agm.getMethodName(),
             objectTypes: ['selfStream', 'integration.test'],
+            flags: { a: 'test', b: true, c: 42, d: ['43'], e: { f: 44 }, g: { h: { i: '45' } } },
             description: 'my stream'
         };
 
@@ -100,13 +106,13 @@ describe('servers()', () => {
 
     describe('Server discovery: ', () => {
         it('Should discover self by self-registered method, when passing MethodFilter with name and object types', () => {
-            const server = glue.interop.servers(selfMethodOptions);
+            const server = glue.interop.servers({ ...selfMethodOptions, flags: selfMethodOptions.flags });
             expect(server).to.not.be.undefined;
             expect(server.length).to.eql(1);
         });
 
         it('Should discover self by self-registered stream, when passing MethodFilter with name and object types', () => {
-            const server = glue.interop.servers(selfStreamOptions);
+            const server = glue.interop.servers({ ...selfStreamOptions, flags: selfStreamOptions.flags });
             expect(server).to.not.be.undefined;
             expect(server.length).to.eql(1);
         });
@@ -129,7 +135,7 @@ describe('servers()', () => {
         });
 
         it('Should discover others by registered methods, when passing MethodFilter with name and object types', () => {
-            const server = glue.interop.servers(appOneMethodOptions);
+            const server = glue.interop.servers({ ...appOneMethodOptions, flags: appOneMethodOptions.flags });
             expect(server).to.not.be.undefined;
             expect(server.length).to.eql(1);
         });
@@ -151,7 +157,7 @@ describe('servers()', () => {
         });
 
         it('Should discover other by registered streams, when passing MethodFilter with name and object types', () => {
-            const server = glue.interop.servers(appTwoStreamOptions);
+            const server = glue.interop.servers({ ...appTwoStreamOptions, flags: appTwoStreamOptions.flags });
             expect(server).to.not.be.undefined;
             expect(server.length).to.eql(1);
         });
@@ -164,8 +170,8 @@ describe('servers()', () => {
             expect(server.length).to.eql(2);
         });
 
-        it.skip('Should discover correct methods (methods and streams) using getMethods() after the instance is received from .servers() | PR: https://github.com/Glue42/core/pull/158', () => {
-            const server = glue.interop.servers(appOneMethodOptions)[0];
+        it('Should discover correct methods (methods and streams) using getMethods() after the instance is received from .servers()', () => {
+            const server = glue.interop.servers({ ...appOneMethodOptions, flags: appOneMethodOptions.flags })[0];
             const methods = server.getMethods();
 
             expect(methods).to.not.be.undefined;
@@ -174,8 +180,8 @@ describe('servers()', () => {
             expect(methods.some(m => m.name === appOneStreamOptions.name)).to.eql(true);
         });
 
-        it.skip('Should discover correct streams using getStreams() after the instance is received from .servers() | PR: https://github.com/Glue42/core/pull/158', () => {
-            const server = glue.interop.servers(appTwoStreamOptions)[0];
+        it('Should discover correct streams using getStreams() after the instance is received from .servers()', () => {
+            const server = glue.interop.servers({ ...appTwoStreamOptions, flags: appTwoStreamOptions.flags })[0];
             const streams = server.getStreams();
 
             expect(streams).to.not.be.undefined;
@@ -185,17 +191,34 @@ describe('servers()', () => {
         });
 
         it('Should discover my methods when I get my instance from .servers() and pass it to methodsForInstance()', () => {
-            const myInstance = glue.interop.servers(selfMethodOptions)[0];
+            const myInstance = glue.interop.servers({ ...selfMethodOptions, flags: selfMethodOptions.flags })[0];
             const myMethods = glue.interop.methodsForInstance(myInstance);
             expect(myMethods).to.not.be.undefined;
             expect(myMethods.length >= 2).to.eql(true);
         });
 
         it('Should discover others\' methods when I get their instance from .servers() and pass it to methodsForInstance()', () => {
-            const otherInstance = glue.interop.servers(appOneMethodOptions)[0];
+            const otherInstance = glue.interop.servers({ ...appOneMethodOptions, flags: appOneMethodOptions.flags })[0];
             const otherMethods = glue.interop.methodsForInstance(otherInstance);
             expect(otherMethods).to.not.be.undefined;
             expect(otherMethods.length >= 2).to.eql(true);
+        });
+
+        it('Should correctly filter when flags are provided (methodDefinition).', async () => {
+            let matchingServers = glue.interop.servers({ flags: { g: 'g' } });
+            expect(matchingServers).to.be.empty;
+            matchingServers = glue.interop.servers({ flags: { a: 'test' } });
+            expect(matchingServers).to.be.of.length(3);
+            matchingServers = glue.interop.servers({ flags: { b: true } });
+            expect(matchingServers).to.be.of.length(3);
+            matchingServers = glue.interop.servers({ flags: { c: 42 } });
+            expect(matchingServers).to.be.of.length(2);
+            matchingServers = glue.interop.servers({ flags: { d: ['43'] } });
+            expect(matchingServers).to.be.of.length(2);
+            matchingServers = glue.interop.servers({ flags: { e: { f: 44 } } });
+            expect(matchingServers).to.be.of.length(1);
+            matchingServers = glue.interop.servers({ flags: { g: { h: { i: '45' } } } });
+            expect(matchingServers).to.be.of.length(1);
         });
     });
 });

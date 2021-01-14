@@ -1,3 +1,7 @@
+5.4.0
+feat: expose method's flags in interop (G4E-3780)
+feat: added interop.waitForMethod method that allows waiting for a method to appear
+fix: return unsubscribe functions from legacy interop methods (method_added, method_removed, etc) (
 5.3.0
 feat: official release with support for web transport
 5.2.8-beta.0

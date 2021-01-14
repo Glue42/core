@@ -233,7 +233,7 @@ describe("reconnect", () => {
             wfSubscriptionAddedHandler.promise]);
     });
 
-    it.skip("ws restart - my subscription is re-established after client&server reconnect", async () => {
+    it("ws restart - my subscription is re-established after client&server reconnect", async () => {
         const name = getMethodName();
         const wfSubscriptionAddedHandler = waitForArr([true, true]);
         const wfOnData = waitForArr([true, true]);

@@ -32,9 +32,15 @@
     },
     "license": "MIT",
     "dependencies": {
+<<<<<<< HEAD
+        "@glue42/core": "^5.3.0",
         "@glue42/desktop": "^5.5.0",
+        "@glue42/workspaces-api": "^1.4.0",
+=======
         "@glue42/core": "^5.4.0",
+        "@glue42/desktop": "^5.4.1",
         "@glue42/workspaces-api": "^1.4.1",
+>>>>>>> master
         "callback-registry": "^2.6.0",
         "decoder-validate": "0.0.2",
         "idb": "^5.0.4",

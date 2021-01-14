@@ -114,9 +114,9 @@ export class IntentsController implements LibController {
                 }
             }
         };
-        const methodDescription = typeof intent === "string" ? undefined : JSON.stringify(intent);
+        const flags = typeof intent === "string" ? { intent } : intent;
 
-        this.interop.register({ name: methodName, description: methodDescription }, (args: Glue42Web.Intents.IntentContext) => {
+        this.interop.register({ name: methodName, flags }, (args: Glue42Web.Intents.IntentContext) => {
             if (subscribed) {
                 return handler(args);
             }

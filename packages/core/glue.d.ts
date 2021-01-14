@@ -74,12 +74,12 @@ export namespace Glue42Core {
 
         /**
          * @deprecated
-         * Path to the shared worker file that contains glue0 shared worker related code  
+         * Path to the shared worker file that contains glue0 shared worker related code
          */
         sharedWorker?: string;
 
         /**
-         * An object containing the configuration settings when core is operating in a web platform environment 
+         * An object containing the configuration settings when core is operating in a web platform environment
          */
         webPlatform?: WebPlatformConnection;
 
@@ -539,10 +539,18 @@ export namespace Glue42Core {
                     }
                 ) => void): UnsubscribeFunction;
 
-            /** Returns all Interop methods registered by a server.
+            /**
+             * Returns all Interop methods registered by a server.
              * @param server An Interop [`Instance`](#!Instance) identifying an application.
              */
             methodsForInstance(server: Instance): Method[];
+
+            /**
+             * Wait for a method to be available. If the method is already registered this will resolve immediately
+             * otherwise will wait until the method appears
+             * @param name Name of the method to wait for
+             */
+            waitForMethod(name: string): Promise<Method>;
         }
 
         /** Optional object with parameters passed to [`subscribe()`](#!API-subscribe) when subscribing to a stream. */
@@ -787,6 +795,9 @@ export namespace Glue42Core {
             /** If `true`, the method is a stream. */
             supportsStreaming?: boolean;
 
+            /** Optional flags attached to the method */
+            flags?: { [key: string]: any };
+
             /** Returns all servers that provide the method. */
             getServers?(): Instance[];
         }
@@ -820,6 +831,9 @@ export namespace Glue42Core {
 
             /** If `true`, the method is a stream. */
             supportsStreaming: boolean;
+
+            /** Optional flags attached to the method */
+            flags: { [key: string]: any };
 
             /** Returns all servers that provide the method. */
             getServers(): Instance[];

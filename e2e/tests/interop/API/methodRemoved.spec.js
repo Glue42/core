@@ -280,6 +280,7 @@ describe('methodRemoved()', () => {
             'getServers',
             'name',
             'objectTypes',
+            'flags',
             'returns',
             'supportsStreaming',
         ];
@@ -287,6 +288,7 @@ describe('methodRemoved()', () => {
         const fullMethodOptions = {
             name: '',
             objectTypes: ['otherApp'],
+            flags: { a: 'test', b: true, c: 42, d: ['43'], e: { f: 44 }, g: { h: { i: '45' } } },
             description: 'same description',
             displayName: 'awesome display name',
             accepts: 'String name',
@@ -413,6 +415,7 @@ describe('methodRemoved()', () => {
             'getServers',
             'name',
             'objectTypes',
+            'flags',
             'returns',
             'supportsStreaming',
         ];

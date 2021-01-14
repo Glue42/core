@@ -3,7 +3,12 @@ import { WorkspaceLayoutItemProps } from "../../../types/internal";
 
 const WorkspaceLayoutItem: React.FC<WorkspaceLayoutItemProps> = ({ name, onClick, onCloseClick }) => {
     return (
-        <a onClick={onClick} className="list-group-item list-group-item-action ry-2" href="#">
+        <a onClick={(e) => {
+            e.preventDefault();
+            if (typeof onClick === "function") {
+                return onClick(e);
+            }
+        }} className="list-group-item list-group-item-action ry-2">
             <div className="align-items-center workspace d-flex flex-row">
                 <div className="workspace__icon mr-2"></div>
                 <div className="workspace__description">

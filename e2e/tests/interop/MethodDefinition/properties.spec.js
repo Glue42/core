@@ -1,12 +1,23 @@
 describe('properties', () => {
+    let glueApplication;
+    let myStreams = [];
+
     const callbackNeverCalled = () => { };
 
     before(() => {
         return coreReady;
     });
 
-    afterEach(() => {
-        return gtf.agm.unregisterAllMyNonSystemMethods();
+    beforeEach(async () => {
+        glueApplication = await gtf.createApp();
+    });
+
+    afterEach(async () => {
+        await Promise.all([glueApplication.stop(), gtf.agm.unregisterMyStreams(myStreams), gtf.agm.unregisterAllMyNonSystemMethods()]);
+
+        glueApplication = null;
+
+        myStreams = [];
     });
 
     describe('accepts', () => {
@@ -70,6 +81,63 @@ describe('properties', () => {
 
             const meth = glue.interop.methods().find(m => m.name === name);
             expect(meth.objectTypes).to.eql(['woah', 'rainbow', 'random']);
+        });
+    });
+
+    describe('flags', () => {
+        const flags = { a: 'test', b: true, c: 42, d: ['43'], e: { f: 44 }, g: { h: { i: '45' } } };
+
+        it('Should register a method with correct flags when provided - me (methodDefinition).', async () => {
+            const name = gtf.agm.getMethodName();
+
+            const methodDefinition = {
+                name,
+                flags
+            };
+
+            await glue.interop.register(methodDefinition, callbackNeverCalled);
+
+            expect(glue.interop.methods().find(m => m.name === name).flags).to.eql(flags);
+        });
+
+        it('Should create a stream with correct flags when provided - me (methodDefinition).', async () => {
+            const name = gtf.agm.getMethodName();
+
+            const methodDefinition = {
+                name,
+                flags
+            };
+
+            const stream = await glue.interop.createStream(methodDefinition);
+            myStreams.push(stream);
+
+            expect(glue.interop.methods().find(m => m.name === name).flags).to.eql(flags);
+        });
+
+        it('Should register a method with correct flags when provided - other party (methodDefinition).', async () => {
+            const name = gtf.agm.getMethodName();
+
+            const methodDefinition = {
+                name,
+                flags
+            };
+
+            await glueApplication.agm.register(methodDefinition, callbackNeverCalled);
+
+            expect(glue.interop.methods().find(m => m.name === name).flags).to.eql(flags);
+        });
+
+        it('Should create a stream with correct flags when provided - other party (methodDefinition).', async () => {
+            const name = gtf.agm.getMethodName();
+
+            const methodDefinition = {
+                name,
+                flags
+            };
+
+            await glueApplication.agm.createStream(methodDefinition, callbackNeverCalled);
+
+            expect(glue.interop.methods().find(m => m.name === name).flags).to.eql(flags);
         });
     });
 

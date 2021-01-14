@@ -9,6 +9,7 @@ import ClientRepository from "./repository";
 import { UnsubscribeFunction } from "callback-registry";
 import random from "shortid";
 import { rejectAfter } from "../helpers/promiseHelpers";
+import { isSubset } from "../../contexts/helpers";
 import InvocationResult = Glue42Core.AGM.InvocationResult;
 import MethodDefinition = Glue42Core.AGM.MethodDefinition;
 import Method = Glue42Core.Interop.Method;
@@ -322,6 +323,7 @@ export default class Client {
                         getServers: () => [],
                         supportsStreaming: false,
                         objectTypes: methodDefinition.objectTypes ?? [],
+                        flags: methodDefinition.flags?.metadata ?? {}
                     };
                     const errorObj: InvocationResult = {
                         method,
@@ -534,46 +536,29 @@ export default class Client {
                     && prop[0] !== "_";
             });
 
-        return filterProps.reduce<boolean>((isMatch, prop) => {
+        return filterProps.every((prop) => {
+            let isMatch;
+
             const filterValue = filter[prop];
             const repoMethodValue = repoMethod[prop];
 
-            if (prop === "objectTypes") {
-                const containsAllFromFilter = (filterObjTypes: string[], repoObjectTypes: string[]) => {
-                    const objTypeToContains = filterObjTypes.reduce<{ [objType: string]: boolean }>(
-                        (object, objType: string) => {
-                            object[objType] = false;
-                            return object;
-                        }, {}
-                    );
-
-                    repoObjectTypes.forEach((repoObjType: string) => {
-                        if (objTypeToContains[repoObjType] !== undefined) {
-                            objTypeToContains[repoObjType] = true;
-                        }
+            switch (prop) {
+                case "objectTypes":
+                    // filterValue needs to be a subset of repoMethodValue.
+                    isMatch = ((filterValue || []) as string[]).every((filterValueEl) => {
+                        return ((repoMethodValue || []) as string[]).includes(filterValueEl);
                     });
-
-                    const filterIsFullfilled = () => Object.keys(objTypeToContains).reduce<boolean>((isFullfiled, objType: string) => {
-                        if (!objTypeToContains[objType]) {
-                            isFullfiled = false;
-                        }
-                        return isFullfiled;
-                    }, true);
-
-                    return filterIsFullfilled();
-                };
-
-                if (filterValue.length > repoMethodValue.length
-                    || containsAllFromFilter(filterValue, repoMethodValue) === false) {
-                    isMatch = false;
-                }
-
-            } else if (String(filterValue).toLowerCase() !== String(repoMethodValue).toLowerCase()) {
-                isMatch = false;
+                    break;
+                case "flags":
+                    // filterValue needs to be a subset of repoMethodValue.
+                    isMatch = isSubset(repoMethodValue || {}, filterValue || {});
+                    break;
+                default:
+                    isMatch = String(filterValue).toLowerCase() === String(repoMethodValue).toLowerCase();
             }
 
             return isMatch;
-        }, true);
+        });
     }
 
     private getMethods(methodFilter: Glue42Core.AGM.MethodDefinition): ClientMethodInfo[] {
@@ -639,7 +624,7 @@ export default class Client {
 
         return servers.reduce<ServerMethodsPair[]>((prev, current) => {
 
-            const methodsForServer = this.repo.getServerMethodsById(current.id);
+            const methodsForServer = Object.values(current.methods);
 
             const matchingMethods = methodsForServer.filter((method) => {
                 return this.methodMatch(methodFilter, method);
