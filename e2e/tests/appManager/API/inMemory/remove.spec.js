@@ -5,6 +5,7 @@ describe('remove() ', function () {
 
     const extraDefOne = {
         name: "ExtraOne",
+        type: "window",
         details: {
             url: "http://localhost:4242/dummyApp/index.html"
         },
@@ -17,7 +18,7 @@ describe('remove() ', function () {
     before(async () => {
         await coreReady;
 
-        definitionsOnStart = await glue.appManager.export();
+        definitionsOnStart = await glue.appManager.inMemory.export();
     });
 
     afterEach(async () => {
@@ -26,7 +27,7 @@ describe('remove() ', function () {
             timeout = undefined;
         }
 
-        await glue.appManager.import(definitionsOnStart, "replace");
+        await glue.appManager.inMemory.import(definitionsOnStart, "replace");
 
         if (unsubs.length) {
             unsubs.forEach((un) => un());
@@ -35,7 +36,7 @@ describe('remove() ', function () {
     });
 
     it("should return a promise and resolve when the name is a valid string", async () => {
-        const appsDeletePromise = glue.appManager.remove("test");
+        const appsDeletePromise = glue.appManager.inMemory.remove("test");
 
         expect(appsDeletePromise.then).to.be.a("function");
         expect(appsDeletePromise.catch).to.be.a("function");
@@ -52,7 +53,7 @@ describe('remove() ', function () {
         {}
     ].forEach((name) => {
         it("should reject when the provided argument is not a string", (done) => {
-            glue.appManager.remove(name)
+            glue.appManager.inMemory.remove(name)
                 .then(() => {
                     done(`Should not have resolve, because the provided name is not valid: ${JSON.stringify(name)}`)
                 })
@@ -63,27 +64,27 @@ describe('remove() ', function () {
     });
 
     it("the system should not have the definition present after remove resolved (export check)", async () => {
-        await glue.appManager.import([extraDefOne], "merge");
+        await glue.appManager.inMemory.import([extraDefOne], "merge");
 
-        const appsBefore = await glue.appManager.export();
+        const appsBefore = await glue.appManager.inMemory.export();
 
         expect(appsBefore.some((app) => app.name === extraDefOne.name)).to.be.true;
 
-        await glue.appManager.remove(extraDefOne.name);
+        await glue.appManager.inMemory.remove(extraDefOne.name);
 
-        const appsAfter = await glue.appManager.export();
+        const appsAfter = await glue.appManager.inMemory.export();
 
         expect(appsAfter.some((app) => app.name === extraDefOne.name)).to.be.false;
     });
 
     it("the system should not have the definition present after remove resolved (applications check)", async () => {
-        await glue.appManager.import([extraDefOne], "merge");
+        await glue.appManager.inMemory.import([extraDefOne], "merge");
 
         const appsBefore = glue.appManager.applications();
 
         expect(appsBefore.some((app) => app.name === extraDefOne.name)).to.be.true;
 
-        await glue.appManager.remove(extraDefOne.name);
+        await glue.appManager.inMemory.remove(extraDefOne.name);
 
         const appsAfter = glue.appManager.applications();
 
@@ -106,9 +107,9 @@ describe('remove() ', function () {
         };
 
         setUpEvent();
-        glue.appManager.import([extraDefOne], "merge")
+        glue.appManager.inMemory.import([extraDefOne], "merge")
             .then(() => {
-                return glue.appManager.remove(extraDefOne.name);
+                return glue.appManager.inMemory.remove(extraDefOne.name);
             })
             .then(ready)
             .catch(done);
@@ -129,7 +130,7 @@ describe('remove() ', function () {
 
         setUpEvent();
 
-        glue.appManager.remove(extraDefOne.name)
+        glue.appManager.inMemory.remove(extraDefOne.name)
             .then(ready)
             .catch(done);
     });

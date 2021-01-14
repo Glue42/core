@@ -34,7 +34,8 @@ export class ApplicationsController implements LibController {
         unregisterWorkspaceApp: { name: "unregisterWorkspaceApp", dataDecoder: simpleWindowDecoder, execute: this.unregisterWorkspaceApp.bind(this) },
         import: { name: "import", dataDecoder: appsImportOperationDecoder, execute: this.handleImport.bind(this) },
         remove: { name: "remove", dataDecoder: appRemoveConfigDecoder, execute: this.handleRemove.bind(this) },
-        export: { name: "export", resultDecoder: appsExportOperationDecoder, execute: this.handleExport.bind(this) }
+        export: { name: "export", resultDecoder: appsExportOperationDecoder, execute: this.handleExport.bind(this) },
+        clear: { name: "clear", execute: this.handleClear.bind(this) }
     }
 
     constructor(
@@ -339,6 +340,16 @@ export class ApplicationsController implements LibController {
         return { definitions: reversed };
     }
 
+    public async handleClear(_: any, commandId: string): Promise<void> {
+        this.logger?.trace(`[${commandId}] handling clear command`);
+
+        const allDefinitions = this.sessionStorage.getAllApps();
+
+        this.sessionStorage.overwriteApps([]);
+
+        allDefinitions.forEach((definition) => this.emitStreamData("applicationRemoved", definition));
+    }
+
     public mergeImport(currentApps: BaseApplicationData[], parsedDefinitions: BaseApplicationData[]): void {
         for (const definition of parsedDefinitions) {
             const defCurrentIdx = currentApps.findIndex((app) => app.name === definition.name);
@@ -462,6 +473,7 @@ export class ApplicationsController implements LibController {
 
         return {
             name: definition.name,
+            type: (definition as any).type || "window",
             title: definition.title,
             version: definition.version,
             icon: (definition as any).icon,
@@ -473,7 +485,7 @@ export class ApplicationsController implements LibController {
 
     private parseDefinition(definition: Glue42Web.AppManager.Definition | Glue42WebPlatform.Applications.FDC3Definition): BaseApplicationData {
 
-        const glue42CoreAppProps = ["name", "title", "version", "customProperties", "icon", "caption"];
+        const glue42CoreAppProps = ["name", "title", "version", "customProperties", "icon", "caption", "type"];
 
         const userProperties = Object.fromEntries(Object.entries(definition).filter(([key]) => !glue42CoreAppProps.includes(key)));
 
@@ -497,6 +509,7 @@ export class ApplicationsController implements LibController {
 
         const baseDefinition = {
             createOptions,
+            type: (definition as any).type || "window",
             name: definition.name,
             title: definition.title,
             version: definition.version,

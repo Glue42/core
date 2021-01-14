@@ -3,11 +3,11 @@
 import { Glue42Core } from "@glue42/core";
 import { Glue42Web } from "../../web";
 import { GlueBridge } from "../communication/bridge";
-import { applicationDefinitionDecoder, appManagerOperationTypesDecoder, nonEmptyStringDecoder } from "../shared/decoders";
+import { allApplicationDefinitionsDecoder, appManagerOperationTypesDecoder, importModeDecoder, nonEmptyStringDecoder } from "../shared/decoders";
 import { IoC } from "../shared/ioc";
 import { LibController } from "../shared/types";
 import { WindowHello } from "../windows/protocol";
-import { AppsImportOperation, AppHelloSuccess, ApplicationData, ApplicationStartConfig, AppRemoveConfig, InstanceData, operations, BaseApplicationData } from "./protocol";
+import { AppsImportOperation, AppHelloSuccess, ApplicationData, ApplicationStartConfig, AppRemoveConfig, InstanceData, operations, BaseApplicationData, AppsExportOperation, DefinitionParseResult } from "./protocol";
 import {
     default as CallbackRegistryFactory,
     CallbackRegistry,
@@ -101,9 +101,12 @@ export class AppManagerController implements LibController {
     private toApi(): Glue42Web.AppManager.API {
         const api: Glue42Web.AppManager.API = {
             myInstance: this.me as unknown as Glue42Web.AppManager.Instance,
-            import: this.import.bind(this),
-            remove: this.remove.bind(this),
-            export: this.export.bind(this),
+            inMemory: {
+                import: this.import.bind(this),
+                remove: this.remove.bind(this),
+                export: this.export.bind(this),
+                clear: this.clear.bind(this)
+            },
             application: this.getApplication.bind(this),
             applications: this.getApplications.bind(this),
             instances: this.getInstances.bind(this),
@@ -226,8 +229,32 @@ export class AppManagerController implements LibController {
         this.registry.execute("instance-stopped", instance);
     }
 
-    private async import(definitions: Glue42Web.AppManager.Definition[], mode: "replace" | "merge" = "replace"): Promise<void> {
-        await this.bridge.send<AppsImportOperation, void>("appManager", operations.import, { definitions, mode });
+    private async import(definitions: Glue42Web.AppManager.Definition[], mode: "replace" | "merge" = "replace"): Promise<Glue42Web.AppManager.ImportResult> {
+        importModeDecoder.runWithException(mode);
+
+        if (!Array.isArray(definitions)) {
+            throw new Error("Import must be called with an array of definitions");
+        }
+
+        const parseResult = definitions.reduce<DefinitionParseResult>((soFar, definition) => {
+
+            const decodeResult = allApplicationDefinitionsDecoder.run(definition);
+
+            if (!decodeResult.ok) {
+                soFar.invalid.push({ app: definition?.name, error: JSON.stringify(decodeResult.error) });
+            } else {
+                soFar.valid.push(definition);
+            }
+
+            return soFar;
+        }, { valid: [], invalid: [] });
+
+        await this.bridge.send<AppsImportOperation, void>("appManager", operations.import, { definitions: parseResult.valid, mode });
+
+        return {
+            imported: parseResult.valid.map((valid) => valid.name),
+            errors: parseResult.invalid
+        };
     }
 
     private async remove(name: string): Promise<void> {
@@ -236,9 +263,13 @@ export class AppManagerController implements LibController {
         await this.bridge.send<AppRemoveConfig, void>("appManager", operations.remove, { name });
     }
 
+    private async clear(): Promise<void> {
+        await this.bridge.send<void, void>("appManager", operations.clear, undefined);
+    }
+
     private async export(): Promise<Glue42Web.AppManager.Definition[]> {
 
-        const response = await this.bridge.send<void, AppsImportOperation>("appManager", operations.export, undefined);
+        const response = await this.bridge.send<void, AppsExportOperation>("appManager", operations.export, undefined);
 
         return response.definitions;
     }

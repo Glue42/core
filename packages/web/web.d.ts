@@ -663,21 +663,8 @@ export namespace Glue42Web {
             /** The instance of the application. */
             myInstance: Instance;
 
-            /**
-             * Imports the provided collection of application definitions.
-             * @param definitions A collection of application definition objects to be imported.
-             * @param mode Import mode, by default it is "replace". "replace" mode replaces all existing definitions with the provided collection, "merge" mode adds (if new) or updates (if already existing) the provided definitions.
-             */
-            import?(definitions: Definition[], mode?: "replace" | "merge"): Promise<void>;
-
-            /**
-             * Removed an application definition. This method will fire onAppRemoved if a definition was removed and it will do nothing if an app with this was was not found.
-             * @param name The name of the definition to be removed.
-             */
-            remove?(name: string): Promise<void>;
-
-            /** Exports all known application definitions */
-            export?(): Promise<Definition[]>;
+            /** An object, through which applications definitions stored in-memory can be programmatically imported or removed. */
+            inMemory: InMemory;
 
             /**
              * Returns an application by name.
@@ -732,6 +719,36 @@ export namespace Glue42Web {
              * @returns Unsubscribe function.
              */
             onAppChanged(callback: (app: Application) => any): UnsubscribeFunction;
+        }
+
+        /** An object, through which applications definitions stored in-memory can be programmatically imported or removed. */
+        export interface InMemory {
+            /**
+             * Imports the provided collection of application definitions. Returns an import result object, which contains the names of the successfully imported apps and a list of errors if any.
+             * @param definitions A collection of application definition objects to be imported.
+             * @param mode Import mode, by default it is "replace". "replace" mode replaces all existing definitions with the provided collection, "merge" mode adds (if new) or updates (if already existing) the provided definitions.
+             */
+            import(definitions: Definition[], mode?: "replace" | "merge"): Promise<ImportResult>;
+
+            /**
+             * Removed an application definition. This method will fire onAppRemoved if a definition was removed and it will do nothing if an app with this was was not found.
+             * @param name The name of the definition to be removed.
+             */
+            remove(name: string): Promise<void>;
+
+            /** Exports all known application definitions */
+            export(): Promise<Definition[]>;
+
+            /** Removes all applications from the memory */
+            clear(): Promise<void>;
+        }
+
+        export interface ImportResult {
+            /** A list of names of the successfully imported application definitions */
+            imported: string[];
+
+            /** A list of application names and errors of all the unsuccessful imports */
+            errors: Array<{ app: string; error: string }>;
         }
 
         export interface DefinitionDetails {
@@ -791,7 +808,12 @@ export namespace Glue42Web {
             /**
              * Application name. Should be unique.
              */
-            name: string;
+            name: string;   
+
+            /**
+               * Type of the application - the only supported type in Glue42 Core is "window". More complex types are available in Glue42 Enterprise.
+               */
+            type: string;
 
             /**
              * The title of the application. Sets the window's title.

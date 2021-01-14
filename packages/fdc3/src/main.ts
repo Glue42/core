@@ -98,7 +98,7 @@ const connectToRemoteSources = (): void => {
 
                     if (json.message === "OK") {
                         // Import also works with FDC3Definitions even though the typings say otherwise.
-                        ((window as WindowType).glue as Glue42Web.API).appManager.import?.((json.applications as Array<Glue42Web.AppManager.Definition>), "merge");
+                        ((window as WindowType).glue as Glue42Web.API).appManager.inMemory?.import?.((json.applications as Array<Glue42Web.AppManager.Definition>), "merge");
                     }
                 };
 

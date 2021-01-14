@@ -1,7 +1,7 @@
 import { Glue42Workspaces } from "@glue42/workspaces-api";
 import { Decoder, string, number, object, constant, oneOf, optional, array, boolean, anyJson, lazy } from "decoder-validate";
 import { Glue42Web } from "../../web";
-import { AppsImportOperation, AppHelloSuccess, ApplicationData, ApplicationStartConfig, AppManagerOperationTypes, AppRemoveConfig, BaseApplicationData, BasicInstanceData, InstanceData, AppsExportOperation } from "../appManager/protocol";
+import { AppsImportOperation, AppHelloSuccess, ApplicationData, ApplicationStartConfig, AppManagerOperationTypes, AppRemoveConfig, BaseApplicationData, BasicInstanceData, InstanceData, AppsExportOperation, FDC3Definition } from "../appManager/protocol";
 import { AllLayoutsFullConfig, AllLayoutsSummariesResult, GetAllLayoutsConfig, LayoutsImportConfig, LayoutsOperationTypes, OptionalSimpleLayoutResult, SimpleLayoutConfig, SimpleLayoutResult } from "../layouts/protocol";
 import { HelloSuccess, OpenWindowConfig, CoreWindowData, WindowHello, WindowOperationTypes, SimpleWindowCommand, WindowTitleConfig, WindowBoundsResult, WindowMoveResizeConfig, WindowUrlResult } from "../windows/protocol";
 import { IntentsOperationTypes, WrappedIntentFilter, WrappedIntents } from "../intents/protocol";
@@ -31,7 +31,7 @@ export const windowOperationTypesDecoder: Decoder<WindowOperationTypes> = oneOf<
     constant("setTitle")
 );
 
-export const appManagerOperationTypesDecoder: Decoder<AppManagerOperationTypes> = oneOf<"appHello" | "applicationAdded" | "applicationRemoved" | "applicationChanged" | "instanceStarted" | "instanceStopped" | "applicationStart" | "instanceStop">(
+export const appManagerOperationTypesDecoder: Decoder<AppManagerOperationTypes> = oneOf<"appHello" | "applicationAdded" | "applicationRemoved" | "applicationChanged" | "instanceStarted" | "instanceStopped" | "applicationStart" | "instanceStop" | "clear">(
     constant("appHello"),
     constant("applicationAdded"),
     constant("applicationRemoved"),
@@ -39,7 +39,8 @@ export const appManagerOperationTypesDecoder: Decoder<AppManagerOperationTypes> 
     constant("instanceStarted"),
     constant("instanceStopped"),
     constant("applicationStart"),
-    constant("instanceStop")
+    constant("instanceStop"),
+    constant("clear")
 );
 
 export const layoutsOperationTypesDecoder: Decoder<LayoutsOperationTypes> = oneOf<"layoutAdded" | "layoutChanged" | "layoutRemoved" | "get" | "getAll" | "export" | "import" | "remove">(
@@ -155,8 +156,27 @@ export const intentDefinitionDecoder: Decoder<Glue42Web.AppManager.Intent> = obj
     customConfig: optional(object())
 });
 
+export const fdc3AppDefinitionDecoder: Decoder<FDC3Definition> = object({
+    name: nonEmptyStringDecoder,
+    title: optional(nonEmptyStringDecoder),
+    version: optional(nonEmptyStringDecoder),
+    appId: nonEmptyStringDecoder,
+    manifest: nonEmptyStringDecoder,
+    manifestType: nonEmptyStringDecoder,
+    tooltip: optional(nonEmptyStringDecoder),
+    description: optional(nonEmptyStringDecoder),
+    contactEmail: optional(nonEmptyStringDecoder),
+    supportEmail: optional(nonEmptyStringDecoder),
+    publisher: optional(nonEmptyStringDecoder),
+    images: optional(array(object({ url: optional(nonEmptyStringDecoder) }))),
+    icons: optional(array(object({ icon: optional(nonEmptyStringDecoder) }))),
+    customConfig: anyJson(),
+    intents: optional(array(intentDefinitionDecoder))
+});
+
 export const applicationDefinitionDecoder: Decoder<Glue42Web.AppManager.Definition> = object({
     name: nonEmptyStringDecoder,
+    type: nonEmptyStringDecoder.where((s) => s === "window", "Expected a value of window"),
     title: optional(nonEmptyStringDecoder),
     version: optional(nonEmptyStringDecoder),
     customProperties: optional(anyJson()),
@@ -166,8 +186,13 @@ export const applicationDefinitionDecoder: Decoder<Glue42Web.AppManager.Definiti
     intents: optional(array(intentDefinitionDecoder))
 });
 
-export const appDefinitionOperationDecoder: Decoder<AppsImportOperation> = object({
-    definitions: array(applicationDefinitionDecoder),
+export const allApplicationDefinitionsDecoder: Decoder<Glue42Web.AppManager.Definition | FDC3Definition> = oneOf<Glue42Web.AppManager.Definition | FDC3Definition>(
+    applicationDefinitionDecoder,
+    fdc3AppDefinitionDecoder
+);
+
+export const appsImportOperationDecoder: Decoder<AppsImportOperation> = object({
+    definitions: array(allApplicationDefinitionsDecoder),
     mode: oneOf<"replace" | "merge">(
         constant("replace"),
         constant("merge")
@@ -184,6 +209,7 @@ export const appsExportOperationDecoder: Decoder<AppsExportOperation> = object({
 
 export const applicationDataDecoder: Decoder<ApplicationData> = object({
     name: nonEmptyStringDecoder,
+    type: nonEmptyStringDecoder.where((s) => s === "window", "Expected a value of window"),
     instances: array(instanceDataDecoder),
     userProperties: optional(anyJson()),
     title: optional(nonEmptyStringDecoder),
@@ -194,6 +220,7 @@ export const applicationDataDecoder: Decoder<ApplicationData> = object({
 
 export const baseApplicationDataDecoder: Decoder<BaseApplicationData> = object({
     name: nonEmptyStringDecoder,
+    type: nonEmptyStringDecoder.where((s) => s === "window", "Expected a value of window"),
     userProperties: anyJson(),
     title: optional(nonEmptyStringDecoder),
     version: optional(nonEmptyStringDecoder),

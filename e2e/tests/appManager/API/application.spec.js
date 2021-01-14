@@ -1,6 +1,7 @@
 describe('application() ', function () {
     const extraDefOne = {
         name: "ExtraOne",
+        type: "window",
         details: {
             url: "http://localhost:4242/dummyApp/index.html"
         },
@@ -14,13 +15,13 @@ describe('application() ', function () {
     before(async () => {
         await coreReady;
 
-        definitionsOnStart = await glue.appManager.export();
+        definitionsOnStart = await glue.appManager.inMemory.export();
     });
 
-    afterEach(async () => glue.appManager.import(definitionsOnStart, "replace"));
+    afterEach(async () => glue.appManager.inMemory.import(definitionsOnStart, "replace"));
 
     it("should return the application if present", async () => {
-        await glue.appManager.import([extraDefOne], "merge");
+        await glue.appManager.inMemory.import([extraDefOne], "merge");
 
         const app = glue.appManager.application(extraDefOne.name);
 

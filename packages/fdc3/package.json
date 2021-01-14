@@ -29,7 +29,7 @@
     "license": "MIT",
     "dependencies": {
         "@finos/fdc3": "^1.1.0-alpha.3",
-        "@glue42/desktop": "^5.4.1",
+        "@glue42/desktop": "^5.5.0",
         "@glue42/web": "^2.0.2",
         "@glue42/web-platform": "^1.0.1"
     },

@@ -3,10 +3,11 @@ import { Glue42WebPlatform } from "../../../platform";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type AppManagerOperationTypes = "appHello" | "applicationStart" | "instanceStop" |
-    "registerWorkspaceApp" | "unregisterWorkspaceApp" | "export" | "import" | "remove";
+    "registerWorkspaceApp" | "unregisterWorkspaceApp" | "export" | "import" | "remove" | "clear";
 
 export interface BaseApplicationData {
     name: string;
+    type: string;
     createOptions: Glue42Web.AppManager.DefinitionDetails;
     userProperties?: any;
     title?: string;

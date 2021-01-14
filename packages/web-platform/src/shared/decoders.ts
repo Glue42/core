@@ -159,6 +159,7 @@ export const intentDefinitionDecoder: Decoder<Glue42Web.AppManager.Intent> = obj
 
 export const glueCoreAppDefinitionDecoder: Decoder<Glue42Web.AppManager.Definition> = object({
     name: nonEmptyStringDecoder,
+    type: nonEmptyStringDecoder.where((s) => s === "window", "Expected a value of window"),
     title: optional(nonEmptyStringDecoder),
     version: optional(nonEmptyStringDecoder),
     customProperties: optional(anyJson()),

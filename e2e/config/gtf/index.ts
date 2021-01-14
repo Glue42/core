@@ -8,7 +8,7 @@ import { GtfLogger } from "./logger";
 import { GtfConnection } from "./connection";
 import { GtfWindows } from "./windows";
 import { Glue42Web } from "../../../packages/web/web.d";
-import { Glue42WebPlatform, GlueWebPlatformFactoryFunction } from "../../../packages/web-platform/platform.d";
+import { Glue42WebPlatform, Glue42WebPlatformFactoryFunction } from "../../../packages/web-platform/platform.d";
 import { WorkspacesFactoryFunction } from "../../../packages/workspaces-api/workspaces";
 // TODO: Add building and serving the Workspaces application to the e2e script.
 import { channelsConfig, localApplicationsConfig } from "./config";
@@ -20,7 +20,7 @@ document.title = RUNNER;
 
 declare const window: any;
 declare const GlueWorkspaces: WorkspacesFactoryFunction;
-declare const GlueWebPlatform: GlueWebPlatformFactoryFunction;
+declare const GlueWebPlatform: Glue42WebPlatformFactoryFunction;
 
 const startGtf = async () => {
     const glueWebConfig: Glue42Web.Config = {

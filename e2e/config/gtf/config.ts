@@ -41,12 +41,14 @@ export const channelsConfig = {
 export const localApplicationsConfig = [
     {
         name: "dummyApp",
+        type: "window",
         details: {
             url: "http://localhost:4242/dummyApp/index.html"
         }
     },
     {
         name: "coreSupport",
+        type: "window",
         details: {
             url: "http://localhost:4242/coreSupport/index.html"
         },
@@ -62,12 +64,14 @@ export const localApplicationsConfig = [
     },
     {
         name: "Test",
+        type: "window",
         details: {
             url: "https://glue42.com"
         }
     },
     {
         name: "AppWithDetails-local",
+        type: "window",
         title: "AppWithDetails-title",
         version: "AppWithDetails-version",
         icon: "AppWithDetails-icon",

@@ -1,6 +1,7 @@
 describe('import() ', function () {
     const extraDefOne = {
         name: "ExtraOne",
+        type: "window",
         details: {
             url: "http://localhost:4242/dummyApp/index.html"
         },
@@ -11,6 +12,7 @@ describe('import() ', function () {
 
     const extraDefTwo = {
         name: "ExtraTwo",
+        type: "window",
         details: {
             url: "http://localhost:4242/dummyApp/index.html"
         },
@@ -26,7 +28,7 @@ describe('import() ', function () {
     before(async () => {
         await coreReady;
 
-        definitionsOnStart = await glue.appManager.export();
+        definitionsOnStart = await glue.appManager.inMemory.export();
     });
 
     afterEach(async () => {
@@ -36,7 +38,7 @@ describe('import() ', function () {
             timeout = undefined;
         }
 
-        await glue.appManager.import(definitionsOnStart, "replace");
+        await glue.appManager.inMemory.import(definitionsOnStart, "replace");
 
         if (unsubs.length) {
             unsubs.forEach((un) => un());
@@ -46,7 +48,7 @@ describe('import() ', function () {
 
     describe('basic ', () => {
         it('should return a promise and resolve when the provided args are valid', async () => {
-            const appsImportPromise = glue.appManager.import([], "merge");
+            const appsImportPromise = glue.appManager.inMemory.import([], "merge");
 
             expect(appsImportPromise.then).to.be.a("function");
             expect(appsImportPromise.catch).to.be.a("function");
@@ -55,8 +57,8 @@ describe('import() ', function () {
         });
 
         it('importing the exported definitions should not make any changes to the definitions', async () => {
-            await glue.appManager.import(definitionsOnStart);
-            const currentDefinitions = await glue.appManager.export();
+            await glue.appManager.inMemory.import(definitionsOnStart);
+            const currentDefinitions = await glue.appManager.inMemory.export();
 
             expect(currentDefinitions).to.eql(definitionsOnStart);
         });
@@ -79,9 +81,9 @@ describe('import() ', function () {
             it('should reject and not change the system definitions when the provided args type is not valid', async () => {
 
                 try {
-                    await glue.appManager.import(args.definitions, args.mode);
+                    await glue.appManager.inMemory.import(args.definitions, args.mode);
                 } catch (error) {
-                    const currentDefinitions = await glue.appManager.export();
+                    const currentDefinitions = await glue.appManager.inMemory.export();
 
                     try {
                         expect(currentDefinitions).to.eql(definitionsOnStart);
@@ -106,28 +108,22 @@ describe('import() ', function () {
             [{}],
             [{ name: "valid" }],
             [{ name: "valid", details: {} }],
-            [{ details: { url: "valid" } }]
+            [{ details: { url: "valid" } }],
+            [{ name: "valid", details: { url: "valid" } }]
         ];
 
         invalidDefs.forEach((definitions) => {
-            it('should reject and not change the system definitions when the provided definitions are not valid', async () => {
+            it('should resolve, but not change the system definitions and populate the errors array when the provided definitions are not valid', async () => {
 
-                try {
-                    await glue.appManager.import(definitions, "merge");
-                } catch (error) {
-                    const currentDefinitions = await glue.appManager.export();
+                const result = await glue.appManager.inMemory.import(definitions, "merge");
 
-                    try {
-                        expect(currentDefinitions).to.eql(definitionsOnStart);
+                const currentDefinitions = await glue.appManager.inMemory.export();
 
-                    } catch (error) {
-                        throw new Error(`failed equality check for: ${JSON.stringify(args)}`);
-                    }
+                expect(currentDefinitions).to.eql(definitionsOnStart);
 
-                    return;
-                }
+                expect(result.imported.length).to.eql(0);
 
-                throw new Error(`Should not have resolved, because the args are not valid: ${JSON.stringify(args)}`);
+                expect(result.errors.length).to.eql(1);
             });
         });
     });
@@ -136,28 +132,61 @@ describe('import() ', function () {
         const mode = "replace";
 
         it('should be the default mode of operation (export check)', async () => {
-            await glue.appManager.import([]);
-            const currentDefinitions = await glue.appManager.export();
+            await glue.appManager.inMemory.import([]);
+            const currentDefinitions = await glue.appManager.inMemory.export();
 
             expect(currentDefinitions).to.eql([]);
         });
 
+        it('should return valid import result when the definition is valid', async () => {
+            const importResult = await glue.appManager.inMemory.import([extraDefOne]);
+
+            expect(importResult.imported.length).to.eql(1);
+            expect(importResult.imported[0]).to.eql(extraDefOne.name);
+            expect(importResult.errors.length).to.eql(0);
+        });
+
+        it('importing two definitions - one invalid and one valid should resolve, the result object should contain the correct data and the valid definition should be in the system (export check)', async () => {
+            const importResult = await glue.appManager.inMemory.import([{ test: 42 }, extraDefOne]);
+
+            expect(importResult.imported.length).to.eql(1);
+            expect(importResult.imported[0]).to.eql(extraDefOne.name);
+            expect(importResult.errors.length).to.eql(1);
+
+            const current = await glue.appManager.inMemory.export();
+
+            expect([extraDefOne]).to.eql(current);
+        });
+
+        it('importing two definitions - one invalid and one valid should resolve, the result object should contain the correct data and the valid definition should be in the system (applications check)', async () => {
+            const importResult = await glue.appManager.inMemory.import([{ test: 42 }, extraDefOne]);
+
+            expect(importResult.imported.length).to.eql(1);
+            expect(importResult.imported[0]).to.eql(extraDefOne.name);
+            expect(importResult.errors.length).to.eql(1);
+
+            const currentApps = glue.appManager.applications();
+
+            expect(currentApps.length).to.eql(1);
+            expect(currentApps[0].name).to.eql(extraDefOne.name);
+        });
+
         it('should be the default mode of operation (applications check)', async () => {
-            await glue.appManager.import([]);
+            await glue.appManager.inMemory.import([]);
             const currentApps = glue.appManager.applications();
 
             expect(currentApps).to.eql([]);
         });
 
         it('should delete all definitions if an empty collection is provided (export check)', async () => {
-            await glue.appManager.import([], mode);
-            const currentDefinitions = await glue.appManager.export();
+            await glue.appManager.inMemory.import([], mode);
+            const currentDefinitions = await glue.appManager.inMemory.export();
 
             expect(currentDefinitions).to.eql([]);
         });
 
         it('should delete all definitions if an empty collection is provided (applications check)', async () => {
-            await glue.appManager.import([], mode);
+            await glue.appManager.inMemory.import([], mode);
             const currentApps = glue.appManager.applications();
 
             expect(currentApps).to.eql([]);
@@ -169,15 +198,15 @@ describe('import() ', function () {
             [extraDefOne, extraDefTwo]
         ].forEach((definitions) => {
             it('the system should have exactly the same definitions as imported (export check)', async () => {
-                await glue.appManager.import(definitions, mode);
+                await glue.appManager.inMemory.import(definitions, mode);
 
-                const current = await glue.appManager.export();
+                const current = await glue.appManager.inMemory.export();
 
                 expect(definitions).to.eql(current);
             });
 
             it('the system should have exactly the same definitions as imported (applications check)', async () => {
-                await glue.appManager.import(definitions, mode);
+                await glue.appManager.inMemory.import(definitions, mode);
 
                 const currentApps = glue.appManager.applications();
 
@@ -204,10 +233,10 @@ describe('import() ', function () {
                 unsubs.push(unsub);
             };
 
-            glue.appManager.import([extraDefOne, extraDefTwo], mode)
+            glue.appManager.inMemory.import([extraDefOne, extraDefTwo], mode)
                 .then(() => {
                     setUpEvent();
-                    return glue.appManager.import([extraDefOne], mode);
+                    return glue.appManager.inMemory.import([extraDefOne], mode);
                 })
                 .then(ready)
                 .catch(done);
@@ -226,10 +255,10 @@ describe('import() ', function () {
                 unsubs.push(unsub);
             };
 
-            glue.appManager.import([extraDefOne], mode)
+            glue.appManager.inMemory.import([extraDefOne], mode)
                 .then(() => {
                     setUpEvent();
-                    return glue.appManager.import([extraDefOne, extraDefTwo], mode);
+                    return glue.appManager.inMemory.import([extraDefOne, extraDefTwo], mode);
                 })
                 .then(ready)
                 .catch(done);
@@ -248,11 +277,11 @@ describe('import() ', function () {
                 unsubs.push(unsub);
             };
 
-            glue.appManager.import([extraDefOne], mode)
+            glue.appManager.inMemory.import([extraDefOne], mode)
                 .then(() => {
                     extraDefOne.customProperties.includeInWorkspaces = false;
                     setUpEvent();
-                    return glue.appManager.import([extraDefOne], mode);
+                    return glue.appManager.inMemory.import([extraDefOne], mode);
                 })
                 .then(ready)
                 .catch(done);
@@ -264,17 +293,45 @@ describe('import() ', function () {
         const mode = "merge";
 
         it('should not make any changes to the system definitions when an empty array is provided (export check)', async () => {
-            await glue.appManager.import([], mode);
+            await glue.appManager.inMemory.import([], mode);
 
-            const current = await glue.appManager.export();
+            const current = await glue.appManager.inMemory.export();
 
             expect(current).to.eql(definitionsOnStart);
+        });
+
+        it('importing two definitions - one invalid and one valid should resolve, the result object should contain the correct data and the valid definition should be in the system (export check)', async () => {
+            const importResult = await glue.appManager.inMemory.import([{ test: 42 }, extraDefOne], mode);
+
+            expect(importResult.imported.length).to.eql(1);
+            expect(importResult.imported[0]).to.eql(extraDefOne.name);
+            expect(importResult.errors.length).to.eql(1);
+
+            const current = await glue.appManager.inMemory.export();
+
+            expect(current).to.eql([...definitionsOnStart, extraDefOne]);
+        });
+
+        it('importing two definitions - one invalid and one valid should resolve, the result object should contain the correct data and the valid definition should be in the system (applications check)', async () => {
+            const appsOnStart = glue.appManager.applications();
+
+            const importResult = await glue.appManager.inMemory.import([{ test: 42 }, extraDefOne], mode);
+
+            expect(importResult.imported.length).to.eql(1);
+            expect(importResult.imported[0]).to.eql(extraDefOne.name);
+            expect(importResult.errors.length).to.eql(1);
+
+            const current = glue.appManager.applications();
+
+            expect(current.length).to.eql(appsOnStart.length + 1);
+
+            expect(current.some((app) => app.name === extraDefOne.name)).to.be.true;
         });
 
         it('should not make any changes to the system definitions when an empty array is provided (applications check)', async () => {
             const appsOnStart = glue.appManager.applications();
 
-            await glue.appManager.import([], mode);
+            await glue.appManager.inMemory.import([], mode);
 
             const currentApps = glue.appManager.applications();
 
@@ -282,9 +339,9 @@ describe('import() ', function () {
         });
 
         it('should add a new definition to the system, if one definitions is imported it was not present previously (export check)', async () => {
-            await glue.appManager.import([extraDefOne], mode);
+            await glue.appManager.inMemory.import([extraDefOne], mode);
 
-            const current = await glue.appManager.export();
+            const current = await glue.appManager.inMemory.export();
 
             expect(current).to.eql([...definitionsOnStart, extraDefOne]);
         });
@@ -292,7 +349,7 @@ describe('import() ', function () {
         it('should add a new definition to the system, if one definitions is imported it was not present previously (applications check)', async () => {
             const appsOnStart = glue.appManager.applications();
 
-            await glue.appManager.import([extraDefOne], mode);
+            await glue.appManager.inMemory.import([extraDefOne], mode);
 
             const current = glue.appManager.applications();
 
@@ -302,9 +359,9 @@ describe('import() ', function () {
         });
 
         it('should add two new definitions to the system, if two definitions are imported it they were not present previously (export check)', async () => {
-            await glue.appManager.import([extraDefOne, extraDefTwo], mode);
+            await glue.appManager.inMemory.import([extraDefOne, extraDefTwo], mode);
 
-            const current = await glue.appManager.export();
+            const current = await glue.appManager.inMemory.export();
 
             expect(current).to.eql([...definitionsOnStart, extraDefOne, extraDefTwo]);
         });
@@ -312,7 +369,7 @@ describe('import() ', function () {
         it('should add two new definitions to the system, if two definitions are imported it they were present previously (applications check)', async () => {
             const appsOnStart = glue.appManager.applications();
 
-            await glue.appManager.import([extraDefOne, extraDefTwo], mode);
+            await glue.appManager.inMemory.import([extraDefOne, extraDefTwo], mode);
 
             const current = glue.appManager.applications();
 
@@ -336,17 +393,17 @@ describe('import() ', function () {
             };
 
             setUpEvent();
-            glue.appManager.import([extraDefOne], mode).then(ready).catch(done);
+            glue.appManager.inMemory.import([extraDefOne], mode).then(ready).catch(done);
         });
 
         it('should change an existing definition, if it was previously present', async () => {
-            await glue.appManager.import([extraDefOne], mode);
+            await glue.appManager.inMemory.import([extraDefOne], mode);
 
             extraDefOne.customProperties.includeInWorkspaces = false;
 
-            await glue.appManager.import([extraDefOne], mode);
+            await glue.appManager.inMemory.import([extraDefOne], mode);
 
-            const current = await glue.appManager.export();
+            const current = await glue.appManager.inMemory.export();
 
             const def = current.find((d) => d.name === extraDefOne.name);
 
@@ -367,11 +424,11 @@ describe('import() ', function () {
                 unsubs.push(unsub);
             };
 
-            glue.appManager.import([extraDefOne], mode)
+            glue.appManager.inMemory.import([extraDefOne], mode)
                 .then(() => {
                     setUpEvent();
                     extraDefOne.customProperties.includeInWorkspaces = false;
-                    return glue.appManager.import([extraDefOne], mode);
+                    return glue.appManager.inMemory.import([extraDefOne], mode);
                 })
                 .then(ready)
                 .catch(done);

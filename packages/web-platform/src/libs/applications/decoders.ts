@@ -3,7 +3,7 @@ import { allApplicationDefinitionsDecoder, applicationDetailsDecoder, glueCoreAp
 import { ApplicationData, BaseApplicationData, AppHelloSuccess, InstanceData, AppHello, BasicInstanceData, AppManagerOperationTypes, AppsImportOperation as AppsImportOperation, AppRemoveConfig, AppsExportOperation } from "./types";
 import { ApplicationStartConfig } from "../../common/types";
 
-export const appManagerOperationTypesDecoder: Decoder<AppManagerOperationTypes> = oneOf<"appHello" | "applicationStart" | "instanceStop" | "registerWorkspaceApp" | "unregisterWorkspaceApp" | "export" | "import" | "remove">(
+export const appManagerOperationTypesDecoder: Decoder<AppManagerOperationTypes> = oneOf<"appHello" | "applicationStart" | "instanceStop" | "registerWorkspaceApp" | "unregisterWorkspaceApp" | "export" | "import" | "remove" | "clear">(
     constant("appHello"),
     constant("applicationStart"),
     constant("instanceStop"),
@@ -11,7 +11,8 @@ export const appManagerOperationTypesDecoder: Decoder<AppManagerOperationTypes> 
     constant("unregisterWorkspaceApp"),
     constant("export"),
     constant("import"),
-    constant("remove")
+    constant("remove"),
+    constant("clear")
 );
 
 export const basicInstanceDataDecoder: Decoder<BasicInstanceData> = object({
@@ -25,6 +26,7 @@ export const instanceDataDecoder: Decoder<InstanceData> = object({
 
 export const applicationDataDecoder: Decoder<ApplicationData> = object({
     name: nonEmptyStringDecoder,
+    type: nonEmptyStringDecoder.where((s) => s === "window", "Expected a value of window"),
     createOptions: applicationDetailsDecoder,
     instances: array(instanceDataDecoder),
     userProperties: optional(anyJson()),
@@ -36,6 +38,7 @@ export const applicationDataDecoder: Decoder<ApplicationData> = object({
 
 export const baseApplicationDataDecoder: Decoder<BaseApplicationData> = object({
     name: nonEmptyStringDecoder,
+    type: nonEmptyStringDecoder.where((s) => s === "window", "Expected a value of window"),
     createOptions: applicationDetailsDecoder,
     userProperties: optional(anyJson()),
     title: optional(nonEmptyStringDecoder),

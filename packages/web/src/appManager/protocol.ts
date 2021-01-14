@@ -5,7 +5,7 @@ import { BridgeOperation } from "../shared/types";
 
 export type AppManagerOperationTypes = "appHello" | "applicationAdded" |
     "applicationRemoved" | "applicationChanged" | "instanceStarted" | "instanceStopped" |
-    "applicationStart" | "instanceStop" | "import" | "remove" | "export";
+    "applicationStart" | "instanceStop" | "import" | "remove" | "export" | "clear";
 
 export const operations: { [key in AppManagerOperationTypes]: BridgeOperation } = {
     appHello: { name: "appHello", dataDecoder: windowHelloDecoder, resultDecoder: appHelloSuccessDecoder },
@@ -17,8 +17,9 @@ export const operations: { [key in AppManagerOperationTypes]: BridgeOperation } 
     applicationStart: { name: "applicationStart", dataDecoder: applicationStartConfigDecoder, resultDecoder: instanceDataDecoder },
     instanceStop: { name: "instanceStop", dataDecoder: basicInstanceDataDecoder },
     import: { name: "import" },
-    remove: {name: "remove", dataDecoder: appRemoveConfigDecoder } ,
-    export: {name: "export", resultDecoder: appsExportOperationDecoder} 
+    remove: { name: "remove", dataDecoder: appRemoveConfigDecoder },
+    export: { name: "export", resultDecoder: appsExportOperationDecoder },
+    clear: { name: "clear" }
 };
 
 export interface InstanceData {
@@ -28,6 +29,7 @@ export interface InstanceData {
 
 export interface BaseApplicationData {
     name: string;
+    type: string;
     userProperties: any;
     title?: string;
     version?: string;
@@ -48,7 +50,7 @@ export interface AppsExportOperation {
 }
 
 export interface AppsImportOperation {
-    definitions: Glue42Web.AppManager.Definition[];
+    definitions: Array<Glue42Web.AppManager.Definition | FDC3Definition>;
     mode: "replace" | "merge";
 }
 
@@ -70,4 +72,34 @@ export interface ApplicationStartConfig {
 
 export interface BasicInstanceData {
     id: string;
+}
+
+export interface FDC3Definition {
+    name: string;
+    title?: string;
+    version?: string;
+    appId: string;
+    manifest: string;
+    manifestType: string;
+    tooltip?: string;
+    description?: string;
+    contactEmail?: string;
+    supportEmail?: string;
+    publisher?: string;
+    images?: Array<{ url?: string }>;
+    icons?: Array<{ icon?: string }>;
+    customConfig?: any;
+    intents?: Intent[];
+}
+
+export interface Intent {
+    name: string;
+    displayName?: string;
+    contexts?: string[];
+    customConfig?: any;
+}
+
+export interface DefinitionParseResult {
+    valid: Glue42Web.AppManager.Definition[];
+    invalid: Array<{ app: string; error: string }>;
 }

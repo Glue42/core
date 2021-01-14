@@ -100,7 +100,7 @@ export class PlatformController {
                 this.logger?.trace(`[${args.commandId}] this command was executed successfully, sending the result to the caller.`);
             })
             .catch((err) => {
-                const stringError = JSON.stringify(err.message);
+                const stringError = typeof err === "string" ? err : JSON.stringify(err.message);
                 this.logger?.trace(`[${args.commandId}] this command's execution was rejected, reason: ${stringError}`);
                 error(`The platform rejected operation ${args.operation} for domain: ${domain} with reason: ${stringError}`);
             });

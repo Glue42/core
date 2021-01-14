@@ -45,3 +45,7 @@ export interface SimpleLayoutResult {
 export interface OptionalSimpleLayoutResult {
     layout?: Glue42Web.Layouts.Layout;
 }
+
+export interface LayoutParseResult {
+    valid: Glue42Web.Layouts.Layout[];
+}

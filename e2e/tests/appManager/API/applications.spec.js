@@ -2,6 +2,7 @@ describe('applications() ', function () {
 
     const extraDefOne = {
         name: "ExtraOne",
+        type: "window",
         details: {
             url: "http://localhost:4242/dummyApp/index.html"
         },
@@ -15,13 +16,13 @@ describe('applications() ', function () {
     before(async () => {
         await coreReady;
 
-        definitionsOnStart = await glue.appManager.export();
+        definitionsOnStart = await glue.appManager.inMemory.export();
     });
 
-    afterEach(async () => glue.appManager.import(definitionsOnStart, "replace"));
+    afterEach(async () => glue.appManager.inMemory.import(definitionsOnStart, "replace"));
 
     it("should return all applications in the system", async () => {
-        await glue.appManager.import([extraDefOne], "replace");
+        await glue.appManager.inMemory.import([extraDefOne], "replace");
 
         const apps = glue.appManager.applications();
 
@@ -30,7 +31,7 @@ describe('applications() ', function () {
     });
 
     it("every applications should contain valid name and url", async () => {
-        await glue.appManager.import([extraDefOne], "merge");
+        await glue.appManager.inMemory.import([extraDefOne], "merge");
 
         const apps = glue.appManager.applications();
 
@@ -41,7 +42,7 @@ describe('applications() ', function () {
     });
 
     it("should return an empty array if not apps in the system", async () => {
-        await glue.appManager.import([], "replace");
+        await glue.appManager.inMemory.import([], "replace");
 
         const apps = glue.appManager.applications();
 
