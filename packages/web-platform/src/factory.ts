@@ -13,6 +13,15 @@ export const glueWebPlatformFactory: Glue42WebPlatformFactoryFunction = async (c
             await config?.glueFactory(config?.glue) :
             await GlueWeb(config?.glue);
 
+        if (window.glue42gd && config?.applications?.local?.length) {
+            // if fdc3 definition -> convert to gd definition and import
+            await glue.appManager.inMemory.import((config.applications.local as Glue42Web.AppManager.Definition[]), "merge");
+        }
+
+        if (window.glue42gd && config?.layouts?.local?.length) {
+            await glue.layouts.import(config.layouts.local, "merge");
+        }
+
         return { glue };
     }
 

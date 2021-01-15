@@ -340,6 +340,7 @@ export const glueLayoutDecoder: Decoder<Glue42Web.Layouts.Layout> = object({
         windowLayoutComponentDecoder,
         workspaceLayoutComponentDecoder
     )),
+    version: optional(nonEmptyStringDecoder),
     context: optional(anyJson()),
     metadata: optional(anyJson())
 });

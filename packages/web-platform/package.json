@@ -33,8 +33,8 @@
         "access": "public"
     },
     "dependencies": {
-        "@glue42/desktop": "^5.5.0",
         "@glue42/core": "^5.4.0",
+        "@glue42/desktop": "^5.5.2",
         "@glue42/gateway-web": "3.0.10",
         "@glue42/web": "^2.0.3",
         "@glue42/workspaces-api": "^1.4.1",

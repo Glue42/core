@@ -398,6 +398,9 @@ export namespace Glue42Web {
 
             /** Metadata passed when the layout was saved. */
             metadata?: any;
+
+            /** Version of the layout */
+            version?: string;
         }
 
         export type ComponentType = "application" | "activity";
@@ -808,7 +811,7 @@ export namespace Glue42Web {
             /**
              * Application name. Should be unique.
              */
-            name: string;   
+            name: string;
 
             /**
                * Type of the application - the only supported type in Glue42 Core is "window". More complex types are available in Glue42 Enterprise.
