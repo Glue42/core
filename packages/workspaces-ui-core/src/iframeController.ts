@@ -159,7 +159,7 @@ export class IFrameController {
     }
 
     private waitForWindow(windowId: string) {
-        return new Promise((res, rej) => {
+        return new Promise<void>((res, rej) => {
             let unsub = () => {
                 // safety
             };

@@ -1,4 +1,4 @@
-import { Bounds, ComponentFactory } from "./src/types/internal";
+import { Bounds } from "./src/types/internal";
 import { Glue42Web } from "@glue42/web";
 
 export interface WorkspacesManager {
@@ -12,6 +12,7 @@ export interface WorkspacesManager {
     unmount: () => void;
     subscribeForWindowFocused: (callback: () => void) => void;
     notifyWorkspacePopupChanged: (element: HTMLElement) => void;
+    requestFocus: () => void;
 }
 
 declare const WorkspacesManagerAPI: WorkspacesManager;

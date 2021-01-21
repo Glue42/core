@@ -46,6 +46,7 @@ export {
 export const notifyMoveAreaChanged: () => void = () => workspacesManager?.notifyMoveAreaChanged();
 export const getComponentBounds: () => Bounds = () => workspacesManager?.getComponentBounds();
 export const getFrameId: () => string = () => workspacesManager?.getFrameId();
+export const requestFocus: () => void = () => workspacesManager?.requestFocus();
 
 export {
     WorkspacesProps,

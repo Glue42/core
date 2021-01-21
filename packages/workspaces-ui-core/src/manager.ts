@@ -888,7 +888,7 @@ class WorkspacesManager {
     }
 
     private waitForFrameLoaded(itemId: string) {
-        return new Promise((res, rej) => {
+        return new Promise<void>((res, rej) => {
             let unsub = () => {
                 // safety
             };

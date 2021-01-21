@@ -71,6 +71,9 @@ const workspacesManagerAPI: WorkspacesManager = {
     },
     notifyWorkspacePopupChanged: (element: HTMLElement) => {
         return;
+    },
+    requestFocus: () => {
+        return;
     }
 }
 

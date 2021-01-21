@@ -13,7 +13,7 @@ class WorkspacesManagerDecorator {
     }
 
     public getFrameId() {
-      return  (window.workspacesManager || workspacesManager).getFrameId();
+        return (window.workspacesManager || workspacesManager).getFrameId();
     }
 
     public notifyMoveAreaChanged() {
@@ -46,6 +46,10 @@ class WorkspacesManagerDecorator {
 
     public unmount(): void {
         return (window.workspacesManager || workspacesManager).unmount();
+    }
+
+    public requestFocus(): void {
+        return (window.workspacesManager || workspacesManager).requestFocus();
     }
 }
 

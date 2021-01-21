@@ -60,6 +60,7 @@ export interface WorkspacesManager {
   removePopupById(elementId: string): void;
   subscribeForWindowFocused(cb: () => any): () => void;
   unmount(): void;
+  requestFocus(): void;
 }
 
 export interface HeaderComponentProps {
