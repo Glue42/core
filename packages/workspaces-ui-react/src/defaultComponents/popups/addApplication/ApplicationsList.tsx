@@ -19,16 +19,33 @@ const ApplicationsList: React.FC<ApplicationListProps> = ({ glue, inLane, parent
 
     const getElementOnClick = (appName: string) => {
         return async () => {
-            try {
-                if (parent.type === "group" && !inLane) {
-                    await parent.addWindow({ type: "window", appName });
-                } else if (parent.type === "group" && inLane) {
-                    await parent.parent.addGroup({ type: "group", children: [{ type: "window", appName }] });
-                } else if (parent.type !== "group" && !inLane) {
-                    await parent.addGroup({ type: "group", children: [{ type: "window", appName }] });
-                } else {
-                    await parent.addWindow({ type: "window", appName });
+            let workspaceWindow: any;
+            let unsub: any;
+
+            const callback = (w: any) => {
+                if (!workspaceWindow) {
+                    unsub();
+                } else if (workspaceWindow.id === w.id) {
+                    w.focus();
+                    unsub();
                 }
+            }
+            if (!parent.type) {
+                unsub = await parent.onWindowLoaded(callback);
+            } else {
+                unsub = await parent.workspace.onWindowLoaded(callback);
+            }
+
+            try {
+                if (parent.type === "group" && inLane) {
+                    const newGroup = await parent.parent.addGroup({ type: "group", children: [{ type: "window", appName }] });
+                    workspaceWindow = newGroup.children[0];
+                } else if (parent.type !== "group" && !inLane) {
+                    const newGroup = await parent.addGroup({ type: "group", children: [{ type: "window", appName }] });
+                    workspaceWindow = newGroup.children[0];
+                } else {
+                    workspaceWindow = await parent.addWindow({ type: "window", appName });
+                }  
             } catch (error) {
                 console.warn(error);
             }
