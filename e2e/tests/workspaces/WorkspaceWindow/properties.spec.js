@@ -90,7 +90,7 @@ describe("properties: ", () => {
         });
     });
 
-    describe("title: Should", () => {
+    describe.only("title: Should", () => {
         const layoutName = "unique.layout.name";
         const windowTitle = "unique.window.name";
         const configWithTitle = {
@@ -113,17 +113,17 @@ describe("properties: ", () => {
                                         title: windowTitle
                                     }
                                 }],
-                                "config": {}
+                                config: {}
                             }],
-                            "config": {}
+                            config: {}
                         }],
-                        "config": {}
+                        config: {}
                     }],
-                    "config": {
-                        "name": layoutName,
-                        "title": "Untitled 1"
+                    config: {
+                        name: layoutName,
+                        title: "Untitled 1"
                     },
-                    "context": {}
+                    context: {}
                 }
             }]
         }
@@ -147,6 +147,18 @@ describe("properties: ", () => {
             await window.forceLoad();
 
             expect(window.title).to.eql("Glue");
+        });
+
+        it("be equal to the title from the layout when the window is from a restored layout and doesn't have glue", async () => {
+            await glue.workspaces.layouts.import([configWithTitle]);
+            const restoredWorkspace = await glue.workspaces.restoreWorkspace(layoutName);
+
+            const allWindows = restoredWorkspace.getAllWindows();
+            const firstWindow = allWindows[0];
+
+            await firstWindow.forceLoad();
+
+            expect(firstWindow);
         });
     });
 
