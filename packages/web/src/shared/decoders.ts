@@ -285,7 +285,8 @@ export const windowLayoutItemDecoder: Decoder<Glue42Workspaces.WindowLayoutItem>
     type: constant("window"),
     config: object({
         appName: nonEmptyStringDecoder,
-        url: optional(nonEmptyStringDecoder)
+        url: optional(nonEmptyStringDecoder),
+        title: optional(string())
     })
 });
 
