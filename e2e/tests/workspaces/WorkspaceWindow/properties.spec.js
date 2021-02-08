@@ -90,7 +90,7 @@ describe("properties: ", () => {
         });
     });
 
-    describe("title: ", () => {
+    describe("title: Should", () => {
         const layoutName = "unique.layout.name";
         const windowTitle = "unique.window.name";
         const configWithTitle = {
@@ -132,10 +132,21 @@ describe("properties: ", () => {
             return glue.workspaces.layouts.delete(layoutName);
         });
 
-        it(`Should not be undefined`, () => {
+        it(`not be undefined`, () => {
             const window = workspace.getAllWindows()[0];
             expect(window.title).to.not.be.undefined;
             expect(window.title.length).to.not.eql(0);
+        });
+
+        it(`be equal to "Glue" when the window doesn't have glue`, async () => {
+            const window = await workspace.addWindow({
+                type: "window",
+                appName: "noGlueApp"
+            });
+
+            await window.forceLoad();
+
+            expect(window.title).to.eql("Glue");
         });
     });
 
