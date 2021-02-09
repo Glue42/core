@@ -425,6 +425,8 @@ class WorkspacesManager {
             const windowTitle = this.vaidateTitle(title) || this.vaidateTitle(applicationTitle) || this.vaidateTitle(appName) || "Glue";
             const windowContext = component?.config.componentState?.context;
             let url = this.getUrlByAppName(componentState.appName) || componentState.url;
+            console.log("WINDow title", windowTitle);
+            console.log("componentState", component.config);
 
             const isNewWindow = !store.getWindow(componentId);
 
@@ -977,7 +979,7 @@ class WorkspacesManager {
     }
 
     private vaidateTitle(title: string) {
-        if (title?.length) {
+        if (!title?.length) {
             return undefined;
         }
 

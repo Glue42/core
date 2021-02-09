@@ -1,4 +1,4 @@
-describe("properties: ", () => {
+describe.only("properties: ", () => {
     const windowConfig = {
         type: "window",
         appName: "dummyApp"
@@ -127,8 +127,8 @@ describe("properties: ", () => {
                 }
             }]
         };
-    
-        after(async () => {
+
+        afterEach(async () => {
             const frames = await glue.workspaces.getAllFrames();
             await Promise.all(frames.map((f) => f.close()));
 
@@ -141,7 +141,7 @@ describe("properties: ", () => {
             expect(window.title.length).to.not.eql(0);
         });
 
-        it(`be equal to "Glue" when the window doesn't have glue`, async () => {
+        it(`be equal to to the appName when the window doesn't have glue`, async () => {
             const window = await workspace.addWindow({
                 type: "window",
                 appName: "noGlueApp"
@@ -149,7 +149,7 @@ describe("properties: ", () => {
 
             await window.forceLoad();
 
-            expect(window.title).to.eql("Glue");
+            expect(window.title).to.eql(window.appName);
         });
 
         it("be equal to the title from the layout when the window is from a restored layout and doesn't have glue", async () => {
@@ -161,7 +161,7 @@ describe("properties: ", () => {
 
             await firstWindow.forceLoad();
 
-            expect(firstWindow);
+            expect(firstWindow.title).eql(windowTitle);
         });
     });
 
