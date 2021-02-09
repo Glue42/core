@@ -1,4 +1,4 @@
-describe("properties: ", () => {
+describe.only("properties: ", () => {
     const windowConfig = {
         type: "window",
         appName: "dummyApp"
@@ -90,7 +90,7 @@ describe("properties: ", () => {
         });
     });
 
-    describe.only("title: Should", () => {
+    describe("title: Should", () => {
         const layoutName = "unique.layout.name";
         const windowTitle = "unique.window.name";
         const configWithTitle = {

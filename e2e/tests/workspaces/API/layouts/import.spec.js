@@ -1,22 +1,7 @@
 // validated V2
 describe('import() Should ', function () {
-    let basicImport = {
-        name: "layout.random.1",
-        type: "Workspaces",
-        layout: {
-            children: [
-                {
-                    type: "row",
-                    children: [
-                        {
-                            type: "window",
-                            appName: "dummyApp"
-                        }
-                    ]
-                }
-            ]
-        }
-    }
+    let basicImport;
+
     const basicConfig = {
         children: [
             {
@@ -35,19 +20,16 @@ describe('import() Should ', function () {
         const workspace = await glue.workspaces.createWorkspace(basicConfig);
         await workspace.saveLayout("layout.random.1");
         basicImport = (await glue.workspaces.layouts.export()).find(l => l.name === "layout.random.1");
+        await glue.workspaces.layouts.delete("layout.random.1");
     });
 
-    let layoutsForCleanup = [];
-
     afterEach(async () => {
-        const summaries = await glue.workspaces.layouts.getSummaries();
-        await Promise.all(layoutsForCleanup.map(l => {
-            if (summaries.some(s => s.name.startsWith("layout."))) {
-                return glue.workspaces.layouts.delete(l);
-            }
-        }));
         const frames = await glue.workspaces.getAllFrames();
         await Promise.all(frames.map((f) => f.close()));
+    });
+
+    after(async () => {
+        await glue.workspaces.layouts.delete("layout.random.1");
     });
 
     it("import the layout when the layout is valid", async () => {
