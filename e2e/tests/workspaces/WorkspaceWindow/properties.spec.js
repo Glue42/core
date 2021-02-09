@@ -126,10 +126,13 @@ describe.only("properties: ", () => {
                     context: {}
                 }
             }]
-        }
+        };
+    
+        after(async () => {
+            const frames = await glue.workspaces.getAllFrames();
+            await Promise.all(frames.map((f) => f.close()));
 
-        after(() => {
-            return glue.workspaces.layouts.delete(layoutName);
+            workspace = await glue.workspaces.createWorkspace(threeContainersConfig);
         });
 
         it(`not be undefined`, () => {
