@@ -1,4 +1,4 @@
-describe.only("properties: ", () => {
+describe("properties: ", () => {
     const windowConfig = {
         type: "window",
         appName: "dummyApp"

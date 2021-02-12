@@ -45,6 +45,8 @@ describe('layouts.onRemoved ', () => {
         ]
     };
 
+    let processedLayout;
+
     const secondLayout = {
         name: "second",
         type: "Workspace",
@@ -98,6 +100,7 @@ describe('layouts.onRemoved ', () => {
 
     beforeEach(async () => {
         await glue.workspaces.layouts.import([defaultLayout]);
+        processedLayout = (await glue.workspaces.layouts.export()).find((layout) => layout.name === defaultLayout.name);
     });
 
     afterEach(async () => {
@@ -115,7 +118,6 @@ describe('layouts.onRemoved ', () => {
 
         await Promise.all(testLayoutsNames.map((name) => glue.workspaces.layouts.delete(name)));
     });
-
 
     it('should return a promise, which resolves with a function', async () => {
         const layoutRemovedPromise = glue.workspaces.layouts.onRemoved(() => { });
@@ -160,7 +162,7 @@ describe('layouts.onRemoved ', () => {
 
         glue.workspaces.layouts.onRemoved((layout) => {
             try {
-                expect(layout).to.eql(defaultLayout);
+                expect(layout).to.eql(processedLayout);
                 ready()
             } catch (error) {
                 done(error);

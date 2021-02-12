@@ -146,6 +146,8 @@ export class LayoutsController implements LibController {
     }
 
     private onAdded(callback: (layout: Glue42Web.Layouts.Layout) => void): UnsubscribeFunction {
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        this.export().then((layouts) => layouts.forEach((layout) => callback(layout))).catch(() => { });
         return this.registry.add(operations.layoutAdded.name, callback);
     }
 

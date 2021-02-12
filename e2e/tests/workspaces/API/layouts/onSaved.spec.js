@@ -203,9 +203,14 @@ describe('layouts.onSaved ', () => {
     it('the provided object should be a complete layout', (done) => {
         const ready = gtf.waitFor(2, done);
 
-        glue.workspaces.layouts.onSaved((layout) => {
+        glue.workspaces.layouts.onSaved(async (layout) => {
+            if (layout.name !== defaultLayout.name) {
+                return;
+            }
+
             try {
-                expect(layout).to.eql(defaultLayout);
+                const processed = (await glue.workspaces.layouts.export()).find((l) => l.name === layout.name);
+                expect(layout).to.eql(processed);
                 ready();
             } catch (error) {
                 done(error);
@@ -305,8 +310,8 @@ describe('layouts.onSaved ', () => {
         timeout = setTimeout(ready, 3000);
 
         glue.workspaces.layouts.onSaved(() => {
-                done("Should not have been called.");
-            })
+            done("Should not have been called.");
+        })
             .then((unSub) => {
                 unSub();
                 return glue.workspaces.layouts.import([defaultLayout], "merge");
