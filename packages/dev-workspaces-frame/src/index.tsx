@@ -16,84 +16,84 @@ ReactDOM.render(
   <React.StrictMode>
     <GlueProvider glueFactory={(config: any) => {
 
-      const layouts = {
-        mode: "session",
-        local: [
-          { "name": "example2", "type": "Workspace", "components": [{ "type": "Workspace", "state": { "config": { "name": "second", "title": "Untitled 1" }, "context": {}, "children": [{ "type": "column", "config": {}, "children": [{ "type": "row", "config": {}, "children": [{ "type": "group", "config": {}, "children": [{ "type": "window", "config": { "appName": "SimpleOne", "title": "asd" } }] }, { "type": "group", "config": {}, "children": [{ "type": "window", "config": { "appName": "SimpleOne" } }] }] }, { "type": "group", "config": {}, "children": [{ "type": "window", "config": { "appName": "SimpleOne" } }] }] }] } }], "metadata": {} },
-          { "name": "not-example", "type": "Workspace", "components": [{ "type": "Workspace", "state": { "config": { "name": "second", "title": "Untitled 1" }, "context": {}, "children": [{ "type": "column", "config": {}, "children": [{ "type": "row", "config": {}, "children": [{ "type": "group", "config": {}, "children": [{ "type": "window", "config": { "appName": "SimpleOne" } }] }, { "type": "group", "config": {}, "children": [{ "type": "window", "config": { "appName": "SimpleOne" } }] }] }, { "type": "group", "config": {}, "children": [{ "type": "window", "config": { "appName": "SimpleOne" } }] }] }] } }], "metadata": {} },
-          {
-            "name": "asd",
-            "type": "Workspace",
-            "metadata": {},
-            "components": [
-              {
-                "type": "Workspace",
-                "state": {
-                  "config": {
-                    "name": "asd",
-                    "title": "Untitled 1"
-                  },
-                  "context": null,
-                  "children": [
-                    {
-                      "type": "column",
-                      "config": {},
-                      "children": [
-                        {
-                          "type": "group",
-                          "config": {},
-                          "children": [
-                            {
-                              "type": "window",
-                              "config": {
-                                "appName": "SimpleOne"
-                              }
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        ]
-      };
+      // const layouts = {
+      //   mode: "session",
+      //   local: [
+      //     { "name": "example2", "type": "Workspace", "components": [{ "type": "Workspace", "state": { "config": { "name": "second", "title": "Untitled 1" }, "context": {}, "children": [{ "type": "column", "config": {}, "children": [{ "type": "row", "config": {}, "children": [{ "type": "group", "config": {}, "children": [{ "type": "window", "config": { "appName": "SimpleOne", "title": "asd" } }] }, { "type": "group", "config": {}, "children": [{ "type": "window", "config": { "appName": "SimpleOne" } }] }] }, { "type": "group", "config": {}, "children": [{ "type": "window", "config": { "appName": "SimpleOne" } }] }] }] } }], "metadata": {} },
+      //     { "name": "not-example", "type": "Workspace", "components": [{ "type": "Workspace", "state": { "config": { "name": "second", "title": "Untitled 1" }, "context": {}, "children": [{ "type": "column", "config": {}, "children": [{ "type": "row", "config": {}, "children": [{ "type": "group", "config": {}, "children": [{ "type": "window", "config": { "appName": "SimpleOne" } }] }, { "type": "group", "config": {}, "children": [{ "type": "window", "config": { "appName": "SimpleOne" } }] }] }, { "type": "group", "config": {}, "children": [{ "type": "window", "config": { "appName": "SimpleOne" } }] }] }] } }], "metadata": {} },
+      //     {
+      //       "name": "asd",
+      //       "type": "Workspace",
+      //       "metadata": {},
+      //       "components": [
+      //         {
+      //           "type": "Workspace",
+      //           "state": {
+      //             "config": {
+      //               "name": "asd",
+      //               "title": "Untitled 1"
+      //             },
+      //             "context": null,
+      //             "children": [
+      //               {
+      //                 "type": "column",
+      //                 "config": {},
+      //                 "children": [
+      //                   {
+      //                     "type": "group",
+      //                     "config": {},
+      //                     "children": [
+      //                       {
+      //                         "type": "window",
+      //                         "config": {
+      //                           "appName": "SimpleOne"
+      //                         }
+      //                       }
+      //                     ]
+      //                   }
+      //                 ]
+      //               }
+      //             ]
+      //           }
+      //         }
+      //       ]
+      //     }
+      //   ]
+      // };
 
-      const applications = {
-        local: [
-          {
-            name: "SimpleOne",
-            type: "window",
-            title: "maybe",
-            details: {
-              url: "http://localhost:9200/"
-            },
-            customProperties: {
-              includeInWorkspaces: true
-            }
-          }
-        ]
-      }
+      // const applications = {
+      //   local: [
+      //     {
+      //       name: "SimpleOne",
+      //       type: "window",
+      //       title: "maybe",
+      //       details: {
+      //         url: "http://localhost:9200/"
+      //       },
+      //       customProperties: {
+      //         includeInWorkspaces: true
+      //       }
+      //     }
+      //   ]
+      // }
 
-      const platformConfig = {
-        glue: {
-          libraries: [GlueWorkspaces]
-        },
-        applications,
-        layouts,
-        workspaces: {
-          src: "/",
-          isFrame: true
-        }
-      };
+      // const platformConfig = {
+      //   glue: {
+      //     libraries: [GlueWorkspaces]
+      //   },
+      //   applications,
+      //   layouts,
+      //   workspaces: {
+      //     src: "/",
+      //     isFrame: true
+      //   }
+      // };
 
-      return GlueWebPlatform(platformConfig as any).then((data) => data.glue) as any;
+      // return GlueWebPlatform(platformConfig as any).then((data) => data.glue) as any;
 
-      // return window.glue42gd ?
-      //   Glue(Object.assign(config, { libraries: [GlueWorkspaces], appManager: "skipIcons" }) as Glue42.Config) :
-      //   GlueWeb(Object.assign(config, { libraries: [GlueWorkspaces] }) as Glue42Web.Config) as any
+      return window.glue42gd ?
+        Glue(Object.assign(config, { libraries: [GlueWorkspaces], appManager: "skipIcons" }) as Glue42.Config) :
+        GlueWeb(Object.assign(config, { libraries: [GlueWorkspaces] }) as Glue42Web.Config) as any
     }}>
       <App />
     </GlueProvider>
