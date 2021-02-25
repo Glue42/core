@@ -890,24 +890,28 @@ class WorkspacesManager {
     private checkForEmptyWorkspace(workspace: Workspace): boolean {
         // Closing all workspaces except the last one
         if (store.layouts.length === 1) {
-            try {
-                if (this._isLayoutInitialized) {
+            if (this._isLayoutInitialized && (window as any).glue42core.isPlatformFrame) {
+                workspace.windows = [];
+                workspace.layout?.destroy();
+                workspace.layout = undefined;
+                this._controller.showAddButton(workspace.id);
+                const currentTitle = store.getWorkspaceTitle(workspace.id);
+                const title = this._configFactory.getWorkspaceTitle(store.workspaceTitles.filter((wt) => wt !== currentTitle));
+                this._controller.setWorkspaceTitle(workspace.id, title);
 
+                return true;
+            } else if (this._isLayoutInitialized) {
+                try {
                     this._facade.executeAfterControlIsDone(() => {
                         window.close();
                     });
-                    return true;
+                } catch (error) {
+                    // Try to close my window if it fails fallback to frame with one empty workspace
                 }
-            } catch (error) {
-                // Try to close my window if it fails fallback to frame with one empty workspace
+
+                return true;
             }
-            workspace.windows = [];
-            workspace.layout?.destroy();
-            workspace.layout = undefined;
-            this._controller.showAddButton(workspace.id);
-            const currentTitle = store.getWorkspaceTitle(workspace.id);
-            const title = this._configFactory.getWorkspaceTitle(store.workspaceTitles.filter((wt) => wt !== currentTitle));
-            this._controller.setWorkspaceTitle(workspace.id, title);
+
         } else {
             this._controller.removeWorkspace(workspace.id);
         }
