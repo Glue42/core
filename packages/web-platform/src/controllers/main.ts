@@ -58,7 +58,7 @@ export class PlatformController {
 
         await Promise.all(Object.values(this.controllers).map((controller) => controller.start(config)));
 
-        await this.glueController.initClientGlue(config?.glue, config?.glueFactory);
+        await this.glueController.initClientGlue(config?.glue, config?.glueFactory, config?.workspaces?.isFrame);
 
         config.plugins?.definitions.forEach(this.startPlugin.bind(this));
     }

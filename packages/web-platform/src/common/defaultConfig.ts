@@ -34,3 +34,5 @@ export const defaultPlatformConfig: InternalPlatformConfig = {
 export const defaultTargetString = "*";
 
 export const defaultFetchTimeoutMs = 3000;
+
+export const defaultOpenerTimeoutMs = 1000;

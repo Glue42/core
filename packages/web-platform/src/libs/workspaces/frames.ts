@@ -43,7 +43,8 @@ export class FramesController {
 
         const frameData: FrameSessionData = {
             windowId: frameWindowId,
-            active: false
+            active: false,
+            isPlatform: false
         };
 
         const options = `left=${openBounds.left},top=${openBounds.top},width=${openBounds.width},height=${openBounds.height}`;

@@ -85,6 +85,10 @@ export class SessionStorageController {
         this.sessionStorage.setItem(this.workspaceFramesNamespace, JSON.stringify(allData));
     }
 
+    public getPlatformFrame(): FrameSessionData | undefined {
+        return this.getAllFrames().find((frame) => frame.isPlatform);
+    }
+
     public getAllFrames(): FrameSessionData[] {
         const allData: FrameSessionData[] = JSON.parse(this.sessionStorage.getItem(this.workspaceFramesNamespace) as string);
         return allData;

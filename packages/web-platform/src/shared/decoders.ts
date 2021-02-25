@@ -252,7 +252,8 @@ export const gatewayConfigDecoder: Decoder<Glue42WebPlatform.Gateway.Config> = o
 export const glueConfigDecoder: Decoder<Glue42Web.Config> = anyJson();
 
 export const workspacesConfigDecoder: Decoder<Glue42WebPlatform.Workspaces.Config> = object({
-    src: nonEmptyStringDecoder
+    src: nonEmptyStringDecoder,
+    isFrame: optional(boolean())
 });
 
 export const windowsConfigDecoder: Decoder<Glue42WebPlatform.Windows.Config> = object({

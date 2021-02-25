@@ -225,6 +225,7 @@ export namespace Glue42WebPlatform {
     export namespace Workspaces {
         export interface Config {
             src: string;
+            isFrame?: boolean;
         }
     }
 

@@ -16,7 +16,7 @@ export class Platform {
         private readonly controller: PlatformController,
         config?: Glue42WebPlatform.Config,
     ) {
-        this.checkSingleton();
+        this.checkSingleton(config);
         this.processConfig(config);
     }
 
@@ -38,19 +38,17 @@ export class Platform {
         return version;
     }
 
-    private checkSingleton(): void {
+    private checkSingleton(config?: Glue42WebPlatform.Config): void {
         const glue42CoreNamespace = (window as any).glue42core;
 
-        if (!glue42CoreNamespace) {
-            (window as any).glue42core = { platformStarted: true };
-            return;
-        }
-
-        if (glue42CoreNamespace.platformStarted) {
+        if (glue42CoreNamespace && glue42CoreNamespace.platformStarted) {
             throw new Error("The Glue42 Core Platform has already been started for this application.");
         }
 
-        glue42CoreNamespace.platformStarted = true;
+        (window as any).glue42core = {
+            platformStarted: true,
+            isPlatformFrame: !!config?.workspaces?.isFrame
+        };
     }
 
     private processConfig(config: Glue42WebPlatform.Config = {}): void {
