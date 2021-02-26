@@ -133,20 +133,31 @@ export class IFrameController {
 
     public remove(id: string) {
         const frame = this._idToFrame[id];
+        console.log("FOUND frame to remove", id, frame);
         if (frame) {
+            console.log("DELETING frame from inner collections", id, frame);
             delete this._idToFrame[id];
+            console.log("WILL SEND post message", id, {
+                glue42core: {
+                    type: "manualUnload"
+                }
+            });
             frame.contentWindow.postMessage({
                 glue42core: {
                     type: "manualUnload"
                 }
             }, "*");
+            console.log("MESSAGE SENT", id, frame);
             try {
                 frame.contentWindow.dispatchEvent(new Event("beforeunload"));
             } catch (error) {
                 // tslint:disable-next-line: no-console
-                // console.warn(error);
+                console.warn(error);
             }
+            console.log("WILL REMOVE FRAME", id, frame);
             frame.remove();
+
+            console.log("FRAME REMOVED", id, frame);
         }
 
     }
