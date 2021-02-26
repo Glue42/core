@@ -155,9 +155,10 @@ export class IFrameController {
                 console.warn(error);
             }
             console.log("WILL REMOVE FRAME", id, frame);
-            frame.remove();
-
-            console.log("FRAME REMOVED", id, frame);
+            setImmediate(() => {
+                frame.remove();
+                console.log("FRAME REMOVED IN IMMEDIATE", id, frame);
+            });
         }
 
     }
