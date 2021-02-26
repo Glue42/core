@@ -9,7 +9,7 @@ import {
 import generate from "shortid";
 import { PromisePlus } from "../../utils/promise-plus";
 
-type MessageType = "connectionAccepted" | "connectionRejected" | "connectionRequest" | "parentReady" | "parentPing" | "platformPing" | "platformUnload" | "platformReady" | "clientUnload";
+type MessageType = "connectionAccepted" | "connectionRejected" | "connectionRequest" | "parentReady" | "parentPing" | "platformPing" | "platformUnload" | "platformReady" | "clientUnload" | "manualUnload";
 
 export default class WebPlatformTransport implements Transport {
 
@@ -39,7 +39,8 @@ export default class WebPlatformTransport implements Transport {
         platformPing: { name: "platformPing", handle: this.handlePlatformPing.bind(this) },
         platformUnload: { name: "platformUnload", handle: this.handlePlatformUnload.bind(this) },
         platformReady: { name: "platformReady", handle: this.handlePlatformReady.bind(this) },
-        clientUnload: { name: "clientUnload", handle: this.handleClientUnload.bind(this) }
+        clientUnload: { name: "clientUnload", handle: this.handleClientUnload.bind(this) },
+        manualUnload: { name: "manualUnload", handle: this.handleManualUnload.bind(this) }
     };
 
     constructor(private readonly settings: Glue42Core.WebPlatformConnection, private readonly logger: Logger, private readonly identity?: Identity) {
@@ -395,6 +396,24 @@ export default class WebPlatformTransport implements Transport {
 
         this.notifyStatusChanged(false, "Gateway unloaded");
 
+    }
+
+    private handleManualUnload(): void {
+        const message = {
+            glue42core: {
+                type: this.messages.clientUnload.name,
+                data: {
+                    clientId: this.myClientId,
+                    ownWindowId: this.identity?.windowId
+                }
+            }
+        };
+
+        if (this.parent) {
+            this.parent.postMessage(message, this.defaultTargetString);
+        }
+
+        this.port?.postMessage(message);
     }
 
     private handleClientUnload(event: MessageEvent): void {
