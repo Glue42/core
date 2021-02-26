@@ -8,7 +8,7 @@ import Glue, { Glue42 } from "@glue42/desktop";
 import GlueWeb, { Glue42Web } from "@glue42/web";
 import GlueWorkspaces from "@glue42/workspaces-api";
 
-import GlueWebPlatform from "@glue42/web-platform";
+// import GlueWebPlatform from "@glue42/web-platform";
 
 declare const window: Window & { glue42gd: any };
 
