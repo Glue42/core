@@ -251,10 +251,11 @@ describe("properties: ", () => {
         });
 
         it("be correct when a window has just been added", async () => {
+            console.log(1);
             workspace = await glue.workspaces.createWorkspace(threeContainersConfig);
-
+            console.log(2);
             const win = await workspace.addWindow({ type: "window", appName: "dummyApp" });
-
+            console.log(3);
             expect(win.frame.id).to.eql(workspace.frame.id);
         });
     });

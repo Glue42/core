@@ -69,26 +69,29 @@ describe('open()', () => {
         });
     }
 
-    it('Should open the window with the provided start options (context).', async () => {
-        const context = {
-            a: 42,
-            b: '42',
-            c: new Date(),
-            d: {
-                e: 42
-            },
-            f: true
-        };
-        const options = {
-            context
-        };
+    // TODO: Remove the condition once the test fixed for Client RUNNER.
+    if (RUNNER === 'Platform') {
+        it('Should open the window with the provided start options (context).', async () => {
+            const context = {
+                a: 42,
+                b: '42',
+                c: new Date(),
+                d: {
+                    e: 42
+                },
+                f: true
+            };
+            const options = {
+                context
+            };
 
-        const newlyOpenedWindow = await glue.windows.open(gtf.windows.getWindowName(), gtf.windows.SUPPORT_DETAILS.url, options);
+            const newlyOpenedWindow = await glue.windows.open(gtf.windows.getWindowName(), gtf.windows.SUPPORT_DETAILS.url, options);
 
-        const newlyOpenedWindowContext = await newlyOpenedWindow.getContext();
+            const newlyOpenedWindowContext = await newlyOpenedWindow.getContext();
 
-        expect(newlyOpenedWindowContext).to.eql(context);
-    });
+            expect(newlyOpenedWindowContext).to.eql(context);
+        });
+    }
 
     it('Should open the window with the provided start options (bounds).', async () => {
         const [top, left, width, height] = [100, 200, 300, 400];

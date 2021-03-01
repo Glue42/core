@@ -4,6 +4,8 @@
         "lib": [
             "es2019.array",
             "DOM"
-        ]
+        ],
+        "allowJs": true,
+        "noImplicitAny": false
     }
 }

@@ -2,10 +2,10 @@ name: Node.js CI
 
 on:
   push:
-    branches: 
+    branches:
       - master
   pull_request:
-    branches: 
+    branches:
       - master
 
 jobs:
@@ -28,6 +28,7 @@ jobs:
     - run: npm run bootstrap
     - run: npm run build
     - run: npm run test
-    - run: npm run e2e
+    - run: npm run e2e:platform
+    - run: npm run e2e:client
       env:
         CI: true

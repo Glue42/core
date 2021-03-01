@@ -188,20 +188,6 @@ export const fdc3AppDefinitionDecoder: Decoder<Glue42WebPlatform.Applications.FD
     intents: optional(array(intentDefinitionDecoder))
 });
 
-export const remoteStoreDecoder: Decoder<Glue42WebPlatform.RemoteStore> = object({
-    url: nonEmptyStringDecoder,
-    pollingInterval: optional(nonNegativeNumberDecoder),
-    requestTimeout: optional(nonNegativeNumberDecoder)
-});
-
-export const supplierDecoder: Decoder<Glue42WebPlatform.Supplier<any>> = object({
-    fetch: anyJson().andThen((result) => functionCheck(result, "supplier fetch")),
-    timeout: optional(nonNegativeNumberDecoder),
-    pollingInterval: optional(nonNegativeNumberDecoder),
-    save: optional(anyJson().andThen((result) => functionCheck(result, "supplier save"))),
-    delete: optional(anyJson().andThen((result) => functionCheck(result, "supplier delete")))
-});
-
 export const channelDefinitionDecoder: Decoder<Glue42WebPlatform.Channels.ChannelDefinition> = object({
     name: nonEmptyStringDecoder,
     meta: channelMetaDecoder,

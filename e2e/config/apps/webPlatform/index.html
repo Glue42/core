@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform</title>
+
+    <script src="../logger.js"></script>
+    <script src="../config.js"></script>
+    <script src="../platform.web.umd.js"></script>
+    <script src="../workspaces.umd.js"></script>
+    <script>
+        (async () => {
+            const glueWebConfig = {
+                libraries: [GlueWorkspaces],
+                systemLogger: { level: "error" }
+            };
+
+            const gluePlatformConfig = {
+                applications: {
+                    local: localApplicationsConfig
+                },
+                layouts: layoutsConfig,
+                channels: channelsConfig,
+                glue: glueWebConfig,
+                workspaces: workspacesConfig,
+                gateway: gatewayConfig
+            };
+
+            const { glue } = await GlueWebPlatform(gluePlatformConfig);
+
+            let clientInstance;
+
+            window.addEventListener('beforeunload', () => {
+                if (typeof clientInstance !== "undefined") {
+                    clientInstance.stop();
+                }
+            });
+
+            clientInstance = await glue.appManager.application('Karma').start();
+        })();
+    </script>
+</head>
+
+<body>
+    <h1>Web Platform</h1>
+</body>
+
+</html>

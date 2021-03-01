@@ -137,7 +137,7 @@ describe('clear() ', function () {
             .then(() => {
                 const unsub = glue.appManager.onAppRemoved((app) => {
                     try {
-                        
+
                         if (!expectedNames.length) {
                             done("No more definitions are expected as removed");
                             return;

@@ -324,8 +324,6 @@ export class IntentsController implements LibController {
             throw new Error(`Can not raise intent for request ${JSON.stringify(intentRequest)} - can not find intent handler!`);
         }
 
-        handler.instanceId;
-
         if (handler.type === "app") {
             handler.instanceId = await this.startApp({ name: handler.applicationName, ...intentRequest.options }, commandId);
         }

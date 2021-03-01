@@ -8,7 +8,7 @@ describe('getURL()', () => {
     });
 
     it('Should return a promise that resolves with the URL (my).', async () => {
-        expect(await glue.windows.my().getURL()).to.equal(RUNNER === gtf.windows.PLATFORM_DETAILS.name ? gtf.windows.PLATFORM_DETAILS.url : gtf.windows.SUPPORT_DETAILS.url);
+        expect(await glue.windows.my().getURL()).to.equal(RUNNER === gtf.windows.PLATFORM_DETAILS.name ? gtf.windows.PLATFORM_DETAILS.url : gtf.windows.RUNNER_DETAILS.url);
     });
 
     it('Should return a promise that resolves with the URL (other).', async () => {

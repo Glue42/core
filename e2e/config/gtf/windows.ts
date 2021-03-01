@@ -12,7 +12,7 @@ export class GtfWindows implements Gtf.Windows {
     public readonly PLATFORM_DETAILS = Object.freeze({
         name: "Platform",
         title: "Platform",
-        url: "http://localhost:9999/context.html",
+        url: process.env.RUNNER === "Platform" ? "http://localhost:9999/context.html" : "http://localhost:9999/webPlatform/index.html",
         ...this.PLATFORM_DIMENSIONS
     });
     public readonly SUPPORT_DIMENSIONS = {
@@ -25,6 +25,11 @@ export class GtfWindows implements Gtf.Windows {
         title: "Core Support",
         url: "http://localhost:4242/coreSupport/index.html",
         ...this.SUPPORT_DIMENSIONS
+    });
+    public readonly RUNNER_DETAILS = Object.freeze({
+        name: "Karma",
+        title: "Client",
+        url: "http://localhost:9999/"
     });
 
     constructor(private readonly glue: Glue42Web.API) {

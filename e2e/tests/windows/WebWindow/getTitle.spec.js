@@ -8,7 +8,11 @@ describe('getTitle()', () => {
     });
 
     it('Should return a promise that resolves with the title (my).', async () => {
-        expect(await glue.windows.my().getTitle()).to.equal(RUNNER);
+        if (RUNNER === gtf.windows.PLATFORM_DETAILS.name) {
+            expect(await glue.windows.my().getTitle()).to.equal(RUNNER);
+        } else {
+            expect(await glue.windows.my().getTitle()).to.equal(gtf.windows.RUNNER_DETAILS.name);
+        }
     });
 
     it('Should return a promise that resolves with the title (other).', async () => {

@@ -3,33 +3,6 @@ import { Glue42Web } from "@glue42/web";
 import { Glue42API } from "./src/common/types";
 
 export namespace Glue42WebPlatform {
-
-    export interface RemoteStore {
-        /**
-         * The url of the remote source of application definitions. The remote source needs to follow the [FDC3 AppDirectory standard](https://github.com/finos/FDC3). The applications provided by the remote need to either be Glue42CoreApplicationConfig or FDC3ApplicationConfig.
-         */
-        url: string;
-
-        /**
-         * The polling interval for fetching from the remote source. If no pollingInterval is provided, the platform will fetch the definitions just once during startup.
-         */
-        pollingInterval?: number;
-
-        /**
-        * The request timeout for fetching application definitions from the remote source in milliseconds.
-        * @default 3000
-         */
-        requestTimeout?: number;
-    }
-
-    export interface Supplier<T> {
-        fetch(): Promise<T>;
-        save?(elements: T): Promise<void>;
-        delete?(elements: T): Promise<void>;
-        timeout?: number;
-        pollingInterval?: number;
-    }
-
     export namespace Applications {
 
         export interface FDC3Definition {

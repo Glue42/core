@@ -16,11 +16,13 @@ const waitForServer = ({ pollingInterval = 100, pollingTimeout = 1000, ...httpOp
 
                 reject(`Server responded with status code: ${res.statusCode}`);
             });
-            req.on('error', () => {
-                console.log('Request timeout...');
+            const callback = () => {
+                console.log('Request failed/timed out. Retrying...');
                 ++reqCounter;
                 setTimeout(pingServer, pollingInterval);
-            });
+            };
+            req.on('error', callback);
+            req.on('timeout', callback);
             req.end();
         };
 

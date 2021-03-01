@@ -39,10 +39,14 @@ describe('restoreWorkspace() Should', function () {
 
     beforeEach(async () => {
         workspace = await glue.workspaces.createWorkspace(basicConfig);
+        console.log(-3);
         await workspace.saveLayout(layoutName);
+        console.log(-2);
         let secondWorkspace = await glue.workspaces.createWorkspace(secondBasicConfig);
         await secondWorkspace.saveLayout(secondLayoutName);
+        console.log(-1);
         await secondWorkspace.close();
+        console.log(0);
     });
 
     afterEach(async () => {
@@ -399,12 +403,18 @@ describe('restoreWorkspace() Should', function () {
         });
 
         it("resolve when there are multiple frames opened and one of the middle ones (by starting order) contains the target workspace", async () => {
+            console.log(1);
             const workspaceTwo = await glue.workspaces.restoreWorkspace(layoutName, { newFrame: true });
+            console.log(2);
             const workspaceThree = await glue.workspaces.restoreWorkspace(layoutName, { newFrame: true });
+            console.log(3);
             const workspaceFour = await glue.workspaces.restoreWorkspace(secondLayoutName, { reuseWorkspaceId: workspaceTwo.id });
+            console.log(4);
 
             const allWorkspaces = await glue.workspaces.getAllWorkspaces();
+            console.log(5);
             const allFrames = await glue.workspaces.getAllFrames();
+            console.log(6);
             const windowsInWorkspaceFour = workspaceFour.getAllWindows();
 
             expect(allWorkspaces.length).to.eql(3);

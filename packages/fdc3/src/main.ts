@@ -36,9 +36,9 @@ const setupGlue42Core = (): void => {
     const webClientConfig: Glue42WebPlatform.Config = {
         clientOnly: true
     };
-    const isPlatform = typeof webPlatformConfig !== "undefined";
+    const platformMode = typeof webPlatformConfig !== "undefined";
 
-    (window as WindowType).fdc3GluePromise = WebPlatformFactory(isPlatform ? webPlatformConfig : webClientConfig)
+    (window as WindowType).fdc3GluePromise = WebPlatformFactory(platformMode ? webPlatformConfig : webClientConfig)
         .then(({ glue }) => {
             return resolveGlue(glue);
         });

@@ -2,7 +2,7 @@ import { Glue42Web } from "../../../packages/web/web.d";
 import { GtfApp } from "./app";
 import { CancellablePromise, Gtf } from "./types";
 import { Glue42WebPlatform } from "../../../packages/web-platform/platform.d";
-import { channelsConfig, remoteStoreConfig } from "./config";
+import { channelsConfig } from "./config";
 
 export class GtfCore implements Gtf.Core {
     private readonly controlMethodName = "G42Core.E2E.Control";
@@ -77,22 +77,6 @@ export class GtfCore implements Gtf.Core {
                 callback();
             }
         };
-    }
-
-    public async waitForFetch(): Promise<void> {
-        if (typeof remoteStoreConfig === "undefined") {
-            throw new Error("No remote store provided!");
-        }
-
-        const pollingInterval = remoteStoreConfig.pollingInterval || 3000;
-
-        const extraInterval = 2000;
-
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve();
-            }, pollingInterval + extraInterval);
-        });
     }
 
     public getWindowName(prefix = "windows"): string {

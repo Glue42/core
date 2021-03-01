@@ -5,39 +5,10 @@
             timesToRun: 1,
             processes: ['exampleServer']
         }
-*/
 
-const basePolling = require('./ready-conditions/base-polling');
+    Example process:
+        const basePolling = require('./ready-conditions/base-polling');
 
-module.exports = {
-    libPaths: [
-        'packages/web/dist/web.umd.js',
-        'packages/workspaces-api/dist/workspaces.umd.js'
-    ],
-    run: [
-        {
-            groupName: 'appManager'
-        },
-        {
-            groupName: 'channels'
-        },
-        {
-            groupName: 'contexts'
-        },
-        {
-            groupName: 'intents'
-        },
-        {
-            groupName: 'interop'
-        },
-        {
-            groupName: 'windows'
-        },
-        {
-            groupName: 'workspaces'
-        }
-    ],
-    processes: [
         {
             name: 'remoteSource',
             path: './remote-source/index.js',
@@ -50,5 +21,37 @@ module.exports = {
                 pollingTimeout: 30 * 1000
             })
         }
-    ]
+*/
+
+module.exports = {
+    libPaths: [
+        'packages/web/dist/web.umd.js',
+        'packages/web-platform/dist/platform.web.umd.js',
+        'packages/workspaces-api/dist/workspaces.umd.js'
+    ],
+    run: [
+        // {
+        //     groupName: 'appManager'
+        // },
+        // {
+        //     groupName: 'channels'
+        // },
+        // {
+        //     groupName: 'contexts'
+        // },
+        // {
+        //     groupName: 'intents'
+        // },
+        // {
+        //     groupName: 'interop'
+        // },
+        // {
+        //     groupName: 'windows'
+        // },
+        {
+            groupName: 'workspaces',
+            timesToRun: 2
+        }
+    ],
+    processes: []
 };

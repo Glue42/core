@@ -308,7 +308,7 @@ describe('createWorkspace() ', function () {
 
     });
 
-    describe('reuseWorkspaceId Should ', () => {
+    describe.skip('reuseWorkspaceId Should ', () => {
         // BASIC
         const basicConfig = {
             children: [

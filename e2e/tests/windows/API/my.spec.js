@@ -8,7 +8,12 @@ describe('my()', () => {
 
         const myURL = await myWindow.getURL();
 
-        expect(myWindow.name).to.equal(RUNNER);
-        expect(myURL).to.equal(RUNNER === gtf.windows.PLATFORM_DETAILS.name ? gtf.windows.PLATFORM_DETAILS.url : gtf.windows.SUPPORT_DETAILS.url);
+        if (RUNNER === gtf.windows.PLATFORM_DETAILS.name) {
+            expect(myWindow.name).to.equal(RUNNER);
+            expect(myURL).to.equal(gtf.windows.PLATFORM_DETAILS.url);
+        } else {
+            expect(myWindow.name.startsWith(gtf.windows.RUNNER_DETAILS.name)).to.be.true;
+            expect(myURL).to.equal(gtf.windows.RUNNER_DETAILS.url);
+        }
     });
 });
