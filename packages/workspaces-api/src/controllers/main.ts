@@ -281,8 +281,29 @@ export class MainController implements WorkspacesController {
         return await this.base.setItemTitle(itemId, title);
     }
 
+    public flatChildren(children: Child[]): Child[] {
+        return children.reduce<Child[]>((soFar, child) => {
+
+            soFar.push(child);
+
+            if (child.type !== "window") {
+                soFar.push(...this.flatChildren(child.children));
+            }
+
+            return soFar;
+        }, []);
+    }
+
     public refreshChildren(config: RefreshChildrenConfig): Child[] {
-        return this.base.refreshChildren(config);
+        
+        const refreshConfig: RefreshChildrenConfig = {
+            workspace: config.workspace,
+            parent: config.parent,
+            children: config.children,
+            existingChildren: this.flatChildren(config.existingChildren)
+        };
+
+        return this.base.refreshChildren(refreshConfig);
     }
 
     public iterateFindChild(children: Child[], predicate: (child: Child) => boolean): Child {

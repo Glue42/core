@@ -268,26 +268,16 @@ export class BaseController {
                     config: newChildSnapshot.config
                 });
             } else {
-                if (childType === "window") {
-                    const createConfig: WindowCreateConfig = {
-                        id: newChildSnapshot.id,
-                        parent,
-                        frame: workspace.frame,
-                        workspace,
-                        config: newChildSnapshot.config as SwimlaneWindowSnapshotConfig
-                    };
-                    childToAdd = this.ioc.getModel<"child">(childType, createConfig);
-                } else {
-                    const createConfig: ParentCreateConfig = {
-                        id: newChildSnapshot.id,
-                        children: [],
-                        parent,
-                        frame: workspace.frame,
-                        workspace,
-                        config: newChildSnapshot.config as ParentSnapshotConfig
-                    };
-                    childToAdd = this.ioc.getModel<"child">(childType, createConfig);
-                }
+                const createConfig: WindowCreateConfig | ParentCreateConfig = {
+                    id: newChildSnapshot.id,
+                    parent,
+                    frame: workspace.frame,
+                    workspace,
+                    config: newChildSnapshot.config,
+                    children: childType === "window" ? undefined : []
+                };
+
+                childToAdd = this.ioc.getModel<"child">(childType, createConfig);
 
             }
 
