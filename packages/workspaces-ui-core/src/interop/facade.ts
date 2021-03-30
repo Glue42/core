@@ -21,6 +21,7 @@ import {
     MoveFrameArguments,
     MoveWindowToArguments,
     GenerateLayoutArguments,
+    WorkspaceSelector,
 } from "./types";
 import manager from "../manager";
 import store from "../store";
@@ -42,7 +43,7 @@ export class GlueFacade {
     private _inDisposing = false;
     private _frameId: string;
     private _converter: ConfigConverter;
-    private _controlPromise: Promise<any>;
+    private _controlPromise: Promise<any> = Promise.resolve();
 
     public async init(glue: Glue42Web.API, frameId: string): Promise<void> {
         this._frameId = frameId;
@@ -180,6 +181,14 @@ export class GlueFacade {
                     break;
                 case "ping":
                     successCallback(this.handlePing());
+                    break;
+                case "hibernateWorkspace":
+                    await this.handleHibernateWorkspace(args.operationArguments);
+                    successCallback(undefined);
+                    break;
+                case "resumeWorkspace":
+                    await this.handleResumeWorkspace(args.operationArguments)
+                    successCallback(undefined);
                     break;
                 default:
                     errorCallback(`Invalid operation - ${((args as unknown) as { operation: string }).operation}`);
@@ -348,7 +357,6 @@ export class GlueFacade {
         if (!operationArguments.config) {
             operationArguments.config = {};
         }
-        
         operationArguments.config.context = operationArguments.config.context || operationArguments.context;
         const config = this._converter.convertToRendererConfig(operationArguments);
 
@@ -411,6 +419,14 @@ export class GlueFacade {
 
     private handlePing() {
         return { live: !this._inDisposing };
+    }
+
+    private async handleHibernateWorkspace(operationArguments: WorkspaceSelector) {
+        return manager.hibernateWorkspace(operationArguments.workspaceId);
+    }
+
+    private async handleResumeWorkspace(operationArguments: WorkspaceSelector) {
+        return manager.resumeWorkspace(operationArguments.workspaceId);
     }
 
     private publishEventData(action: EventActionType, payload: EventPayload, type: "workspace" | "frame" | "box" | "window") {

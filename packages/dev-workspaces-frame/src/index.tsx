@@ -79,7 +79,8 @@ ReactDOM.render(
 
       // const platformConfig = {
       //   glue: {
-      //     libraries: [GlueWorkspaces]
+      //     libraries: [GlueWorkspaces],
+      //     systemLogger: { level: "trace" }
       //   },
       //   applications,
       //   layouts,

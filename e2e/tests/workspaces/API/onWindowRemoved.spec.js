@@ -1,7 +1,7 @@
 describe('onWindowRemoved ', () => {
     const windowConfig = {
         type: "window",
-        appName: "dummyApp"
+        appName: "noGlueApp"
     };
 
     const basicConfig = {
@@ -112,6 +112,76 @@ describe('onWindowRemoved ', () => {
                 })
                 .then(ready)
                 .catch(done);
+        });
+
+        Array.from({ length: 5 }).forEach((_, i) => {
+            it(`invoke the callback ${i + 1} time/s when the workspace is closed`, (done) => {
+                const ready = gtf.waitFor(i + 1, () => done());
+
+                glue.workspaces.onWindowRemoved((window) => {
+                    ready();
+                }).then((unsub) => {
+                    gtf.addWindowHook(unsub);
+
+                    return Promise.all(Array.from({ length: i }).map(() => defaultWorkspace.addWindow(windowConfig)));
+                }).then(() => {
+                    return defaultWorkspace.frame.createWorkspace(basicConfig);
+                }).then(() => {
+                    return defaultWorkspace.close();
+                }).catch(done);
+            });
+
+            it(`invoke the callback ${i + 1} time/s when the workspace is closed and is hibernated`, (done) => {
+                const ready = gtf.waitFor(i + 1, () => done());
+
+                glue.workspaces.onWindowRemoved((window) => {
+                    ready();
+                }).then((unsub) => {
+                    gtf.addWindowHook(unsub);
+
+                    return Promise.all(Array.from({ length: i }).map(() => defaultWorkspace.addWindow(windowConfig)));
+                }).then(() => {
+                    return defaultWorkspace.frame.createWorkspace(basicConfig);
+                }).then(() => {
+                    return defaultWorkspace.hibernate();
+                }).then(() => {
+                    return defaultWorkspace.close();
+                }).catch(done);
+            });
+
+            it(`invoke the callback ${i + 1} time/s when the frame is closed`, (done) => {
+                const ready = gtf.waitFor(i + 1, () => done());
+
+                glue.workspaces.onWindowRemoved((window) => {
+                    ready();
+                }).then((unsub) => {
+                    gtf.addWindowHook(unsub);
+
+                    return Promise.all(Array.from({ length: i }).map(() => defaultWorkspace.addWindow(windowConfig)));
+                }).then(() => {
+                    return defaultWorkspace.frame.createWorkspace(basicConfig);
+                }).then(() => {
+                    return defaultWorkspace.frame.close();
+                }).catch(done);
+            });
+
+            it(`invoke the callback ${i + 1} time/s when the frame is closed and the workspace is hibernated`, (done) => {
+                const ready = gtf.waitFor(i + 2, () => done());
+
+                glue.workspaces.onWindowRemoved((window) => {
+                    ready();
+                }).then((unsub) => {
+                    gtf.addWindowHook(unsub);
+
+                    return Promise.all(Array.from({ length: i }).map(() => defaultWorkspace.addWindow(windowConfig)));
+                }).then(() => {
+                    return defaultWorkspace.frame.createWorkspace(basicConfig);
+                }).then(() => {
+                    return defaultWorkspace.hibernate();
+                }).then(() => {
+                    return defaultWorkspace.frame.close();
+                }).catch(done);
+            });
         });
 
         it('should not notify when immediately unsubscribed', (done) => {

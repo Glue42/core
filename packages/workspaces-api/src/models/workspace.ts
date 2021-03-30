@@ -52,6 +52,10 @@ export class Workspace implements Glue42Workspaces.Workspace {
         return getData(this).config.layoutName;
     }
 
+    public get isHibernated(): boolean {
+        return getData(this).config.isHibernated;
+    }
+
     public get children(): Glue42Workspaces.WorkspaceElement[] {
         return getData(this).children;
     }
@@ -106,7 +110,7 @@ export class Workspace implements Glue42Workspaces.Workspace {
 
     public async saveLayout(name: string, config?: { saveContext?: boolean }): Promise<void> {
         nonEmptyStringDecoder.runWithException(name);
-        await getData(this).controller.saveLayout({name, workspaceId: this.id, saveContext: config?.saveContext});
+        await getData(this).controller.saveLayout({ name, workspaceId: this.id, saveContext: config?.saveContext });
     }
 
     public async setTitle(title: string): Promise<void> {
@@ -289,6 +293,16 @@ export class Workspace implements Glue42Workspaces.Workspace {
 
     public async bundleToColumn(): Promise<void> {
         await getData(this).controller.bundleTo("column", this.id);
+        await this.refreshReference();
+    }
+
+    public async hibernate(): Promise<void> {
+        await getData(this).controller.hibernateWorkspace(this.id);
+        await this.refreshReference();
+    }
+
+    public async resume(): Promise<void> {
+        await getData(this).controller.resumeWorkspace(this.id);
         await this.refreshReference();
     }
 

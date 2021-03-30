@@ -244,9 +244,24 @@ export namespace Glue42WebPlatform {
     }
 
     export namespace Workspaces {
+        export interface MaximumActiveWorkspacesRule {
+            threshold: number;
+        }
+
+        export interface IdleWorkspacesRule {
+            idleMSThreshold: number;
+        }
+
+        export interface HibernationConfig {
+            maximumActiveWorkspaces?: MaximumActiveWorkspacesRule;
+            idleWorkspaces?: IdleWorkspacesRule;
+        }
+
         export interface Config {
             src: string;
+            hibernation?: HibernationConfig;
             isFrame?: boolean;
+            frameCache?: boolean;
         }
     }
 

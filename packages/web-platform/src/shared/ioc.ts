@@ -14,6 +14,7 @@ import { WorkspacesController } from "../libs/workspaces/controller";
 import { IntentsController } from "../libs/intents/controller";
 import { ChannelsController } from "../libs/channels/controller";
 import { FramesController } from "../libs/workspaces/frames";
+import { WorkspaceHibernationWatcher } from "../libs/workspaces/hibernationWatcher";
 import { SystemController } from "../controllers/system";
 import { AppDirectory } from "../libs/applications/appStore/directory";
 import { RemoteWatcher } from "../libs/applications/appStore/remoteWatcher";
@@ -30,6 +31,7 @@ export class IoC {
     private _remoteWatcher!: RemoteWatcher;
     private _layoutsController!: LayoutsController;
     private _workspacesController!: WorkspacesController;
+    private _hibernationWatcher!: WorkspaceHibernationWatcher;
     private _intentsController!: IntentsController;
     private _channelsController!: ChannelsController;
     private _sessionController!: SessionStorageController;
@@ -167,11 +169,20 @@ export class IoC {
                 this.framesController,
                 this.glueController,
                 this.stateController,
+                this.hibernationWatcher,
                 this
             );
         }
 
         return this._workspacesController;
+    }
+
+    public get hibernationWatcher(): WorkspaceHibernationWatcher {
+        if (!this._hibernationWatcher) {
+            this._hibernationWatcher = new WorkspaceHibernationWatcher(this.sessionController);
+        }
+
+        return this._hibernationWatcher;
     }
 
     public get intentsController(): IntentsController {

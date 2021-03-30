@@ -72,6 +72,26 @@ describe('close() Should ', function () {
         expect(isWorkspaceInCollection).to.be.false;
     });
 
+    it("successfully close the workspace when its hibernated", async () => {
+        await workspace.frame.createWorkspace(basicConfig);
+        await workspace.hibernate();
+        await workspace.close();
+    });
+
+    it("remove the workspace from the summary list when its hibernated and then close", async () => {
+        await workspace.frame.createWorkspace(basicConfig);
+        await workspace.hibernate();
+        const allWorkspacesCount = (await glue.workspaces.getAllWorkspacesSummaries()).length;
+        await workspace.close();
+
+        const getAllWorkspaces = await glue.workspaces.getAllWorkspacesSummaries();
+
+        const isWorkspaceInCollection = getAllWorkspaces.filter(w => w.id === workspace.id).length > 0;
+
+        expect(isWorkspaceInCollection).to.be.false;
+        expect(allWorkspacesCount - 1).to.eql(getAllWorkspaces.length);
+    });
+
     it("remove the workspace from getAllWorkspacesSummaries when the workspace has been closed twice", async () => {
         try {
             await Promise.all([workspace.close(), workspace.close()]);

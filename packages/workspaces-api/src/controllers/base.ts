@@ -363,4 +363,13 @@ export class BaseController {
             });
         });
     }
+
+    public async hibernateWorkspace(workspaceId: string): Promise<void> {
+        await this.bridge.send<void>(OPERATIONS.hibernateWorkspace.name, { workspaceId });
+    }
+
+    public async resumeWorkspace(workspaceId: string): Promise<void> {
+        await this.bridge.send<void>(OPERATIONS.resumeWorkspace.name, { workspaceId });
+
+    }
 }

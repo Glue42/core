@@ -374,4 +374,48 @@ describe("properties: ", () => {
             expect(workspace.layoutName).to.eql(undefined);
         });
     });
+
+    describe("isHibernated: Should", () => {
+        let workspace;
+
+        beforeEach(async () => {
+            workspace = await glue.workspaces.createWorkspace(threeContainersConfig);
+        });
+
+        afterEach(async () => {
+            const wsps = await glue.workspaces.getAllWorkspaces();
+            await Promise.all(wsps.map((wsp) => wsp.close()));
+        });
+
+        it("be false when the workspace hasnt been hibernated", () => {
+            expect(workspace.isHibernated).to.be.false;
+        });
+
+        it("be true when the workspace has been hibernated", async () => {
+            await workspace.frame.createWorkspace(threeContainersConfig);
+            await workspace.hibernate();
+            await workspace.refreshReference();
+
+            expect(workspace.isHibernated).to.be.true;
+        });
+
+        it("be false when the workspace has been resumed", async () => {
+            await workspace.frame.createWorkspace(threeContainersConfig);
+            await workspace.hibernate();
+            await workspace.resume();
+            await workspace.refreshReference();
+
+            expect(workspace.isHibernated).to.be.false;
+        });
+
+        it("be true when the workspace has been resumed and then hibernated", async () => {
+            await workspace.frame.createWorkspace(threeContainersConfig);
+            await workspace.hibernate();
+            await workspace.resume();
+            await workspace.hibernate();
+            await workspace.refreshReference();
+
+            expect(workspace.isHibernated).to.be.true;
+        });
+    });
 });

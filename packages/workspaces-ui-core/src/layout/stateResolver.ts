@@ -1,6 +1,6 @@
 import { WindowSummary, WorkspaceSummary, ContainerSummary, WorkspaceOptionsWithLayoutName, WorkspaceConfig } from "../types/internal";
 import store from "../store";
-import GoldenLayout from "@glue42/golden-layout";
+import GoldenLayout, { ItemConfig } from "@glue42/golden-layout";
 import { LayoutEventEmitter } from "./eventEmitter";
 import { idAsString } from "../utils";
 import { EmptyVisibleWindowName } from "../constants";
@@ -33,9 +33,17 @@ export class LayoutStateResolver {
             throw new Error(`Could find workspace to remove with id ${workspaceId}`);
         }
 
+        if (workspace.hibernateConfig) {
+            (workspace.hibernateConfig.workspacesOptions as any).isHibernated = true;
+            return workspace.hibernateConfig;
+        }
+
         const glConfig = workspace.layout ? workspace.layout.toConfig() : { workspacesOptions: {}, content: [], id: workspaceId };
         glConfig.workspacesOptions.frameId = this._frameId;
         glConfig.workspacesOptions.positionIndex = this.getWorkspaceTabIndex(workspaceId);
+        glConfig.workspacesOptions.isHibernated = typeof workspace.hibernateConfig === "object";
+        glConfig.workspacesOptions.isSelected = this.isWorkspaceSelected(workspaceId);
+        glConfig.workspacesOptions.lastActive = workspace.lastActive;
 
         if (!glConfig.workspacesOptions.title) {
             glConfig.workspacesOptions.title = store.getWorkspaceTitle(workspaceId);
@@ -50,6 +58,7 @@ export class LayoutStateResolver {
     }
 
     public getWorkspaceSummary(workspaceId: string): WorkspaceSummary {
+        const workspace = store.getById(workspaceId);
         const config = this.getWorkspaceConfig(workspaceId);
         const workspaceIndex = this.getWorkspaceTabIndex(workspaceId);
         const summaryConfig: WorkspaceConfig = {
@@ -57,6 +66,9 @@ export class LayoutStateResolver {
             positionIndex: workspaceIndex,
             title: store.getWorkspaceTitle(workspaceId),
             name: config.workspacesOptions.name || store.getWorkspaceTitle(workspaceId),
+            isHibernated: typeof workspace.hibernateConfig === "object",
+            isSelected: this.isWorkspaceSelected(workspaceId),
+            lastActive: workspace.lastActive
         };
 
         if ((config.workspacesOptions as WorkspaceOptionsWithLayoutName).layoutName) {
@@ -79,7 +91,19 @@ export class LayoutStateResolver {
         const placementId = idAsString(id);
         const windowContentItem = store.getWindowContentItem(placementId);
 
-        return windowContentItem?.parent.getActiveContentItem().config.id === placementId;
+        return windowContentItem?.parent?.getActiveContentItem()?.config.id === placementId;
+    }
+
+    public isWorkspaceSelected(id: string): boolean {
+        const workspaceContentItem = store.getWorkspaceContentItem(id);
+
+        return workspaceContentItem?.parent?.getActiveContentItem()?.config.id === id;
+    }
+
+    public isWorkspaceHibernated(id: string): boolean {
+        const workspace = store.getById(id);
+
+        return typeof workspace.hibernateConfig === "object";;
     }
 
     public getContainerSummary(containerId: string | string[]): ContainerSummary {
@@ -94,7 +118,7 @@ export class LayoutStateResolver {
             config: {
                 workspaceId: workspace.id,
                 frameId: this._frameId,
-                positionIndex: containerPositionIndex || 0
+                positionIndex: containerPositionIndex || 0,
             }
         };
     }
@@ -140,6 +164,26 @@ export class LayoutStateResolver {
         } catch (error) {
             return this.getFrameSnapshot();
         }
+    }
+
+    public extractWindowSummariesFromSnapshot(snapshot: GoldenLayout.Config) {
+        const result: WindowSummary[] = [];
+        const getAllWindows = (item: GoldenLayout.ItemConfig, parentId: string) => {
+            if (item.type === "component") {
+                result.push({
+                    itemId: idAsString(item.id),
+                    parentId,
+                    config: item.workspacesConfig as any
+                });
+                return;
+            }
+
+            item.content.forEach((c: any) => getAllWindows(c, idAsString(item.id)));
+        };
+
+        getAllWindows(snapshot as unknown as GoldenLayout.ItemConfig, undefined);
+
+        return result;
     }
 
     private findElementInConfig(elementId: string, config: GoldenLayout.Config): GoldenLayout.ItemConfig {
@@ -244,7 +288,7 @@ export class LayoutStateResolver {
     }
 
     private waitForWindowContentItem(windowId: string) {
-        return new Promise((res) => {
+        return new Promise<void>((res) => {
             const unsub = this._layoutEventEmitter.onContentComponentCreated((component) => {
                 if (component.config.id === windowId) {
                     unsub();

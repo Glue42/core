@@ -314,6 +314,14 @@ export class MainController implements WorkspacesController {
         return this.base.iterateFilterChildren(children, predicate);
     }
 
+    public hibernateWorkspace(workspaceId: string): Promise<void> {
+        return this.base.hibernateWorkspace(workspaceId);
+    }
+
+    public resumeWorkspace(workspaceId: string): Promise<void> {
+        return this.base.resumeWorkspace(workspaceId);
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     private async handleCoreLocalSubscription(config: SubscriptionConfig, levelId: string): Promise<Glue42Workspaces.Unsubscribe> {
         await this.bridge.createCoreEventSubscription();

@@ -59,7 +59,7 @@ export class Bridge {
             try {
                 operationDefinition.argsDecoder.runWithException(operationArgs);
             } catch (error) {
-                throw new Error(`Unexpected internal outgoing validation error: ${error.message}, for input: ${JSON.stringify(error.input)}`);
+                throw new Error(`Unexpected internal outgoing validation error: ${error.message}, for input: ${JSON.stringify(error.input)}, for operation ${operationName}`);
             }
         }
 
@@ -70,7 +70,7 @@ export class Bridge {
             operationResult = operationDefinition.resultDecoder.runWithException(operationResultRaw);
         } catch (error) {
             if (error.kind) {
-                throw new Error(`Unexpected internal incoming validation error: ${error.message}, for input: ${JSON.stringify(error.input)}`);
+                throw new Error(`Unexpected internal incoming validation error: ${error.message}, for input: ${JSON.stringify(error.input)}, for operation ${operationName}`);
             }
             throw new Error(error.message);
         }
@@ -166,9 +166,9 @@ export class Bridge {
             const verifiedAction: WorkspaceEventAction = workspaceEventActionDecoder.runWithException(data.action);
             const verifiedType: WorkspaceEventType = eventTypeDecoder.runWithException(data.type);
             const verifiedPayload: WorkspacePayload = STREAMS[verifiedType].payloadDecoder.runWithException(data.payload);
-    
+
             const registryKey = `${verifiedType}-${verifiedAction}`;
-    
+
             this.registry.execute(registryKey, verifiedPayload);
         } catch (error) {
             console.warn(`Cannot handle event with data ${JSON.stringify(data)}, because of validation error: ${error.message}`);

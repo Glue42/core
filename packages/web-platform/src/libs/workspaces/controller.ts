@@ -3,18 +3,18 @@
 import { Glue42Web } from "@glue42/web";
 import { Glue42Workspaces } from "@glue42/workspaces-api";
 import { BridgeOperation, CoreClientData, InternalPlatformConfig, LibController } from "../../common/types";
-import { addContainerConfigDecoder, addItemResultDecoder, addWindowConfigDecoder, bundleConfigDecoder, deleteLayoutConfigDecoder, exportedLayoutsResultDecoder, frameHelloDecoder, frameSnapshotResultDecoder, frameStateConfigDecoder, frameStateResultDecoder, frameSummariesResultDecoder, frameSummaryDecoder, getFrameSummaryConfigDecoder, isWindowInSwimlaneResultDecoder, layoutSummariesDecoder, moveFrameConfigDecoder, moveWindowConfigDecoder, openWorkspaceConfigDecoder, resizeItemConfigDecoder, setItemTitleConfigDecoder, simpleItemConfigDecoder, simpleWindowOperationSuccessResultDecoder, voidResultDecoder, workspaceCreateConfigDecoder, workspaceLayoutDecoder, workspaceLayoutSaveConfigDecoder, workspacesLayoutImportConfigDecoder, workspaceSnapshotResultDecoder, workspacesOperationDecoder, workspaceSummariesResultDecoder } from "./decoders";
+import { addContainerConfigDecoder, addItemResultDecoder, addWindowConfigDecoder, bundleConfigDecoder, deleteLayoutConfigDecoder, exportedLayoutsResultDecoder, frameHelloDecoder, frameSnapshotResultDecoder, frameStateConfigDecoder, frameStateResultDecoder, frameSummariesResultDecoder, frameSummaryDecoder, getFrameSummaryConfigDecoder, isWindowInSwimlaneResultDecoder, layoutSummariesDecoder, moveFrameConfigDecoder, moveWindowConfigDecoder, openWorkspaceConfigDecoder, resizeItemConfigDecoder, setItemTitleConfigDecoder, simpleItemConfigDecoder, simpleWindowOperationSuccessResultDecoder, voidResultDecoder, workspaceCreateConfigDecoder, workspaceLayoutDecoder, workspaceLayoutSaveConfigDecoder, workspaceSelectorDecoder, workspacesLayoutImportConfigDecoder, workspaceSnapshotResultDecoder, workspacesOperationDecoder, workspaceSummariesResultDecoder } from "./decoders";
 import { FramesController } from "./frames";
-import { AddContainerConfig, AddItemResult, AddWindowConfig, BundleConfig, DeleteLayoutConfig, ExportedLayoutsResult, FrameHello, FrameSnapshotResult, FrameStateConfig, FrameStateResult, FrameSummariesResult, FrameSummaryResult, GetFrameSummaryConfig, IsWindowInSwimlaneResult, LayoutSummariesResult, LayoutSummary, MoveFrameConfig, MoveWindowConfig, OpenWorkspaceConfig, ResizeItemConfig, SetItemTitleConfig, SimpleItemConfig, SimpleWindowOperationSuccessResult, WorkspaceConfigWithReuseWorkspaceId, WorkspaceCreateConfigProtocol, WorkspacesLayoutImportConfig, WorkspaceSnapshotResult, WorkspacesOperationsTypes, WorkspaceSummariesResult, WorkspaceSummaryResult } from "./types";
+import { AddContainerConfig, AddItemResult, AddWindowConfig, BundleConfig, DeleteLayoutConfig, ExportedLayoutsResult, FrameHello, FrameSnapshotResult, FrameStateConfig, FrameStateResult, FrameSummariesResult, FrameSummaryResult, GetFrameSummaryConfig, IsWindowInSwimlaneResult, LayoutSummariesResult, LayoutSummary, MoveFrameConfig, MoveWindowConfig, OpenWorkspaceConfig, ResizeItemConfig, SetItemTitleConfig, SimpleItemConfig, SimpleWindowOperationSuccessResult, WorkspaceCreateConfigProtocol, WorkspaceEventPayload, WorkspaceSelector, WorkspacesLayoutImportConfig, WorkspaceSnapshotResult, WorkspacesOperationsTypes, WorkspaceStreamData, WorkspaceSummariesResult, WorkspaceSummaryResult } from "./types";
 import logger from "../../shared/logger";
 import { Glue42WebPlatform } from "../../../platform";
 import { GlueController } from "../../controllers/glue";
 import { IoC } from "../../shared/ioc";
 import { WindowMoveResizeConfig } from "../windows/types";
 import { StateController } from "../../controllers/state";
+import { WorkspaceHibernationWatcher } from "./hibernationWatcher";
 
 export class WorkspacesController implements LibController {
-
     private started = false;
     private settings!: Glue42WebPlatform.Workspaces.Config;
 
@@ -48,12 +48,15 @@ export class WorkspacesController implements LibController {
         addWindow: { name: "addWindow", dataDecoder: addWindowConfigDecoder, resultDecoder: addItemResultDecoder, execute: this.addWindow.bind(this) },
         addContainer: { name: "addContainer", dataDecoder: addContainerConfigDecoder, resultDecoder: addItemResultDecoder, execute: this.addContainer.bind(this) },
         bundleWorkspace: { name: "bundleWorkspace", dataDecoder: bundleConfigDecoder, resultDecoder: voidResultDecoder, execute: this.bundleWorkspace.bind(this) },
+        hibernateWorkspace: { name: "hibernateWorkspace", dataDecoder: workspaceSelectorDecoder, resultDecoder: voidResultDecoder, execute: this.hibernateWorkspace.bind(this) },
+        resumeWorkspace: { name: "resumeWorkspace", dataDecoder: workspaceSelectorDecoder, resultDecoder: voidResultDecoder, execute: this.resumeWorkspace.bind(this) }
     }
 
     constructor(
         private readonly framesController: FramesController,
         private readonly glueController: GlueController,
         private readonly stateController: StateController,
+        private readonly hibernationWatcher: WorkspaceHibernationWatcher,
         private readonly ioc: IoC
     ) { }
 
@@ -64,6 +67,10 @@ export class WorkspacesController implements LibController {
         }
 
         this.settings = config.workspaces;
+
+        if (this.settings.hibernation) {
+            this.hibernationWatcher.start(this, this.settings.hibernation);
+        }
 
         await Promise.all([
             this.glueController.createWorkspacesStream(),
@@ -128,8 +135,13 @@ export class WorkspacesController implements LibController {
         }
     }
 
-    public handleWorkspaceEvent(data: any): void {
+    public handleWorkspaceEvent(data: WorkspaceEventPayload): void {
         this.glueController.pushWorkspacesMessage(data);
+
+        if (this.settings.hibernation) {
+            this.hibernationWatcher.notifyEvent(data);
+        }
+
     }
 
     public async closeItem(config: SimpleItemConfig, commandId: string): Promise<void> {
@@ -167,6 +179,18 @@ export class WorkspacesController implements LibController {
         this.logger?.trace(`[${commandId}] frame ${frame.windowId} gave a success signal, responding to caller`);
     }
 
+    public async hibernateWorkspace(config: WorkspaceSelector, commandId: string): Promise<void> {
+        this.logger?.trace(`[${commandId}] handling hibernateWorkspace request with config ${JSON.stringify(config)}`);
+
+        const frame = await this.framesController.getFrameInstance({ itemId: config.workspaceId });
+
+        this.logger?.trace(`[${commandId}] targeting frame ${frame.windowId}`);
+
+        await this.glueController.callFrame<WorkspaceSelector, void>(this.operations.hibernateWorkspace, config, frame.windowId);
+
+        this.logger?.trace(`[${commandId}] frame ${frame.windowId} gave a success signal, responding to caller`);
+    }
+
     private async handleFrameHello(config: FrameHello, commandId: string): Promise<void> {
         this.logger?.trace(`[${commandId}] handling handleFrameHello command with config: ${JSON.stringify(config)}`);
 
@@ -199,7 +223,7 @@ export class WorkspacesController implements LibController {
         const frameInstanceConfig = {
             frameId: config.frame?.reuseFrameId,
             newFrame: config.frame?.newFrame,
-            itemId: (config.config as WorkspaceConfigWithReuseWorkspaceId)?.reuseWorkspaceId
+            itemId: config.config?.reuseWorkspaceId
         };
 
         const frame = await this.framesController.getFrameInstance(frameInstanceConfig);
@@ -245,7 +269,7 @@ export class WorkspacesController implements LibController {
         return summary;
     }
 
-    private async getAllWorkspacesSummaries(config: unknown, commandId: string): Promise<WorkspaceSummariesResult> {
+    public async getAllWorkspacesSummaries(config: unknown, commandId: string): Promise<WorkspaceSummariesResult> {
         this.logger?.trace(`[${commandId}] handling getAllWorkspacesSummaries request`);
 
         const allFrames = this.framesController.getAll();
@@ -268,7 +292,7 @@ export class WorkspacesController implements LibController {
         return { summaries };
     }
 
-    private async getWorkspaceSnapshot(config: SimpleItemConfig, commandId: string): Promise<WorkspaceSnapshotResult> {
+    public async getWorkspaceSnapshot(config: SimpleItemConfig, commandId: string): Promise<WorkspaceSnapshotResult> {
         this.logger?.trace(`[${commandId}] handling getWorkspaceSnapshot for config: ${JSON.stringify(config)}`);
 
         const frame = await this.framesController.getFrameInstance(config);
@@ -300,7 +324,7 @@ export class WorkspacesController implements LibController {
         const frameQueryConfig = {
             frameId: config.restoreOptions?.frameId,
             newFrame: config.restoreOptions?.newFrame,
-            itemId: (config.restoreOptions as WorkspaceConfigWithReuseWorkspaceId)?.reuseWorkspaceId
+            itemId: config.restoreOptions?.reuseWorkspaceId
         };
 
         const frame = await this.framesController.getFrameInstance(frameQueryConfig);
@@ -515,6 +539,18 @@ export class WorkspacesController implements LibController {
         this.logger?.trace(`[${commandId}] targeting frame ${frame.windowId}`);
 
         await this.glueController.callFrame<BundleConfig, void>(this.operations.bundleWorkspace, config, frame.windowId);
+
+        this.logger?.trace(`[${commandId}] frame ${frame.windowId} gave a success signal, responding to caller`);
+    }
+
+    private async resumeWorkspace(config: WorkspaceSelector, commandId: string): Promise<void> {
+        this.logger?.trace(`[${commandId}] handling resumeWorkspace request with config ${JSON.stringify(config)}`);
+
+        const frame = await this.framesController.getFrameInstance({ itemId: config.workspaceId });
+
+        this.logger?.trace(`[${commandId}] targeting frame ${frame.windowId}`);
+
+        await this.glueController.callFrame<WorkspaceSelector, void>(this.operations.resumeWorkspace, config, frame.windowId);
 
         this.logger?.trace(`[${commandId}] frame ${frame.windowId} gave a success signal, responding to caller`);
     }

@@ -23,8 +23,9 @@ import { PopupManager } from "./popups/external";
 import { ComponentPopupManager } from "./popups/component";
 import { generate } from "shortid";
 import { GlueFacade } from "./interop/facade";
+import { ApplicationFactory } from "./app/factory";
 
-class WorkspacesManager {
+export class WorkspacesManager {
     private _controller: LayoutController;
     private _frameController: IFrameController;
     private _frameId: string;
@@ -38,6 +39,7 @@ class WorkspacesManager {
     private _initialized: boolean;
     private _glue: Glue42Web.API;
     private _configFactory: WorkspacesConfigurationFactory;
+    private _applicationFactory: ApplicationFactory;
     private _facade: GlueFacade;
     private _isDisposing: boolean;
 
@@ -80,6 +82,7 @@ class WorkspacesManager {
         this._stateResolver = new LayoutStateResolver(this._frameId, eventEmitter);
         this._controller = new LayoutController(eventEmitter, this._stateResolver, startupConfig, this._configFactory);
         this._frameController = new IFrameController(glue);
+        this._applicationFactory = new ApplicationFactory(glue, this.stateResolver, this._frameController, this);
         this._layoutsManager = new LayoutsManager(this.stateResolver, glue, this._configFactory, converter);
         this._popupManager = new PopupManagerComposer(new PopupManager(glue), new ComponentPopupManager(componentFactory, frameId), componentFactory);
 
@@ -112,9 +115,10 @@ class WorkspacesManager {
             saveContext
         });
 
-        (workspace.layout.config.workspacesOptions as WorkspaceOptionsWithLayoutName).layoutName = name;
-        if (workspace.layout.config.workspacesOptions.noTabHeader) {
-            delete workspace.layout.config.workspacesOptions.noTabHeader;
+        const config = workspace.layout?.config || workspace.hibernateConfig;
+        (config.workspacesOptions as WorkspaceOptionsWithLayoutName).layoutName = name;
+        if (config.workspacesOptions.noTabHeader) {
+            delete config.workspacesOptions.noTabHeader;
         }
 
         return result;
@@ -201,6 +205,9 @@ class WorkspacesManager {
             store.workspaceIds.forEach((wid) => this.closeWorkspace(store.getById(wid)));
         } else if (win) {
             const windowContentItem = store.getWindowContentItem(itemId);
+            if (!windowContentItem) {
+                throw new Error(`Could not find item ${itemId} to close`);
+            }
             this.closeTab(windowContentItem);
         } else if (container) {
             this._controller.closeContainer(itemId);
@@ -246,7 +253,7 @@ class WorkspacesManager {
             return { windowId: ejectedInstance.id };
         }
 
-        const ejectedWindowUrl = this.getUrlByAppName(appName) || url;
+        const ejectedWindowUrl = this._applicationFactory.getUrlByAppName(appName) || url;
         const ejectedWindow = await this._glue.windows.open(`${appName}_${windowId}`, ejectedWindowUrl, { context, windowId } as Glue42Web.Windows.Settings);
 
         return { windowId: ejectedWindow.id };
@@ -285,6 +292,9 @@ class WorkspacesManager {
 
     public async loadWindow(itemId: string) {
         let contentItem = store.getWindowContentItem(itemId);
+        if (!contentItem) {
+            throw new Error(`Could not find window ${itemId} to load`);
+        }
         let { windowId } = contentItem.config.componentState;
         if (!windowId) {
             await this.waitForFrameLoaded(itemId);
@@ -325,8 +335,11 @@ class WorkspacesManager {
         const workspace = store.getById(itemId);
 
         if (this._frameId === itemId) {
-            await this._glue.windows.my().focus();
+            // do nothing
         } else if (workspace) {
+            if (workspace.hibernateConfig) {
+                await this.resumeWorkspace(workspace.id);
+            }
             this._controller.focusWorkspace(workspace.id);
         } else {
             this._controller.focusWindow(itemId);
@@ -334,6 +347,9 @@ class WorkspacesManager {
     }
 
     public bundleWorkspace(workspaceId: string, type: "row" | "column") {
+        if (this._stateResolver.isWorkspaceHibernated(workspaceId)) {
+            throw new Error(`Could not bundle workspace ${workspaceId} because its hibernated`);
+        }
         this._controller.bundleWorkspace(workspaceId, type);
     }
 
@@ -355,6 +371,10 @@ class WorkspacesManager {
             throw new Error(`Could not find container ${containerId} in frame ${this._frameId}`);
         }
 
+        if (this._stateResolver.isWorkspaceHibernated(targetWorkspace.id)) {
+            throw new Error(`Could not move window ${itemId} to workspace ${targetWorkspace.id} because its hibernated`);
+        }
+
         const targetWindow = store.getWindowContentItem(itemId);
         if (!targetWindow) {
             throw new Error(`Could not find window ${itemId} in frame ${this._frameId}`);
@@ -370,6 +390,84 @@ class WorkspacesManager {
         }
 
         return this._layoutsManager.generateLayout(name, workspace);
+    }
+
+    public async resumeWorkspace(workspaceId: string) {
+        const workspace = store.getById(workspaceId);
+        if (!workspace) {
+            throw new Error(`Could not find workspace ${workspaceId} in any of the frames`);
+        }
+
+        const hibernatedConfig = workspace.hibernateConfig;
+
+        if (!hibernatedConfig.workspacesOptions) {
+            hibernatedConfig.workspacesOptions = {};
+        }
+
+        hibernatedConfig.workspacesOptions.reuseWorkspaceId = workspaceId;
+
+        // the start mode should always be eager
+        await this.createWorkspace(hibernatedConfig);
+
+        workspace.hibernateConfig = undefined;
+        this._controller.showSaveIcon(workspaceId);
+    }
+
+    public async hibernateWorkspace(workspaceId: string) {
+        const workspace = store.getById(workspaceId);
+
+        if (store.getActiveWorkspace().id === workspace.id) {
+            throw new Error(`Cannot hibernate workspace ${workspace.id} because its active`);
+        }
+
+        if (this.stateResolver.isWorkspaceHibernated(workspaceId)) {
+            throw new Error(`Cannot hibernate workspace ${workspaceId} because it has already been hibernated`);
+        }
+
+        if (!workspace.layout) {
+            throw new Error(`Cannot hibernate workspace ${workspace.id} because its empty`);
+        }
+
+        const snapshot = await this.stateResolver.getWorkspaceConfig(workspace.id);
+
+        workspace.hibernatedWindows = workspace.windows;
+        (snapshot.workspacesOptions as any).isHibernated = true;
+        workspace.hibernateConfig = snapshot;
+
+        workspace.windows.map((w) => store.getWindowContentItem(w.id)).forEach((w) => this.closeTab(w, false));
+
+        store.removeLayout(workspace.id);
+
+        this._controller.showHibernationIcon(workspaceId);
+
+        return snapshot;
+    }
+
+    public closeTab(item: GoldenLayout.ContentItem, emptyWorkspaceCheck: boolean = true) {
+        const itemId = idAsString(item.config.id);
+        const workspace = store.getByWindowId(itemId);
+        const windowSummary = this.stateResolver.getWindowSummarySync(itemId);
+
+        this._controller.removeLayoutElement(itemId);
+        this._frameController.remove(itemId);
+
+        this._applicationFactory.notifyFrameWillClose(windowSummary.config.windowId, windowSummary.config.appName).catch((e) => {
+            // Log the error
+        });
+
+        if (!workspace.hibernatedWindows.some((hw) => windowSummary.itemId === hw.id)) {
+            this.workspacesEventEmitter.raiseWindowEvent({
+                action: "removed",
+                payload: {
+                    windowSummary
+                }
+            });
+        }
+
+
+        if (!workspace.windows.length && emptyWorkspaceCheck) {
+            this.checkForEmptyWorkspace(workspace);
+        }
     }
 
     public unmount() {
@@ -415,124 +513,7 @@ class WorkspacesManager {
 
     private subscribeForLayout() {
         this._controller.emitter.onContentComponentCreated(async (component, workspaceId) => {
-            if (component.config.componentName === EmptyVisibleWindowName) {
-                return;
-            }
-            const workspace = store.getById(workspaceId);
-            const newWindowBounds = getElementBounds(component.element);
-            const { componentState } = component.config;
-            const { title, appName } = componentState;
-            let { windowId } = componentState;
-            const componentId = idAsString(component.config.id);
-            const applicationTitle = this.getTitleByAppName(appName);
-            const windowTitle = this.vaidateTitle(title) || this.vaidateTitle(applicationTitle) || this.vaidateTitle(appName) || "Glue";
-            const windowContext = component?.config.componentState?.context;
-            let url = this.getUrlByAppName(componentState.appName) || componentState.url;
-
-            const isNewWindow = !store.getWindow(componentId);
-
-            store.addWindow({
-                id: componentId,
-                bounds: newWindowBounds,
-                windowId,
-                url,
-                appName
-            }, workspace.id);
-
-            if (!url && windowId) {
-                const win = this._glue.windows.list().find((w) => w.id === windowId);
-
-                url = await win.getURL();
-                const newlyAddedWindow = store.getWindow(componentId) as WorkspacesWindow;
-
-                newlyAddedWindow.url = url;
-            }
-
-            windowId = windowId || generate();
-
-            if (component.config.componentState?.context) {
-                delete component.config.componentState.context;
-            }
-
-            component.config.componentState.url = url;
-            if (windowTitle) {
-                component.setTitle(windowTitle);
-            }
-            if (isNewWindow) {
-                const windowSummary = this.stateResolver.getWindowSummarySync(componentId, component);
-                this.workspacesEventEmitter.raiseWindowEvent({
-                    action: "added",
-                    payload: {
-                        windowSummary
-                    }
-                });
-
-                const glueWinOutsideOfWorkspace = this._glue.windows.findById(windowId);
-                if (glueWinOutsideOfWorkspace) {
-                    try {
-                        // Glue windows with the given id should be closed
-                        await glueWinOutsideOfWorkspace.close();
-                    } catch (error) {
-                        // because of chrome security policy this call can fail,
-                        // however the opening of a new window should continue
-                    }
-                }
-            }
-
-            try {
-                await this.notifyFrameWillStart(windowId, appName, windowContext, windowTitle);
-                await this._frameController.startFrame(componentId, url, undefined, windowId);
-                const newlyAddedWindow = store.getWindow(componentId) as WorkspacesWindow;
-
-                component.config.componentState.windowId = windowId;
-                newlyAddedWindow.windowId = windowId;
-
-                const newlyOpenedWindow = this._glue.windows.findById(windowId);
-                newlyOpenedWindow.getTitle().then((winTitle) => {
-                    if (this.vaidateTitle(windowTitle)) {
-                        component.setTitle(winTitle);
-                    }
-                }).catch((e) => {
-                    console.warn("Failed while setting the window title", e);
-                });
-
-                this._frameController.moveFrame(componentId, getElementBounds(component.element));
-
-                if (isNewWindow) {
-                    this._workspacesEventEmitter.raiseWindowEvent({
-                        action: "loaded",
-                        payload: {
-                            windowSummary: await this.stateResolver.getWindowSummary(componentId)
-                        }
-                    });
-                }
-
-                if (!appName) {
-                    const appNameToUse = this.getAppNameByWindowId(windowId);
-                    if (!component.config.componentState) {
-                        throw new Error(`Invalid state - the created component ${componentId} with windowId ${windowId} is missing its state object`);
-                    }
-                    component.config.componentState.appName = appNameToUse;
-
-
-                    newlyAddedWindow.appName = appNameToUse;
-                }
-
-            } catch (error) {
-                // If a frame doesn't initialize properly remove its windowId
-                component.config.componentState.windowId = undefined;
-                if (url) {
-                    this._frameController.moveFrame(componentId, getElementBounds(component.element));
-                } else {
-                    this.closeTab(component, false);
-                }
-                const wsp = store.getById(workspaceId);
-                if (!wsp) {
-                    throw new Error(`Workspace ${workspaceId} failed ot initialize because none of the specified windows were able to load
-                    Internal error: ${error}`);
-                }
-            }
-
+            await this._applicationFactory.start(component, workspaceId);
         });
 
         this._controller.emitter.onContentItemResized((target, id) => {
@@ -639,6 +620,7 @@ class WorkspacesManager {
 
         this._controller.emitter.onWorkspaceSelectionChanged((workspace, toBack) => {
             this._popupManager.hidePopup();
+
             if (!workspace.layout) {
                 this._frameController.selectionChangedDeep([], toBack.map((w) => w.id));
                 this._workspacesEventEmitter.raiseWorkspaceEvent({
@@ -647,6 +629,10 @@ class WorkspacesManager {
                         workspaceSummary: this.stateResolver.getWorkspaceSummary(workspace.id)
                     }
                 });
+
+                if (workspace.hibernateConfig) {
+                    this.resumeWorkspace(workspace.id);
+                }
                 return;
             }
             const allWinsInLayout = getAllWindowsFromConfig(workspace.layout.toConfig().content)
@@ -659,6 +645,8 @@ class WorkspacesManager {
                     workspaceSummary: this.stateResolver.getWorkspaceSummary(workspace.id)
                 }
             });
+
+
         });
 
         this._controller.emitter.onAddButtonClicked(async ({ laneId, workspaceId, bounds, parentType }) => {
@@ -776,6 +764,16 @@ class WorkspacesManager {
             this._frameController.selectionChangedDeep([], workspace.windows.map(w => w.id));
         });
 
+        this.workspacesEventEmitter.onWorkspaceEvent((action, payload) => {
+            const workspace = store.getById(payload.workspaceSummary.id);
+
+            if (!workspace) {
+                return;
+            }
+
+            workspace.lastActive = Date.now();
+        });
+
         // debouncing because there is potential for 1ms spam
         let resizedTimeout: NodeJS.Timeout = undefined;
         componentStateMonitor.onWorkspaceContentsResized((workspaceId: string) => {
@@ -816,12 +814,15 @@ class WorkspacesManager {
         const workspaceSummaries = store.workspaceIds.map((wid) => {
             const workspace = store.getById(wid);
             windowSummaries.push(...workspace.windows.map(w => this.stateResolver.getWindowSummarySync(w.id)));
+            const snapshot = this.stateResolver.getWorkspaceConfig(wid);
+            const hibernatedSummaries = this.stateResolver.extractWindowSummariesFromSnapshot(snapshot);
+            windowSummaries.push(...hibernatedSummaries);
 
             return this.stateResolver.getWorkspaceSummary(wid);
         });
 
         windowSummaries.forEach((ws) => {
-            this.notifyFrameWillClose(ws.config.windowId, ws.config.appName).catch((e) => {
+            this._applicationFactory.notifyFrameWillClose(ws.config.windowId, ws.config.appName).catch((e) => {
                 // Log the error
             });
             this.workspacesEventEmitter.raiseWindowEvent({ action: "removed", payload: { windowSummary: ws } });
@@ -849,36 +850,19 @@ class WorkspacesManager {
         });
     }
 
-    private closeTab(item: GoldenLayout.ContentItem, emptyWorkspaceCheck: boolean = true) {
-        const itemId = idAsString(item.config.id);
-        const workspace = store.getByWindowId(itemId);
-        const windowSummary = this.stateResolver.getWindowSummarySync(itemId);
-
-        this._controller.removeLayoutElement(itemId);
-        this._frameController.remove(itemId);
-
-        this.notifyFrameWillClose(windowSummary.config.windowId, windowSummary.config.appName).catch((e) => {
-            // Log the error
-        });
-
-        this.workspacesEventEmitter.raiseWindowEvent({
-            action: "removed",
-            payload: {
-                windowSummary
-            }
-        });
-
-
-        if (!workspace.windows.length && emptyWorkspaceCheck) {
-            this.checkForEmptyWorkspace(workspace);
-        }
-    }
-
     private closeWorkspace(workspace: Workspace) {
         if (!workspace) {
             throw new Error("Could not find a workspace to close");
         }
 
+        if (workspace.hibernateConfig) {
+            this.closeHibernatedWorkspaceCore(workspace);
+        } else {
+            this.closeWorkspaceCore(workspace);
+        }
+    }
+
+    private async closeWorkspaceCore(workspace: Workspace) {
         const workspaceSummary = this.stateResolver.getWorkspaceSummary(workspace.id);
         const windowSummaries = workspace.windows.map((w) => {
             if (store.getWindowContentItem(w.id)) {
@@ -887,9 +871,41 @@ class WorkspacesManager {
         }).filter(ws => ws);
 
         workspace.windows.forEach((w) => this._frameController.remove(w.id));
+
         const isFrameEmpty = this.checkForEmptyWorkspace(workspace);
         windowSummaries.forEach((ws) => {
-            this.notifyFrameWillClose(ws.config.windowId, ws.config.appName).catch((e) => {
+            this._applicationFactory.notifyFrameWillClose(ws.config.windowId, ws.config.appName).catch((e) => {
+                // Log the error
+            });
+            this.workspacesEventEmitter.raiseWindowEvent({
+                action: "removed",
+                payload: {
+                    windowSummary: ws
+                }
+            });
+        });
+        if (isFrameEmpty) {
+            return;
+        }
+        this.workspacesEventEmitter.raiseWorkspaceEvent({
+            action: "closed",
+            payload: {
+                workspaceSummary,
+                frameSummary: { id: this._frameId }
+            }
+        });
+    }
+
+    private async closeHibernatedWorkspaceCore(workspace: Workspace) {
+        const workspaceSummary = this.stateResolver.getWorkspaceSummary(workspace.id);
+        const snapshot = this.stateResolver.getSnapshot(workspace.id) as GoldenLayout.Config;
+        const windowSummaries = this.stateResolver.extractWindowSummariesFromSnapshot(snapshot);
+
+        workspace.windows.forEach((w) => this._frameController.remove(w.id));
+
+        const isFrameEmpty = this.checkForEmptyWorkspace(workspace);
+        windowSummaries.forEach((ws) => {
+            this._applicationFactory.notifyFrameWillClose(ws.config.windowId, ws.config.appName).catch((e) => {
                 // Log the error
             });
             this.workspacesEventEmitter.raiseWindowEvent({
@@ -968,55 +984,13 @@ class WorkspacesManager {
         });
     }
 
-    private getUrlByAppName(appName: string): string {
-        if (!appName) {
-            return undefined;
-        }
-        return this._glue.appManager?.application(appName)?.userProperties?.details?.url;
-    }
-
-    private getTitleByAppName(appName: string): string {
-        if (!appName) {
-            return undefined;
-        }
-        return this._glue.appManager?.application(appName)?.title;
-    }
-
-    private getAppNameByWindowId(windowId: string): string {
-        return this._glue.appManager?.instances()?.find(i => i.id === windowId)?.application?.name;
-    }
-
-    private notifyFrameWillStart(windowId: string, appName?: string, context?: any, title?: string) {
-        return this._glue.interop.invoke(PlatformControlMethod, {
-            domain: appName ? "appManager" : "windows",
-            operation: appName ? "registerWorkspaceApp" : "registerWorkspaceWindow",
-            data: {
-                name: `${appName || "window"}_${windowId}`,
-                windowId,
-                frameId: this.frameId,
-                appName,
-                context,
-                title
+    private raiseWindowRemoved(workspaceId: string, windowSummary: WindowSummary) {
+        this.workspacesEventEmitter.raiseWindowEvent({
+            action: "removed",
+            payload: {
+                windowSummary
             }
-        });
-    }
-
-    private notifyFrameWillClose(windowId: string, appName?: string) {
-        return this._glue.interop.invoke(PlatformControlMethod, {
-            domain: appName ? "appManager" : "windows",
-            operation: appName ? "unregisterWorkspaceApp" : "unregisterWorkspaceWindow",
-            data: {
-                windowId,
-            }
-        });
-    }
-
-    private vaidateTitle(title: string) {
-        if (!title?.length) {
-            return undefined;
-        }
-
-        return title;
+        })
     }
 }
 

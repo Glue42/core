@@ -90,7 +90,7 @@ export interface ApplicationStartConfig {
     waitForAGMReady?: boolean;
 }
 
-export type SystemOperationTypes = "getEnvironment";
+export type SystemOperationTypes = "getEnvironment" | "getBase";
 
 export interface ControlMessage extends Glue42WebPlatform.Plugins.ControlMessage {
     commandId?: string;

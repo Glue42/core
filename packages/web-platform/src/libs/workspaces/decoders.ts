@@ -3,7 +3,7 @@
 import { Glue42Workspaces } from "@glue42/workspaces-api";
 import { anyJson, array, boolean, constant, Decoder, intersection, lazy, number, object, oneOf, optional, string } from "decoder-validate";
 import { nonEmptyStringDecoder, nonNegativeNumberDecoder, windowLayoutItemDecoder } from "../../shared/decoders";
-import { AddContainerConfig, AddItemResult, AddWindowConfig, BaseChildSnapshotConfig, BundleConfig, ChildSnapshotResult, ContainerStreamData, ContainerSummaryResult, DeleteLayoutConfig, ExportedLayoutsResult, FrameHello, FrameSnapshotResult, FrameStateConfig, FrameStateResult, FrameStreamData, FrameSummariesResult, FrameSummaryResult, GetFrameSummaryConfig, IsWindowInSwimlaneResult, LayoutSummariesResult, LayoutSummary, MoveFrameConfig, MoveWindowConfig, OpenWorkspaceConfig, ParentSnapshotConfig, PingResult, ResizeItemConfig, SetItemTitleConfig, SimpleItemConfig, SimpleWindowOperationSuccessResult, SwimlaneWindowSnapshotConfig, WindowStreamData, WorkspaceConfigResult, WorkspaceCreateConfigProtocol, WorkspaceEventAction, WorkspaceEventType, WorkspacesLayoutImportConfig, WorkspaceSnapshotResult, WorkspacesOperationsTypes, WorkspaceStreamData, WorkspaceSummariesResult, WorkspaceSummaryResult, WorkspaceWindowData } from "./types";
+import { AddContainerConfig, AddItemResult, AddWindowConfig, BaseChildSnapshotConfig, BundleConfig, ChildSnapshotResult, ContainerStreamData, ContainerSummaryResult, DeleteLayoutConfig, ExportedLayoutsResult, FrameHello, FrameSnapshotResult, FrameStateConfig, FrameStateResult, FrameStreamData, FrameSummariesResult, FrameSummaryResult, GetFrameSummaryConfig, IsWindowInSwimlaneResult, LayoutSummariesResult, LayoutSummary, MoveFrameConfig, MoveWindowConfig, OpenWorkspaceConfig, ParentSnapshotConfig, PingResult, ResizeItemConfig, SetItemTitleConfig, SimpleItemConfig, SimpleWindowOperationSuccessResult, SwimlaneWindowSnapshotConfig, WindowStreamData, WorkspaceConfigResult, WorkspaceCreateConfigProtocol, WorkspaceEventAction, WorkspaceEventType, WorkspaceSelector, WorkspacesLayoutImportConfig, WorkspaceSnapshotResult, WorkspacesOperationsTypes, WorkspaceStreamData, WorkspaceSummariesResult, WorkspaceSummaryResult, WorkspaceWindowData } from "./types";
 
 export const workspacesOperationDecoder: Decoder<WorkspacesOperationsTypes> = oneOf<
     "isWindowInWorkspace" | "createWorkspace" | "getAllFramesSummaries" | "getFrameSummary" |
@@ -11,7 +11,7 @@ export const workspacesOperationDecoder: Decoder<WorkspacesOperationsTypes> = on
     "deleteLayout" | "saveLayout" | "importLayout" | "exportAllLayouts" | "restoreItem" | "maximizeItem" |
     "focusItem" | "closeItem" | "resizeItem" | "moveFrame" | "getFrameSnapshot" | "forceLoadWindow" |
     "ejectWindow" | "setItemTitle" | "moveWindowTo" | "addWindow" | "addContainer" |
-    "bundleWorkspace" | "changeFrameState" | "getFrameState" | "frameHello"
+    "bundleWorkspace" | "changeFrameState" | "getFrameState" | "frameHello" | "hibernateWorkspace" | "resumeWorkspace"
 >(
     constant("isWindowInWorkspace"),
     constant("createWorkspace"),
@@ -41,7 +41,9 @@ export const workspacesOperationDecoder: Decoder<WorkspacesOperationsTypes> = on
     constant("bundleWorkspace"),
     constant("changeFrameState"),
     constant("getFrameState"),
-    constant("frameHello")
+    constant("frameHello"),
+    constant("hibernateWorkspace"),
+    constant("resumeWorkspace")
 );
 
 export const frameHelloDecoder: Decoder<FrameHello> = object({
@@ -277,7 +279,10 @@ export const workspaceConfigResultDecoder: Decoder<WorkspaceConfigResult> = obje
     title: nonEmptyStringDecoder,
     positionIndex: nonNegativeNumberDecoder,
     name: nonEmptyStringDecoder,
-    layoutName: optional(nonEmptyStringDecoder)
+    layoutName: optional(nonEmptyStringDecoder),
+    isHibernated: boolean(),
+    isSelected: boolean(),
+    lastActive: number()
 });
 
 // todo: remove number positionIndex when fixed
@@ -523,6 +528,10 @@ export const bundleConfigDecoder: Decoder<BundleConfig> = object({
         constant("row"),
         constant("column")
     ),
+    workspaceId: nonEmptyStringDecoder
+});
+
+export const workspaceSelectorDecoder: Decoder<WorkspaceSelector> = object({
     workspaceId: nonEmptyStringDecoder
 });
 

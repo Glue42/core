@@ -13,7 +13,11 @@ export interface WorkspaceWindowData {
 export type WorkspaceEventType = "frame" | "workspace" | "container" | "window";
 export type WorkspaceEventScope = "global" | "frame" | "workspace" | "window";
 export type WorkspaceEventAction = "opened" | "closing" | "closed" | "focus" | "added" | "loaded" | "removed" | "childrenUpdate" | "containerChange" | "maximized" | "minimized" | "normal" | "selected";
-export type WorkspacePayload = FrameStreamData | WorkspaceStreamData | ContainerStreamData | WindowStreamData;
+export interface WorkspaceEventPayload {
+    action: WorkspaceEventAction;
+    type: WorkspaceEventType;
+    payload: FrameStreamData | WorkspaceStreamData | ContainerStreamData | WindowStreamData;
+}
 
 export type WorkspacesOperationsTypes = "isWindowInWorkspace" |
     "createWorkspace" |
@@ -43,7 +47,9 @@ export type WorkspacesOperationsTypes = "isWindowInWorkspace" |
     "bundleWorkspace" |
     "changeFrameState" |
     "getFrameState" |
-    "frameHello";
+    "frameHello" |
+    "hibernateWorkspace" |
+    "resumeWorkspace";
 
 export interface FrameQueryConfig {
     frameId?: string;
@@ -85,6 +91,9 @@ export interface WorkspaceConfigResult {
     name: string;
     positionIndex: number;
     layoutName: string | undefined;
+    isSelected: boolean;
+    isHibernated: boolean;
+    lastActive: number;
 }
 
 export interface BaseChildSnapshotConfig {
@@ -246,6 +255,11 @@ export interface BundleConfig {
     type: "row" | "column";
     workspaceId: string;
 }
+
+export interface WorkspaceSelector {
+    workspaceId: string;
+}
+
 // #endregion
 
 export interface FrameStreamData {

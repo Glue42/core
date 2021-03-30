@@ -115,6 +115,9 @@ export namespace Glue42Workspaces {
 
         /** A setting used to declare that the workspace must be in a new frame and also provide options for that new frame */
         newFrame?: NewFrameConfig | boolean;
+
+        /** Used for replacing the specified workspace instead of creating a new one */
+        reuseWorkspaceId?: string;
     }
 
     /** An object describing the possible settings when defining a new frame. */
@@ -187,6 +190,9 @@ export namespace Glue42Workspaces {
 
         /** Provides the opportunity to open a workspace with no tab header */
         noTabHeader?: boolean;
+
+        /** Used for replacing the specified workspace instead of creating a new one */
+        reuseWorkspaceId?: string;
     }
 
     /** An object describing the possible options when defining a new workspace */

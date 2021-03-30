@@ -15,6 +15,7 @@ export class FramesController {
     private frameSummaryOperation!: BridgeOperation;
     private locks: { [key: string]: FrameLock } = {};
     private defaultFrameHelloTimeoutMs = 15000;
+    private myFrameId: string | undefined;
 
     constructor(
         private readonly sessionController: SessionStorageController,
@@ -26,6 +27,15 @@ export class FramesController {
         this.config = config;
         this.defaultBounds = defaultBounds;
         this.frameSummaryOperation = frameSummaryOperation;
+
+        if (config.isFrame) {
+            this.myFrameId = this.sessionController.getAllFrames().find((frame) => frame.isPlatform)?.windowId;
+            window.addEventListener("beforeunload", () => {
+                if (this.myFrameId) {
+                    this.clearAllWorkspaceWindows(this.myFrameId);
+                }
+            });
+        }
     }
 
     public async openFrame(newFrameConfig?: Glue42Workspaces.NewFrameConfig | boolean): Promise<FrameInstance> {
@@ -101,9 +111,7 @@ export class FramesController {
 
         this.sessionController.removeFrameData(frameId);
 
-        const workspaceWindows = this.sessionController.pickWorkspaceClients((client) => client.frameId === frameId);
-
-        workspaceWindows.forEach((workspaceWindow) => this.ioc.applicationsController.unregisterWorkspaceApp({windowId: workspaceWindow.windowId}));
+        this.clearAllWorkspaceWindows(frameId);
     }
 
     public getAll(): FrameInstance[] {
@@ -149,6 +157,12 @@ export class FramesController {
         }
 
         return allFrames.length ? this.getLastOpenedFrame() : this.openFrame();
+    }
+
+    private clearAllWorkspaceWindows(frameId: string): void {
+        const workspaceWindows = this.sessionController.pickWorkspaceClients((client) => client.frameId === frameId);
+
+        workspaceWindows.forEach((workspaceWindow) => this.ioc.applicationsController.unregisterWorkspaceApp({windowId: workspaceWindow.windowId}));
     }
 
     private async waitHello(windowId: string): Promise<void> {

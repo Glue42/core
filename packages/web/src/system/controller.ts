@@ -22,7 +22,10 @@ export class SystemController implements LibController {
         const environment = await this.bridge.send<void, any>("system", operations.getEnvironment, undefined);
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const glue42core = Object.assign({}, (window as any).glue42core, { environment });
+        const base = await this.bridge.send<void, any>("system", operations.getBase, undefined);
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const glue42core = Object.assign({}, (window as any).glue42core, base, { environment });
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (window as any).glue42core = Object.freeze(glue42core);

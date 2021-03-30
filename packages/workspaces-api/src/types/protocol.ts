@@ -24,6 +24,7 @@ export interface WorkspaceConfigResult {
     name: string;
     positionIndex: number;
     layoutName: string | undefined;
+    isHibernated: boolean;
 }
 
 export interface BaseChildSnapshotConfig {
@@ -185,6 +186,11 @@ export interface BundleConfig {
     type: "row" | "column";
     workspaceId: string;
 }
+
+export interface WorkspaceSeletor {
+    workspaceId: string;
+}
+
 // #endregion
 
 // #region stream incoming

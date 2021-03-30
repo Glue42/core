@@ -56,7 +56,8 @@ export class Platform {
         const glue42core = {
             platformStarted: true,
             isPlatformFrame: !!config?.workspaces?.isFrame,
-            environment: this.platformConfig.environment
+            environment: this.platformConfig.environment,
+            workspacesFrameCache: typeof config.workspaces?.frameCache === "boolean" ? config.workspaces?.frameCache : true
         };
 
         (window as any).glue42core = glue42core;

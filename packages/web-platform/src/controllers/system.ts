@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Glue42Core } from "@glue42/core";
 import { BridgeOperation, InternalPlatformConfig, LibController, SystemOperationTypes } from "../common/types";
 import { anyDecoder, systemOperationTypesDecoder } from "../shared/decoders";
@@ -5,12 +6,13 @@ import logger from "../shared/logger";
 
 export class SystemController implements LibController {
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private environment: any;
+    private base: any = {};
     private started = false;
 
     private operations: { [key in SystemOperationTypes]: BridgeOperation } = {
-        getEnvironment: { name: "getEnvironment", resultDecoder: anyDecoder, execute: this.handleGetEnvironment.bind(this) }
+        getEnvironment: { name: "getEnvironment", resultDecoder: anyDecoder, execute: this.handleGetEnvironment.bind(this) },
+        getBase: { name: "getBase", resultDecoder: anyDecoder, execute: this.handleGetBase.bind(this) }
     }
 
     private get logger(): Glue42Core.Logger.API | undefined {
@@ -19,6 +21,9 @@ export class SystemController implements LibController {
 
     public async start(config: InternalPlatformConfig): Promise<void> {
         this.environment = config.environment;
+        this.base = {
+            workspacesFrameCache: typeof config.workspaces?.frameCache === "boolean" ? config.workspaces?.frameCache : true
+        };
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -60,8 +65,11 @@ export class SystemController implements LibController {
         return result;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private async handleGetEnvironment(): Promise<any> {
         return this.environment;
+    }
+
+    private async handleGetBase(): Promise<any> {
+        return this.base;
     }
 }

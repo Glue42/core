@@ -376,6 +376,17 @@ ul {
   height: 12px;
   content: "";
 }
+.lm_hibernationIcon {
+  margin-right: 6px;
+  border-radius: none;
+  transition: none;
+}
+.lm_hibernationIcon::before {
+  mask-image: url("data:image/svg+xml,%0A%3Csvg xmlns='http://www.w3.org/2000/svg' x='0px' y='0px' viewBox='0 0 64 64' xml:space='preserve'%3E%3Cpath d='M37.7,38.8v-4.2l16.1-23v-0.2H39.2V5h24.6v4.5L48,32.2v0.2h16v6.4H37.7z M17,50v-2.7l10.4-14.9v-0.1H18v-4.2h15.9v2.9 L23.7,45.7v0.1h10.4V50H17z M0,59v-2l7.6-10.8v-0.1H0.7v-3h11.6v2.1L4.8,55.9V56h7.5v3H0z'/%3E%3C/svg%3E%0A");
+  width: 12px;
+  height: 12px;
+  content: "";
+}
 .lm_close_tab {
   position: absolute;
   right: 6px;

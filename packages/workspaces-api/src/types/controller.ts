@@ -51,4 +51,6 @@ export interface WorkspacesController {
     refreshChildren(config: RefreshChildrenConfig): Child[];
     iterateFindChild(children: Child[], predicate: (child: Child) => boolean): Child;
     iterateFilterChildren(children: Child[], predicate: (child: Child) => boolean): Child[];
+    hibernateWorkspace(workspaceId: string): Promise<void>;
+    resumeWorkspace(workspaceId: string): Promise<void>;
 }
