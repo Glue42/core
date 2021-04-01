@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Workspace } from "../models/workspace";
-import { WorkspaceSnapshotResult, WorkspaceCreateConfigProtocol, FrameSummaryResult, AddItemResult, WorkspaceSummariesResult, WorkspaceSummaryResult, SimpleWindowOperationSuccessResult, FrameSnapshotResult, SwimlaneWindowSnapshotConfig, ParentSnapshotConfig } from "../types/protocol";
+import { WorkspaceSnapshotResult, WorkspaceCreateConfigProtocol, FrameSummaryResult, AddItemResult, WorkspaceSummariesResult, WorkspaceSummaryResult, SimpleWindowOperationSuccessResult, FrameSnapshotResult } from "../types/protocol";
 import { OPERATIONS } from "../communication/constants";
 import { FrameCreateConfig, WorkspaceIoCCreateConfig, WindowCreateConfig, ParentCreateConfig } from "../types/ioc";
 import { IoC } from "../shared/ioc";
@@ -258,7 +258,11 @@ export class BaseController {
         }
 
         const newChildren = children.map((newChildSnapshot) => {
-            let childToAdd = existingChildren.find((c) => c.id === newChildSnapshot.id);
+
+            let childToAdd = existingChildren.find((child) => {
+                return child.type === "window" ? child.elementId === newChildSnapshot.id : child.id === newChildSnapshot.id;
+            });
+
             const childType = newChildSnapshot.type;
 
             if (childToAdd) {

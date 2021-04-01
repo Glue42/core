@@ -144,23 +144,10 @@ export class Workspace implements Glue42Workspaces.Workspace {
     public async refreshReference(): Promise<void> {
         const newSnapshot = (await getData(this).controller.getSnapshot(this.id, "workspace")) as WorkspaceSnapshotResult;
 
-        const existingChildren = newSnapshot.children.reduce<Glue42Workspaces.WorkspaceElement[]>((foundChildren, child) => {
-            let foundChild: Glue42Workspaces.WorkspaceElement;
-            if (child.type === "window") {
-                foundChild = this.getWindow((swimlaneWindow) => swimlaneWindow.id === child.id);
-            } else {
-                foundChild = this.getBox((parent) => parent.id === child.id);
-            }
-
-            if (foundChild) {
-                foundChildren.push(foundChild);
-            }
-
-            return foundChildren;
-        }, []);
+        const currentChildrenFlat = getData(this).controller.flatChildren(getData(this).children);
 
         const newChildren = getData(this).controller.refreshChildren({
-            existingChildren,
+            existingChildren: currentChildrenFlat,
             workspace: this,
             parent: this,
             children: newSnapshot.children

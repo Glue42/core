@@ -28,6 +28,10 @@ export class Window implements Glue42Workspaces.WorkspaceWindow {
         return getData(this).config.windowId;
     }
 
+    public get elementId(): string {
+        return getData(this).id;
+    }
+
     public get type(): "window" {
         return "window";
     }
@@ -86,6 +90,8 @@ export class Window implements Glue42Workspaces.WorkspaceWindow {
         const windowId = await controller.forceLoadWindow(itemId);
 
         getData(this).config.windowId = windowId;
+
+        await this.workspace.refreshReference();
     }
 
     public async focus(): Promise<void> {
@@ -93,6 +99,8 @@ export class Window implements Glue42Workspaces.WorkspaceWindow {
         const controller = getData(this).controller;
 
         await controller.focusItem(id);
+
+        await this.workspace.refreshReference();
     }
 
     public async close(): Promise<void> {
@@ -105,6 +113,8 @@ export class Window implements Glue42Workspaces.WorkspaceWindow {
         await getData(this)
             .parent
             .removeChild((child) => child.id === id);
+
+        await this.workspace.refreshReference();
     }
 
     public async setTitle(title: string): Promise<void> {
@@ -114,6 +124,8 @@ export class Window implements Glue42Workspaces.WorkspaceWindow {
         const controller = getData(this).controller;
 
         await controller.setItemTitle(itemId, title);
+
+        await this.workspace.refreshReference();
     }
 
     public async maximize(): Promise<void> {
@@ -121,6 +133,8 @@ export class Window implements Glue42Workspaces.WorkspaceWindow {
         const controller = getData(this).controller;
 
         await controller.maximizeItem(id);
+
+        await this.workspace.refreshReference();
     }
 
     public async restore(): Promise<void> {
@@ -128,6 +142,8 @@ export class Window implements Glue42Workspaces.WorkspaceWindow {
         const controller = getData(this).controller;
 
         await controller.restoreItem(id);
+
+        await this.workspace.refreshReference();
     }
 
     public async eject(): Promise<GDWindow> {
@@ -139,6 +155,8 @@ export class Window implements Glue42Workspaces.WorkspaceWindow {
         const newWindowId: string = await getData(this).controller.ejectWindow(itemId);
 
         getData(this).config.windowId = newWindowId;
+
+        await this.workspace.refreshReference();
 
         return this.getGdWindow();
     }
@@ -169,7 +187,9 @@ export class Window implements Glue42Workspaces.WorkspaceWindow {
             throw new Error("Cannot move the window to the selected parent, because this parent does not exist.");
         }
 
-        return controller.moveWindowTo(myId, parent.id);
+        await controller.moveWindowTo(myId, parent.id);
+
+        await this.workspace.refreshReference();
     }
 
     public async onRemoved(callback: () => void): Promise<Glue42Workspaces.Unsubscribe> {

@@ -48,6 +48,7 @@ export interface WorkspacesController {
     moveWindowTo(itemId: string, newParentId: string): Promise<void>;
     getSnapshot(itemId: string, type: "workspace" | "frame"): Promise<WorkspaceSnapshotResult | FrameSnapshotResult>;
     setItemTitle(itemId: string, title: string): Promise<void>;
+    flatChildren(children: Child[]): Child[];
     refreshChildren(config: RefreshChildrenConfig): Child[];
     iterateFindChild(children: Child[], predicate: (child: Child) => boolean): Child;
     iterateFilterChildren(children: Child[], predicate: (child: Child) => boolean): Child[];

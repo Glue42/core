@@ -295,15 +295,7 @@ export class MainController implements WorkspacesController {
     }
 
     public refreshChildren(config: RefreshChildrenConfig): Child[] {
-        
-        const refreshConfig: RefreshChildrenConfig = {
-            workspace: config.workspace,
-            parent: config.parent,
-            children: config.children,
-            existingChildren: this.flatChildren(config.existingChildren)
-        };
-
-        return this.base.refreshChildren(refreshConfig);
+        return this.base.refreshChildren(config);
     }
 
     public iterateFindChild(children: Child[], predicate: (child: Child) => boolean): Child {

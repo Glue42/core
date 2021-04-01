@@ -269,6 +269,9 @@ export namespace Glue42Workspaces {
         /** An unique string identifier of the window */
         id: string | undefined;
 
+        /** An unique string identifier of the workspace element that hosts the window */
+        elementId: string;
+
         /** The type of the workspace element */
         type: "window";
 
