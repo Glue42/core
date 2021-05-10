@@ -110,12 +110,12 @@ export class LayoutsManager {
             layoutData: {
                 metadata: savedWorkspaceLayout.metadata,
                 name,
-                context: (savedWorkspace as WorkspaceItem & { context: any }).context
+                context: (savedWorkspace as WorkspaceItem & { context: object }).context ?? {}
             }
         };
     }
 
-    public async delete(name: string) {
+    public async delete(name: string): Promise<void> {
         await this._glue.layouts.remove(this._layoutsType, name);
     }
 
@@ -153,7 +153,7 @@ export class LayoutsManager {
                 state: {
                     children: workspaceConfig.children,
                     config: workspaceConfig.config,
-                    context: workspaceContext
+                    context: workspaceContext ?? {}
                 }
             }]
         };

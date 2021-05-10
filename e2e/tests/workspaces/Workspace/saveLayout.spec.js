@@ -86,7 +86,7 @@ describe('saveLayout() Should ', function () {
         const layouts = await glue.workspaces.layouts.export();
         const layoutUnderTest = layouts.find(l => l.name === layoutName);
 
-        expect(layoutUnderTest.components[0].state.context).to.not.exist;
+        expect(layoutUnderTest.components[0].state.context).to.eql({});
     });
 
     it("save the layout without context when the options object is undefined", async () => {
@@ -99,7 +99,7 @@ describe('saveLayout() Should ', function () {
         const layouts = await glue.workspaces.layouts.export();
         const layoutUnderTest = layouts.find(l => l.name === layoutName);
 
-        expect(layoutUnderTest.components[0].state.context).to.not.exist;
+        expect(layoutUnderTest.components[0].state.context).to.eql({});
     });
 
     it("resolve the promise when the workspace has been hibernated", async () => {
