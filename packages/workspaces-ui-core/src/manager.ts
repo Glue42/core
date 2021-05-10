@@ -178,7 +178,7 @@ export class WorkspacesManager {
                     .filter((w) => w)
                     .map((w) => this.closeTab(w, false));
                 await this.reinitializeWorkspace(savedConfig.id, savedConfig);
-                if (savedConfig.workspacesOptions?.context) {
+                if (savedConfig.workspacesOptions?.context && JSON.stringify(savedConfig.workspacesOptions?.context) !== "{}") {
                     await this._glue.contexts.set(getWorkspaceContextName(savedConfig.id), savedConfig.workspacesOptions.context);
                 }
             } else {
