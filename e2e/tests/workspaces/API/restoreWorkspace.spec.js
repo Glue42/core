@@ -302,7 +302,7 @@ describe('restoreWorkspace() Should', function () {
             expect(windowsCount + 1).to.eql(secondWindowsCount);
         });
 
-        it("preserve the context when a new context has not been passed", async () => {
+        it("not preserve the context when a new context has not been passed", async () => {
             const firstContext = {
                 "a": "b"
             };
@@ -317,7 +317,26 @@ describe('restoreWorkspace() Should', function () {
 
             const secondWorkspaceContext = await secondWorkspace.getContext();
 
-            expect(secondWorkspaceContext).to.eql(firstContext);
+            expect(secondWorkspaceContext).to.eql({});
+        });
+
+        it("not preserve the context when an empty object has been passed as context", async () => {
+            const firstContext = {
+                "a": "b"
+            };
+
+            const workspace = await glue.workspaces.restoreWorkspace(layoutName, {
+                context: firstContext
+            });
+
+            const secondWorkspace = await glue.workspaces.restoreWorkspace(secondLayoutName, {
+                reuseWorkspaceId: workspace.id,
+                context: {}
+            });
+
+            const secondWorkspaceContext = await secondWorkspace.getContext();
+
+            expect(secondWorkspaceContext).to.eql({});
         });
 
         it("set the context correctly when a new context has been passed", async () => {

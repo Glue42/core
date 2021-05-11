@@ -478,7 +478,7 @@ describe('createWorkspace() ', function () {
             expect(windowsCount + 1).to.eql(secondWindowsCount);
         });
 
-        it("preserve the context when a new context has not been passed", async () => {
+        it("not preserve the context when a new context has not been passed", async () => {
             const firstContext = {
                 "a": "b"
             };
@@ -487,16 +487,36 @@ describe('createWorkspace() ', function () {
                 context: firstContext
             }));
 
-            const secondWorkspaceContext = await workspace.getContext();
-
             const secondWorkspace = await glue.workspaces.createWorkspace(Object.assign({}, basicConfig, {
                 config: {
                     reuseWorkspaceId: workspace.id
                 }
             }));
 
+            const secondWorkspaceContext = await secondWorkspace.getContext();
 
-            expect(secondWorkspaceContext).to.eql(firstContext);
+            expect(secondWorkspaceContext).to.eql({});
+        });
+
+        it("not preserve the context when an empty object is passed as a new context", async () => {
+            const firstContext = {
+                "a": "b"
+            };
+
+            const workspace = await glue.workspaces.createWorkspace(Object.assign({}, basicConfig, {
+                context: firstContext
+            }));
+
+            const secondWorkspace = await glue.workspaces.createWorkspace(Object.assign({}, basicConfig, {
+                config: {
+                    reuseWorkspaceId: workspace.id,
+                    context: {}
+                }
+            }));
+
+            const secondWorkspaceContext = await secondWorkspace.getContext();
+
+            expect(secondWorkspaceContext).to.eql({});
         });
 
         it("set the context correctly when a new context has been passed", async () => {
@@ -694,7 +714,7 @@ describe('createWorkspace() ', function () {
         it("load all windows when the loadingStrategy is lazy and all windows are focused", async () => {
             let loadedWindowsCount = 0;
             const lazyConfig = Object.assign(config, { config: { loadingStrategy: "lazy" } });
-            
+
             let unsub = await glue.workspaces.onWindowLoaded(() => {
                 loadedWindowsCount++;
             });
@@ -754,7 +774,7 @@ describe('createWorkspace() ', function () {
 
             gtf.addWindowHook(unsub);
 
-            const workspace =  await glue.workspaces.createWorkspace(delayedConfig);
+            const workspace = await glue.workspaces.createWorkspace(delayedConfig);
             await Promise.all(workspace.getAllWindows().map(w => w.focus()));
 
             await gtf.wait(3000);
@@ -780,7 +800,7 @@ describe('createWorkspace() ', function () {
                     }
                 });
 
-            gtf.addWindowHook(unsub);
+                gtf.addWindowHook(unsub);
 
                 const workspace = await glue.workspaces.createWorkspace(directConfig);
                 await gtf.wait(delay);

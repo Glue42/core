@@ -177,8 +177,10 @@ export class WorkspacesManager {
                 workspace.windows.map((w) => store.getWindowContentItem(w.id))
                     .filter((w) => w)
                     .map((w) => this.closeTab(w, false));
+
                 await this.reinitializeWorkspace(savedConfig.id, savedConfig);
-                if (savedConfig.workspacesOptions?.context && JSON.stringify(savedConfig.workspacesOptions?.context) !== "{}") {
+
+                if (savedConfig.workspacesOptions?.context) {
                     await this._glue.contexts.set(getWorkspaceContextName(savedConfig.id), savedConfig.workspacesOptions.context);
                 }
             } else {
@@ -310,9 +312,7 @@ export class WorkspacesManager {
                 .map((w) => this.closeTab(w, false));
 
             await this.reinitializeWorkspace(id, config);
-            if (config.workspacesOptions.context) {
-                await this._glue.contexts.set(getWorkspaceContextName(id), config.workspacesOptions.context);
-            }
+            await this._glue.contexts.set(getWorkspaceContextName(id), config.workspacesOptions.context ?? {});
         } else {
             await this.addWorkspace(id, config);
         }
