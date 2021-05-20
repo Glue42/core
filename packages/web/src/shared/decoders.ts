@@ -3,7 +3,7 @@ import { Decoder, string, number, object, constant, oneOf, optional, array, bool
 import { Glue42Web } from "../../web";
 import { AppsImportOperation, AppHelloSuccess, ApplicationData, ApplicationStartConfig, AppManagerOperationTypes, AppRemoveConfig, BaseApplicationData, BasicInstanceData, InstanceData, AppsExportOperation, FDC3Definition } from "../appManager/protocol";
 import { AllLayoutsFullConfig, AllLayoutsSummariesResult, GetAllLayoutsConfig, LayoutsImportConfig, LayoutsOperationTypes, OptionalSimpleLayoutResult, SimpleLayoutConfig, SimpleLayoutResult } from "../layouts/protocol";
-import { HelloSuccess, OpenWindowConfig, CoreWindowData, WindowHello, WindowOperationTypes, SimpleWindowCommand, WindowTitleConfig, WindowBoundsResult, WindowMoveResizeConfig, WindowUrlResult } from "../windows/protocol";
+import { HelloSuccess, OpenWindowConfig, CoreWindowData, WindowHello, WindowOperationTypes, SimpleWindowCommand, WindowTitleConfig, WindowBoundsResult, WindowMoveResizeConfig, WindowUrlResult, FrameWindowBoundsResult } from "../windows/protocol";
 import { IntentsOperationTypes, WrappedIntentFilter, WrappedIntents } from "../intents/protocol";
 import { LibDomains } from "./types";
 
@@ -20,12 +20,13 @@ export const libDomainDecoder: Decoder<LibDomains> = oneOf<"system" | "windows" 
     constant("channels")
 );
 
-export const windowOperationTypesDecoder: Decoder<WindowOperationTypes> = oneOf<"openWindow" | "getBounds" | "windowHello" | "windowAdded" | "windowRemoved" | "getUrl" | "moveResize" | "focus" | "close" | "getTitle" | "setTitle">(
+export const windowOperationTypesDecoder: Decoder<WindowOperationTypes> = oneOf<"openWindow" | "getBounds" | "getFrameBounds" | "windowHello" | "windowAdded" | "windowRemoved" | "getUrl" | "moveResize" | "focus" | "close" | "getTitle" | "setTitle">(
     constant("openWindow"),
     constant("windowHello"),
     constant("windowAdded"),
     constant("windowRemoved"),
     constant("getBounds"),
+    constant("getFrameBounds"),
     constant("getUrl"),
     constant("moveResize"),
     constant("focus"),
@@ -117,6 +118,15 @@ export const windowMoveResizeConfigDecoder: Decoder<WindowMoveResizeConfig> = ob
 
 export const windowBoundsResultDecoder: Decoder<WindowBoundsResult> = object({
     windowId: nonEmptyStringDecoder,
+    bounds: object({
+        top: number(),
+        left: number(),
+        width: nonNegativeNumberDecoder,
+        height: nonNegativeNumberDecoder
+    })
+});
+
+export const frameWindowBoundsResultDecoder: Decoder<FrameWindowBoundsResult> = object({
     bounds: object({
         top: number(),
         left: number(),

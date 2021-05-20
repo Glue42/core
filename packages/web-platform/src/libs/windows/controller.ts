@@ -6,7 +6,7 @@ import { BridgeOperation, CoreClientData, InternalPlatformConfig, LibController,
 import { GlueController } from "../../controllers/glue";
 import { SessionStorageController } from "../../controllers/session";
 import { PromiseWrap } from "../../shared/promisePlus";
-import { openWindowConfigDecoder, simpleWindowDecoder, windowBoundsResultDecoder, windowMoveResizeConfigDecoder, windowOperationDecoder, windowTitleConfigDecoder, windowUrlResultDecoder } from "./decoders";
+import { frameWindowBoundsResultDecoder, openWindowConfigDecoder, simpleWindowDecoder, windowBoundsResultDecoder, windowMoveResizeConfigDecoder, windowOperationDecoder, windowTitleConfigDecoder, windowUrlResultDecoder } from "./decoders";
 import { StateController } from "../../controllers/state";
 import { HelloSuccess, OpenWindowConfig, OpenWindowSuccess, SimpleWindowCommand, WindowBoundsResult, WindowMoveResizeConfig, WindowOperationsTypes, WindowTitleConfig, WindowUrlResult } from "./types";
 import { getRelativeBounds } from "../../shared/utils";
@@ -24,6 +24,7 @@ export class WindowsController implements LibController {
         openWindow: { name: "openWindow", execute: this.openWindow.bind(this), dataDecoder: openWindowConfigDecoder },
         windowHello: { name: "windowHello", execute: this.handleWindowHello.bind(this) },
         getBounds: { name: "getBounds", dataDecoder: simpleWindowDecoder, resultDecoder: windowBoundsResultDecoder, execute: this.handleGetBounds.bind(this) },
+        getFrameBounds: { name: "getFrameBounds", dataDecoder: simpleWindowDecoder, resultDecoder: frameWindowBoundsResultDecoder, execute: this.handleGetBounds.bind(this) },
         getUrl: { name: "getUrl", dataDecoder: simpleWindowDecoder, resultDecoder: windowUrlResultDecoder, execute: this.handleGetUrl.bind(this) },
         moveResize: { name: "moveResize", dataDecoder: windowMoveResizeConfigDecoder, execute: this.handleMoveResize.bind(this) },
         focus: { name: "focus", dataDecoder: simpleWindowDecoder, execute: this.handleFocus.bind(this) },
@@ -47,6 +48,10 @@ export class WindowsController implements LibController {
 
     public get moveResizeOperation(): BridgeOperation {
         return this.operations.moveResize;
+    }
+
+    public get getFrameBoundsOperation(): BridgeOperation {
+        return this.operations.getFrameBounds;
     }
 
     public get setTitleOperation(): BridgeOperation {

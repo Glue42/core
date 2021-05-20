@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any*/
 import GoldenLayout from "@glue42/golden-layout";
 import registryFactory from "callback-registry";
 const ResizeObserver = require("resize-observer-polyfill").default || require("resize-observer-polyfill");
-import { idAsString, getAllWindowsFromConfig, createWaitFor, getElementBounds, getAllItemsFromConfig } from "../utils";
-import { Workspace, Window, FrameLayoutConfig, StartupConfig, ComponentState, LayoutWithMaximizedItem, WorkspaceDropOptions } from "../types/internal";
+import { idAsString, getAllWindowsFromConfig, createWaitFor, getElementBounds, getAllItemsFromConfig, getRealHeight } from "../utils";
+import { Workspace, Window, FrameLayoutConfig, StartupConfig, ComponentState, LayoutWithMaximizedItem, WorkspaceDropOptions, Bounds } from "../types/internal";
 import { LayoutEventEmitter } from "./eventEmitter";
 import store from "../state/store";
 import { LayoutStateResolver } from "../state/resolver";
@@ -41,11 +42,11 @@ export class LayoutController {
         this._configFactory = configFactory;
     }
 
-    public get emitter() {
+    public get emitter(): LayoutEventEmitter {
         return this._emitter;
     }
 
-    public get bounds() {
+    public get bounds(): Bounds {
         return getElementBounds(document.getElementById("outter-layout-container"));
     }
 
@@ -127,11 +128,18 @@ export class LayoutController {
                 config = getAllWindowsFromConfig([config])[0];
             }
 
-            if (emptyVisibleWindow && !emptyVisibleWindow.parent.config.workspacesConfig?.wrapper) {
+            if (emptyVisibleWindow &&
+                emptyVisibleWindow.parent &&
+                !emptyVisibleWindow.parent.config.workspacesConfig?.wrapper) {
                 // Triggered when the API level parent is an empty group
 
                 const group = this._configFactory.wrapInGroup([config as GoldenLayout.ComponentConfig]);
                 group.workspacesConfig.wrapper = false;
+                const { wrapper, ...options } = emptyVisibleWindow.parent.config?.workspacesConfig || {};
+                group.workspacesConfig = {
+                    ...group.workspacesConfig,
+                    ...options
+                };
                 // Replacing the whole stack in order to trigger the header logic and the properly update the title
                 emptyVisibleWindow.parent.parent.replaceChild(emptyVisibleWindow.parent, group);
 
@@ -310,7 +318,7 @@ export class LayoutController {
         this.emitter.raiseEvent("workspace-added", { workspace: store.getById(id) });
     }
 
-    public reinitializeWorkspace(id: string, config: GoldenLayout.Config) {
+    public reinitializeWorkspace(id: string, config: GoldenLayout.Config): Promise<unknown> {
         store.removeLayout(id);
         if (config.workspacesOptions?.reuseWorkspaceId) {
             // Making sure that the property doesn't leak in a workspace summary or a saved layout
@@ -354,7 +362,7 @@ export class LayoutController {
         return dragElement[0];
     }
 
-    public setDragElementSize(contentWidth: number, contentHeight: number) {
+    public setDragElementSize(contentWidth: number, contentHeight: number): void {
         const dragElement = this.getDragElement();
 
         if (!dragElement) {
@@ -882,7 +890,223 @@ export class LayoutController {
         wrapper.allowExtract = false;
     }
 
-    private initWorkspaceContents(id: string, config: GoldenLayout.Config | GoldenLayout.ItemConfig, useWorkspaceSpecificConfig: boolean): Promise<any> {
+    public resizeRow(rowItem: GoldenLayout.Row, height?: number): void {
+        const component = rowItem.getItemsByType("component")[0] as GoldenLayout.Component;
+        let heightToResize = this.validateRowHeight(rowItem, height);
+
+        if (!heightToResize) {
+            return;
+        }
+
+        if (typeof height === "number") {
+            const stackHeaderSize = getRealHeight(component.parent.header.element);
+
+            heightToResize -= stackHeaderSize;
+        }
+
+        this.resizeComponentCore(component, undefined, heightToResize);
+    }
+
+    public resizeColumn(columnItem: GoldenLayout.Column, width?: number): void {
+        const component = columnItem.getItemsByType("component")[0] as GoldenLayout.Component;
+        const widthToResize = this.validateColumnWidth(columnItem, width);
+
+        if (!widthToResize) {
+            return;
+        }
+
+        this.resizeComponentCore(component, widthToResize);
+    }
+
+    public resizeStack(stackItem: GoldenLayout.Stack, width?: number, height?: number): void {
+        const widthToResize = this.validateStackWidth(stackItem, width);
+        let heightToResize = this.validateStackHeight(stackItem, height);
+        const component = stackItem.getItemsByType("component")[0] as GoldenLayout.Component;
+
+        if (typeof heightToResize === "number") {
+            const stackHeaderSize = getRealHeight(component.parent.header.element);
+
+            heightToResize -= stackHeaderSize;
+        }
+
+        this.resizeComponentCore(component, widthToResize, heightToResize);
+    }
+
+    public resizeComponent(componentItem: GoldenLayout.Component, width?: number, height?: number): void {
+
+        this.resizeComponentCore(componentItem, width, height);
+    }
+
+    private resizeComponentCore(componentItem: GoldenLayout.Component, width?: number, height?: number): void {
+        const widthToResize = this.validateComponentWidth(componentItem, width);
+        const heightToResize = this.validateComponentHeight(componentItem, height);
+
+        if (typeof widthToResize === "number") {
+            // Resizing twice to increase accuracy
+            const result = (componentItem as any).container.setSize(widthToResize, undefined);
+            (componentItem as any).container.setSize(widthToResize, undefined);
+
+            if (!result) {
+                throw new Error(`Failed to resize window ${componentItem.config.id} to ${widthToResize} width.
+                 This is most likely caused by a missing row parent element - to change the width please make sure that there is a row element`);
+            }
+        }
+
+        if (typeof heightToResize === "number") {
+            // Resizing twice to increase accuracy
+            const result = (componentItem as any).container.setSize(undefined, heightToResize);
+            (componentItem as any).container.setSize(undefined, heightToResize);
+
+            if (!result) {
+                throw new Error(`Failed to resize component ${componentItem.config.id} to ${heightToResize} height.
+                     This is most likely caused by a missing column parent element - to change the height please make sure that there is a column element`);
+            }
+        }
+    }
+
+    private validateRowHeight(item: GoldenLayout.ContentItem, height: number): number | undefined {
+        if (!height) {
+            return;
+        }
+        const parent = item.parent;
+        const parentMaxHeight = parent.getMaxHeight();
+        const itemMaxHeight = item.getMaxHeight();
+        const itemMinHeight = item.getMinHeight();
+        const parentHeight = getElementBounds(parent.element).height;
+
+        const neighboursMinHeights = parent.contentItems.filter((ci) => ci !== item).reduce((acc, ci) => {
+            acc += ci.getMinHeight();
+            return acc;
+        }, 0);
+
+        const maxHeightConstraintFromNeighbours = parentHeight - neighboursMinHeights;
+        if (maxHeightConstraintFromNeighbours <= 0) {
+            return;
+        }
+
+        const neighoursMaxHeights = parent.contentItems.filter((ci) => ci !== item).reduce((acc, ci) => {
+            acc += ci.getMaxHeight();
+            return acc;
+        }, 0);
+
+        const minHeightConstraintFromNeighbours = Math.max(parentHeight - neighoursMaxHeights, 0);
+
+        const smallestMaxConstraint = Math.min(parentMaxHeight, itemMaxHeight, maxHeightConstraintFromNeighbours);
+        const biggestMinConstraint = Math.max(minHeightConstraintFromNeighbours, itemMinHeight);
+
+        if (smallestMaxConstraint < biggestMinConstraint) {
+            return;
+        }
+
+        return Math.min(Math.max(biggestMinConstraint, height), smallestMaxConstraint);
+    }
+
+    private validateColumnWidth(item: GoldenLayout.ContentItem, width: number): number | undefined {
+        if (!width) {
+            return;
+        }
+        const parent = item.parent;
+        const parentMaxWidth = parent.getMaxWidth();
+        const itemMaxWidth = item.getMaxWidth();
+        const itemMinWidth = item.getMinWidth();
+        const parentWidth = getElementBounds(parent.element).width;
+
+        const neighboursMinWidths = parent.contentItems.filter((ci) => ci !== item).reduce((acc, ci) => {
+            acc += ci.getMinWidth();
+            return acc;
+        }, 0);
+
+        const maxWidthConstraintFromNeighbours = parentWidth - neighboursMinWidths;
+        if (maxWidthConstraintFromNeighbours <= 0) {
+            return;
+        }
+
+        const neighoursMaxWidths = parent.contentItems.filter((ci) => ci !== item).reduce((acc, ci) => {
+            acc += ci.getMaxWidth();
+            return acc;
+        }, 0);
+
+        const minWidthConstraintFromNeighbours = Math.max(parentWidth - neighoursMaxWidths, 0);
+
+        const smallestMaxConstraint = Math.min(parentMaxWidth, itemMaxWidth, maxWidthConstraintFromNeighbours);
+        const biggestMinConstraint = Math.max(minWidthConstraintFromNeighbours, itemMinWidth);
+
+        if (smallestMaxConstraint < biggestMinConstraint) {
+            return;
+        }
+
+        return Math.min(Math.max(biggestMinConstraint, width), smallestMaxConstraint);
+    }
+
+    private validateStackHeight(item: GoldenLayout.ContentItem, height: number): number | undefined {
+        if (!height) {
+            return;
+        }
+        const itemMaxHeight = item.getMaxHeight();
+        const itemMinHeight = item.getMinHeight();
+
+        const smallestMaxConstraint = itemMaxHeight;
+        const biggestMinConstraint = itemMinHeight;
+
+        if (smallestMaxConstraint < biggestMinConstraint) {
+            return;
+        }
+
+        return Math.min(Math.max(biggestMinConstraint, height), smallestMaxConstraint);
+    }
+
+    private validateStackWidth(item: GoldenLayout.ContentItem, width: number): number | undefined {
+        if (!width) {
+            return;
+        }
+        const itemMaxWidth = item.getMaxWidth();
+        const itemMinWidth = item.getMinWidth();
+
+        const smallestMaxConstraint = itemMaxWidth;
+        const biggestMinConstraint = itemMinWidth;
+
+        if (smallestMaxConstraint < biggestMinConstraint) {
+            return;
+        }
+
+        return Math.min(Math.max(biggestMinConstraint, width), smallestMaxConstraint);
+    }
+
+    private validateComponentHeight(item: GoldenLayout.ContentItem, height: number): number | undefined {
+        if (!height) {
+            return;
+        }
+        const itemMaxHeight = item.getMaxHeight();
+        const itemMinHeight = item.getMinHeight();
+
+        const smallestMaxConstraint = itemMaxHeight;
+        const biggestMinConstraint = itemMinHeight;
+
+        if (smallestMaxConstraint < biggestMinConstraint) {
+            return;
+        }
+
+        return Math.min(Math.max(biggestMinConstraint, height), smallestMaxConstraint);
+    }
+
+    private validateComponentWidth(item: GoldenLayout.ContentItem, width: number): number | undefined {
+        if (!width) {
+            return;
+        }
+        const itemMaxWidth = item.getMaxWidth();
+        const itemMinWidth = item.getMinWidth();
+
+        const smallestMaxConstraint = itemMaxWidth;
+        const biggestMinConstraint = itemMinWidth;
+
+        if (smallestMaxConstraint < biggestMinConstraint) {
+            return;
+        }
+
+        return Math.min(Math.max(biggestMinConstraint, width), smallestMaxConstraint);
+    }
+
+    private initWorkspaceContents(id: string, config: GoldenLayout.Config | GoldenLayout.ItemConfig, useWorkspaceSpecificConfig: boolean): Promise<unknown> {
         if (!config || (config.type !== "component" && !config.content.length)) {
             store.addOrUpdate(id, []);
             this.showAddButton(id);
@@ -1179,8 +1403,11 @@ export class LayoutController {
             this.emitter.raiseEvent("workspace-global-selection-changed", { component, workspaceId: id });
         });
 
+        layout._ignorePinned = true;
         layout.init();
-        return waitFor.promise;
+        return waitFor.promise.then(() => {
+            layout._ignorePinned = false;
+        });
     }
 
     private initWorkspaceConfig(workspaceConfig: GoldenLayout.Config): Promise<void> {
@@ -1320,7 +1547,7 @@ export class LayoutController {
         });
     }
 
-    private setupContentLayouts(id: string) {
+    private setupContentLayouts(id: string): void {
         this.emitter.onContentContainerResized((item) => {
             const currLayout = store.getById(id).layout;
             if (currLayout) {
@@ -1508,7 +1735,6 @@ export class LayoutController {
 
     private applyLockConfig(itemConfig: GoldenLayout.ItemConfig, parent: GoldenLayout.ContentItem, workspaceWrapper: WorkspaceWrapper, isParentWorkspace: boolean): void {
         const parentAllowDrop = isParentWorkspace ? workspaceWrapper.allowDrop : (parent.config.workspacesConfig as any).allowDrop;
-
         if (itemConfig.type === "stack") {
             if (typeof (itemConfig.workspacesConfig as any).allowDrop === "undefined") {
                 (itemConfig.workspacesConfig as any).allowDrop = (itemConfig.workspacesConfig as any).allowDrop ?? parentAllowDrop;

@@ -59,6 +59,11 @@ export class ConfigConverter {
             }
 
             glConfig.workspacesConfig.allowDrop = config.config?.allowDrop;
+            glConfig.workspacesConfig.isPinned = config.config?.isPinned;
+            glConfig.workspacesConfig.maxWidth = config.config?.maxWidth;
+            glConfig.workspacesConfig.minWidth = config.config?.minWidth;
+            glConfig.workspacesConfig.maxHeight = config.config?.maxHeight;
+            glConfig.workspacesConfig.minHeight = config.config?.minHeight;
             glConfig.width = this.convertSizeToRendererConfigSafely(config.config?.width as any);
             glConfig.height = this.convertSizeToRendererConfigSafely(config.config?.height as any);
 
@@ -79,6 +84,10 @@ export class ConfigConverter {
             glConfig.workspacesConfig.showMaximizeButton = config.config?.showMaximizeButton;
             glConfig.workspacesConfig.showEjectButton = config.config?.showEjectButton;
             glConfig.workspacesConfig.showAddWindowButton = config.config?.showAddWindowButton;
+            glConfig.workspacesConfig.maxWidth = config.config?.maxWidth;
+            glConfig.workspacesConfig.minWidth = config.config?.minWidth;
+            glConfig.workspacesConfig.maxHeight = config.config?.maxHeight;
+            glConfig.workspacesConfig.minHeight = config.config?.minHeight;
             glConfig.activeItemIndex = config.config?.activeTabIndex;
             glConfig.width = this.convertSizeToRendererConfigSafely(config.config?.width as any);
             glConfig.height = this.convertSizeToRendererConfigSafely(config.config?.height as any);
@@ -100,6 +109,10 @@ export class ConfigConverter {
                 context: config.config?.context || (config as any).context,
                 allowExtract: config?.config?.allowExtract ?? (config as any).allowExtract,
                 showCloseButton: config?.config?.showCloseButton ?? (config as any).showCloseButton,
+                minWidth: config?.config?.minWidth ?? (config as any).minWidth,
+                maxWidth: config?.config?.maxWidth ?? (config as any).maxWidth,
+                minHeight: config?.config?.minHeight ?? (config as any).minHeight,
+                maxHeight: config?.config?.maxHeight ?? (config as any).maxHeight
             });
 
             if (parent.type !== "group") {
@@ -139,7 +152,13 @@ export class ConfigConverter {
                 title: wspsConfig.title,
                 positionIndex: wspsConfig.positionIndex,
                 allowExtract: wspsConfig.allowExtract,
-                showCloseButton: wspsConfig.showCloseButton
+                showCloseButton: wspsConfig.showCloseButton,
+                maxHeight: wspsConfig.maxHeight,
+                maxWidth: wspsConfig.maxWidth,
+                minHeight: wspsConfig.minHeight,
+                minWidth: wspsConfig.minWidth,
+                widthInPx: wspsConfig.widthInPx,
+                heightInPx: wspsConfig.heightInPx
             });
 
             return resultWindow;
@@ -157,10 +176,17 @@ export class ConfigConverter {
                 width: configAsAny.width,
                 height: configAsAny.height,
                 allowDrop: configAsAny.workspacesConfig?.allowDrop,
+                isPinned: configAsAny.workspacesConfig?.isPinned,
                 allowExtract: configAsAny.workspacesConfig?.allowExtract,
                 showMaximizeButton: configAsAny.workspacesConfig?.showMaximizeButton,
                 showEjectButton: configAsAny.workspacesConfig?.showEjectButton,
                 showAddWindowButton: configAsAny.workspacesConfig?.showAddWindowButton,
+                minWidth: configAsAny.workspacesConfig?.minWidth,
+                maxWidth: configAsAny.workspacesConfig?.maxWidth,
+                minHeight: configAsAny.workspacesConfig?.minHeight,
+                maxHeight: configAsAny.workspacesConfig?.maxHeight,
+                widthInPx: configAsAny.workspacesConfig?.widthInPx,
+                heightInPx: configAsAny.workspacesConfig?.heightInPx
             }
         };
 

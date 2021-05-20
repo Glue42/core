@@ -8,6 +8,7 @@ import { Row } from "./row";
 import { Column } from "./column";
 import { Group } from "./group";
 import { WorkspaceWindowLockConfig } from "../types/temp";
+import { number, optional } from "decoder-validate";
 
 interface PrivateData {
     manager: PrivateDataManager;
@@ -73,6 +74,22 @@ export class Window implements Glue42Workspaces.WorkspaceWindow {
         return getData(this).config.showCloseButton;
     }
 
+    public get minWidth(): number {
+        return getData(this).config.minWidth;
+    }
+
+    public get minHeight(): number {
+        return getData(this).config.minHeight;
+    }
+
+    public get maxWidth(): number {
+        return getData(this).config.maxWidth;
+    }
+
+    public get maxHeight(): number {
+        return getData(this).config.maxHeight;
+    }
+
     public get workspace(): Glue42Workspaces.Workspace {
         return getData(this).workspace;
     }
@@ -87,6 +104,14 @@ export class Window implements Glue42Workspaces.WorkspaceWindow {
 
     public get appName(): string {
         return getData(this).config.appName;
+    }
+
+    public get width(): number {
+        return getData(this).config.widthInPx;
+    }
+
+    public get height(): number {
+        return getData(this).config.heightInPx;
     }
 
     public async forceLoad(): Promise<void> {
@@ -215,6 +240,26 @@ export class Window implements Glue42Workspaces.WorkspaceWindow {
         const verifiedConfig = lockConfigResult === undefined ? undefined : windowLockConfigDecoder.runWithException(lockConfigResult);
         const windowPlacementId = getData(this).id;
         await getData(this).controller.lockWindow(windowPlacementId, verifiedConfig);
+        await this.workspace.refreshReference();
+    }
+
+    public async setSize(width?: number, height?: number): Promise<void> {
+        if (!width && !height) {
+            throw new Error("Expected either width or height to be passed}");
+        }
+
+        optional(number().where(n => n > 0, "The height should be positive")).runWithException(height);
+        optional(number().where(n => n > 0, "The width should be positive")).runWithException(width);
+
+        const myId = getData(this).id;
+        const controller = getData(this).controller;
+
+        await controller.resizeItem(myId, {
+            height,
+            width,
+            relative: false
+        });
+
         await this.workspace.refreshReference();
     }
 

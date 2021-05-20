@@ -278,4 +278,15 @@ describe("properties: ", () => {
             expect(win.parent.id).to.eql(firstGroup.id);
         });
     });
+
+    describe("constraints: Should", () => {
+        it(`Should be default`, () => {
+            const window = workspace.getAllWindows()[0];
+
+            expect(window.minWidth).to.eql(10);
+            expect(window.maxWidth).to.eql(32767);
+            expect(window.minHeight).to.eql(10);
+            expect(window.maxHeight).to.eql(32767);
+        });
+    });
 });

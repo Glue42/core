@@ -4,6 +4,7 @@ describe("properties: ", () => {
         type: "window",
         appName: "dummyApp"
     };
+    const decorationsHeight = 30;
     const threeContainersConfig = {
         children: [
             {
@@ -557,6 +558,110 @@ describe("properties: ", () => {
             const resultWorkspace = group.workspace;
 
             expect(resultWorkspace.id).to.eql(workspace.id);
+        });
+    });
+
+    describe("constraints: Should", () => {
+        Array.from(["group", "column", "row"]).forEach((parent) => {
+
+            it(`Should be default when the parent is a ${parent}`, () => {
+                const currParent = workspace.getBox(p => p.type === parent);
+
+                if (parent === "row") {
+                    expect(currParent.minWidth).to.eql(30);
+                } else {
+                    expect(currParent.minWidth).to.eql(10);
+                }
+                expect(currParent.maxWidth).to.eql(32767);
+                if (parent === "row" || parent === "group") {
+                    expect(currParent.minHeight).to.eql(10 + decorationsHeight); // contains a window
+                } else {
+                    expect(currParent.minHeight).to.eql(10); // does not contain a window
+                }
+                expect(currParent.maxHeight).to.eql(32767);
+            });
+        });
+    });
+
+    describe("width: Should", () => {
+        Array.from(["group", "column", "row"]).forEach((parent) => {
+
+            it(`be a number when the parent is a ${parent}`, () => {
+                const currParent = workspace.getBox(p => p.type === parent);
+
+                expect(currParent.width).to.be.a("number");
+            });
+        });
+    });
+
+    describe("height: Should", () => {
+        Array.from(["group", "column", "row"]).forEach((parent) => {
+
+            it(`be a number when the parent is a ${parent}`, () => {
+                const currParent = workspace.getBox(p => p.type === parent);
+
+                expect(currParent.height).to.be.a("number");
+            });
+        });
+    });
+
+    describe("minWidth: Should", () => {
+        Array.from(["group", "column", "row"]).forEach((parent) => {
+
+            it(`be a number when the parent is a ${parent}`, () => {
+                const currParent = workspace.getBox(p => p.type === parent);
+
+                expect(currParent.minWidth).to.be.a("number");
+            });
+        });
+    });
+
+    describe("minHeight: Should", () => {
+        Array.from(["group", "column", "row"]).forEach((parent) => {
+
+            it(`be a number when the parent is a ${parent}`, () => {
+                const currParent = workspace.getBox(p => p.type === parent);
+
+                expect(currParent.minHeight).to.be.a("number");
+            });
+        });
+    });
+
+    describe("maxWidth: Should", () => {
+        Array.from(["group", "column", "row"]).forEach((parent) => {
+
+            it(`be a number when the parent is a ${parent}`, () => {
+                const currParent = workspace.getBox(p => p.type === parent);
+
+                expect(currParent.maxWidth).to.be.a("number");
+            });
+        });
+    });
+
+    describe("maxHeight: Should", () => {
+        Array.from(["group", "column", "row"]).forEach((parent) => {
+
+            it(`be a number when the parent is a ${parent}`, () => {
+                const currParent = workspace.getBox(p => p.type === parent);
+
+                expect(currParent.maxHeight).to.be.a("number");
+            });
+        });
+    });
+
+    describe("isPinned: Should", () => {
+        Array.from(["column", "row"]).forEach((parent) => {
+            it(`be a boolean when the parent is a ${parent}`, () => {
+                const currParent = workspace.getBox(p => p.type === parent);
+
+                expect(currParent.isPinned).to.be.a("boolean");
+            });
+
+            it(`be false when the parent is a ${parent}`, () => {
+                const currParent = workspace.getBox(p => p.type === parent);
+
+                expect(currParent.isPinned).to.eql(false);
+            });
         });
     });
 });

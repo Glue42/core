@@ -35,7 +35,8 @@ import {
     workspaceSelectorDecoder,
     lockWorkspaceDecoder,
     lockWindowDecoder,
-    lockContainerDecoder
+    lockContainerDecoder,
+    frameBoundsResultDecoder
 } from "../shared/decoders";
 import { ControlOperation, StreamOperation } from "../types/protocol";
 import { WorkspaceEventType } from "../types/subscription";
@@ -69,6 +70,7 @@ type OperationsTypes = "isWindowInWorkspace" |
     "ping" |
     "changeFrameState" |
     "getFrameState" |
+    "getFrameBounds" |
     "hibernateWorkspace" |
     "resumeWorkspace" |
     "lockWorkspace" |
@@ -115,6 +117,7 @@ export const OPERATIONS: { [key in OperationsTypes]: ControlOperation } = {
     resizeItem: { name: "resizeItem", argsDecoder: resizeItemConfigDecoder, resultDecoder: voidResultDecoder },
     changeFrameState: { name: "changeFrameState", argsDecoder: frameStateConfigDecoder, resultDecoder: voidResultDecoder },
     getFrameState: { name: "getFrameState", argsDecoder: simpleItemConfigDecoder, resultDecoder: frameStateResultDecoder },
+    getFrameBounds: { name: "getFrameBounds", argsDecoder: simpleItemConfigDecoder, resultDecoder: frameBoundsResultDecoder },
     moveFrame: { name: "moveFrame", argsDecoder: moveFrameConfigDecoder, resultDecoder: voidResultDecoder },
     getFrameSnapshot: { name: "getFrameSnapshot", argsDecoder: simpleItemConfigDecoder, resultDecoder: frameSnapshotResultDecoder },
     forceLoadWindow: { name: "forceLoadWindow", argsDecoder: simpleItemConfigDecoder, resultDecoder: simpleWindowOperationSuccessResultDecoder },

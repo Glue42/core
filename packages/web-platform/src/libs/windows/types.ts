@@ -2,7 +2,7 @@ import { Glue42Web } from "@glue42/web";
 
 export type WindowOperationsTypes = "openWindow" |
     "windowHello" | "getUrl" | "getTitle" | "setTitle" |
-    "moveResize" | "focus" | "close" | "getBounds" |
+    "moveResize" | "focus" | "close" | "getBounds" | "getFrameBounds" |
     "registerWorkspaceWindow" | "unregisterWorkspaceWindow";
 
 export interface OpenWindowConfig {
@@ -41,6 +41,10 @@ export interface WindowMoveResizeConfig {
 
 export interface WindowBoundsResult {
     windowId: string;
+    bounds: Glue42Web.Windows.Bounds;
+}
+
+export interface FrameWindowBoundsResult {
     bounds: Glue42Web.Windows.Bounds;
 }
 

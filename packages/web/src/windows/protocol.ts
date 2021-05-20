@@ -1,9 +1,9 @@
 import { Glue42Web } from "../../web";
-import { openWindowConfigDecoder, coreWindowDataDecoder, windowHelloDecoder, helloSuccessDecoder, simpleWindowDecoder, windowBoundsResultDecoder, windowUrlResultDecoder, windowMoveResizeConfigDecoder, windowTitleConfigDecoder } from "../shared/decoders";
+import { openWindowConfigDecoder, coreWindowDataDecoder, windowHelloDecoder, helloSuccessDecoder, simpleWindowDecoder, windowBoundsResultDecoder, windowUrlResultDecoder, windowMoveResizeConfigDecoder, windowTitleConfigDecoder, frameWindowBoundsResultDecoder } from "../shared/decoders";
 import { BridgeOperation } from "../shared/types";
 import { WebWindowModel } from "./webWindow";
 
-export type WindowOperationTypes = "openWindow" | "getBounds" |
+export type WindowOperationTypes = "openWindow" | "getBounds" | "getFrameBounds" |
     "windowHello" | "windowAdded" | "windowRemoved" | "getUrl" |
     "moveResize" | "focus" | "close" | "getTitle" | "setTitle";
 
@@ -13,6 +13,7 @@ export const operations: { [key in WindowOperationTypes]: BridgeOperation } = {
     windowAdded: { name: "windowAdded", dataDecoder: coreWindowDataDecoder },
     windowRemoved: { name: "windowRemoved", dataDecoder: simpleWindowDecoder },
     getBounds: { name: "getBounds", dataDecoder: simpleWindowDecoder, resultDecoder: windowBoundsResultDecoder },
+    getFrameBounds: { name: "getFrameBounds", dataDecoder: simpleWindowDecoder, resultDecoder: frameWindowBoundsResultDecoder },
     getUrl: { name: "getUrl", dataDecoder: simpleWindowDecoder, resultDecoder: windowUrlResultDecoder },
     moveResize: { name: "moveResize", dataDecoder: windowMoveResizeConfigDecoder },
     focus: { name: "focus", dataDecoder: simpleWindowDecoder },
@@ -67,6 +68,10 @@ export interface CoreWindowData {
 
 export interface WindowBoundsResult {
     windowId: string;
+    bounds: Glue42Web.Windows.Bounds;
+}
+
+export interface FrameWindowBoundsResult {
     bounds: Glue42Web.Windows.Bounds;
 }
 

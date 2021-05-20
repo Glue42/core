@@ -34,36 +34,54 @@ export interface WorkspaceConfigResult {
     allowExtract?: boolean;
     showCloseButton?: boolean;
     showSaveButton?: boolean;
+    minWidth?: number;
+    maxWidth?: number;
+    minHeight?: number;
+    maxHeight?: number;
     showWindowCloseButtons?: boolean;
     showAddWindowButtons?: boolean;
     showEjectButtons?: boolean;
+    widthInPx?: number;
+    heightInPx?: number;
 }
 
 export interface BaseChildSnapshotConfig {
     frameId: string;
     workspaceId: string;
     positionIndex: number;
+    minWidth?: number;
+    maxWidth?: number;
+    minHeight?: number;
+    maxHeight?: number;
 }
 
 export type ParentSnapshotConfig = RowSnapshotConfig | ColumnSnapshotConfig | GroupSnapshotConfig;
 
 export interface RowSnapshotConfig extends BaseChildSnapshotConfig {
     type?: "row";
-    allowDrop: boolean;
+    allowDrop?: boolean;
+    widthInPx?: number;
+    heightInPx?: number;
+    isPinned?: boolean;
 }
 
 export interface ColumnSnapshotConfig extends BaseChildSnapshotConfig {
     type?: "column";
-    allowDrop: boolean;
+    allowDrop?: boolean;
+    widthInPx?: number;
+    heightInPx?: number;
+    isPinned?: boolean;
 }
 
 export interface GroupSnapshotConfig extends BaseChildSnapshotConfig {
     type?: "group";
-    allowDrop: boolean;
-    allowExtract: boolean;
-    showMaximizeButton: boolean;
-    showEjectButton: boolean;
-    showAddWindowButton: boolean;
+    allowDrop?: boolean;
+    allowExtract?: boolean;
+    showMaximizeButton?: boolean;
+    showEjectButton?: boolean;
+    showAddWindowButton?: boolean;
+    widthInPx?: number;
+    heightInPx?: number;
 }
 
 export interface SwimlaneWindowSnapshotConfig extends BaseChildSnapshotConfig {
@@ -72,8 +90,10 @@ export interface SwimlaneWindowSnapshotConfig extends BaseChildSnapshotConfig {
     isFocused: boolean;
     appName?: string;
     title?: string;
-    allowExtract: boolean;
-    showCloseButton: boolean;
+    allowExtract?: boolean;
+    showCloseButton?: boolean;
+    widthInPx?: number;
+    heightInPx?: number;
 }
 
 export interface WindowSnapshotResult {
@@ -152,6 +172,15 @@ export interface PingResult {
 
 export interface FrameStateResult {
     state: Glue42Workspaces.FrameState;
+}
+
+export interface FrameBoundsResult {
+    bounds: {
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+    };
 }
 
 // #endregion

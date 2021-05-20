@@ -157,6 +157,11 @@ export interface LockContainerRequest {
     operationArguments: LockContainerArguments;
 }
 
+export interface ResizeItemRequest {
+    operation: "resizeItem";
+    operationArguments: ResizeItemArguments;
+}
+
 //#endregion
 
 //#region Arguments
@@ -290,6 +295,12 @@ export interface LockColumnArguments {
 
 export type LockContainerArguments = LockGroupArguments | LockColumnArguments | LockRowArguments;
 
+export interface ResizeItemArguments {
+    itemId: string;
+    width?: number;
+    height?: number;
+}
+
 //#endregion
 
 //#region Results
@@ -350,4 +361,4 @@ export type ControlArguments = SaveLayoutRequest | DeleteLayoutRequest |
     AddWorkspaceChildrenRequest | EjectRequest | CreateWorkspaceRequest | ForceLoadWindowRequest | FocusItemRequest |
     BundleWorkspaceRequest | IsWindowInWorkspaceRequest | GetFrameSummaryRequest | MoveFrameRequest | GetFrameSnapshotRequest |
     GetSnapshotRequest | MoveWindowToRequest | GenerateLayoutRequest | PingRequest | HibernateWorkspaceRequest | ResumeWorkspaceRequest |
-    LockWorkspaceRequest | LockContainerRequest | LockWindowRequest;
+    LockWorkspaceRequest | LockContainerRequest | LockWindowRequest | ResizeItemRequest;

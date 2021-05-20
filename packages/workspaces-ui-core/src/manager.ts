@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable indent */
 import { LayoutController } from "./layout/controller";
-import { WindowSummary, Workspace, WorkspaceOptionsWithTitle, WorkspaceOptionsWithLayoutName, ComponentFactory, LoadingStrategy } from "./types/internal";
+import { WindowSummary, Workspace, WorkspaceOptionsWithTitle, WorkspaceOptionsWithLayoutName, ComponentFactory, LoadingStrategy, WorkspaceLayout, Bounds, Constraints } from "./types/internal";
 import { LayoutEventEmitter } from "./layout/eventEmitter";
 import { IFrameController } from "./iframeController";
 import store from "./state/store";
@@ -14,7 +15,7 @@ import { idAsString, getAllWindowsFromConfig, getElementBounds, getWorkspaceCont
 import { WorkspacesConfigurationFactory } from "./config/factory";
 import { WorkspacesEventEmitter } from "./eventEmitter";
 import { Glue42Web } from "@glue42/web";
-import { LockColumnArguments, LockContainerArguments, LockGroupArguments, LockRowArguments, LockWindowArguments, LockWorkspaceArguments, RestoreWorkspaceConfig } from "./interop/types";
+import { LockColumnArguments, LockContainerArguments, LockGroupArguments, LockRowArguments, LockWindowArguments, LockWorkspaceArguments, ResizeItemArguments, RestoreWorkspaceConfig } from "./interop/types";
 import { TitleGenerator } from "./config/titleGenerator";
 import startupReader from "./config/startupReader";
 import componentStateMonitor from "./componentStateMonitor";
@@ -26,6 +27,9 @@ import { GlueFacade } from "./interop/facade";
 import { ApplicationFactory } from "./app/factory";
 import { DelayedExecutor } from "./utils/delayedExecutor";
 import systemSettings from "./config/system";
+import { ConstraintsValidator } from "./config/constraintsValidator";
+import { WorkspaceWrapper } from "./state/workspaceWrapper";
+import { DefaultMaxSize, DefaultMinSize } from "./utils/constants";
 
 export class WorkspacesManager {
     private _controller: LayoutController;
@@ -45,23 +49,23 @@ export class WorkspacesManager {
     private _facade: GlueFacade;
     private _isDisposing: boolean;
 
-    public get stateResolver() {
+    public get stateResolver(): LayoutStateResolver {
         return this._stateResolver;
     }
 
-    public get workspacesEventEmitter() {
+    public get workspacesEventEmitter(): WorkspacesEventEmitter {
         return this._workspacesEventEmitter;
     }
 
-    public get initPromise() {
+    public get initPromise(): Promise<void> {
         return this._initPromise;
     }
 
-    public get initialized() {
+    public get initialized(): boolean {
         return this._initialized;
     }
 
-    public get frameId() {
+    public get frameId(): string {
         return this._frameId;
     }
 
@@ -82,10 +86,10 @@ export class WorkspacesManager {
         componentStateMonitor.init(this._frameId, componentFactory);
         this._frameController = new IFrameController(glue);
         const eventEmitter = new LayoutEventEmitter(registryFactory());
-        this._stateResolver = new LayoutStateResolver(this._frameId, eventEmitter, this._frameController);
+        this._stateResolver = new LayoutStateResolver(this._frameId, eventEmitter, this._frameController, converter);
         this._controller = new LayoutController(eventEmitter, this._stateResolver, startupConfig, this._configFactory);
         this._applicationFactory = new ApplicationFactory(glue, this.stateResolver, this._frameController, this, new DelayedExecutor());
-        this._layoutsManager = new LayoutsManager(this.stateResolver, glue, this._configFactory, converter);
+        this._layoutsManager = new LayoutsManager(this.stateResolver, glue, this._configFactory, converter, new ConstraintsValidator());
         this._popupManager = new PopupManagerComposer(new PopupManager(glue), new ComponentPopupManager(componentFactory, frameId), componentFactory);
 
         if (!startupConfig.emptyFrame) {
@@ -95,20 +99,20 @@ export class WorkspacesManager {
         return { cleanUp: this.cleanUp };
     }
 
-    public getComponentBounds = () => {
+    public getComponentBounds = (): Bounds => {
         return this._controller.bounds;
     }
 
-    public subscribeForWindowClicked = (cb: () => void) => {
+    public subscribeForWindowClicked = (cb: () => void): UnsubscribeFunction => {
         if (!this._frameController) {
             // tslint:disable-next-line: no-console
             console.warn("Your subscription to window clicked wasn't successful, because the Workspaces library isn't initialized yet");
-            return () => { };
+            return (): void => { };
         }
         return this._frameController.onFrameContentClicked(cb);
     }
 
-    public async saveWorkspace(name: string, id?: string, saveContext?: boolean) {
+    public async saveWorkspace(name: string, id?: string, saveContext?: boolean): Promise<WorkspaceLayout> {
         const workspace = store.getById(id) || store.getActiveWorkspace();
         const result = await this._layoutsManager.save({
             name,
@@ -195,19 +199,19 @@ export class WorkspacesManager {
         return this._layoutsManager.export();
     }
 
-    public deleteLayout(name: string) {
+    public deleteLayout(name: string): void {
         this._layoutsManager.delete(name);
     }
 
-    public maximizeItem(itemId: string) {
+    public maximizeItem(itemId: string): void {
         this._controller.maximizeWindow(itemId);
     }
 
-    public restoreItem(itemId: string) {
+    public restoreItem(itemId: string): void {
         this._controller.restoreWindow(itemId);
     }
 
-    public closeItem(itemId: string) {
+    public closeItem(itemId: string): void {
         const win = store.getWindow(itemId);
         const container = store.getContainer(itemId);
         if (this._frameId === itemId) {
@@ -226,8 +230,14 @@ export class WorkspacesManager {
         }
     }
 
-    public async addContainer(config: GoldenLayout.RowConfig | GoldenLayout.StackConfig | GoldenLayout.ColumnConfig, parentId: string) {
-        const result = await this._controller.addContainer(config, parentId);
+    public async addContainer(config: GoldenLayout.RowConfig | GoldenLayout.StackConfig | GoldenLayout.ColumnConfig, parentId: string): Promise<string> {
+        const configWithtoutIsPinned = this.cleanIsPinned(config) as GoldenLayout.RowConfig | GoldenLayout.StackConfig | GoldenLayout.ColumnConfig;
+        const result = await this._controller.addContainer(configWithtoutIsPinned, parentId);
+
+        const itemConfig = store.getContainer(result);
+        if (itemConfig) {
+            this.applyIsPinned(config, itemConfig);
+        }
 
         const windowConfigs = getAllWindowsFromConfig(config.content);
         const workspace = store.getById(parentId) || store.getByContainerId(parentId);
@@ -241,21 +251,21 @@ export class WorkspacesManager {
         return result;
     }
 
-    public async addWindow(itemConfig: GoldenLayout.ItemConfig, parentId: string) {
+    public async addWindow(itemConfig: GoldenLayout.ItemConfig, parentId: string): Promise<void> {
         const parent = store.getContainer(parentId);
         if ((!parent || parent.type !== "stack") && itemConfig.type === "component") {
             itemConfig = this._configFactory.wrapInGroup([itemConfig]);
         }
+        const workspace = store.getById(parentId) || store.getByContainerId(parentId);
         await this._controller.addWindow(itemConfig, parentId);
 
-        const workspace = store.getById(parentId) || store.getByContainerId(parentId);
         const allWindowsInConfig = getAllWindowsFromConfig([itemConfig]);
         const component = store.getWindowContentItem(idAsString(allWindowsInConfig[0].id));
 
         this._applicationFactory.start(component, workspace.id);
     }
 
-    public setItemTitle(itemId: string, title: string) {
+    public setItemTitle(itemId: string, title: string): void {
         if (store.getById(itemId)) {
             this._controller.setWorkspaceTitle(itemId, title);
         } else {
@@ -285,7 +295,7 @@ export class WorkspacesManager {
         return { windowId: ejectedWindow.id };
     }
 
-    public async createWorkspace(config: GoldenLayout.Config) {
+    public async createWorkspace(config: GoldenLayout.Config): Promise<string> {
         if (!this._isLayoutInitialized) {
             config.id = this._configFactory.getId();
             this._layoutsManager.setInitialWorkspaceConfig(config);
@@ -320,7 +330,7 @@ export class WorkspacesManager {
         return id;
     }
 
-    public async loadWindow(itemId: string) {
+    public async loadWindow(itemId: string): Promise<{ windowId: string }> {
         let contentItem = store.getWindowContentItem(itemId);
         if (!contentItem) {
             throw new Error(`Could not find window ${itemId} to load`);
@@ -677,12 +687,46 @@ export class WorkspacesManager {
         }
     }
 
+    public resizeItem(args: ResizeItemArguments) {
+        if (args.itemId === this.frameId) {
+            throw new Error(`Cannot resize frame ${args.itemId}`);
+        } else {
+            return this.resizeWorkspaceItem(args);
+        }
+    }
+
     public unmount() {
         try {
             this._popupManager.hidePopup();
         } catch (error) {
             // tslint:disable-next-line: no-console
             console.warn(error);
+        }
+    }
+
+    private resizeWorkspaceItem(args: ResizeItemArguments) {
+        const item = store.getContainer(args.itemId) || store.getWindowContentItem(args.itemId);
+
+        if (!item) {
+            throw new Error(`Could not find container ${args.itemId} in frame ${this.frameId}`);
+        }
+
+        if (item.type === "column" && args.height) {
+            throw new Error(`Requested resize for ${item.type} ${args.itemId}, however an unsupported argument (height) was passed`);
+        }
+
+        if (item.type === "row" && args.width) {
+            throw new Error(`Requested resize for ${item.type} ${args.itemId}, however an unsupported argument (width) was passed`);
+        }
+
+        if (item.type === "row") {
+            this._controller.resizeRow(item, args.height);
+        } else if (item.type === "column") {
+            this._controller.resizeColumn(item, args.width);
+        } else if (item.type === "stack") {
+            this._controller.resizeStack(item, args.width, args.height);
+        } else {
+            this._controller.resizeComponent(item, args.width, args.height);
         }
     }
 
@@ -1011,7 +1055,7 @@ export class WorkspacesManager {
         });
     }
 
-    private subscribeForPopups() {
+    private subscribeForPopups(): void {
         this._frameController.onFrameContentClicked(() => {
             this._popupManager.hidePopup();
         });
@@ -1022,10 +1066,10 @@ export class WorkspacesManager {
 
         this._frameController.onFrameLoaded((id) => {
             this._controller.hideLoadingIndicator(id);
-        })
+        });
     }
 
-    private cleanUp = () => {
+    private cleanUp = (): void => {
         this._isDisposing = true;
         if (scReader.config?.build) {
             return;
@@ -1060,7 +1104,7 @@ export class WorkspacesManager {
         this.workspacesEventEmitter.raiseFrameEvent({ action: "closed", payload: { frameSummary: { id: this._frameId } } });
     };
 
-    private reportLayoutStructure(layout: Workspace["layout"]) {
+    private reportLayoutStructure(layout: Workspace["layout"]): void {
         const allWinsInLayout = getAllWindowsFromConfig(layout.toConfig().content);
 
         allWinsInLayout.forEach((w) => {
@@ -1070,7 +1114,7 @@ export class WorkspacesManager {
         });
     }
 
-    private closeWorkspace(workspace: Workspace) {
+    private closeWorkspace(workspace: Workspace): void {
         if (!workspace) {
             throw new Error("Could not find a workspace to close");
         }
@@ -1082,7 +1126,7 @@ export class WorkspacesManager {
         }
     }
 
-    private closeWorkspaceCore(workspace: Workspace) {
+    private closeWorkspaceCore(workspace: Workspace): void {
         const workspaceSummary = this.stateResolver.getWorkspaceSummary(workspace.id);
         const windowSummaries = workspace.windows.map((w) => {
             if (store.getWindowContentItem(w.id)) {
@@ -1116,7 +1160,7 @@ export class WorkspacesManager {
         });
     }
 
-    private closeHibernatedWorkspaceCore(workspace: Workspace) {
+    private closeHibernatedWorkspaceCore(workspace: Workspace): void {
         const workspaceSummary = this.stateResolver.getWorkspaceSummary(workspace.id);
         const snapshot = this.stateResolver.getSnapshot(workspace.id) as GoldenLayout.Config;
         const windowSummaries = this.stateResolver.extractWindowSummariesFromSnapshot(snapshot);
@@ -1147,16 +1191,19 @@ export class WorkspacesManager {
         });
     }
 
-    private async addWorkspace(id: string, config: GoldenLayout.Config) {
+    private async addWorkspace(id: string, config: GoldenLayout.Config): Promise<void> {
         await this._glue.contexts.set(getWorkspaceContextName(id), config?.workspacesOptions?.context || {});
         await this._controller.addWorkspace(id, config);
 
         const workspacesSystemSettings = await systemSettings.getSettings(this._glue);
         const loadingStrategy = this._applicationFactory.getLoadingStrategy(workspacesSystemSettings, config);
-        this.handleWindows(id, loadingStrategy);
+        this.handleWindows(id, loadingStrategy).catch((e) => {
+            // If it failes do nothing
+            console.log(e);
+        });
     }
 
-    private async handleWindows(workspaceId: string, loadingStrategy: LoadingStrategy) {
+    private async handleWindows(workspaceId: string, loadingStrategy: LoadingStrategy): Promise<void> {
         switch (loadingStrategy) {
             case "delayed":
                 await this._applicationFactory.startDelayed(workspaceId);
@@ -1202,9 +1249,9 @@ export class WorkspacesManager {
         return false;
     }
 
-    private waitForFrameLoaded(itemId: string) {
+    private waitForFrameLoaded(itemId: string): Promise<void> {
         return new Promise<void>((res, rej) => {
-            let unsub = () => {
+            let unsub = (): void => {
                 // safety
             };
             const timeout = setTimeout(() => {
@@ -1228,7 +1275,7 @@ export class WorkspacesManager {
         });
     }
 
-    private handleGroupLockRequested(data: LockGroupArguments) {
+    private handleGroupLockRequested(data: LockGroupArguments): void {
         const { allowExtract, showAddWindowButton, showEjectButton, showMaximizeButton, allowDrop } = data.config;
         if (allowExtract === false) {
             this._controller.disableGroupExtract(data.itemId);
@@ -1266,7 +1313,7 @@ export class WorkspacesManager {
         }
     }
 
-    private handleRowLockRequested(data: LockRowArguments) {
+    private handleRowLockRequested(data: LockRowArguments): void {
         const { allowDrop } = data.config;
         if (allowDrop === false) {
             this._controller.disableRowDrop(data.itemId);
@@ -1275,7 +1322,7 @@ export class WorkspacesManager {
         }
     }
 
-    private handleColumnLockRequested(data: LockColumnArguments) {
+    private handleColumnLockRequested(data: LockColumnArguments): void {
         const { allowDrop } = data.config;
 
         if (allowDrop === false) {
@@ -1283,6 +1330,62 @@ export class WorkspacesManager {
         } else {
             this._controller.enableColumnDrop(data.itemId, allowDrop);
         }
+    }
+
+    private cleanIsPinned(data: GoldenLayout.Config | GoldenLayout.ItemConfig): GoldenLayout.ItemConfig | GoldenLayout.Config {
+        if (data.type !== "row" && data.type !== "column") {
+            return data;
+        }
+
+        let hasFoundIsPinned = false;
+        const clone = JSON.parse(JSON.stringify(data));
+
+        const traverseAndClean = (item: GoldenLayout.ItemConfig) => {
+            if (item.workspacesConfig.isPinned) {
+                hasFoundIsPinned = true;
+                item.workspacesConfig.isPinned = false;
+            }
+            if (item.type === "component") {
+                return;
+            }
+
+            item.content.forEach((c) => traverseAndClean(c));
+        };
+
+        traverseAndClean(clone);
+
+        if (hasFoundIsPinned) {
+            return clone;
+        }
+
+        return data;
+    }
+
+    private applyIsPinned(initialConfig: GoldenLayout.Config | GoldenLayout.ItemConfig, currentConfig: GoldenLayout | GoldenLayout.ContentItem): void {
+        if (initialConfig.type !== "row" && initialConfig.type !== "column") {
+            return;
+        }
+
+        if (currentConfig.config.type !== "row" && currentConfig.config.type !== "column") {
+            return;
+        }
+
+        let hasFoundIsPinned = false;
+
+        const traverseAndApply = (initialItem: GoldenLayout.ItemConfig, currentItem: GoldenLayout.ContentItem): void => {
+            if (initialItem.workspacesConfig.isPinned) {
+                hasFoundIsPinned = true;
+                currentItem.config.workspacesConfig.isPinned = true;
+            }
+
+            if (initialItem.type === "component" || currentItem.type === "component") {
+                return;
+            }
+
+            initialItem.content.forEach((c, i) => traverseAndApply(c, currentItem.contentItems[i]));
+        };
+
+        traverseAndApply(initialConfig, currentConfig as GoldenLayout.ContentItem);
     }
 }
 

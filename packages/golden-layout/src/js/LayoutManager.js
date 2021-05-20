@@ -36,6 +36,7 @@ lm.LayoutManager = function (config, container, componentFactory) {
 	this._updatingColumnsResponsive = false;
 	this._firstLoad = true;
 	this._componentFactory = componentFactory;
+	this._ignorePinned = false;
 
 	this.width = null;
 	this.height = null;
@@ -643,22 +644,22 @@ lm.utils.copy(lm.LayoutManager.prototype, {
 
 		if (allowDropLeft === false ||
 			allowDrop === false && allowDropLeft !== true) {
-			this._itemAreas[1]=undefined;
+			this._itemAreas[1] = undefined;
 		}
 
 		if (allowDropTop === false ||
 			allowDrop === false && allowDropTop !== true) {
-			this._itemAreas[0] =undefined;
+			this._itemAreas[0] = undefined;
 		}
 
 		if (allowDropRight === false ||
 			allowDrop === false && allowDropRight !== true) {
-			this._itemAreas[3]=undefined;
+			this._itemAreas[3] = undefined;
 		}
 
 		if (allowDropBottom === false ||
 			allowDrop === false && allowDropBottom !== true) {
-			this._itemAreas[2]=undefined;
+			this._itemAreas[2] = undefined;
 		}
 
 		this._itemAreas = this._itemAreas.filter((ia) => typeof ia !== "undefined");

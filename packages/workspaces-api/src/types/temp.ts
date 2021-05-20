@@ -49,3 +49,45 @@ export interface RowLockConfig {
 export interface ColumnLockConfig {
     allowDrop?: boolean;
 }
+
+export interface Constraints {
+    minWidth: number;
+    maxWidth: number;
+    minHeight: number;
+    maxHeight: number;
+}
+
+export interface WindowDefinitionConfig {
+    minWidth?: number;
+    maxWidth?: number;
+    minHeight?: number;
+    maxHeight?: number;
+    allowExtract?: boolean;
+    showCloseButton?: boolean;
+}
+
+export interface GroupDefinitionConfig {
+    minWidth?: number;
+    maxWidth?: number;
+    minHeight?: number;
+    maxHeight?: number;
+    allowExtract?: boolean;
+    showMaximizeButton?: boolean;
+    showEjectButton?: boolean;
+    allowDrop?: boolean;
+    showAddWindowButton?: boolean;
+}
+
+export interface RowDefinitionConfig {
+    minHeight?: number;
+    maxHeight?: number;
+    allowDrop?: boolean;
+    isPinned?: boolean;
+}
+
+export interface ColumnDefinitionConfig {
+    minWidth?: number;
+    maxWidth?: number;
+    allowDrop?: boolean;
+    isPinned?: boolean;
+}

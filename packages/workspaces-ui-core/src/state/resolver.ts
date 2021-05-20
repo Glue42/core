@@ -1,4 +1,4 @@
-import { WindowSummary, WorkspaceSummary, ContainerSummary } from "../types/internal";
+import { WindowSummary, WorkspaceSummary, ContainerSummary, Bounds, Constraints } from "../types/internal";
 import store from "./store";
 import GoldenLayout from "@glue42/golden-layout";
 import { LayoutEventEmitter } from "../layout/eventEmitter";
@@ -7,11 +7,14 @@ import { IFrameController } from "../iframeController";
 import { WorkspaceWindowWrapper } from "./windowWrapper";
 import { WorkspaceWrapper } from "./workspaceWrapper";
 import { WorkspaceContainerWrapper } from "./containerWrapper";
+import { DefaultMaxSize, DefaultMinSize } from "../utils/constants";
+import { ConfigConverter } from "../config/converter";
 
 export class LayoutStateResolver {
     constructor(private readonly _frameId: string,
         private readonly _layoutEventEmitter: LayoutEventEmitter,
-        private readonly frameController: IFrameController) { }
+        private readonly frameController: IFrameController,
+        private readonly converter: ConfigConverter) { }
 
     public async getWindowSummary(windowId: string | string[]): Promise<WindowSummary> {
         windowId = Array.isArray(windowId) ? windowId[0] : windowId;
@@ -38,10 +41,22 @@ export class LayoutStateResolver {
         if (!workspace) {
             throw new Error(`Could find workspace to remove with id ${workspaceId}`);
         }
-     
         const wrapper = new WorkspaceWrapper(this, workspace, store.getWorkspaceContentItem(workspace.id), this._frameId);
 
         return wrapper.config;
+    }
+
+    public getWorkspaceSnapshot(workspaceId: string) {
+        const workspaceConfig = this.getWorkspaceConfig(workspaceId);
+        const workspaceItem = this.converter.convertToAPIConfig(workspaceConfig);
+        return {
+            id: workspaceItem.id,
+            children: workspaceItem.children,
+            config: workspaceItem.config,
+            frameSummary: {
+                id: this._frameId
+            }
+        };
     }
 
     public getWorkspaceSummary(workspaceId: string): WorkspaceSummary {
@@ -118,10 +133,13 @@ export class LayoutStateResolver {
     }
 
     public getFrameSnapshot() {
-        const allWorkspaceSnapshots = store.workspaceIds.map(wid => this.getWorkspaceSummary(wid));
+        const allWorkspaceSnapshots = store.workspaceIds.map(wid => this.getWorkspaceSnapshot(wid));
+        const constraints = this.getFrameConstraints();
         return {
             id: this._frameId,
-            config: {},
+            config: {
+                ...constraints
+            },
             workspaces: allWorkspaceSnapshots
         };
     }
@@ -158,6 +176,45 @@ export class LayoutStateResolver {
         return this.frameController.hasFrame(idAsString(id));
     }
 
+    public getRendererWindowBounds(): Bounds {
+        return {
+            left: window.visualViewport.offsetLeft,
+            top: window.visualViewport.offsetTop,
+            width: window.visualViewport.width,
+            height: window.visualViewport.height
+        };
+    }
+
+    public getFrameConstraints(): Constraints {
+        const workspaceWrappers = store.workspaceIds.map((wId) => {
+            return new WorkspaceWrapper(this, store.getById(wId), store.getWorkspaceContentItem(wId), this._frameId);
+        });
+
+        const result = workspaceWrappers.reduce((acc, ww) => {
+            const rendererBounds = this.getRendererWindowBounds();
+            const horizontalExtraSpace = rendererBounds.width - ww.bounds.width;
+            const verticalExtraSpace = rendererBounds.height - ww.bounds.height;
+            const newMinWidth = Math.ceil(Math.max(ww.minWidth + horizontalExtraSpace, acc.minWidth));
+            const newMinHeight = Math.ceil(Math.max(ww.minHeight + verticalExtraSpace, acc.minHeight));
+            const newMaxWidth = Math.ceil(Math.min(ww.maxWidth + horizontalExtraSpace, acc.maxWidth));
+            const newMaxHeight = Math.ceil(Math.min(ww.maxHeight + verticalExtraSpace, acc.maxHeight));
+            if (newMinHeight <= newMaxHeight && newMinWidth <= newMaxWidth) {
+                acc.minWidth = newMinWidth;
+                acc.minHeight = newMinHeight;
+                acc.maxWidth = newMaxWidth;
+                acc.maxHeight = newMaxHeight;
+            }
+
+            return acc;
+        }, {
+            minWidth: DefaultMinSize,
+            maxWidth: DefaultMaxSize,
+            minHeight: DefaultMinSize,
+            maxHeight: DefaultMaxSize
+        });
+
+        return result;
+    }
 
     private waitForWindowContentItem(windowId: string) {
         return new Promise<void>((res) => {

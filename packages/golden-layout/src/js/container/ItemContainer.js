@@ -1,5 +1,5 @@
-lm.container.ItemContainer = function( config, parent, layoutManager ) {
-	lm.utils.EventEmitter.call( this );
+lm.container.ItemContainer = function (config, parent, layoutManager) {
+	lm.utils.EventEmitter.call(this);
 
 	this.width = null;
 	this.height = null;
@@ -9,16 +9,16 @@ lm.container.ItemContainer = function( config, parent, layoutManager ) {
 	this.isHidden = false;
 
 	this._config = config;
-	this._element = $( [
+	this._element = $([
 		'<div class="lm_item_container">',
 		'<div class="lm_content"></div>',
 		'</div>'
-	].join( '' ) );
+	].join(''));
 
-	this._contentElement = this._element.find( '.lm_content' );
+	this._contentElement = this._element.find('.lm_content');
 };
 
-lm.utils.copy( lm.container.ItemContainer.prototype, {
+lm.utils.copy(lm.container.ItemContainer.prototype, {
 
 	/**
 	 * Get the inner DOM element the container's content
@@ -26,7 +26,7 @@ lm.utils.copy( lm.container.ItemContainer.prototype, {
 	 *
 	 * @returns {DOM element}
 	 */
-	getElement: function() {
+	getElement: function () {
 		return this._contentElement;
 	},
 
@@ -37,8 +37,8 @@ lm.utils.copy( lm.container.ItemContainer.prototype, {
 	 *
 	 * @returns {void}
 	 */
-	hide: function() {
-		this.emit( 'hide' );
+	hide: function () {
+		this.emit('hide');
 		this.isHidden = true;
 		this._element.hide();
 	},
@@ -50,13 +50,13 @@ lm.utils.copy( lm.container.ItemContainer.prototype, {
 	 *
 	 * @returns {void}
 	 */
-	show: function() {
-		this.emit( 'show' );
+	show: function () {
+		this.emit('show');
 		this.isHidden = false;
 		this._element.show();
 		// call shown only if the container has a valid size
-		if( this.height != 0 || this.width != 0 ) {
-			this.emit( 'shown' );
+		if (this.height != 0 || this.width != 0) {
+			this.emit('shown');
 		}
 	},
 
@@ -73,7 +73,7 @@ lm.utils.copy( lm.container.ItemContainer.prototype, {
 	 *
 	 * @returns {Boolean} resizeSuccesful
 	 */
-	setSize: function( width, height ) {
+	setSize: function (width, height) {
 		var rowOrColumn = this.parent,
 			rowOrColumnChild = this,
 			totalPixel,
@@ -83,7 +83,11 @@ lm.utils.copy( lm.container.ItemContainer.prototype, {
 			delta,
 			i;
 
-		while( !rowOrColumn.isColumn && !rowOrColumn.isRow ) {
+		if (!width && !height || (width && height)) {
+			return false;
+		}
+
+		while ((!rowOrColumn.isColumn && height) || (!rowOrColumn.isRow && width) || rowOrColumn.contentItems.length <= 1) {
 			rowOrColumnChild = rowOrColumn;
 			rowOrColumn = rowOrColumn.parent;
 
@@ -91,27 +95,29 @@ lm.utils.copy( lm.container.ItemContainer.prototype, {
 			/**
 			 * No row or column has been found
 			 */
-			if( rowOrColumn.isRoot ) {
+			if (rowOrColumn.isRoot) {
 				return false;
 			}
 		}
 
+		this.layoutManager._ignorePinned = true;
+		rowOrColumn._calculateRelativeSizes();
 		direction = rowOrColumn.isColumn ? "height" : "width";
 		newSize = direction === "height" ? height : width;
 
-		totalPixel = this[ direction ] * ( 1 / ( rowOrColumnChild.config[ direction ] / 100 ) );
-		percentage = ( newSize / totalPixel ) * 100;
-		delta = ( rowOrColumnChild.config[ direction ] - percentage ) / (rowOrColumn.contentItems.length - 1);
+		totalPixel = this._element[direction]() * (1 / (rowOrColumnChild.config[direction] / 100));
+		percentage = (newSize / totalPixel) * 100;
+		delta = (rowOrColumnChild.config[direction] - percentage) / (rowOrColumn.contentItems.length - 1);
 
-		for( i = 0; i < rowOrColumn.contentItems.length; i++ ) {
-			if( rowOrColumn.contentItems[ i ] === rowOrColumnChild ) {
-				rowOrColumn.contentItems[ i ].config[ direction ] = percentage;
+		for (i = 0; i < rowOrColumn.contentItems.length; i++) {
+			if (rowOrColumn.contentItems[i] === rowOrColumnChild) {
+				rowOrColumn.contentItems[i].config[direction] = percentage;
 			} else {
-				rowOrColumn.contentItems[ i ].config[ direction ] += delta;
+				rowOrColumn.contentItems[i].config[direction] += delta;
 			}
 		}
 
-		rowOrColumn.callDownwards( 'setSize' );
+		rowOrColumn.callDownwards('setSize');
 
 		return true;
 	},
@@ -123,9 +129,9 @@ lm.utils.copy( lm.container.ItemContainer.prototype, {
 	 *
 	 * @returns {void}
 	 */
-	close: function() {
-		if( this._config.isClosable ) {
-			this.emit( 'close' );
+	close: function () {
+		if (this._config.isClosable) {
+			this.emit('close');
 			this.parent.close();
 		}
 	},
@@ -135,7 +141,7 @@ lm.utils.copy( lm.container.ItemContainer.prototype, {
 	 *
 	 * @returns {Object} state
 	 */
-	getState: function() {
+	getState: function () {
 		return this._config.componentState;
 	},
 
@@ -146,8 +152,8 @@ lm.utils.copy( lm.container.ItemContainer.prototype, {
 	 *
 	 * @returns {void}
 	 */
-	extendState: function( state ) {
-		this.setState( $.extend( true, this.getState(), state ) );
+	extendState: function (state) {
+		this.setState($.extend(true, this.getState(), state));
 	},
 
 	/**
@@ -155,9 +161,9 @@ lm.utils.copy( lm.container.ItemContainer.prototype, {
 	 *
 	 * @param {serialisable} state
 	 */
-	setState: function( state ) {
+	setState: function (state) {
 		this._config.componentState = state;
-		this.parent.emitBubblingEvent( 'stateChanged' );
+		this.parent.emitBubblingEvent('stateChanged');
 	},
 
 	/**
@@ -165,8 +171,8 @@ lm.utils.copy( lm.container.ItemContainer.prototype, {
 	 *
 	 * @param {String} title
 	 */
-	setTitle: function( title ) {
-		this.parent.setTitle( title );
+	setTitle: function (title) {
+		this.parent.setTitle(title);
 	},
 
 	/**
@@ -179,16 +185,16 @@ lm.utils.copy( lm.container.ItemContainer.prototype, {
 	 *
 	 * @returns {void}
 	 */
-	_$setSize: function( width, height ) {
-		if( width !== this.width || height !== this.height ) {
+	_$setSize: function (width, height) {
+		if (width !== this.width || height !== this.height) {
 			this.width = width;
 			this.height = height;
 			var cl = this._contentElement[0];
 			var hdelta = cl.offsetWidth - cl.clientWidth;
 			var vdelta = cl.offsetHeight - cl.clientHeight;
-			this._contentElement.width( this.width-hdelta )
-			     .height( this.height-vdelta );
-			this.emit( 'resize' );
+			this._contentElement.width(this.width - hdelta)
+				.height(this.height - vdelta);
+			this.emit('resize');
 		}
 	}
-} );
+});

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /*eslint indent: [2, 4, {"SwitchCase": 1}]*/
 import {
     ControlArguments,
@@ -25,6 +26,7 @@ import {
     LockContainerArguments,
     LockWindowArguments,
     LockWorkspaceArguments,
+    ResizeItemArguments,
 } from "./types";
 import manager from "../manager";
 import store from "../state/store";
@@ -35,6 +37,8 @@ import { Glue42Web } from "@glue42/web";
 import { EventActionType, EventPayload } from "../types/events";
 import { WorkspacesConfigurationFactory } from "../config/factory";
 import { ConfigConverter } from "../config/converter";
+import { ConstraintsValidator } from "../config/constraintsValidator";
+import { WorkspacesLocker } from "../locking";
 
 declare const window: Window & { glue: Glue42Web.API };
 
@@ -46,24 +50,28 @@ export class GlueFacade {
     private _inDisposing = false;
     private _frameId: string;
     private _converter: ConfigConverter;
+    private _constraintValidator: ConstraintsValidator;
     private _controlPromise: Promise<any> = Promise.resolve();
+    private _locker: WorkspacesLocker;
 
     public async init(glue: Glue42Web.API, frameId: string): Promise<void> {
         this._frameId = frameId;
         this._glue = glue;
         this._configFactory = new WorkspacesConfigurationFactory(glue);
         this._converter = new ConfigConverter(this._configFactory);
+        this._locker = new WorkspacesLocker(manager);
+        this._constraintValidator = new ConstraintsValidator();
 
         if (this._glue) {
             await this.registerAgmMethods();
         }
     }
 
-    public dispose() {
+    public dispose(): void {
         this._inDisposing = true;
     }
 
-    public subscribeForWorkspaceEvents() {
+    public subscribeForWorkspaceEvents(): void {
         manager.workspacesEventEmitter.onFrameEvent((action, payload) => {
             this.publishEventData(action, payload, "frame");
         });
@@ -81,7 +89,7 @@ export class GlueFacade {
         });
     }
 
-    public executeAfterControlIsDone(cb: () => Promise<void> | void) {
+    public executeAfterControlIsDone(cb: () => Promise<void> | void): void {
         this._controlPromise.finally(() => {
             return cb();
         });
@@ -205,6 +213,10 @@ export class GlueFacade {
                     this.handleLockWindow(args.operationArguments);
                     successCallback(undefined);
                     break;
+                case "resizeItem":
+                    this.handleResizeItem(args.operationArguments);
+                    successCallback(undefined);
+                    break;
                 default:
                     errorCallback(`Invalid operation - ${((args as unknown) as { operation: string }).operation}`);
             }
@@ -215,7 +227,7 @@ export class GlueFacade {
         }
     };
 
-    private handleControl = async (args: ControlArguments, caller: object, successCallback: (result: object) => void, errorCallback: (error: string) => void) => {
+    private handleControl = async (args: ControlArguments, caller: object, successCallback: (result: object) => void, errorCallback: (error: string) => void): Promise<void> => {
         const controlPromise = this.handleControlCore(args, caller, successCallback, errorCallback);
         this._controlPromise = controlPromise;
         await controlPromise;
@@ -291,6 +303,13 @@ export class GlueFacade {
     }
 
     private async handleAddContainer(operationArguments: AddContainerArguments): Promise<AddItemResult> {
+        if (operationArguments.definition.type === "workspace") {
+            throw new Error(`Unsuported add container type ${operationArguments.definition.type}`);
+        }
+
+        const workspace = store.getByContainerId(operationArguments.parentId) || store.getById(operationArguments.parentId);
+        const workspaceItem = this._converter.convertToAPIConfig(manager.stateResolver.getWorkspaceConfig(workspace.id)) as WorkspaceItem;
+        this._constraintValidator.fixNewContainer(operationArguments.definition, workspaceItem, operationArguments.parentId);
         const rendererFriendlyConfig = this._converter.convertToRendererConfig(operationArguments.definition);
 
         if (rendererFriendlyConfig.type === "workspace") {
@@ -305,20 +324,32 @@ export class GlueFacade {
         const itemId = await manager.addContainer(containerDefinition,
             operationArguments.parentId);
 
+        const workspaceItemAferAdd = this._converter.convertToAPIConfig(manager.stateResolver.getWorkspaceConfig(workspace.id)) as WorkspaceItem;
+
+        this._locker.applyContainerLockConfiguration(operationArguments.definition, workspaceItemAferAdd, itemId);
+
         return {
             itemId
         };
     }
 
     private async handleAddWindow(operationArguments: AddWindowArguments): Promise<AddItemResult> {
+        const constraintsValidator = new ConstraintsValidator();
+        const workspace = store.getByContainerId(operationArguments.parentId) || store.getById(operationArguments.parentId);
+        const workspaceItem = this._converter.convertToAPIConfig(manager.stateResolver.getWorkspaceConfig(workspace.id)) as WorkspaceItem;
+        constraintsValidator.fixNewWindow(operationArguments.definition as any, workspaceItem, operationArguments.parentId);
         const windowConfig = this._configFactory.createGDWindowConfig({
             windowId: operationArguments.definition.windowId,
             id: undefined,
             appName: operationArguments.definition.appName,
             url: operationArguments.definition.url,
             context: operationArguments.definition.context,
-            allowExtract: undefined,
-            showCloseButton: undefined
+            allowExtract: operationArguments.definition.config?.allowExtract,
+            showCloseButton: operationArguments.definition.config?.showCloseButton,
+            minWidth: operationArguments.definition.config?.minWidth,
+            maxWidth: operationArguments.definition.config?.maxWidth,
+            minHeight: operationArguments.definition.config?.minHeight,
+            maxHeight: operationArguments.definition.config?.maxHeight,
         });
 
         if (operationArguments.definition.windowId) {
@@ -330,13 +361,15 @@ export class GlueFacade {
         }
 
         await manager.addWindow(windowConfig, operationArguments.parentId);
+        const notLoadedSummary = manager.stateResolver.getWindowSummarySync(windowConfig.id);
+        this._locker.applyWindowLockConfiguration(notLoadedSummary);
 
         return {
             itemId: idAsString(windowConfig.id),
         };
     }
 
-    private handleSetItemTitle(operationArguments: SetItemTitleArguments) {
+    private handleSetItemTitle(operationArguments: SetItemTitleArguments): void {
         manager.setItemTitle(operationArguments.itemId, operationArguments.title);
     }
 
@@ -376,11 +409,15 @@ export class GlueFacade {
             operationArguments.config = {};
         }
         operationArguments.config.context = operationArguments.config.context || operationArguments.context;
+        operationArguments.config.allowDrop = undefined; // The property isn't supported in core
+
+        this._constraintValidator.fixWorkspace(operationArguments);
+
         const config = this._converter.convertToRendererConfig(operationArguments);
-
         const workspaceId = await manager.createWorkspace(config as GoldenLayout.Config);
+        const apiConfig = this._converter.convertToAPIConfig(manager.stateResolver.getWorkspaceConfig(workspaceId)) as WorkspaceItem;
 
-        const apiConfig = this._converter.convertToAPIConfig(manager.stateResolver.getWorkspaceConfig(workspaceId));
+        this._locker.applyLockConfiguration(operationArguments, apiConfig);
 
         return {
             id: apiConfig.id,
@@ -396,11 +433,11 @@ export class GlueFacade {
         return await manager.loadWindow(operationArguments.itemId);
     }
 
-    private handleFocusItem(operationArguments: ItemSelector) {
+    private handleFocusItem(operationArguments: ItemSelector): Promise<void> {
         return manager.focusItem(operationArguments.itemId);
     }
 
-    private handleBundleWorkspace(operationArguments: BundleWorkspaceArguments) {
+    private handleBundleWorkspace(operationArguments: BundleWorkspaceArguments): void {
         return manager.bundleWorkspace(operationArguments.workspaceId, operationArguments.type);
     }
 
@@ -410,11 +447,11 @@ export class GlueFacade {
         };
     }
 
-    private async handleGetFrameSummary(operationArguments: ItemSelector) {
+    private handleGetFrameSummary(operationArguments: ItemSelector): { id: string } {
         return manager.getFrameSummary(operationArguments.itemId);
     }
 
-    private async handleMoveFrame(operationArguments: MoveFrameArguments) {
+    private async handleMoveFrame(operationArguments: MoveFrameArguments): Promise<void> {
         await manager.move(operationArguments.location);
     }
 
@@ -457,6 +494,10 @@ export class GlueFacade {
 
     private handleLockContainer(operationArguments: LockContainerArguments) {
         return manager.lockContainer(operationArguments);
+    }
+
+    private handleResizeItem(operationArguments: ResizeItemArguments) {
+        return manager.resizeItem(operationArguments);
     }
 
     private publishEventData(action: EventActionType, payload: EventPayload, type: "workspace" | "frame" | "box" | "window") {

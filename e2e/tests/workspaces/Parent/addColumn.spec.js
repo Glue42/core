@@ -36,6 +36,7 @@ describe("addColumn() Should", () => {
         ]
     };
 
+    const verticalDecorations = 30;
     let workspace = undefined;
     before(() => coreReady);
 
@@ -168,6 +169,197 @@ describe("addColumn() Should", () => {
 
         const allBoxesAfterAdd = workspace.getAllBoxes();
         expect(allBoxesAfterAdd.length).to.eql(allBoxes.length + 1);
+    });
+
+    it("update the constraints when a column with constraints is added", async () => {
+        const row = workspace.getAllRows()[0];
+
+        const column = await row.addColumn({
+            children: [
+                {
+                    type: "window",
+                    appName: "noGlueApp"
+                },
+                {
+                    type: "window",
+                    appName: "noGlueApp"
+                }
+            ],
+            config: {
+                minWidth: 500,
+                maxWidth: 1000
+            }
+        });
+
+        await workspace.refreshReference();
+
+        expect(workspace.minWidth).to.eql(530);
+        expect(workspace.maxWidth).to.eql(32767);
+        expect(workspace.minHeight).to.eql(10 + verticalDecorations);
+        expect(workspace.maxWidth).to.eql(32767);
+    });
+
+    it("not update the constraints when a column with invalid constraints is added", async () => {
+        const row = workspace.getAllRows()[0];
+
+        const column = await row.addColumn({
+            children: [
+                {
+                    type: "window",
+                    appName: "noGlueApp"
+                },
+                {
+                    type: "window",
+                    appName: "noGlueApp"
+                }
+            ],
+            config: {
+                minWidth: 1000,
+                maxWidth: 900
+            }
+        });
+
+        await workspace.refreshReference();
+
+        expect(workspace.minWidth).to.eql(40);
+        expect(workspace.maxWidth).to.eql(32767);
+        expect(workspace.minHeight).to.eql(10 + verticalDecorations);
+        expect(workspace.maxWidth).to.eql(32767);
+    });
+
+    it("not update the constraints when a column with incompatible inner constraints is added", async () => {
+        const row = workspace.getAllRows()[0];
+
+        const column = await row.addColumn({
+            children: [
+                {
+                    type: "window",
+                    appName: "noGlueApp"
+                },
+                {
+                    type: "window",
+                    appName: "noGlueApp",
+                    config: {
+                        minWidth: 1200,
+                        maxWidth: 1900
+                    }
+                }
+            ],
+            config: {
+                minWidth: 900,
+                maxWidth: 1000
+            }
+        });
+
+        await workspace.refreshReference();
+
+        expect(workspace.minWidth).to.eql(40);
+        expect(workspace.maxWidth).to.eql(32767);
+        expect(workspace.minHeight).to.eql(10 + verticalDecorations);
+        expect(workspace.maxWidth).to.eql(32767);
+    });
+
+    it("add a locked column when a config with allowDrop:false is passed", async () => {
+        const row = workspace.getAllRows()[0];
+
+        const column = await row.addColumn({
+            children: [
+                {
+                    type: "window",
+                    appName: "noGlueApp"
+                },
+                {
+                    type: "window",
+                    appName: "noGlueApp",
+                }
+            ],
+            config: {
+                allowDrop: false
+            }
+        });
+
+        await workspace.refreshReference();
+
+        expect(column.allowDrop).to.be.false;
+    });
+
+    it("add a column with locked contents when a config with allowDrop:false is passed", async () => {
+        const row = workspace.getAllRows()[0];
+
+        const column = await row.addColumn({
+            children: [
+                {
+                    type: "group",
+                    children: [
+                        {
+                            type: "window",
+                            appName: "noGlueApp"
+                        },
+                    ]
+                }
+            ],
+            config: {
+                allowDrop: false
+            }
+        });
+
+        await workspace.refreshReference();
+
+        expect(column.children[0].allowDrop).to.be.false;
+    });
+
+    it("add a locked column with unlocked contents when the children override the allowDrop constraint", async () => {
+        const row = workspace.getAllRows()[0];
+
+        const column = await row.addColumn({
+            children: [
+                {
+                    type: "group",
+                    children: [
+                        {
+                            type: "window",
+                            appName: "noGlueApp"
+                        },
+                    ],
+                    config: {
+                        allowDrop: true
+                    }
+                }
+            ],
+            config: {
+                allowDrop: false
+            }
+        });
+
+        await workspace.refreshReference();
+
+        expect(column.allowDrop).to.be.false;
+        expect(column.children[0].allowDrop).to.be.true;
+    });
+
+    it("add a column with valid width when the column is pinned", async () => {
+        const row = workspace.getAllRows().find(r => r.children.length);
+
+        const column = await row.addColumn({
+            children: [
+                {
+                    type: "group",
+                    children: [
+                        {
+                            type: "window",
+                            appName: "noGlueApp"
+                        },
+                    ]
+                }
+            ],
+            config: {
+                isPinned: true
+            }
+        });
+
+        await workspace.refreshReference();
+
+        expect(column.width > column.minWidth).to.be.true;
     });
 
     describe("", () => {

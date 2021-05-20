@@ -2,6 +2,7 @@ import { Base } from "./base/base";
 import { Glue42Workspaces } from "../../workspaces.d";
 import { rowLockConfigDecoder } from "../shared/decoders";
 import { RowLockConfig } from "../types/temp";
+import { number } from "decoder-validate";
 
 interface PrivateData {
     base: Base;
@@ -42,17 +43,49 @@ export class Row implements Glue42Workspaces.Row {
     public get children(): Glue42Workspaces.WorkspaceElement[] {
         return getBase(this).getAllChildren(this);
     }
+
     public get parent(): Glue42Workspaces.Workspace | Glue42Workspaces.WorkspaceBox {
         return getBase(this).getMyParent(this);
     }
+
     public get frame(): Glue42Workspaces.Frame {
         return getBase(this).getMyFrame(this);
     }
+
     public get workspace(): Glue42Workspaces.Workspace {
         return getBase(this).getMyWorkspace(this);
     }
+
     public get allowDrop(): boolean {
         return getBase(this).getAllowDrop(this);
+    }
+
+    public get minWidth(): number {
+        return getBase(this).getMinWidth(this);
+    }
+
+    public get minHeight(): number {
+        return getBase(this).getMinHeight(this);
+    }
+
+    public get maxWidth(): number {
+        return getBase(this).getMaxWidth(this);
+    }
+
+    public get maxHeight(): number {
+        return getBase(this).getMaxHeight(this);
+    }
+
+    public get width(): number {
+        return getBase(this).getWidthInPx(this);
+    }
+
+    public get height(): number {
+        return getBase(this).getHeightInPx(this);
+    }
+
+    public get isPinned(): boolean {
+        return getBase(this).getIsPinned(this);
     }
 
     public addWindow(definition: Glue42Workspaces.WorkspaceWindowDefinition): Promise<Glue42Workspaces.WorkspaceWindow> {
@@ -109,6 +142,11 @@ export class Row implements Glue42Workspaces.Row {
         const verifiedConfig = lockConfigResult === undefined ? undefined : rowLockConfigDecoder.runWithException(lockConfigResult);
 
         return getBase(this).lockContainer(this, verifiedConfig);
+    }
+
+    public async setHeight(height: number): Promise<void> {
+        number().where(n => n > 0, "The value should be positive").runWithException(height);
+        return getBase(this).setHeight(this, height);
     }
 
 }

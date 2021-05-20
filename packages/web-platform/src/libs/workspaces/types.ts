@@ -47,6 +47,7 @@ export type WorkspacesOperationsTypes = "isWindowInWorkspace" |
     "bundleWorkspace" |
     "changeFrameState" |
     "getFrameState" |
+    "getFrameBounds" |
     "frameHello" |
     "hibernateWorkspace" |
     "resumeWorkspace" |
@@ -187,6 +188,15 @@ export interface PingResult {
 
 export interface FrameStateResult {
     state: Glue42Workspaces.FrameState;
+}
+
+export interface FrameBoundsResult {
+    bounds: {
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+    };
 }
 
 // #endregion
@@ -343,4 +353,30 @@ export interface LockWorkspaceConfig {
         showWindowCloseButtons?: boolean;
         showEjectButtons?: boolean;
     };
+}
+
+export interface GroupDefinitionConfig {
+    minWidth?: number;
+    maxWidth?: number;
+    minHeight?: number;
+    maxHeight?: number;
+    allowExtract?: boolean;
+    showMaximizeButton?: boolean;
+    showEjectButton?: boolean;
+    allowDrop?: boolean;
+    showAddWindowButton?: boolean;
+}
+
+export interface RowDefinitionConfig {
+    minHeight?: number;
+    maxHeight?: number;
+    allowDrop?: boolean;
+    isPinned?: boolean;
+}
+
+export interface ColumnDefinitionConfig {
+    minWidth?: number;
+    maxWidth?: number;
+    allowDrop?: boolean;
+    isPinned?: boolean;
 }

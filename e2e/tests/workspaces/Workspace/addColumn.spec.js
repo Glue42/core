@@ -83,6 +83,55 @@ describe('addColumn() Should ', function () {
         }));
     });
 
+    it("add the column and set the constraints when the column has constraints", async () => {
+        const column = await workspace.addColumn({
+            children: [
+                {
+                    type: "window",
+                    appName: "noGlueApp"
+                },
+                {
+                    type: "window",
+                    appName: "noGlueApp"
+                }
+            ],
+            config: {
+                minWidth: 500,
+                maxWidth: 1000
+            }
+        });
+
+        await workspace.refreshReference();
+
+        expect(workspace.minWidth).to.eql(510);
+        expect(workspace.maxWidth).to.eql(32767);
+    });
+
+    it("add the column and set the contraints when the workspace is empty and the column has constraints", async () => {
+        const workspace = await glue.workspaces.createWorkspace({ children: [] });
+        const column = await workspace.addColumn({
+            children: [
+                {
+                    type: "window",
+                    appName: "noGlueApp"
+                },
+                {
+                    type: "window",
+                    appName: "noGlueApp"
+                }
+            ],
+            config: {
+                minWidth: 500,
+                maxWidth: 1000
+            }
+        });
+
+        await workspace.refreshReference();
+
+        expect(workspace.minWidth).to.eql(500);
+        expect(workspace.maxWidth).to.eql(1000);
+    });
+
     Array.from({ length: 5 }).forEach((_, i) => {
         it(`add ${i + 1} empty column/s to the workspace`, async () => {
 

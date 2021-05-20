@@ -2,9 +2,9 @@
 import GoldenLayout from "@glue42/golden-layout";
 import store from "./store";
 import { LayoutStateResolver } from "./resolver";
-import { idAsString } from "../utils";
-import { Workspace, WorkspaceOptionsWithLayoutName, WorkspaceSummary } from "../types/internal";
-import { EmptyVisibleWindowName } from "../utils/constants";
+import { getElementBounds, idAsString } from "../utils";
+import { Bounds, Workspace, WorkspaceOptionsWithLayoutName, WorkspaceSummary } from "../types/internal";
+import { DefaultMaxSize, DefaultMinSize, EmptyVisibleWindowName } from "../utils/constants";
 import { WorkspaceWindowWrapper } from "./windowWrapper";
 import { WorkspaceContainerWrapper } from "./containerWrapper";
 
@@ -92,6 +92,13 @@ export class WorkspaceWrapper {
         glConfig.workspacesOptions.showAddWindowButtons = this.showAddWindowButtons;
         glConfig.workspacesOptions.showEjectButtons = this.showEjectButtons;
         glConfig.workspacesOptions.showWindowCloseButtons = this.showWindowCloseButtons;
+        glConfig.workspacesOptions.minWidth = Math.max(this.minWidth, DefaultMinSize);
+        glConfig.workspacesOptions.maxWidth = Math.min(this.maxWidth, DefaultMaxSize);
+        glConfig.workspacesOptions.minHeight = Math.max(this.minHeight, DefaultMinSize);
+        glConfig.workspacesOptions.maxHeight = Math.min(this.maxHeight, DefaultMaxSize);
+        glConfig.workspacesOptions.widthInPx = this.bounds.width;
+        glConfig.workspacesOptions.heightInPx = this.bounds.height;
+
 
         glConfig.workspacesOptions.lastActive = workspace.lastActive;
 
@@ -130,7 +137,13 @@ export class WorkspaceWrapper {
             showSaveButton: this.showSaveButton,
             showAddWindowButtons: this.showAddWindowButtons,
             showEjectButtons: this.showEjectButtons,
-            showWindowCloseButtons: this.showWindowCloseButtons
+            showWindowCloseButtons: this.showWindowCloseButtons,
+            minWidth: this.minWidth,
+            maxWidth: this.maxWidth,
+            minHeight: this.minHeight,
+            maxHeight: this.maxHeight,
+            widthInPx: this.bounds.width,
+            heightInPx: this.bounds.height
         };
 
         if ((config.workspacesOptions as WorkspaceOptionsWithLayoutName).layoutName) {
@@ -369,6 +382,46 @@ export class WorkspaceWrapper {
         (this.workspaceContentItem.config.workspacesConfig as any).showWindowCloseButtons = value;
 
         this.populateChildrenShowWindowCloseButtons(value);
+    }
+
+    public get minWidth(): number {
+        if (this.workspace?.layout) {
+            return this.workspace.layout.root.getMinWidth() ?? DefaultMinSize;
+        }
+
+        return DefaultMinSize;
+    }
+
+    public get maxWidth(): number {
+        if (this.workspace?.layout) {
+            return this.workspace.layout.root.getMaxWidth() ?? DefaultMaxSize;
+        }
+
+        return DefaultMaxSize;
+    }
+
+    public get minHeight(): number {
+        if (this.workspace?.layout) {
+            return this.workspace.layout.root.getMinHeight() ?? DefaultMinSize;
+        }
+
+        return DefaultMinSize;
+    }
+
+    public get maxHeight(): number {
+        if (this.workspace?.layout) {
+            return this.workspace.layout.root.getMaxHeight() ?? DefaultMaxSize;
+        }
+
+        return DefaultMaxSize;
+    }
+
+    public get bounds(): Bounds {
+        if (!this.isSelected) {
+            return getElementBounds((this.workspaceContentItem.element as any)[0].parentElement);
+        } else {
+            return getElementBounds(this.workspaceContentItem.element);
+        }
     }
 
     private transformComponentsToWindowSummary(glConfig: GoldenLayout.ItemConfig): void {

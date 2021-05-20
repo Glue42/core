@@ -110,6 +110,7 @@ export class WindowsController implements LibController {
         operations.windowAdded.execute = this.handleWindowAdded.bind(this);
         operations.windowRemoved.execute = this.handleWindowRemoved.bind(this);
         operations.getBounds.execute = this.handleGetBounds.bind(this);
+        operations.getFrameBounds.execute = this.handleGetBounds.bind(this);
         operations.getTitle.execute = this.handleGetTitle.bind(this);
         operations.getUrl.execute = this.handleGetUrl.bind(this);
         operations.moveResize.execute = this.handleMoveResize.bind(this);
@@ -193,8 +194,9 @@ export class WindowsController implements LibController {
     }
 
     private async handleGetBounds(): Promise<WindowBoundsResult> {
+        // this.me is optional, because this handler responds to a workspace frame bounds request and the frame is not a regular GD window
         return {
-            windowId: this.me.id,
+            windowId: this.me?.id,
             bounds: {
                 top: window.screenTop,
                 left: window.screenLeft,

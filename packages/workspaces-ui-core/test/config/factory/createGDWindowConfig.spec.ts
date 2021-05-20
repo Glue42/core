@@ -9,6 +9,10 @@ describe("createGDWindowConfig() Should", () => {
     const mockId = "mockId";
     const mockAllowExtract = true;
     const mockShowCloseButton = true;
+    const mockMinWidth = 0;
+    const mockMinHeight = 0;
+    const mockMaxWidth = 1000;
+    const mockMaxHeight = 1000;
 
     let factory: WorkspacesConfigurationFactory;
 
@@ -17,10 +21,10 @@ describe("createGDWindowConfig() Should", () => {
             appManager: {
                 instances: () => []
             }
-        }
+        };
 
         factory = new WorkspacesConfigurationFactory(glueStub);
-    })
+    });
 
     it("return a component config with the correct windowId in the componentState", () => {
         const result = factory.createGDWindowConfig({
@@ -29,7 +33,11 @@ describe("createGDWindowConfig() Should", () => {
             url: mockUrl,
             id: mockId,
             allowExtract: mockAllowExtract,
-            showCloseButton: mockShowCloseButton
+            showCloseButton: mockShowCloseButton,
+            minWidth: mockMinWidth,
+            maxWidth: mockMaxWidth,
+            minHeight: mockMinHeight,
+            maxHeight: mockMaxHeight
         });
 
         expect(result.componentState.windowId).to.eql(mockWindowId);
@@ -42,7 +50,11 @@ describe("createGDWindowConfig() Should", () => {
             url: mockUrl,
             id: mockId,
             allowExtract: mockAllowExtract,
-            showCloseButton: mockShowCloseButton
+            showCloseButton: mockShowCloseButton,
+            minWidth: mockMinWidth,
+            maxWidth: mockMaxWidth,
+            minHeight: mockMinHeight,
+            maxHeight: mockMaxHeight
         });
 
         expect(result.componentState.url).to.eql(mockUrl);
@@ -55,7 +67,11 @@ describe("createGDWindowConfig() Should", () => {
             url: mockUrl,
             id: mockId,
             allowExtract: mockAllowExtract,
-            showCloseButton: mockShowCloseButton
+            showCloseButton: mockShowCloseButton,
+            minWidth: mockMinWidth,
+            maxWidth: mockMaxWidth,
+            minHeight: mockMinHeight,
+            maxHeight: mockMaxHeight
         });
 
         expect(result.componentState.appName).to.eql(mockAppName);
@@ -68,7 +84,11 @@ describe("createGDWindowConfig() Should", () => {
             url: mockUrl,
             id: mockId,
             allowExtract: mockAllowExtract,
-            showCloseButton: mockShowCloseButton
+            showCloseButton: mockShowCloseButton,
+            minWidth: mockMinWidth,
+            maxWidth: mockMaxWidth,
+            minHeight: mockMinHeight,
+            maxHeight: mockMaxHeight
         });
 
         expect(result.windowId).to.eql(mockWindowId);
@@ -81,7 +101,11 @@ describe("createGDWindowConfig() Should", () => {
             url: mockUrl,
             id: mockId,
             allowExtract: mockAllowExtract,
-            showCloseButton: mockShowCloseButton
+            showCloseButton: mockShowCloseButton,
+            minWidth: mockMinWidth,
+            maxWidth: mockMaxWidth,
+            minHeight: mockMinHeight,
+            maxHeight: mockMaxHeight
         });
 
         expect(result.id).to.eql(mockId);
@@ -93,7 +117,11 @@ describe("createGDWindowConfig() Should", () => {
             appName: mockAppName,
             url: mockUrl,
             allowExtract: mockAllowExtract,
-            showCloseButton: mockShowCloseButton
+            showCloseButton: mockShowCloseButton,
+            minWidth: mockMinWidth,
+            maxWidth: mockMaxWidth,
+            minHeight: mockMinHeight,
+            maxHeight: mockMaxHeight
         });
 
         expect(result.id).to.not.be.undefined;
@@ -107,7 +135,11 @@ describe("createGDWindowConfig() Should", () => {
             appName: mockAppName,
             url: mockUrl,
             allowExtract: mockAllowExtract,
-            showCloseButton: mockShowCloseButton
+            showCloseButton: mockShowCloseButton,
+            minWidth: mockMinWidth,
+            maxWidth: mockMaxWidth,
+            minHeight: mockMinHeight,
+            maxHeight: mockMaxHeight
         });
 
         const secondResult = factory.createGDWindowConfig({
@@ -115,7 +147,11 @@ describe("createGDWindowConfig() Should", () => {
             appName: mockAppName,
             url: mockUrl,
             allowExtract: mockAllowExtract,
-            showCloseButton: mockShowCloseButton
+            showCloseButton: mockShowCloseButton,
+            minWidth: mockMinWidth,
+            maxWidth: mockMaxWidth,
+            minHeight: mockMinHeight,
+            maxHeight: mockMaxHeight
         });
 
         expect(result.componentName).to.not.eql(secondResult);

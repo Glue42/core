@@ -2,6 +2,7 @@ import { Base } from "./base/base";
 import { Glue42Workspaces } from "../../workspaces.d";
 import { groupLockConfigDecoder } from "../shared/decoders";
 import { GroupLockConfig } from "../types/temp";
+import { number, optional } from "decoder-validate";
 
 interface PrivateData {
     base: Base;
@@ -71,6 +72,30 @@ export class Group implements Glue42Workspaces.Group {
         return getBase(this).getShowAddWindowButton(this);
     }
 
+    public get minWidth(): number {
+        return getBase(this).getMinWidth(this);
+    }
+
+    public get minHeight(): number {
+        return getBase(this).getMinHeight(this);
+    }
+
+    public get maxWidth(): number {
+        return getBase(this).getMaxWidth(this);
+    }
+
+    public get maxHeight(): number {
+        return getBase(this).getMaxHeight(this);
+    }
+
+    public get width(): number {
+        return getBase(this).getWidthInPx(this);
+    }
+
+    public get height(): number {
+        return getBase(this).getHeightInPx(this);
+    }
+
     public addWindow(definition: Glue42Workspaces.WorkspaceWindowDefinition): Promise<Glue42Workspaces.WorkspaceWindow> {
         return getBase(this).addWindow(this, definition, "group");
     }
@@ -121,6 +146,17 @@ export class Group implements Glue42Workspaces.Group {
         }
         const verifiedConfig = lockConfigResult === undefined ? undefined : groupLockConfigDecoder.runWithException(lockConfigResult);
         return getBase(this).lockContainer(this, verifiedConfig);
+    }
+
+    public async setSize(width?: number, height?: number): Promise<void> {
+        if (!width && !height) {
+            throw new Error("Expected either width or height to be passed}");
+        }
+
+        optional(number().where(n => n > 0, "The height should be positive")).runWithException(height);
+        optional(number().where(n => n > 0, "The width should be positive")).runWithException(width);
+
+        return getBase(this).setSize(this, width, height);
     }
 
 }

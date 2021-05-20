@@ -1,9 +1,8 @@
-import { Glue42Web } from "@glue42/web";
-import { anyJson, boolean, constant, Decoder, number, object, oneOf, optional, string } from "decoder-validate";
+import { boolean, constant, Decoder, number, object, oneOf, optional, string } from "decoder-validate";
 import { nonEmptyStringDecoder, nonNegativeNumberDecoder, windowOpenSettingsDecoder } from "../../shared/decoders";
-import { OpenWindowConfig, OpenWindowSuccess, SimpleWindowCommand, WindowBoundsResult, WindowMoveResizeConfig, WindowOperationsTypes, WindowTitleConfig, WindowUrlResult } from "./types";
+import { FrameWindowBoundsResult, OpenWindowConfig, OpenWindowSuccess, SimpleWindowCommand, WindowBoundsResult, WindowMoveResizeConfig, WindowOperationsTypes, WindowTitleConfig, WindowUrlResult } from "./types";
 
-export const windowOperationDecoder: Decoder<WindowOperationsTypes> = oneOf<"openWindow" | "windowHello" | "getUrl" | "getTitle" | "setTitle" | "moveResize" | "focus" | "close" | "getBounds" | "registerWorkspaceWindow" | "unregisterWorkspaceWindow">(
+export const windowOperationDecoder: Decoder<WindowOperationsTypes> = oneOf<"openWindow" | "windowHello" | "getUrl" | "getTitle" | "setTitle" | "moveResize" | "focus" | "close" | "getBounds" | "getFrameBounds" | "registerWorkspaceWindow" | "unregisterWorkspaceWindow">(
     constant("openWindow"),
     constant("windowHello"),
     constant("getUrl"),
@@ -13,6 +12,7 @@ export const windowOperationDecoder: Decoder<WindowOperationsTypes> = oneOf<"ope
     constant("focus"),
     constant("close"),
     constant("getBounds"),
+    constant("getFrameBounds"),
     constant("registerWorkspaceWindow"),
     constant("unregisterWorkspaceWindow")
 );
@@ -34,6 +34,15 @@ export const simpleWindowDecoder: Decoder<SimpleWindowCommand> = object({
 
 export const windowBoundsResultDecoder: Decoder<WindowBoundsResult> = object({
     windowId: nonEmptyStringDecoder,
+    bounds: object({
+        top: number(),
+        left: number(),
+        width: nonNegativeNumberDecoder,
+        height: nonNegativeNumberDecoder
+    })
+});
+
+export const frameWindowBoundsResultDecoder: Decoder<FrameWindowBoundsResult> = object({
     bounds: object({
         top: number(),
         left: number(),

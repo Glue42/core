@@ -3,7 +3,7 @@
 import { Glue42Workspaces } from "@glue42/workspaces-api";
 import { anyJson, array, boolean, constant, Decoder, intersection, lazy, number, object, oneOf, optional, string } from "decoder-validate";
 import { nonEmptyStringDecoder, nonNegativeNumberDecoder, windowLayoutItemDecoder } from "../../shared/decoders";
-import { AddContainerConfig, AddItemResult, AddWindowConfig, BaseChildSnapshotConfig, BundleConfig, ChildSnapshotResult, ContainerStreamData, ContainerSummaryResult, DeleteLayoutConfig, ExportedLayoutsResult, FrameHello, FrameSnapshotResult, FrameStateConfig, FrameStateResult, FrameStreamData, FrameSummariesResult, FrameSummaryResult, GetFrameSummaryConfig, IsWindowInSwimlaneResult, LayoutSummariesResult, LayoutSummary, LockColumnConfig, LockContainerConfig, LockGroupConfig, LockRowConfig, LockWindowConfig, LockWorkspaceConfig, MoveFrameConfig, MoveWindowConfig, OpenWorkspaceConfig, ParentSnapshotConfig, PingResult, ResizeItemConfig, SetItemTitleConfig, SimpleItemConfig, SimpleWindowOperationSuccessResult, SwimlaneWindowSnapshotConfig, WindowStreamData, WorkspaceConfigResult, WorkspaceCreateConfigProtocol, WorkspaceEventAction, WorkspaceEventType, WorkspaceSelector, WorkspacesLayoutImportConfig, WorkspaceSnapshotResult, WorkspacesOperationsTypes, WorkspaceStreamData, WorkspaceSummariesResult, WorkspaceSummaryResult, WorkspaceWindowData } from "./types";
+import { AddContainerConfig, AddItemResult, AddWindowConfig, BaseChildSnapshotConfig, BundleConfig, ChildSnapshotResult, ColumnDefinitionConfig, ContainerStreamData, ContainerSummaryResult, DeleteLayoutConfig, ExportedLayoutsResult, FrameBoundsResult, FrameHello, FrameSnapshotResult, FrameStateConfig, FrameStateResult, FrameStreamData, FrameSummariesResult, FrameSummaryResult, GetFrameSummaryConfig, GroupDefinitionConfig, IsWindowInSwimlaneResult, LayoutSummariesResult, LayoutSummary, LockColumnConfig, LockContainerConfig, LockGroupConfig, LockRowConfig, LockWindowConfig, LockWorkspaceConfig, MoveFrameConfig, MoveWindowConfig, OpenWorkspaceConfig, ParentSnapshotConfig, PingResult, ResizeItemConfig, RowDefinitionConfig, SetItemTitleConfig, SimpleItemConfig, SimpleWindowOperationSuccessResult, SwimlaneWindowSnapshotConfig, WindowStreamData, WorkspaceConfigResult, WorkspaceCreateConfigProtocol, WorkspaceEventAction, WorkspaceEventType, WorkspaceSelector, WorkspacesLayoutImportConfig, WorkspaceSnapshotResult, WorkspacesOperationsTypes, WorkspaceStreamData, WorkspaceSummariesResult, WorkspaceSummaryResult, WorkspaceWindowData } from "./types";
 
 export const workspacesOperationDecoder: Decoder<WorkspacesOperationsTypes> = oneOf<
     "isWindowInWorkspace" | "createWorkspace" | "getAllFramesSummaries" | "getFrameSummary" |
@@ -11,7 +11,7 @@ export const workspacesOperationDecoder: Decoder<WorkspacesOperationsTypes> = on
     "deleteLayout" | "saveLayout" | "importLayout" | "exportAllLayouts" | "restoreItem" | "maximizeItem" |
     "focusItem" | "closeItem" | "resizeItem" | "moveFrame" | "getFrameSnapshot" | "forceLoadWindow" |
     "ejectWindow" | "setItemTitle" | "moveWindowTo" | "addWindow" | "addContainer" |
-    "bundleWorkspace" | "changeFrameState" | "getFrameState" | "frameHello" | "hibernateWorkspace" | "resumeWorkspace" | "getWorkspacesConfig" |
+    "bundleWorkspace" | "changeFrameState" | "getFrameState" | "getFrameBounds" | "frameHello" | "hibernateWorkspace" | "resumeWorkspace" | "getWorkspacesConfig" |
     "lockWorkspace" | "lockContainer" | "lockWindow"
 >(
     constant("isWindowInWorkspace"),
@@ -42,6 +42,7 @@ export const workspacesOperationDecoder: Decoder<WorkspacesOperationsTypes> = on
     constant("bundleWorkspace"),
     constant("changeFrameState"),
     constant("getFrameState"),
+    constant("getFrameBounds"),
     constant("frameHello"),
     constant("hibernateWorkspace"),
     constant("resumeWorkspace"),
@@ -131,11 +132,38 @@ export const parentDefinitionDecoder: Decoder<Glue42Workspaces.BoxDefinition> = 
                 parentDefinitionDecoder
             )
         ))
-    )
+    ),
+    config: optional(anyJson())
 });
 
-export const strictParentDefinitionDecoder: Decoder<Glue42Workspaces.BoxDefinition> = object({
-    type: subParentDecoder,
+export const groupDefinitionConfigDecoder: Decoder<GroupDefinitionConfig> = object({
+    minWidth: optional(number()),
+    maxWidth: optional(number()),
+    minHeight: optional(number()),
+    maxHeight: optional(number()),
+    allowExtract: optional(boolean()),
+    allowDrop: optional(boolean()),
+    showMaximizeButton: optional(boolean()),
+    showEjectButton: optional(boolean()),
+    showAddWindowButton: optional(boolean())
+});
+
+export const rowDefinitionConfigDecoder: Decoder<RowDefinitionConfig> = object({
+    minHeight: optional(number()),
+    maxHeight: optional(number()),
+    allowDrop: optional(boolean()),
+    isPinned: optional(boolean())
+});
+
+export const columnDefinitionConfigDecoder: Decoder<ColumnDefinitionConfig> = object({
+    minWidth: optional(number()),
+    maxWidth: optional(number()),
+    allowDrop: optional(boolean()),
+    isPinned: optional(boolean())
+});
+
+export const strictColumnDefinitionDecoder: Decoder<Glue42Workspaces.BoxDefinition> = object({
+    type: constant("column"),
     children: optional(
         lazy(() => array(
             oneOf<Glue42Workspaces.WorkspaceWindowDefinition | Glue42Workspaces.BoxDefinition>(
@@ -143,8 +171,37 @@ export const strictParentDefinitionDecoder: Decoder<Glue42Workspaces.BoxDefiniti
                 strictParentDefinitionDecoder
             )
         ))
-    )
+    ),
+    config: optional(columnDefinitionConfigDecoder)
 });
+
+export const strictRowDefinitionDecoder: Decoder<Glue42Workspaces.BoxDefinition> = object({
+    type: constant("row"),
+    children: optional(
+        lazy(() => array(
+            oneOf<Glue42Workspaces.WorkspaceWindowDefinition | Glue42Workspaces.BoxDefinition>(
+                strictSwimlaneWindowDefinitionDecoder,
+                strictParentDefinitionDecoder
+            )
+        ))
+    ),
+    config: optional(rowDefinitionConfigDecoder)
+});
+
+export const strictGroupDefinitionDecoder: Decoder<Glue42Workspaces.BoxDefinition> = object({
+    type: constant("group"),
+    children: optional(
+        lazy(() => array(
+            oneOf<Glue42Workspaces.WorkspaceWindowDefinition | Glue42Workspaces.BoxDefinition>(
+                strictSwimlaneWindowDefinitionDecoder,
+                strictParentDefinitionDecoder
+            )
+        ))
+    ),
+    config: optional(groupDefinitionConfigDecoder)
+});
+
+export const strictParentDefinitionDecoder: Decoder<Glue42Workspaces.BoxDefinition> = oneOf(strictGroupDefinitionDecoder, strictColumnDefinitionDecoder, strictRowDefinitionDecoder);
 
 export const stateDecoder: Decoder<"maximized" | "normal"> = oneOf<"maximized" | "normal">(
     (string().where((s) => s.toLowerCase() === "maximized", "Expected a case insensitive variation of 'maximized'") as Decoder<"maximized">),
@@ -199,7 +256,12 @@ export const workspaceDefinitionDecoder: Decoder<Glue42Workspaces.WorkspaceDefin
         position: optional(nonNegativeNumberDecoder),
         isFocused: optional(boolean()),
         loadStrategy: optional(loadStrategyDecoder),
-        noTabHeader: optional(boolean())
+        noTabHeader: optional(boolean()),
+        allowDrop: optional(boolean()),
+        allowExtract: optional(boolean()),
+        showSaveButton: optional(boolean()),
+        showCloseButton: optional(boolean()),
+        allowSplitters: optional(boolean()),
     })),
     frame: optional(object({
         reuseFrameId: optional(nonEmptyStringDecoder),
@@ -300,7 +362,13 @@ export const workspaceConfigResultDecoder: Decoder<WorkspaceConfigResult> = obje
     allowDropBottom: boolean(),
     showAddWindowButtons: boolean(),
     showEjectButtons: boolean(),
-    showWindowCloseButtons: boolean()
+    showWindowCloseButtons: boolean(),
+    minWidth:optional(number()),
+    maxWidth:optional(number()),
+    minHeight:optional(number()),
+    maxHeight:optional(number()),
+    widthInPx: optional(number()),
+    heightInPx: optional(number())
 });
 
 // todo: remove number positionIndex when fixed
@@ -472,6 +540,15 @@ export const voidResultDecoder: Decoder<{}> = anyJson();
 
 export const frameStateResultDecoder: Decoder<FrameStateResult> = object({
     state: frameStateDecoder
+});
+
+export const frameBoundsResultDecoder: Decoder<FrameBoundsResult> = object({
+    bounds: object({
+        top: nonNegativeNumberDecoder,
+        left: nonNegativeNumberDecoder,
+        width: nonNegativeNumberDecoder,
+        height: nonNegativeNumberDecoder
+    })
 });
 
 export const resizeConfigDecoder: Decoder<Glue42Workspaces.ResizeConfig> = object({

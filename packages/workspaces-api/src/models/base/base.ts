@@ -7,6 +7,9 @@ import { ParentPrivateData, WorkspacePrivateData } from "../../types/privateData
 import { Window } from "../../models/window";
 import { Glue42Workspaces } from "../../../workspaces";
 import { Group } from "../group";
+import { Row } from "../row";
+import { Column } from "../column";
+import { ColumnSnapshotConfig, RowSnapshotConfig } from "../../types/protocol";
 
 interface PrivateData {
     manager: PrivateDataManager;
@@ -166,7 +169,7 @@ export class Base {
         }
     }
 
-    public async lockContainer(model: SubParentTypes, config?: ContainerLockConfig) {
+    public async lockContainer(model: SubParentTypes, config?: ContainerLockConfig): Promise<void> {
         const modelData = getData(this, model) as ParentPrivateData;
 
         const controller = getData(this, model).controller;
@@ -180,11 +183,11 @@ export class Base {
         }
     }
 
-    public getAllowDrop(model: SubParentTypes) {
+    public getAllowDrop(model: SubParentTypes): boolean {
         return getData(this, model).config.allowDrop;
     }
 
-    public getAllowExtract(model: Group) {
+    public getAllowExtract(model: Group): boolean {
         const privateData = getData(this, model);
         if (privateData.type !== "group") {
             throw new Error(`Cannot get allow extract from private data${privateData.type} with config ${privateData.type !== "workspace" ? privateData.config.type : ""}`);
@@ -192,7 +195,7 @@ export class Base {
         return privateData.config.allowExtract;
     }
 
-    public getShowMaximizeButton(model: Group) {
+    public getShowMaximizeButton(model: Group): boolean {
         const privateData = getData(this, model);
         if (privateData.type !== "group") {
             throw new Error(`Cannot get show maximize button from private data${privateData.type} with config ${privateData.type !== "workspace" ? privateData.config.type : ""}`);
@@ -200,7 +203,7 @@ export class Base {
         return privateData.config.showMaximizeButton;
     }
 
-    public getShowEjectButton(model: Group) {
+    public getShowEjectButton(model: Group): boolean {
         const privateData = getData(this, model);
         if (privateData.type !== "group") {
             throw new Error(`Cannot get show eject button from private data${privateData.type} with config ${privateData.type !== "workspace" ? privateData.config.type : ""}`);
@@ -208,12 +211,100 @@ export class Base {
         return privateData.config.showEjectButton;
     }
 
-    public getShowAddWindowButton(model: Group) {
+    public getShowAddWindowButton(model: Group): boolean {
         const privateData = getData(this, model);
         if (privateData.type !== "group") {
             throw new Error(`Cannot get add window button from private data${privateData.type} with config ${privateData.type !== "workspace" ? privateData.config.type : ""}`);
         }
         return privateData.config.showAddWindowButton;
+    }
+
+    public getMinWidth(model: SubParentTypes): number {
+        const privateData = getData(this, model);
+
+        return privateData.config.minWidth;
+    }
+
+    public getMaxWidth(model: SubParentTypes): number {
+        const privateData = getData(this, model);
+
+        return privateData.config.maxWidth;
+    }
+
+    public getMinHeight(model: SubParentTypes): number {
+        const privateData = getData(this, model);
+
+        return privateData.config.minHeight;
+    }
+
+    public getMaxHeight(model: SubParentTypes): number {
+        const privateData = getData(this, model);
+
+        return privateData.config.maxHeight;
+    }
+
+    public getWidthInPx(model: SubParentTypes): number {
+        const privateData = getData(this, model);
+
+        return privateData.config.widthInPx;
+    }
+
+    public getHeightInPx(model: SubParentTypes): number {
+        const privateData = getData(this, model);
+
+        return privateData.config.heightInPx;
+    }
+
+    public getIsPinned(model: Column | Row): boolean {
+        const privateData = getData(this, model);
+
+        return (privateData.config as RowSnapshotConfig | ColumnSnapshotConfig).isPinned;
+    }
+
+    public async setHeight(model: Row, height: number): Promise<void> {
+        const modelData = getData(this, model) as ParentPrivateData;
+        const { controller } = modelData;
+
+        await controller.resizeItem(getData(this, model).id, {
+            height
+        });
+
+        if (modelData.parent instanceof Workspace) {
+            await modelData.parent.refreshReference();
+        } else {
+            await this.getMyWorkspace(modelData.parent).refreshReference();
+        }
+    }
+
+    public async setWidth(model: Column, width: number): Promise<void> {
+        const modelData = getData(this, model) as ParentPrivateData;
+        const { controller } = modelData;
+
+        await controller.resizeItem(getData(this, model).id, {
+            width
+        });
+
+        if (modelData.parent instanceof Workspace) {
+            await modelData.parent.refreshReference();
+        } else {
+            await this.getMyWorkspace(modelData.parent).refreshReference();
+        }
+    }
+
+    public async setSize(model: Group, width?: number, height?: number): Promise<void> {
+        const modelData = getData(this, model) as ParentPrivateData;
+        const { controller } = modelData;
+
+        await controller.resizeItem(getData(this, model).id, {
+            width,
+            height
+        });
+
+        if (modelData.parent instanceof Workspace) {
+            await modelData.parent.refreshReference();
+        } else {
+            await this.getMyWorkspace(modelData.parent).refreshReference();
+        }
     }
 
     private transformDefinition(type: "group" | "row" | "column", definition?: Glue42Workspaces.BoxDefinition | ParentBuilder): Glue42Workspaces.BoxDefinition {

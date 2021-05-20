@@ -1,5 +1,6 @@
 describe("addWindow() Should", () => {
 
+    const decorationsHeight = 30;
     let workspace = undefined;
     before(() => coreReady);
 
@@ -153,6 +154,472 @@ describe("addWindow() Should", () => {
                 });
             });
 
+        });
+
+        it(`add the window and update the workspace constraints when the parent is a group and the window has constraints`, async () => {
+            const parent = workspace.getAllGroups()[0];
+            const window = await parent.addWindow({
+                type: "window",
+                appName: "noGlueApp",
+                config: {
+                    minWidth: 500,
+                    maxWidth: 600,
+                    minHeight: 550,
+                    maxHeight: 700
+                }
+            });
+
+            await workspace.refreshReference();
+
+            expect(workspace.minWidth).to.eql(520);
+            expect(workspace.maxWidth).to.eql(32767); // the neighbours have a max maxWidth so they can compensate
+            expect(workspace.minHeight).to.eql(550 + decorationsHeight);
+            expect(workspace.maxHeight).to.eql(700 + decorationsHeight);
+        });
+
+        it(`add the window and update the workspace constraints when the parent is a row and the window has constraints`, async () => {
+            const parent = workspace.getAllRows()[0];
+            const window = await parent.addWindow({
+                type: "window",
+                appName: "noGlueApp",
+                config: {
+                    minWidth: 500,
+                    maxWidth: 600,
+                    minHeight: 550,
+                    maxHeight: 700
+                }
+            });
+
+            await workspace.refreshReference();
+
+            expect(workspace.minWidth).to.eql(520);
+            expect(workspace.maxWidth).to.eql(32767); // the neighbours have a max maxWidth so they can compensate
+            expect(workspace.minHeight).to.eql(550);
+            expect(workspace.maxHeight).to.eql(700);
+        });
+
+        it(`add the window and update the workspace constraints when the parent is a column and the window has constraints`, async () => {
+            const parent = workspace.getAllColumns()[0];
+            const window = await parent.addWindow({
+                type: "window",
+                appName: "noGlueApp",
+                config: {
+                    minWidth: 500,
+                    maxWidth: 600,
+                    minHeight: 550,
+                    maxHeight: 700
+                }
+            });
+
+            await workspace.refreshReference();
+
+            expect(workspace.minWidth).to.eql(520);
+            expect(workspace.maxWidth).to.eql(32767); // the neighbours have a max maxWidth so they can compensate
+            expect(workspace.minHeight).to.eql(550);
+            expect(workspace.maxHeight).to.eql(700);
+        });
+
+        it(`add the window and not update the workspace constraints when the parent is a group and the window has invalid width constraints`, async () => {
+            const parent = workspace.getAllGroups()[0];
+            const window = await parent.addWindow({
+                type: "window",
+                appName: "noGlueApp",
+                config: {
+                    minWidth: 700,
+                    maxWidth: 600,
+                }
+            });
+
+            await workspace.refreshReference();
+
+            expect(workspace.minWidth).to.eql(30);
+            expect(workspace.maxWidth).to.eql(32767);
+            expect(workspace.minHeight).to.eql(10 + decorationsHeight);
+            expect(workspace.maxHeight).to.eql(32767);
+        });
+
+        it(`add the window and not update the workspace constraints when the parent is a group and the window has invalid height constraints`, async () => {
+            const parent = workspace.getAllGroups()[0];
+            const window = await parent.addWindow({
+                type: "window",
+                appName: "noGlueApp",
+                config: {
+                    minHeight: 700,
+                    maxHeight: 600,
+                }
+            });
+
+            await workspace.refreshReference();
+
+            expect(workspace.minWidth).to.eql(30);
+            expect(workspace.maxWidth).to.eql(32767);
+            expect(workspace.minHeight).to.eql(10 + decorationsHeight);
+            expect(workspace.maxHeight).to.eql(32767);
+        });
+
+        it(`add the window and not update the workspace constraints when the parent is a row and the window has invalid width constraints`, async () => {
+            const parent = workspace.getAllRows()[0];
+            const window = await parent.addWindow({
+                type: "window",
+                appName: "noGlueApp",
+                config: {
+                    minWidth: 700,
+                    maxWidth: 600,
+                }
+            });
+
+            await workspace.refreshReference();
+
+            expect(workspace.minWidth).to.eql(30);
+            expect(workspace.maxWidth).to.eql(32767);
+            expect(workspace.minHeight).to.eql(10 + decorationsHeight);
+            expect(workspace.maxHeight).to.eql(32767);
+        });
+
+        it(`add the window and not update the workspace constraints when the parent is a row and the window has invalid height constraints`, async () => {
+            const parent = workspace.getAllRows()[0];
+            const window = await parent.addWindow({
+                type: "window",
+                appName: "noGlueApp",
+                config: {
+                    minHeight: 700,
+                    maxHeight: 600,
+                }
+            });
+
+            await workspace.refreshReference();
+
+            expect(workspace.minWidth).to.eql(30);
+            expect(workspace.maxWidth).to.eql(32767);
+            expect(workspace.minHeight).to.eql(10 + decorationsHeight);
+            expect(workspace.maxHeight).to.eql(32767);
+        });
+
+        it(`add the window and not update the workspace constraints when the parent is a column and the window has invalid width constraints`, async () => {
+            const parent = workspace.getAllColumns()[0];
+            const window = await parent.addWindow({
+                type: "window",
+                appName: "noGlueApp",
+                config: {
+                    minWidth: 700,
+                    maxWidth: 600,
+                }
+            });
+
+            await workspace.refreshReference();
+
+            expect(workspace.minWidth).to.eql(30);
+            expect(workspace.maxWidth).to.eql(32767);
+            expect(workspace.minHeight).to.eql(10 + decorationsHeight);
+            expect(workspace.maxHeight).to.eql(32767);
+        });
+
+        it(`add the window and not update the workspace constraints when the parent is a column and the window has invalid height constraints`, async () => {
+            const parent = workspace.getAllColumns()[0];
+            const window = await parent.addWindow({
+                type: "window",
+                appName: "noGlueApp",
+                config: {
+                    minHeight: 700,
+                    maxHeight: 600,
+                }
+            });
+
+            await workspace.refreshReference();
+
+            expect(workspace.minWidth).to.eql(30);
+            expect(workspace.maxWidth).to.eql(32767);
+            expect(workspace.minHeight).to.eql(10 + decorationsHeight);
+            expect(workspace.maxHeight).to.eql(32767);
+        });
+
+        it(`add the window and not update the workspace constraints when the parent is a group and the window has incompatible width constraints`, async () => {
+            const secondWorkspace = await glue.workspaces.createWorkspace({
+                children: [
+                    {
+                        type: "group",
+                        children: [],
+                        config: {
+                            minWidth: 800,
+                            maxWidth: 1000
+                        }
+                    }
+                ]
+            });
+            const parent = secondWorkspace.getAllGroups()[0];
+            const window = await parent.addWindow({
+                type: "window",
+                appName: "noGlueApp",
+                config: {
+                    minWidth: 600,
+                    maxWidth: 700,
+                }
+            });
+
+            await secondWorkspace.refreshReference();
+
+            expect(secondWorkspace.minWidth).to.eql(800);
+            expect(secondWorkspace.maxWidth).to.eql(1000);
+            expect(secondWorkspace.minHeight).to.eql(10 + decorationsHeight);
+            expect(secondWorkspace.maxHeight).to.eql(32767);
+        });
+
+        it(`add the window and not update the workspace constraints when the parent is a group and the window has incompatible height constraints`, async () => {
+            const secondWorkspace = await glue.workspaces.createWorkspace({
+                children: [
+                    {
+                        type: "group",
+                        children: [],
+                        config: {
+                            minHeight: 800,
+                            maxHeight: 1000
+                        }
+                    }
+                ]
+            });
+            const parent = secondWorkspace.getAllGroups()[0];
+            const window = await parent.addWindow({
+                type: "window",
+                appName: "noGlueApp",
+                config: {
+                    minHeight: 600,
+                    maxHeight: 700,
+                }
+            });
+
+            await secondWorkspace.refreshReference();
+
+            expect(secondWorkspace.minWidth).to.eql(10);
+            expect(secondWorkspace.maxWidth).to.eql(32767);
+            expect(secondWorkspace.minHeight).to.eql(800);
+            expect(secondWorkspace.maxHeight).to.eql(1000);
+        });
+
+        it(`add the window and not update the workspace constraints when the parent is a row and the window has incompatible width constraints`, async () => {
+            const secondWorkspace = await glue.workspaces.createWorkspace({
+                children: [
+                    {
+                        type: "row",
+                        children: [],
+                        config: {
+                            minWidth: 800,
+                            maxWidth: 1000
+                        }
+                    }
+                ]
+            });
+            const parent = secondWorkspace.getAllRows()[0];
+            const window = await parent.addWindow({
+                type: "window",
+                appName: "noGlueApp",
+                config: {
+                    minWidth: 600,
+                    maxWidth: 700,
+                }
+            });
+
+            await secondWorkspace.refreshReference();
+
+            expect(secondWorkspace.minWidth).to.eql(800);
+            expect(secondWorkspace.maxWidth).to.eql(1000);
+            expect(secondWorkspace.minHeight).to.eql(10);
+            expect(secondWorkspace.maxHeight).to.eql(32767);
+        });
+
+        it(`add the window and not update the workspace constraints when the parent is a row and the window has incompatible height constraints`, async () => {
+            const secondWorkspace = await glue.workspaces.createWorkspace({
+                children: [
+                    {
+                        type: "row",
+                        children: [],
+                        config: {
+                            minHeight: 800,
+                            maxHeight: 1000
+                        }
+                    }
+                ]
+            });
+            const parent = secondWorkspace.getAllRows()[0];
+            const window = await parent.addWindow({
+                type: "window",
+                appName: "noGlueApp",
+                config: {
+                    minHeight: 600,
+                    maxHeight: 700,
+                }
+            });
+
+            await secondWorkspace.refreshReference();
+
+            expect(secondWorkspace.minWidth).to.eql(10);
+            expect(secondWorkspace.maxWidth).to.eql(32767);
+            expect(secondWorkspace.minHeight).to.eql(800);
+            expect(secondWorkspace.maxHeight).to.eql(1000);
+        });
+
+        it(`add the window and not update the workspace constraints when the parent is a column and the window has incompatible width constraints`, async () => {
+            const secondWorkspace = await glue.workspaces.createWorkspace({
+                children: [
+                    {
+                        type: "column",
+                        children: [],
+                        config: {
+                            minWidth: 800,
+                            maxWidth: 1000
+                        }
+                    }
+                ]
+            });
+            const parent = secondWorkspace.getAllColumns()[0];
+            const window = await parent.addWindow({
+                type: "window",
+                appName: "noGlueApp",
+                config: {
+                    minWidth: 600,
+                    maxWidth: 700,
+                }
+            });
+
+            await secondWorkspace.refreshReference();
+
+            expect(secondWorkspace.minWidth).to.eql(800);
+            expect(secondWorkspace.maxWidth).to.eql(1000);
+            expect(secondWorkspace.minHeight).to.eql(10);
+            expect(secondWorkspace.maxHeight).to.eql(32767);
+        });
+
+        it(`add the window and not update the workspace constraints when the parent is a column and the window has incompatible height constraints`, async () => {
+            const secondWorkspace = await glue.workspaces.createWorkspace({
+                children: [
+                    {
+                        type: "column",
+                        children: [],
+                        config: {
+                            minHeight: 800,
+                            maxHeight: 1000
+                        }
+                    }
+                ]
+            });
+            const parent = secondWorkspace.getAllColumns()[0];
+            const window = await parent.addWindow({
+                type: "window",
+                appName: "noGlueApp",
+                config: {
+                    minHeight: 600,
+                    maxHeight: 700,
+                }
+            });
+
+            await secondWorkspace.refreshReference();
+
+            expect(secondWorkspace.minWidth).to.eql(10);
+            expect(secondWorkspace.maxWidth).to.eql(32767);
+            expect(secondWorkspace.minHeight).to.eql(800);
+            expect(secondWorkspace.maxHeight).to.eql(1000);
+        });
+
+        it(`lock the window when the paret is a column and locking config has been passed`, async () => {
+            const secondWorkspace = await glue.workspaces.createWorkspace({
+                children: [
+                    {
+                        type: "column",
+                        children: [],
+                    }
+                ]
+            });
+            const parent = secondWorkspace.getAllColumns()[0];
+            const window = await parent.addWindow({
+                type: "window",
+                appName: "noGlueApp",
+                config: {
+                    allowExtract: false,
+                    showCloseButton: false
+                }
+            });
+    
+            await secondWorkspace.refreshReference();
+    
+            expect(window.allowExtract).to.be.false;
+            expect(window.showCloseButton).to.be.false;
+        });
+    
+        it(`lock the window when the paret is a group and locking config has been passed`, async () => {
+            const secondWorkspace = await glue.workspaces.createWorkspace({
+                children: [
+                    {
+                        type: "group",
+                        children: [],
+                    }
+                ]
+            });
+            const parent = secondWorkspace.getAllGroups()[0];
+            const window = await parent.addWindow({
+                type: "window",
+                appName: "noGlueApp",
+                config: {
+                    allowExtract: false,
+                    showCloseButton: false
+                }
+            });
+    
+            await secondWorkspace.refreshReference();
+    
+            expect(window.allowExtract).to.be.false;
+            expect(window.showCloseButton).to.be.false;
+        });
+    
+        it(`lock the window when the paret is a group with windows and locking config has been passed`, async () => {
+            const secondWorkspace = await glue.workspaces.createWorkspace({
+                children: [
+                    {
+                        type: "group",
+                        children: [{
+                            type: "window",
+                            appName: "noGlueApp"
+                        }],
+                    }
+                ]
+            });
+            const parent = secondWorkspace.getAllGroups()[0];
+            const window = await parent.addWindow({
+                type: "window",
+                appName: "noGlueApp",
+                config: {
+                    allowExtract: false,
+                    showCloseButton: false
+                }
+            });
+    
+            await secondWorkspace.refreshReference();
+    
+            expect(window.allowExtract).to.be.false;
+            expect(window.showCloseButton).to.be.false;
+        });
+    
+        it(`lock the window when the paret is a row and locking config has been passed`, async () => {
+            const secondWorkspace = await glue.workspaces.createWorkspace({
+                children: [
+                    {
+                        type: "row",
+                        children: [],
+                    }
+                ]
+            });
+            const parent = secondWorkspace.getAllRows()[0];
+            const window = await parent.addWindow({
+                type: "window",
+                appName: "noGlueApp",
+                config: {
+                    allowExtract: false,
+                    showCloseButton: false
+                }
+            });
+    
+            await secondWorkspace.refreshReference();
+    
+            expect(window.allowExtract).to.be.false;
+            expect(window.showCloseButton).to.be.false;
         });
 
         describe("complex", () => {

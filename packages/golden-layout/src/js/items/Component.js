@@ -38,6 +38,48 @@ lm.utils.copy(lm.items.Component.prototype, {
 		}
 	},
 
+	/**
+	 * Returns the min width of the row or column
+	 * @returns {number | undefined}
+	 */
+	getMinWidth() {
+		if (!this.config.workspacesConfig) {
+			return this.layoutManager.config.dimensions.minItemWidth;
+		}
+		return this.config.workspacesConfig.minWidth || this.layoutManager.config.dimensions.minItemWidth;
+	},
+
+	/**
+	   * Returns the min width of the row or column
+	   * @returns {number | undefined}
+	   */
+	getMaxWidth() {
+		if (!this.config.workspacesConfig) {
+			return this.layoutManager.config.dimensions.maxItemWidth;
+		}
+		return this.config.workspacesConfig.maxWidth || this.layoutManager.config.dimensions.maxItemWidth;
+	},
+
+	/**
+	 * Returns the min width of the row or column
+	 * @returns {number | undefined}
+	 */
+	getMinHeight() {
+		if (!this.config.workspacesConfig) {
+			return this.layoutManager.config.dimensions.minItemHeight;
+		}
+		return this.config.workspacesConfig.minHeight || this.layoutManager.config.dimensions.minItemHeight;
+	},
+	/**
+	 * Returns the min width of the row or column
+	 * @returns {number | undefined}
+	 */
+	getMaxHeight() {
+		if (!this.config.workspacesConfig) {
+			return this.layoutManager.config.dimensions.maxItemHeight;
+		}
+		return this.config.workspacesConfig.maxHeight || this.layoutManager.config.dimensions.maxItemHeight;
+	},
 	_$init: function () {
 		lm.items.AbstractContentItem.prototype._$init.call(this);
 		this.container.emit('open');

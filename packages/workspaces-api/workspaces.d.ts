@@ -96,10 +96,6 @@ export namespace Glue42Workspaces {
             url?: string;
             /** The title of the window */
             title?: string;
-            /** Controls the visibility of the close button*/
-            showCloseButton?: boolean;
-            /** Controls whether the window can be dragged*/
-            allowExtract?: boolean;
         };
     }
 
@@ -125,10 +121,18 @@ export namespace Glue42Workspaces {
         reuseWorkspaceId?: string;
     }
 
+    /** An object containing the bounds of a frame */
+    export interface FrameBounds {
+        top?: number;
+        left?: number;
+        width?: number;
+        height?: number;
+    }
+
     /** An object describing the possible settings when defining a new frame. */
     export interface NewFrameConfig {
         /** An object describing the possible settings when defining a new frame. */
-        bounds?: { top?: number; left?: number; width?: number; height?: number };
+        bounds?: FrameBounds;
     }
 
     /** An object defining the resize parameters of a frame. */
@@ -230,6 +234,8 @@ export namespace Glue42Workspaces {
 
         /** An array of all the box's children which will also be opened. */
         children?: Array<WorkspaceWindowDefinition | BoxDefinition>;
+
+        config?: any;
     }
 
     /** An object describing the possible options when opening a window inside a workspace. */
@@ -305,12 +311,6 @@ export namespace Glue42Workspaces {
 
         /** The title of the window */
         title: string;
-
-        /** A flag showing whether the window can be dragged */
-        allowExtract: boolean;
-
-          /** A flag showing whether the window close button is visible */
-        showCloseButton: boolean;
     }
 
     /** An object describing a workspace layout without the underlying structure */
@@ -321,6 +321,11 @@ export namespace Glue42Workspaces {
 
     /** An object describing a frame */
     export interface Frame extends FrameSummary {
+        /**
+         * Retrieves the current bounds of the frame.
+         */
+        getBounds(): Promise<FrameBounds>;
+
         /**
          * Changes the size of this frame.
          * @param config An object defining the resize parameters.
@@ -692,8 +697,6 @@ export namespace Glue42Workspaces {
         /** An object representing the workspace containing this box */
         workspace: Workspace;
 
-        allowDrop: boolean;
-
         /**
          * Opens a new window inside this box and loads it's content.
          * @param definition An object describing the requested window.
@@ -753,14 +756,6 @@ export namespace Glue42Workspaces {
     /** An object describing a group type workspace box */
     export interface Group extends Box {
         type: "group";
-
-        showMaximizeButton: boolean;
-
-        showEjectButton: boolean;
-
-        showAddWindowButton: boolean;
-
-        allowExtract: boolean;
     }
 
     /** An object describing a window part of an existing workspace */

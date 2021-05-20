@@ -84,6 +84,125 @@ describe('addGroup() Should ', function () {
         }));
     });
 
+    it("add group with allowDrop true when the workspace has been locked", async () => {
+        await workspace.lock();
+        const group = await workspace.addGroup({
+            children: [
+                {
+                    type: "window",
+                    appName: "noGlueApp"
+                },
+                {
+                    type: "window",
+                    appName: "noGlueApp"
+                }
+            ]
+        });
+
+        await workspace.refreshReference();
+
+        expect(group.allowDrop).to.be.true;
+    });
+
+    it("add group with allowExtract false when the workspace has been locked", async () => {
+        await workspace.lock();
+        const group = await workspace.addGroup({
+            children: [
+                {
+                    type: "window",
+                    appName: "noGlueApp"
+                },
+                {
+                    type: "window",
+                    appName: "noGlueApp"
+                }
+            ]
+        });
+
+        await workspace.refreshReference();
+
+        expect(group.allowExtract).to.be.false;
+    });
+
+    it("add a window in a group with allowExtract false when the workspace has been locked", async () => {
+        await workspace.lock();
+        const group = await workspace.addGroup({
+            children: [
+                {
+                    type: "window",
+                    appName: "noGlueApp"
+                },
+                {
+                    type: "window",
+                    appName: "noGlueApp"
+                }
+            ]
+        });
+
+        await workspace.refreshReference();
+
+        group.children.forEach((w) => {
+            expect(w.allowExtract).to.be.false;
+        });
+    });
+
+    it("add the group and set the constraints when the group has constraints", async () => {
+        const group = await workspace.addGroup({
+            children: [
+                {
+                    type: "window",
+                    appName: "noGlueApp"
+                },
+                {
+                    type: "window",
+                    appName: "noGlueApp"
+                }
+            ],
+            config: {
+                minWidth: 600,
+                maxWidth: 1200,
+                minHeight: 500,
+                maxHeight: 1000
+            }
+        });
+
+        await workspace.refreshReference();
+
+        expect(workspace.minWidth).to.eql(610);
+        expect(workspace.maxWidth).to.eql(32767);
+        expect(workspace.minHeight).to.eql(500);
+        expect(workspace.maxHeight).to.eql(1000);
+    });
+
+    it("add the row group set the contraints when the workspace is empty and the group has constraints", async () => {
+        const workspace = await glue.workspaces.createWorkspace({ children: [] });
+        const group = await workspace.addGroup({
+            children: [
+                {
+                    type: "window",
+                    appName: "noGlueApp"
+                },
+                {
+                    type: "window",
+                    appName: "noGlueApp"
+                }
+            ],
+            config: {
+                minWidth: 600,
+                maxWidth: 1200,
+                minHeight: 500,
+                maxHeight: 1000
+            }
+        });
+
+        await workspace.refreshReference();
+
+        expect(workspace.minWidth).to.eql(600);
+        expect(workspace.maxWidth).to.eql(1200);
+        expect(workspace.minHeight).to.eql(500);
+        expect(workspace.maxHeight).to.eql(1000);
+    });
+
     Array.from({ length: 5 }).forEach((_, i) => {
         it(`add ${i + 1} empty group/s to the workspace`, async () => {
 

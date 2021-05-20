@@ -58,6 +58,11 @@ declare module '@glue42/golden-layout' {
          * A singleton instance of EventEmitter that works across windows
          */
         eventHub: GoldenLayout.EventEmitter;
+        
+        /**
+         * Flag which when enabled ignores the behaviour of the pinned containers
+         */
+        _ignorePinned: boolean;
 
         /**
          * @param config A GoldenLayout configuration object
@@ -355,6 +360,99 @@ declare module '@glue42/golden-layout' {
              * Indicates that the element is created just for wrapping purposes and should not be exposed to the Workspaces API
              */
             wrapper?: boolean;
+
+            /**
+             * The minimum width of the element
+             */
+            minWidth?: number;
+
+            /**
+             * The minimum height of the element
+             */
+            minHeight?: number;
+
+            /**
+             * The maximum width of the element
+             */
+            maxWidth?: number;
+
+            /**
+             * The maximum height of the element
+             */
+            maxHeight?: number;
+
+            /**
+             * Controls whether a drop target should appear
+             */
+            allowDrop?: boolean;
+
+            /**
+            * Controls whether a window can be dragged out
+            */
+            allowExtract?: boolean;
+
+            /**
+           * Controls the visibility of the add window buttons in the group headers
+           */
+            showAddWindowButton?: boolean;
+
+            /**
+           * Controls the visibility of the maximize buttons in the group headers
+           */
+            showMaximizeButton?: boolean;
+
+            /**
+           * Controls the visibility of the eject buttons in the group headers
+           */
+            showEjectButton?: boolean;
+
+            /**
+         * Controls the visibility of the close button in the window tabs
+         */
+            showCloseButton?: boolean;
+
+            /**
+          * Enables or disables the abilitiy to drop windows in the left area of the workspace
+          */
+            allowDropLeft?: boolean;
+            /**
+          * Enables or disables the abilitiy to drop windows in the top area of the workspace
+          */
+            allowDropTop?: boolean;
+            /**
+          * Enables or disables the abilitiy to drop windows in the right area of the workspace
+          */
+            allowDropRight?: boolean;
+            /**
+          * Enables or disables the abilitiy to drop windows in the bottom area of the workspace
+          */
+            allowDropBottom?: boolean;
+
+            /**
+          * Controls the visibility of the save button located in the workspace tab
+          */
+            showSaveButton?: boolean;
+            /**
+          * Controls the visibility of the close buttons located in the window tabs
+          */
+            showWindowCloseButtons?: boolean;
+            /**
+          * Controls the visibility of the eject buttons located in the group headers
+          */
+            showEjectButtons?: boolean;
+            /**
+          * Controls the visibility of the add window buttons located in the group headers
+          */
+            showAddWindowButtons?: boolean;
+            /**
+             * Disables/enables the splitters
+             */
+            allowSplitters?: boolean;
+
+            /**
+             * Enables the pinned functionality of a row or column
+             */
+            isPinned?:boolean;
         }
 
         interface BaseItemConfig {
@@ -485,6 +583,60 @@ declare module '@glue42/golden-layout' {
              * Replaces the specified workspace instead of creating a new one
              */
             reuseWorkspaceId?: string;
+
+            /**
+          * Enables or disables the abilitiy to drop windows in the workspace
+          */
+            allowDrop?: boolean;
+            /**
+          * Enables or disables the abilitiy to drop windows in the left area of the workspace
+          */
+            allowDropLeft?: boolean;
+            /**
+          * Enables or disables the abilitiy to drop windows in the top area of the workspace
+          */
+            allowDropTop?: boolean;
+            /**
+          * Enables or disables the abilitiy to drop windows in the right area of the workspace
+          */
+            allowDropRight?: boolean;
+            /**
+          * Enables or disables the abilitiy to drop windows in the bottom area of the workspace
+          */
+            allowDropBottom?: boolean;
+            /**
+          * Enables or disables the ability to drag windows out of the workspace
+          */
+            allowExtract?: boolean;
+            /**
+          * Constrols the visibility of the workspace close button located in the workspace tab
+          */
+            showCloseButton?: boolean;
+            /**
+          * Controls the visibility of the save button located in the workspace tab
+          */
+            showSaveButton?: boolean;
+            /**
+          * Controls the visibility of the close buttons located in the window tabs
+          */
+            showWindowCloseButtons?: boolean;
+            /**
+          * Controls the visibility of the eject buttons located in the group headers
+          */
+            showEjectButtons?: boolean;
+            /**
+          * Controls the visibility of the add window buttons located in the group headers
+          */
+            showAddWindowButtons?: boolean;
+            /**
+          * Disables/enables the splitters
+          */
+            allowSplitters?: boolean;
+
+            /**
+             * The name of the layout with which the workspace is associated with
+             */
+            layoutName?: string;
         }
 
         export interface Config {
@@ -668,6 +820,11 @@ declare module '@glue42/golden-layout' {
              * @param componentName a componentName as specified in the itemConfig
              */
             getComponentsByName(componentName: string): any;
+
+            getMinWidth(): number;
+            getMaxWidth(): number;
+            getMinHeight(): number;
+            getMaxHeight(): number;
         }
 
         export interface Stack extends BaseContentItem {

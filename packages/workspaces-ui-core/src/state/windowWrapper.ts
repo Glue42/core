@@ -1,12 +1,45 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import GoldenLayout from "@glue42/golden-layout";
-import { WindowSummary } from "../types/internal";
-import { idAsString } from "../utils";
+import { Bounds, WindowSummary } from "../types/internal";
+import { getElementBounds, idAsString } from "../utils";
 import store from "./store";
 
 export class WorkspaceWindowWrapper {
     constructor(
         private readonly windowContentItem: GoldenLayout.Component,
         private readonly frameId: string) {
+    }
+
+    public get minWidth(): number | undefined {
+        return this.windowContentItem.getMinWidth();
+    }
+
+    public set minWidth(value: number | undefined) {
+        this.windowContentItem.config.workspacesConfig.minWidth = value;
+    }
+
+    public get maxWidth(): number | undefined {
+        return this.windowContentItem.getMaxWidth();
+    }
+
+    public set maxWidth(value: number | undefined) {
+        this.windowContentItem.config.workspacesConfig.maxWidth = value;
+    }
+
+    public get minHeight(): number | undefined {
+        return this.windowContentItem.getMinHeight();
+    }
+
+    public set minHeight(value: number | undefined) {
+        this.windowContentItem.config.workspacesConfig.minHeight = value;
+    }
+
+    public get maxHeight(): number | undefined {
+        return this.windowContentItem.getMaxHeight();
+    }
+
+    public set maxHeight(value: number | undefined) {
+        this.windowContentItem.config.workspacesConfig.maxHeight = value;
     }
 
     public get allowExtract(): boolean | undefined {
@@ -33,11 +66,11 @@ export class WorkspaceWindowWrapper {
         return idAsString(this.windowContentItem?.parent.getActiveContentItem().config.id) === idAsString(this.windowContentItem.config.id);
     }
 
-    public get index() {
+    public get index(): number {
         return this.windowContentItem.parent?.contentItems.indexOf(this.windowContentItem) || 0;
     }
 
-    public get isTabless() {
+    public get isTabless(): boolean {
         const parent = this.windowContentItem?.parent;
 
         return !!parent?.config?.workspacesConfig?.wrapper;
@@ -50,6 +83,13 @@ export class WorkspaceWindowWrapper {
 
     public get config(): GoldenLayout.ComponentConfig {
         return this.windowContentItem?.config;
+    }
+
+    public get bounds(): Bounds {
+        if (!this.windowContentItem) {
+            return {} as Bounds;
+        }
+        return getElementBounds(this.windowContentItem.element);
     }
 
     private getSummaryCore(windowContentItem: GoldenLayout.Component, winId: string): WindowSummary {
@@ -76,7 +116,13 @@ export class WorkspaceWindowWrapper {
                 url,
                 title: windowContentItem.config.title,
                 allowExtract: this.allowExtract,
-                showCloseButton: this.showCloseButton
+                showCloseButton: this.showCloseButton,
+                minWidth: this.minWidth,
+                maxWidth: this.maxWidth,
+                minHeight: this.minHeight,
+                maxHeight: this.maxHeight,
+                widthInPx: this.bounds.width,
+                heightInPx: this.bounds.height
             }
         };
     }

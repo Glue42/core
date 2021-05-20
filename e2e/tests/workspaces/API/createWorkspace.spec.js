@@ -815,6 +815,673 @@ describe('createWorkspace() ', function () {
             });
         });
     });
+
+    describe('locking Should', () => {
+        it("create a workspace in a locked state when constraints are passed in the config object", async () => {
+            const workspace = await glue.workspaces.createWorkspace({
+                children: [{
+                    type: "group",
+                    children: [{
+                        type: "window",
+                        appName: "noGlueApp"
+                    }]
+                }],
+                config: {
+                    allowDrop: false,
+                    allowExtract: false,
+                    showSaveButton: false,
+                    showCloseButton: false,
+                    allowSplitters: false,
+                    showWindowCloseButtons: false,
+                    showEjectButtons: false,
+                    showAddWindowButtons: false
+                }
+            });
+
+            await workspace.refreshReference();
+
+            expect(workspace.allowDrop).to.be.true;
+            expect(workspace.allowExtract).to.be.false;
+            expect(workspace.showSaveButton).to.be.false;
+            expect(workspace.showCloseButton).to.be.false;
+            expect(workspace.allowSplitters).to.be.false;
+            expect(workspace.showWindowCloseButtons).to.be.false;
+            expect(workspace.showEjectButtons).to.be.false;
+            expect(workspace.showAddWindowButtons).to.be.false;
+        });
+
+        it("lock all the rows when constraints are passed in the config object of the workspace", async () => {
+            const workspace = await glue.workspaces.createWorkspace({
+                children: [
+                    {
+                        type: "row",
+                        children: [
+                            {
+                                type: "group",
+                                children: [{
+                                    type: "window",
+                                    appName: "noGlueApp"
+                                }]
+                            }
+                        ]
+                    }],
+                config: {
+                    allowDrop: false,
+                    allowExtract: false,
+                    showSaveButton: false,
+                    showCloseButton: false,
+                    allowSplitters: false
+                }
+            });
+
+            await workspace.refreshReference();
+            const allRows = workspace.getAllRows();
+            allRows.forEach((r) => {
+                expect(r.allowDrop).to.be.true;
+            });
+        });
+
+        it("lock all the columns when constraints are passed in the config object of the workspace", async () => {
+            const workspace = await glue.workspaces.createWorkspace({
+                children: [
+                    {
+                        type: "column",
+                        children: [
+                            {
+                                type: "group",
+                                children: [{
+                                    type: "window",
+                                    appName: "noGlueApp"
+                                }]
+                            }
+                        ]
+                    }],
+                config: {
+                    allowDrop: false,
+                    allowExtract: false,
+                    showSaveButton: false,
+                    showCloseButton: false,
+                    allowSplitters: false
+                }
+            });
+
+            await workspace.refreshReference();
+            const allColumns = workspace.getAllColumns();
+            allColumns.forEach((r) => {
+                expect(r.allowDrop).to.be.true;
+            });
+        });
+
+        it("lock all the groups when constraints are passed in the config object of the workspace", async () => {
+            const workspace = await glue.workspaces.createWorkspace({
+                children: [
+                    {
+                        type: "column",
+                        children: [
+                            {
+                                type: "group",
+                                children: [{
+                                    type: "window",
+                                    appName: "noGlueApp"
+                                }]
+                            }
+                        ]
+                    }],
+                config: {
+                    allowDrop: false,
+                    allowExtract: false,
+                    showSaveButton: false,
+                    showCloseButton: false,
+                    allowSplitters: false,
+                    showEjectButtons: false,
+                    showAddWindowButtons: false
+                }
+            });
+
+            await workspace.refreshReference();
+            const allGroups = workspace.getAllGroups();
+            allGroups.forEach((g) => {
+                expect(g.allowDrop).to.be.true;
+                expect(g.allowExtract).to.be.false;
+                expect(g.showEjectButton).to.be.false;
+                expect(g.showAddWindowButton).to.be.false;
+            });
+        });
+
+        it("lock all the groups when constraints are passed in the config object of the group", async () => {
+            const workspace = await glue.workspaces.createWorkspace({
+                children: [
+                    {
+                        type: "column",
+                        children: [
+                            {
+                                type: "group",
+                                children: [{
+                                    type: "window",
+                                    appName: "noGlueApp"
+                                }],
+                                config: {
+                                    allowDrop: false,
+                                    allowExtract: false,
+                                    showEjectButton: false,
+                                    showMaximizeButton: false,
+                                    showAddWindowButton: false
+                                }
+                            }
+                        ]
+                    }]
+            });
+
+            await workspace.refreshReference();
+            const allGroups = workspace.getAllGroups();
+            allGroups.forEach((g) => {
+                expect(g.allowDrop).to.be.false;
+                expect(g.allowExtract).to.be.false;
+                expect(g.showEjectButton).to.be.false;
+                expect(g.showMaximizeButton).to.be.false;
+                expect(g.showAddWindowButton).to.be.false;
+            });
+        });
+
+        it("lock all the rows when constraints are passed in the config object of the row", async () => {
+            const workspace = await glue.workspaces.createWorkspace({
+                children: [
+                    {
+                        type: "row",
+                        children: [
+                            {
+                                type: "group",
+                                children: [{
+                                    type: "window",
+                                    appName: "noGlueApp"
+                                }]
+
+                            }
+                        ],
+                        config: {
+                            allowDrop: false,
+                        }
+                    }]
+            });
+
+            await workspace.refreshReference();
+            const allRows = workspace.getAllRows();
+            allRows.forEach((r) => {
+                expect(r.allowDrop).to.be.false;
+            });
+        });
+
+        it("lock all the columns when constraints are passed in the config object of the column", async () => {
+            const workspace = await glue.workspaces.createWorkspace({
+                children: [
+                    {
+                        type: "column",
+                        children: [
+                            {
+                                type: "group",
+                                children: [{
+                                    type: "window",
+                                    appName: "noGlueApp"
+                                }]
+
+                            }
+                        ],
+                        config: {
+                            allowDrop: false,
+                        }
+                    }]
+            });
+
+            await workspace.refreshReference();
+            const allColumns = workspace.getAllColumns();
+            allColumns.forEach((c) => {
+                expect(c.allowDrop).to.be.false;
+            });
+        });
+
+        it("lock the window when constraints are passed in the config object of the window", async () => {
+            const workspace = await glue.workspaces.createWorkspace({
+                children: [
+                    {
+                        type: "column",
+                        children: [
+                            {
+                                type: "group",
+                                children: [{
+                                    type: "window",
+                                    config: {
+                                        allowExtract: false,
+                                        showCloseButton: false
+                                    },
+                                    appName: "noGlueApp"
+                                }]
+
+                            }
+                        ]
+                    }]
+            });
+
+            await workspace.refreshReference();
+            const allWindows = workspace.getAllWindows();
+            allWindows.forEach((c) => {
+                expect(c.allowExtract).to.be.false;
+                expect(c.showCloseButton).to.be.false;
+            });
+        });
+
+        Array.from(["allowDrop", "allowExtract", "showEjectButton", "showMaximizeButton", "showAddWindowButton"]).forEach((key, i, arr) => {
+            it(`set the ${key} constraint when all other constraints are not set and the target item is a group`, async () => {
+                const groupConfig = arr.reduce((acc, k) => {
+                    if (k === key) {
+                        acc[k] = false;
+                    } else {
+                        acc[k] = true;
+                    }
+
+                    return acc;
+                }, {});
+                const workspace = await glue.workspaces.createWorkspace({
+                    children: [
+                        {
+                            type: "column",
+                            children: [
+                                {
+                                    type: "group",
+                                    children: [{
+                                        type: "window",
+                                        appName: "noGlueApp"
+                                    }],
+                                    config: groupConfig
+                                }
+                            ]
+                        }]
+                });
+
+                await workspace.refreshReference();
+                const allGroups = workspace.getAllGroups();
+                allGroups.forEach((g) => {
+                    arr.forEach((k) => {
+                        if (k === key) {
+                            expect(g[k]).to.be.false
+                        } else {
+                            expect(g[k]).to.be.true;
+                        }
+                    });
+                });
+            });
+        });
+
+        it("override the workspace lock when both the row and the workspace have constraints", async () => {
+            const workspace = await glue.workspaces.createWorkspace({
+                children: [
+                    {
+                        type: "row",
+                        children: [
+                            {
+                                type: "group",
+                                children: [{
+                                    type: "window",
+                                    appName: "noGlueApp"
+                                }]
+                            }
+                        ],
+                        config: {
+                            allowDrop: true,
+                        }
+                    }],
+                config: {
+                    allowDrop: false,
+                    allowExtract: false,
+                    showSaveButton: false,
+                    showCloseButton: false,
+                    allowSplitters: false
+                }
+            });
+
+            await workspace.refreshReference();
+            const allRows = workspace.getAllRows();
+            allRows.forEach((r) => {
+                expect(r.allowDrop).to.be.true;
+            });
+
+            const allGroups = workspace.getAllGroups();
+            allGroups.forEach((g) => {
+                expect(g.allowDrop).to.be.true;
+            });
+        });
+
+        it("override the workspace lock when both the column and the workspace have constraints", async () => {
+            const workspace = await glue.workspaces.createWorkspace({
+                children: [
+                    {
+                        type: "column",
+                        children: [
+                            {
+                                type: "group",
+                                children: [{
+                                    type: "window",
+                                    appName: "noGlueApp"
+                                }]
+                            }
+                        ],
+                        config: {
+                            allowDrop: true,
+                        }
+                    }],
+                config: {
+                    allowDrop: false,
+                    allowExtract: false,
+                    showSaveButton: false,
+                    showCloseButton: false,
+                    allowSplitters: false
+                }
+            });
+
+            await workspace.refreshReference();
+            const allColumns = workspace.getAllColumns();
+            allColumns.forEach((r) => {
+                expect(r.allowDrop).to.be.true;
+            });
+
+            const allGroups = workspace.getAllGroups();
+            allGroups.forEach((g) => {
+                expect(g.allowDrop).to.be.true;
+            });
+        });
+
+        it("override the workspace lock when both the group and the workspace have constraints", async () => {
+            const workspace = await glue.workspaces.createWorkspace({
+                children: [
+                    {
+                        type: "column",
+                        children: [
+                            {
+                                type: "group",
+                                children: [{
+                                    type: "window",
+                                    appName: "noGlueApp"
+                                }],
+                                config: {
+                                    allowDrop: true,
+                                    allowExtract: true,
+                                    showEjectButton: true,
+                                    showAddWindowButton: true
+                                }
+                            }
+                        ]
+                    }],
+                config: {
+                    allowDrop: false,
+                    allowExtract: false,
+                    showSaveButton: false,
+                    showCloseButton: false,
+                    allowSplitters: false,
+                    showEjectButtons: false,
+                    showAddWindowButtons: false
+                }
+            });
+
+            await workspace.refreshReference();
+            const allGroups = workspace.getAllGroups();
+            allGroups.forEach((g) => {
+                expect(g.allowDrop).to.be.true;
+                expect(g.allowExtract).to.be.true;
+                expect(g.showEjectButton).to.be.true;
+                expect(g.showAddWindowButton).to.be.true;
+            });
+        });
+
+        it("override the workspace lock when both the window and the workspace have constraints", async () => {
+            const workspace = await glue.workspaces.createWorkspace({
+                children: [
+                    {
+                        type: "column",
+                        children: [
+                            {
+                                type: "group",
+                                children: [{
+                                    type: "window",
+                                    appName: "noGlueApp",
+                                    config: {
+                                        allowExtract: true,
+                                        showCloseButton: true,
+                                    }
+                                }],
+
+                            }
+                        ]
+                    }],
+                config: {
+                    allowDrop: false,
+                    allowExtract: false,
+                    showSaveButton: false,
+                    showCloseButton: false,
+                    allowSplitters: false,
+                    showEjectButtons: false,
+                    showAddWindowButtons: false,
+                    showWindowCloseButtons: false
+                }
+            });
+
+            await workspace.refreshReference();
+            const allWindows = workspace.getAllWindows();
+            allWindows.forEach((w) => {
+                expect(w.allowExtract).to.be.true;
+                expect(w.showCloseButton).to.be.true;
+            });
+        });
+    });
+
+    describe("constraints Should ", () => {
+        it("set the size constraints when the config contains a row with size constraints", async () => {
+            const config = {
+                children: [
+                    {
+                        type: "row",
+                        children: [
+                            {
+                                type: "group",
+                                children: [
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp"
+                                    }
+                                ]
+                            }
+                        ],
+                        config: {
+                            minWidth: 100,
+                            minHeight: 100,
+                            maxWidth: 1000,
+                            maxHeight: 1000
+                        }
+                    }
+                ]
+            }
+
+            const workspace = await glue.workspaces.createWorkspace(config);
+
+            const firstRow = workspace.getAllRows()[0];
+
+            expect(firstRow.minWidth).to.eql(100);
+            expect(firstRow.minHeight).to.eql(100);
+            expect(firstRow.maxWidth).to.eql(1000);
+            expect(firstRow.maxHeight).to.eql(1000);
+        });
+
+        it("set the size constraints when the config contains a column with size constraints", async () => {
+            const config = {
+                children: [
+                    {
+                        type: "column",
+                        children: [
+                            {
+                                type: "group",
+                                children: [
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp"
+                                    }
+                                ]
+                            }
+                        ],
+                        config: {
+                            minWidth: 100,
+                            minHeight: 100,
+                            maxWidth: 1000,
+                            maxHeight: 1000
+                        }
+                    }
+                ]
+            }
+
+            const workspace = await glue.workspaces.createWorkspace(config);
+
+            const firstColumn = workspace.getAllColumns()[0];
+
+            expect(firstColumn.minWidth).to.eql(100);
+            expect(firstColumn.minHeight).to.eql(100);
+            expect(firstColumn.maxWidth).to.eql(1000);
+            expect(firstColumn.maxHeight).to.eql(1000);
+        });
+
+        it("set the size constraints when the config contains a group with size constraints", async () => {
+            const config = {
+                children: [
+                    {
+                        type: "column",
+                        children: [
+                            {
+                                type: "group",
+                                children: [
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp"
+                                    }
+                                ],
+                                config: {
+                                    minWidth: 100,
+                                    minHeight: 100,
+                                    maxWidth: 1000,
+                                    maxHeight: 1000
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+
+            const workspace = await glue.workspaces.createWorkspace(config);
+
+            const firstGroup = workspace.getAllGroups()[0];
+
+            expect(firstGroup.minWidth).to.eql(100);
+            expect(firstGroup.minHeight).to.eql(100);
+            expect(firstGroup.maxWidth).to.eql(1000);
+            expect(firstGroup.maxHeight).to.eql(1000);
+        });
+
+        it("set the size constraints when the config contains a window with size constraints", async () => {
+            const config = {
+                children: [
+                    {
+                        type: "column",
+                        children: [
+                            {
+                                type: "group",
+                                children: [
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp",
+                                        config: {
+                                            minWidth: 100,
+                                            minHeight: 100,
+                                            maxWidth: 1000,
+                                            maxHeight: 1000
+                                        }
+                                    }
+                                ],
+
+                            }
+                        ]
+                    }
+                ]
+            }
+
+            const workspace = await glue.workspaces.createWorkspace(config);
+
+            const firstWindow = workspace.getAllWindows()[0];
+
+            expect(firstWindow.minWidth).to.eql(100);
+            expect(firstWindow.minHeight).to.eql(100);
+            expect(firstWindow.maxWidth).to.eql(1000);
+            expect(firstWindow.maxHeight).to.eql(1000);
+        });
+    });
+
+    describe("isPinned Should ", () => {
+        Array.from([true, false]).forEach((value) => {
+            it(`set the isPinned property to ${value} when the config contains a row with isPinned ${value}`, async () => {
+                const config = {
+                    children: [
+                        {
+                            type: "row",
+                            children: [
+                                {
+                                    type: "group",
+                                    children: [
+                                        {
+                                            type: "window",
+                                            appName: "noGlueApp"
+                                        }
+                                    ]
+                                }
+                            ],
+                            config: {
+                                isPinned: value
+                            }
+                        }
+                    ]
+                }
+
+                const workspace = await glue.workspaces.createWorkspace(config);
+
+                const firstRow = workspace.getAllRows()[0];
+
+                expect(firstRow.isPinned).to.eql(value);
+            });
+
+            it(`set the isPinned property to ${value} when the config contains a column with isPinned ${value}`, async () => {
+                const config = {
+                    children: [
+                        {
+                            type: "column",
+                            children: [
+                                {
+                                    type: "group",
+                                    children: [
+                                        {
+                                            type: "window",
+                                            appName: "noGlueApp"
+                                        }
+                                    ]
+                                }
+                            ],
+                            config: {
+                                isPinned: value
+                            }
+                        }
+                    ]
+                }
+
+                const workspace = await glue.workspaces.createWorkspace(config);
+
+                const firstColumn = workspace.getAllColumns()[0];
+
+                expect(firstColumn.isPinned).to.eql(value);
+            });
+        });
+    });
     // SAVE CONFIG
     // after resolve the layout should be present in the layouts collection when specified in the save config
     // after resolve the layout should NOT be present in the layouts collection when there is no save config

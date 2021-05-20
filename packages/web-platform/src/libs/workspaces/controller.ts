@@ -2,15 +2,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Glue42Web } from "@glue42/web";
 import { Glue42Workspaces } from "@glue42/workspaces-api";
-import { BridgeOperation, CoreClientData, InternalPlatformConfig, LibController } from "../../common/types";
-import { addContainerConfigDecoder, addItemResultDecoder, addWindowConfigDecoder, bundleConfigDecoder, deleteLayoutConfigDecoder, exportedLayoutsResultDecoder, frameHelloDecoder, frameSnapshotResultDecoder, frameStateConfigDecoder, frameStateResultDecoder, frameSummariesResultDecoder, frameSummaryDecoder, getFrameSummaryConfigDecoder, isWindowInSwimlaneResultDecoder, layoutSummariesDecoder, lockContainerDecoder, lockWindowDecoder, lockWorkspaceDecoder, moveFrameConfigDecoder, moveWindowConfigDecoder, openWorkspaceConfigDecoder, resizeItemConfigDecoder, setItemTitleConfigDecoder, simpleItemConfigDecoder, simpleWindowOperationSuccessResultDecoder, voidResultDecoder, workspaceCreateConfigDecoder, workspaceLayoutDecoder, workspaceLayoutSaveConfigDecoder, workspaceSelectorDecoder, workspacesLayoutImportConfigDecoder, workspaceSnapshotResultDecoder, workspacesOperationDecoder, workspaceSummariesResultDecoder } from "./decoders";
+import { BridgeOperation, InternalPlatformConfig, LibController } from "../../common/types";
+import { addContainerConfigDecoder, addItemResultDecoder, addWindowConfigDecoder, bundleConfigDecoder, deleteLayoutConfigDecoder, exportedLayoutsResultDecoder, frameBoundsResultDecoder, frameHelloDecoder, frameSnapshotResultDecoder, frameStateConfigDecoder, frameStateResultDecoder, frameSummariesResultDecoder, frameSummaryDecoder, getFrameSummaryConfigDecoder, isWindowInSwimlaneResultDecoder, layoutSummariesDecoder, lockContainerDecoder, lockWindowDecoder, lockWorkspaceDecoder, moveFrameConfigDecoder, moveWindowConfigDecoder, openWorkspaceConfigDecoder, resizeItemConfigDecoder, setItemTitleConfigDecoder, simpleItemConfigDecoder, simpleWindowOperationSuccessResultDecoder, voidResultDecoder, workspaceCreateConfigDecoder, workspaceLayoutDecoder, workspaceLayoutSaveConfigDecoder, workspaceSelectorDecoder, workspacesLayoutImportConfigDecoder, workspaceSnapshotResultDecoder, workspacesOperationDecoder, workspaceSummariesResultDecoder } from "./decoders";
 import { FramesController } from "./frames";
-import { AddContainerConfig, AddItemResult, AddWindowConfig, BundleConfig, DeleteLayoutConfig, ExportedLayoutsResult, FrameHello, FrameSnapshotResult, FrameStateConfig, FrameStateResult, FrameSummariesResult, FrameSummaryResult, GetFrameSummaryConfig, IsWindowInSwimlaneResult, LayoutSummariesResult, LayoutSummary, LockContainerConfig, LockWindowConfig, LockWorkspaceConfig, MoveFrameConfig, MoveWindowConfig, OpenWorkspaceConfig, ResizeItemConfig, SetItemTitleConfig, SimpleItemConfig, SimpleWindowOperationSuccessResult, WorkspaceCreateConfigProtocol, WorkspaceEventPayload, WorkspaceSelector, WorkspacesLayoutImportConfig, WorkspaceSnapshotResult, WorkspacesOperationsTypes, WorkspaceStreamData, WorkspaceSummariesResult, WorkspaceSummaryResult } from "./types";
+import { AddContainerConfig, AddItemResult, AddWindowConfig, BundleConfig, DeleteLayoutConfig, ExportedLayoutsResult, FrameBoundsResult, FrameHello, FrameSnapshotResult, FrameStateConfig, FrameStateResult, FrameSummariesResult, FrameSummaryResult, GetFrameSummaryConfig, IsWindowInSwimlaneResult, LayoutSummariesResult, LayoutSummary, LockContainerConfig, LockWindowConfig, LockWorkspaceConfig, MoveFrameConfig, MoveWindowConfig, OpenWorkspaceConfig, ResizeItemConfig, SetItemTitleConfig, SimpleItemConfig, SimpleWindowOperationSuccessResult, WorkspaceCreateConfigProtocol, WorkspaceEventPayload, WorkspaceSelector, WorkspacesLayoutImportConfig, WorkspaceSnapshotResult, WorkspacesOperationsTypes, WorkspaceStreamData, WorkspaceSummariesResult, WorkspaceSummaryResult } from "./types";
 import logger from "../../shared/logger";
 import { Glue42WebPlatform } from "../../../platform";
 import { GlueController } from "../../controllers/glue";
 import { IoC } from "../../shared/ioc";
-import { WindowMoveResizeConfig } from "../windows/types";
+import { FrameWindowBoundsResult, SimpleWindowCommand, WindowMoveResizeConfig } from "../windows/types";
 import { StateController } from "../../controllers/state";
 import { WorkspaceHibernationWatcher } from "./hibernationWatcher";
 import { workspacesConfigDecoder } from "../../shared/decoders";
@@ -42,6 +42,7 @@ export class WorkspacesController implements LibController {
         resizeItem: { name: "resizeItem", dataDecoder: resizeItemConfigDecoder, resultDecoder: voidResultDecoder, execute: this.resizeItem.bind(this) },
         changeFrameState: { name: "changeFrameState", dataDecoder: frameStateConfigDecoder, resultDecoder: voidResultDecoder, execute: this.changeFrameState.bind(this) },
         getFrameState: { name: "getFrameState", dataDecoder: simpleItemConfigDecoder, resultDecoder: frameStateResultDecoder, execute: this.getFrameState.bind(this) },
+        getFrameBounds: { name: "getFrameBounds", dataDecoder: simpleItemConfigDecoder, resultDecoder: frameBoundsResultDecoder, execute: this.getFrameBounds.bind(this) },
         moveFrame: { name: "moveFrame", dataDecoder: moveFrameConfigDecoder, resultDecoder: voidResultDecoder, execute: this.moveFrame.bind(this) },
         getFrameSnapshot: { name: "getFrameSnapshot", dataDecoder: simpleItemConfigDecoder, resultDecoder: frameSnapshotResultDecoder, execute: this.getFrameSnapshot.bind(this) },
         forceLoadWindow: { name: "forceLoadWindow", dataDecoder: simpleItemConfigDecoder, resultDecoder: simpleWindowOperationSuccessResultDecoder, execute: this.forceLoadWindow.bind(this) },
@@ -610,6 +611,18 @@ export class WorkspacesController implements LibController {
 
     private async getFrameState(config: SimpleItemConfig, commandId: string): Promise<FrameStateResult> {
         throw new Error("Frame states are not supported in Glue42 Core");
+    }
+
+    private async getFrameBounds(config: SimpleItemConfig, commandId: string): Promise<FrameBoundsResult> {
+        this.logger?.trace(`[${commandId}] handling getFrameBounds request with config ${JSON.stringify(config)}`);
+
+        const frame = await this.framesController.getFrameInstance({ frameId: config.itemId });
+
+        const frameWindowBounds = await this.glueController.callWindow<SimpleWindowCommand, FrameWindowBoundsResult>(this.ioc.windowsController.getFrameBoundsOperation, { windowId: frame.windowId }, frame.windowId);
+
+        this.logger?.trace(`[${commandId}] getFrameBounds completed`);
+
+        return { bounds: frameWindowBounds.bounds };
     }
 
     private async moveFrame(config: MoveFrameConfig, commandId: string): Promise<void> {

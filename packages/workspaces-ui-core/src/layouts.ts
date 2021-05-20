@@ -7,6 +7,7 @@ import { Glue42Web } from "@glue42/web";
 import { getWorkspaceContextName } from "./utils";
 import { WorkspacesConfigurationFactory } from "./config/factory";
 import { ConfigConverter } from "./config/converter";
+import { ConstraintsValidator } from "./config/constraintsValidator";
 
 declare const window: Window & { glue42core: { workspacesFrameCache?: boolean } };
 
@@ -19,7 +20,8 @@ export class LayoutsManager {
         private readonly resolver: LayoutStateResolver,
         private readonly _glue: Glue42Web.API,
         private readonly _configFactory: WorkspacesConfigurationFactory,
-        private readonly _configConverter: ConfigConverter) { }
+        private readonly _configConverter: ConfigConverter,
+        private readonly _constraintsValidator: ConstraintsValidator) { }
 
     public async getInitialConfig(): Promise<FrameLayoutConfig> {
         // Preset initial config
@@ -101,6 +103,7 @@ export class LayoutsManager {
     public async getWorkspaceByName(name: string): Promise<SavedConfigWithData> {
         const savedWorkspaceLayout = await this._glue.layouts.get(name, this._layoutsType);
         const savedWorkspace: WorkspaceItem = savedWorkspaceLayout.components[0].state as WorkspaceItem;
+        this._constraintsValidator.fixWorkspace(savedWorkspace);
         const rendererFriendlyConfig = this._configConverter.convertToRendererConfig(savedWorkspace);
 
         this.addWorkspaceIds(rendererFriendlyConfig);

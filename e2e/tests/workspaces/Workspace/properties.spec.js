@@ -42,6 +42,8 @@ describe("properties: ", () => {
     };
     let workspace;
 
+    const decorationsHeight = 30;
+
     before(async () => {
         await coreReady;
         workspace = await glue.workspaces.createWorkspace(threeContainersConfig);
@@ -416,6 +418,1529 @@ describe("properties: ", () => {
             await workspace.refreshReference();
 
             expect(workspace.isHibernated).to.be.true;
+        });
+    });
+
+    describe("constraints: Should", () => {
+        afterEach(async () => {
+            const wsps = await glue.workspaces.getAllWorkspaces();
+            await Promise.all(wsps.map((wsp) => wsp.close()));
+        });
+
+        it("be equal to the default values when no elements have constraints", async () => {
+            const singleWindowConfig = {
+                children: [
+                    windowConfig
+                ]
+            }
+
+            const workspace = await glue.workspaces.createWorkspace(singleWindowConfig);
+
+            expect(workspace.minWidth).to.eql(10);
+            expect(workspace.maxWidth).to.eql(32767);
+            expect(workspace.minHeight).to.eql(10);
+            expect(workspace.maxHeight).to.eql(32767);
+        });
+
+        Array.from([200, 300]).forEach((mw) => {
+            it(`have a minWidth equal to the sum of all minWidths (${mw}) of the columns in the workspace`, async () => {
+                const config = {
+                    children: [
+                        {
+                            type: "row",
+                            children: [
+                                {
+                                    type: "column",
+                                    config: {
+                                        minWidth: mw
+                                    },
+                                    children: [
+                                        windowConfig
+                                    ]
+                                },
+                                {
+                                    type: "column",
+                                    config: {
+                                        minWidth: mw
+                                    },
+                                    children: [
+                                        windowConfig
+                                    ]
+                                },
+                                {
+                                    type: "column",
+                                    config: {
+                                        minWidth: mw
+                                    },
+                                    children: [
+                                        windowConfig
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+
+                const workspace = await glue.workspaces.createWorkspace(config);
+
+                expect(workspace.minWidth).to.eql(3 * mw);
+            });
+
+            it(`have a minHeight equal to the sum of all minHeight (${mw}) of the rows in the workspace`, async () => {
+                const config = {
+                    children: [
+                        {
+                            type: "column",
+                            children: [
+                                {
+                                    type: "row",
+                                    config: {
+                                        minHeight: mw
+                                    },
+                                    children: [
+                                        windowConfig
+                                    ]
+                                },
+                                {
+                                    type: "row",
+                                    config: {
+                                        minHeight: mw
+                                    },
+                                    children: [
+                                        windowConfig
+                                    ]
+                                },
+                                {
+                                    type: "row",
+                                    config: {
+                                        minHeight: mw
+                                    },
+                                    children: [
+                                        windowConfig
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+
+                const workspace = await glue.workspaces.createWorkspace(config);
+
+                expect(workspace.minHeight).to.eql(3 * mw);
+            });
+
+            it(`have a minWidth equal to the biggest (${mw}) of the rows in the workspace`, async () => {
+                const config = {
+                    children: [
+                        {
+                            type: "column",
+                            children: [
+                                {
+                                    type: "row",
+                                    children: [
+                                        {
+                                            type: "group",
+                                            config: {
+                                                minWidth: mw
+                                            },
+                                            children: [
+                                                windowConfig
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    type: "row",
+                                    children: [
+                                        {
+                                            type: "group",
+                                            config: {
+                                                minWidth: mw + 10
+                                            },
+                                            children: [
+                                                windowConfig
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    type: "row",
+                                    children: [
+                                        {
+                                            type: "group",
+                                            config: {
+                                                minWidth: mw
+                                            },
+                                            children: [
+                                                windowConfig
+                                            ]
+                                        }
+                                    ]
+                                },
+                            ]
+                        }
+                    ]
+                }
+
+                const workspace = await glue.workspaces.createWorkspace(config);
+
+                expect(workspace.minWidth).to.eql(mw + 10);
+            });
+
+            it(`have a minHeight equal to the biggest minHeight (${mw}) of the columns in the workspace`, async () => {
+                const config = {
+                    children: [
+                        {
+                            type: "row",
+                            children: [
+                                {
+                                    type: "column",
+                                    children: [
+                                        {
+                                            type: "group",
+                                            config: {
+                                                minHeight: mw
+                                            },
+                                            children: [
+                                                windowConfig
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    type: "column",
+                                    children: [
+                                        {
+                                            type: "group",
+                                            config: {
+                                                minHeight: mw + 10
+                                            },
+                                            children: [
+                                                windowConfig
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    type: "column",
+                                    children: [
+                                        {
+                                            type: "group",
+                                            config: {
+                                                minHeight: mw
+                                            },
+                                            children: [
+                                                windowConfig
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+
+                const workspace = await glue.workspaces.createWorkspace(config);
+
+                expect(workspace.minHeight).to.eql(mw + 10);
+            });
+
+            it(`have a maxWidth equal to the sum of all maxWidths (${mw}) of the columns in the workspace`, async () => {
+                const config = {
+                    children: [
+                        {
+                            type: "row",
+                            children: [
+                                {
+                                    type: "column",
+                                    config: {
+                                        maxWidth: mw
+                                    },
+                                    children: [
+                                        windowConfig
+                                    ]
+                                },
+                                {
+                                    type: "column",
+                                    config: {
+                                        maxWidth: mw
+                                    },
+                                    children: [
+                                        windowConfig
+                                    ]
+                                },
+                                {
+                                    type: "column",
+                                    config: {
+                                        maxWidth: mw
+                                    },
+                                    children: [
+                                        windowConfig
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+
+                const workspace = await glue.workspaces.createWorkspace(config);
+
+                expect(workspace.maxWidth).to.eql(3 * mw);
+            });
+
+            it(`have a maxHeight equal to the sum of all maxHeight (${mw}) of the rows in the workspace`, async () => {
+                const config = {
+                    children: [
+                        {
+                            type: "column",
+                            children: [
+                                {
+                                    type: "row",
+                                    config: {
+                                        maxHeight: mw
+                                    },
+                                    children: [
+                                        windowConfig
+                                    ]
+                                },
+                                {
+                                    type: "row",
+                                    config: {
+                                        maxHeight: mw
+                                    },
+                                    children: [
+                                        windowConfig
+                                    ]
+                                },
+                                {
+                                    type: "row",
+                                    config: {
+                                        maxHeight: mw
+                                    },
+                                    children: [
+                                        windowConfig
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+
+                const workspace = await glue.workspaces.createWorkspace(config);
+
+                expect(workspace.maxHeight).to.eql(3 * mw);
+            });
+
+            it(`have a maxWidth equal to the smallest (${mw}) of the rows in the workspace`, async () => {
+                const config = {
+                    children: [
+                        {
+                            type: "column",
+                            children: [
+                                {
+                                    type: "row",
+                                    children: [
+                                        {
+                                            type: "group",
+                                            config: {
+                                                maxWidth: mw
+                                            },
+                                            children: [
+                                                windowConfig
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    type: "row",
+                                    children: [
+                                        {
+                                            type: "group",
+                                            config: {
+                                                maxWidth: mw - 10
+                                            },
+                                            children: [
+                                                windowConfig
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    type: "row",
+                                    children: [
+                                        {
+                                            type: "group",
+                                            config: {
+                                                maxWidth: mw
+                                            },
+                                            children: [
+                                                windowConfig
+                                            ]
+                                        }
+                                    ]
+                                },
+                            ]
+                        }
+                    ]
+                }
+
+                const workspace = await glue.workspaces.createWorkspace(config);
+
+                expect(workspace.maxWidth).to.eql(mw - 10);
+            });
+
+            it(`have a maxHeight equal to the smallest maxHeight (${mw}) of the columns in the workspace`, async () => {
+                const config = {
+                    children: [
+                        {
+                            type: "row",
+                            children: [
+                                {
+                                    type: "column",
+                                    children: [
+                                        {
+                                            type: "group",
+                                            config: {
+                                                maxHeight: mw
+                                            },
+                                            children: [
+                                                windowConfig
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    type: "column",
+                                    children: [
+                                        {
+                                            type: "group",
+                                            config: {
+                                                maxHeight: mw - 10
+                                            },
+                                            children: [
+                                                windowConfig
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    type: "column",
+                                    children: [
+                                        {
+                                            type: "group",
+                                            config: {
+                                                maxHeight: mw
+                                            },
+                                            children: [
+                                                windowConfig
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+
+                const workspace = await glue.workspaces.createWorkspace(config);
+
+                expect(workspace.maxHeight).to.eql(mw - 10);
+            });
+
+            it(`have a minWidth equal to the sum of all minWidths (${mw}) of the columns in the workspace and the constraints are put on the windows`, async () => {
+                const config = {
+                    children: [
+                        {
+                            type: "row",
+                            children: [
+                                {
+                                    type: "column",
+                                    children: [
+                                        {
+                                            type: "window",
+                                            appName: "noGlueApp",
+                                            config: {
+                                                minWidth: mw
+                                            }
+                                        }
+                                    ]
+                                },
+                                {
+                                    type: "column",
+                                    children: [
+                                        {
+                                            type: "window",
+                                            appName: "noGlueApp",
+                                            config: {
+                                                minWidth: mw
+                                            }
+                                        }
+                                    ]
+                                },
+                                {
+                                    type: "column",
+                                    children: [
+                                        {
+                                            type: "window",
+                                            appName: "noGlueApp",
+                                            config: {
+                                                minWidth: mw
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+
+                const workspace = await glue.workspaces.createWorkspace(config);
+
+                expect(workspace.minWidth).to.eql(3 * mw);
+            });
+
+            it(`have a minHeight equal to the sum of all minHeight (${mw}) of the rows in the workspace and the constraints are put on the windows`, async () => {
+                const config = {
+                    children: [
+                        {
+                            type: "column",
+                            children: [
+                                {
+                                    type: "row",
+                                    children: [
+                                        {
+                                            type: "window",
+                                            appName: "noGlueApp",
+                                            config: {
+                                                minHeight: mw
+                                            }
+                                        }
+                                    ]
+                                },
+                                {
+                                    type: "row",
+                                    children: [
+                                        {
+                                            type: "window",
+                                            appName: "noGlueApp",
+                                            config: {
+                                                minHeight: mw
+                                            }
+                                        }
+                                    ]
+                                },
+                                {
+                                    type: "row",
+                                    children: [
+                                        {
+                                            type: "window",
+                                            appName: "noGlueApp",
+                                            config: {
+                                                minHeight: mw
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+
+                const workspace = await glue.workspaces.createWorkspace(config);
+
+                expect(workspace.minHeight).to.eql(3 * mw);
+            });
+
+            it(`have a minWidth equal to the biggest (${mw}) of the rows in the workspace and the constraints are put on the windows`, async () => {
+                const config = {
+                    children: [
+                        {
+                            type: "column",
+                            children: [
+                                {
+                                    type: "row",
+                                    children: [
+                                        {
+                                            type: "group",
+                                            children: [
+                                                {
+                                                    type: "window",
+                                                    appName: "noGlueApp",
+                                                    config: {
+                                                        minWidth: mw
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    type: "row",
+                                    children: [
+                                        {
+                                            type: "group",
+                                            children: [
+                                                {
+                                                    type: "window",
+                                                    appName: "noGlueApp",
+                                                    config: {
+                                                        minWidth: mw + 10
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    type: "row",
+                                    children: [
+                                        {
+                                            type: "group",
+                                            children: [
+                                                {
+                                                    type: "window",
+                                                    appName: "noGlueApp",
+                                                    config: {
+                                                        minWidth: mw
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                            ]
+                        }
+                    ]
+                }
+
+                const workspace = await glue.workspaces.createWorkspace(config);
+
+                expect(workspace.minWidth).to.eql(mw + 10);
+            });
+
+            it(`have a minHeight equal to the biggest minHeight (${mw}) of the columns in the workspace and the constraints are put on the windows`, async () => {
+                const config = {
+                    children: [
+                        {
+                            type: "row",
+                            children: [
+                                {
+                                    type: "column",
+                                    children: [
+                                        {
+                                            type: "group",
+                                            children: [
+                                                {
+                                                    type: "window",
+                                                    appName: "noGlueApp",
+                                                    config: {
+                                                        minHeight: mw
+                                                    },
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    type: "column",
+                                    children: [
+                                        {
+                                            type: "group",
+                                            children: [
+                                                {
+                                                    type: "window",
+                                                    appName: "noGlueApp",
+                                                    config: {
+                                                        minHeight: mw + 10
+                                                    },
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    type: "column",
+                                    children: [
+                                        {
+                                            type: "group",
+                                            children: [
+                                                {
+                                                    type: "window",
+                                                    appName: "noGlueApp",
+                                                    config: {
+                                                        minHeight: mw
+                                                    },
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+
+                const workspace = await glue.workspaces.createWorkspace(config);
+
+                expect(workspace.minHeight).to.eql(mw + 10 + decorationsHeight);
+            });
+
+            it(`have a maxWidth equal to the sum of all maxWidths (${mw}) of the columns in the workspace and the constraints are put on the windows`, async () => {
+                const config = {
+                    children: [
+                        {
+                            type: "row",
+                            children: [
+                                {
+                                    type: "column",
+                                    children: [
+                                        {
+                                            type: "window",
+                                            appName: "noGlueApp",
+                                            config: {
+                                                maxWidth: mw
+                                            },
+                                        }
+                                    ]
+                                },
+                                {
+                                    type: "column",
+                                    children: [
+                                        {
+                                            type: "window",
+                                            appName: "noGlueApp",
+                                            config: {
+                                                maxWidth: mw
+                                            },
+                                        }
+                                    ]
+                                },
+                                {
+                                    type: "column",
+                                    children: [
+                                        {
+                                            type: "window",
+                                            appName: "noGlueApp",
+                                            config: {
+                                                maxWidth: mw
+                                            },
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+
+                const workspace = await glue.workspaces.createWorkspace(config);
+
+                expect(workspace.maxWidth).to.eql(3 * mw);
+            });
+
+            it(`have a maxHeight equal to the sum of all maxHeight (${mw}) of the rows in the workspace and the constraints are put on the windows`, async () => {
+                const config = {
+                    children: [
+                        {
+                            type: "column",
+                            children: [
+                                {
+                                    type: "row",
+                                    children: [
+                                        {
+                                            type: "window",
+                                            appName: "noGlueApp",
+                                            config: {
+                                                maxHeight: mw
+                                            },
+                                        }
+                                    ]
+                                },
+                                {
+                                    type: "row",
+                                    children: [
+                                        {
+                                            type: "window",
+                                            appName: "noGlueApp",
+                                            config: {
+                                                maxHeight: mw
+                                            },
+                                        }
+                                    ]
+                                },
+                                {
+                                    type: "row",
+                                    children: [
+                                        {
+                                            type: "window",
+                                            appName: "noGlueApp",
+                                            config: {
+                                                maxHeight: mw
+                                            },
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+
+                const workspace = await glue.workspaces.createWorkspace(config);
+
+                expect(workspace.maxHeight).to.eql(3 * mw);
+            });
+
+            it(`have a maxWidth equal to the smallest (${mw}) of the rows in the workspace and the constraints are put on the windows`, async () => {
+                const config = {
+                    children: [
+                        {
+                            type: "column",
+                            children: [
+                                {
+                                    type: "row",
+                                    children: [
+                                        {
+                                            type: "group",
+                                            children: [
+                                                {
+                                                    type: "window",
+                                                    appName: "noGlueApp",
+                                                    config: {
+                                                        maxWidth: mw
+                                                    },
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    type: "row",
+                                    children: [
+                                        {
+                                            type: "group",
+                                            children: [
+                                                {
+                                                    type: "window",
+                                                    appName: "noGlueApp",
+                                                    config: {
+                                                        maxWidth: mw - 10
+                                                    },
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    type: "row",
+                                    children: [
+                                        {
+                                            type: "group",
+                                            children: [
+                                                {
+                                                    type: "window",
+                                                    appName: "noGlueApp",
+                                                    config: {
+                                                        maxWidth: mw
+                                                    },
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                            ]
+                        }
+                    ]
+                }
+
+                const workspace = await glue.workspaces.createWorkspace(config);
+
+                expect(workspace.maxWidth).to.eql(mw - 10);
+            });
+
+            it(`have a maxHeight equal to the smallest maxHeight (${mw}) of the columns in the workspace and the constraints are put on the windows`, async () => {
+                const config = {
+                    children: [
+                        {
+                            type: "row",
+                            children: [
+                                {
+                                    type: "column",
+                                    children: [
+                                        {
+                                            type: "group",
+                                            children: [
+                                                {
+                                                    type: "window",
+                                                    appName: "noGlueApp",
+                                                    config: {
+                                                        maxHeight: mw
+                                                    },
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    type: "column",
+                                    children: [
+                                        {
+                                            type: "group",
+                                            children: [
+                                                {
+                                                    type: "window",
+                                                    appName: "noGlueApp",
+                                                    config: {
+                                                        maxHeight: mw - 10
+                                                    },
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    type: "column",
+                                    children: [
+                                        {
+                                            type: "group",
+                                            children: [
+                                                {
+                                                    type: "window",
+                                                    appName: "noGlueApp",
+                                                    config: {
+                                                        maxHeight: mw
+                                                    },
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+
+                const workspace = await glue.workspaces.createWorkspace(config);
+
+                expect(workspace.maxHeight).to.eql(mw - 10 + decorationsHeight);
+            });
+        });
+
+        it(`have a minWidth equal to the biggest one from the group when the configuration is a single stack with multiple windows`, async () => {
+            const config = {
+                children: [
+                    {
+                        type: "group",
+                        children: [
+                            {
+                                type: "window",
+                                appName: "noGlueApp",
+                                config: {
+                                    minWidth: 100
+                                },
+                            },
+                            {
+                                type: "window",
+                                appName: "noGlueApp",
+                                config: {
+                                    minWidth: 400
+                                },
+                            },
+                            {
+                                type: "window",
+                                appName: "noGlueApp",
+                                config: {
+                                    minWidth: 200
+                                },
+                            }
+                        ]
+                    }
+                ]
+            }
+
+            const workspace = await glue.workspaces.createWorkspace(config);
+
+            expect(workspace.minWidth).to.eql(400);
+        });
+
+        it(`have a minHeight equal to the biggest one from the group when the configuration is a single stack with multiple windows`, async () => {
+            const config = {
+                children: [
+                    {
+                        type: "group",
+                        children: [
+                            {
+                                type: "window",
+                                appName: "noGlueApp",
+                                config: {
+                                    minHeight: 100
+                                },
+                            },
+                            {
+                                type: "window",
+                                appName: "noGlueApp",
+                                config: {
+                                    minHeight: 400
+                                },
+                            },
+                            {
+                                type: "window",
+                                appName: "noGlueApp",
+                                config: {
+                                    minHeight: 200
+                                },
+                            }
+                        ]
+                    }
+                ]
+            }
+
+            const workspace = await glue.workspaces.createWorkspace(config);
+
+            expect(workspace.minHeight).to.eql(400 + decorationsHeight);
+        });
+
+        it(`have a maxWidth equal to the smallest one from the group when the configuration is a single stack with multiple windows`, async () => {
+            const config = {
+                children: [
+                    {
+                        type: "group",
+                        children: [
+                            {
+                                type: "window",
+                                appName: "noGlueApp",
+                                config: {
+                                    maxWidth: 500
+                                },
+                            },
+                            {
+                                type: "window",
+                                appName: "noGlueApp",
+                                config: {
+                                    maxWidth: 700
+                                },
+                            },
+                            {
+                                type: "window",
+                                appName: "noGlueApp",
+                                config: {
+                                    maxWidth: 600
+                                },
+                            }
+                        ]
+                    }
+                ]
+            }
+
+            const workspace = await glue.workspaces.createWorkspace(config);
+
+            expect(workspace.maxWidth).to.eql(500);
+        });
+
+        it(`have a maxHeight equal to the smallest one from the group when the configuration is a single stack with multiple windows`, async () => {
+            const config = {
+                children: [
+                    {
+                        type: "group",
+                        children: [
+                            {
+                                type: "window",
+                                appName: "noGlueApp",
+                                config: {
+                                    maxHeight: 500
+                                },
+                            },
+                            {
+                                type: "window",
+                                appName: "noGlueApp",
+                                config: {
+                                    maxHeight: 700
+                                },
+                            },
+                            {
+                                type: "window",
+                                appName: "noGlueApp",
+                                config: {
+                                    maxHeight: 600
+                                },
+                            }
+                        ]
+                    }
+                ]
+            }
+
+            const workspace = await glue.workspaces.createWorkspace(config);
+
+            expect(workspace.maxHeight).to.eql(500 + decorationsHeight);
+        });
+
+        it("set the constraints to the default ones when a row has invalid height constraints", async () => {
+            const config = {
+                children: [
+                    {
+                        type: "row",
+                        config: {
+                            minHeight: 600,
+                            maxHeight: 500
+                        },
+                        children: [
+                            {
+                                type: "group",
+                                children: [
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp",
+                                        config: {
+                                            minHeight: 200,
+                                            maxHeight: 800
+                                        },
+                                    },
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp",
+                                    },
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp",
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            const workspace = await glue.workspaces.createWorkspace(config);
+
+            expect(workspace.minWidth).to.eql(10);
+            expect(workspace.maxWidth).to.eql(32767);
+            expect(workspace.minHeight).to.eql(10 + decorationsHeight);
+            expect(workspace.maxHeight).to.eql(32767);
+        });
+
+        it("set the constraints to the default ones when a column has invalid width constraints", async () => {
+            const config = {
+                children: [
+                    {
+                        type: "column",
+                        config: {
+                            minWidth: 600,
+                            maxWidth: 500
+                        },
+                        children: [
+                            {
+                                type: "group",
+                                children: [
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp",
+                                        config: {
+                                            minHeight: 200,
+                                            maxHeight: 800
+                                        }
+                                    },
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp",
+                                    },
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp",
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            const workspace = await glue.workspaces.createWorkspace(config);
+
+            expect(workspace.minWidth).to.eql(10);
+            expect(workspace.maxWidth).to.eql(32767);
+            expect(workspace.minHeight).to.eql(10 + decorationsHeight);
+            expect(workspace.maxHeight).to.eql(32767);
+        });
+
+        it("set the constraints to the default ones when a group has invalid width constraints", async () => {
+            const config = {
+                children: [
+                    {
+                        type: "column",
+                        children: [
+                            {
+                                type: "group",
+                                config: {
+                                    minWidth: 600,
+                                    maxWidth: 500
+                                },
+                                children: [
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp",
+                                        config: {
+                                            minHeight: 200,
+                                            maxHeight: 800
+                                        }
+                                    },
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp",
+                                    },
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp",
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            const workspace = await glue.workspaces.createWorkspace(config);
+
+            expect(workspace.minWidth).to.eql(10);
+            expect(workspace.maxWidth).to.eql(32767);
+            expect(workspace.minHeight).to.eql(10 + decorationsHeight);
+            expect(workspace.maxHeight).to.eql(32767);
+        });
+
+        it("set the constraints to the default ones when a group has invalid height constraints", async () => {
+            const config = {
+                children: [
+                    {
+                        type: "column",
+                        children: [
+                            {
+                                type: "group",
+                                config: {
+                                    minHeight: 600,
+                                    maxHeight: 500
+                                },
+                                children: [
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp",
+                                        config: {
+                                            minHeight: 200,
+                                            maxHeight: 800
+                                        }
+                                    },
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp",
+                                    },
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp",
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            const workspace = await glue.workspaces.createWorkspace(config);
+
+            expect(workspace.minWidth).to.eql(10);
+            expect(workspace.maxWidth).to.eql(32767);
+            expect(workspace.minHeight).to.eql(10 + decorationsHeight);
+            expect(workspace.maxHeight).to.eql(32767);
+        });
+
+        it("set the constraints to the default ones when a window has invalid width constraints", async () => {
+            const config = {
+                children: [
+                    {
+                        type: "column",
+                        children: [
+                            {
+                                type: "group",
+                                config: {
+                                    minWidth: 200,
+                                    maxWidth: 800
+                                },
+                                children: [
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp",
+                                        config: {
+                                            minWidth: 800,
+                                            maxWidth: 300
+                                        }
+                                    },
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp",
+                                    },
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp",
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            const workspace = await glue.workspaces.createWorkspace(config);
+
+            expect(workspace.minWidth).to.eql(10);
+            expect(workspace.maxWidth).to.eql(32767);
+            expect(workspace.minHeight).to.eql(10 + decorationsHeight);
+            expect(workspace.maxHeight).to.eql(32767);
+        });
+
+        it("set the constraints to the default ones when a group has invalid height constraints", async () => {
+            const config = {
+                children: [
+                    {
+                        type: "column",
+                        children: [
+                            {
+                                type: "group",
+                                config: {
+                                    minWidth: 200,
+                                    maxWidth: 800
+                                },
+                                children: [
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp",
+                                        config: {
+                                            minWidth: 800,
+                                            maxWidth: 300
+                                        }
+                                    },
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp",
+                                    },
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp",
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            const workspace = await glue.workspaces.createWorkspace(config);
+
+            expect(workspace.minWidth).to.eql(10);
+            expect(workspace.maxWidth).to.eql(32767);
+            expect(workspace.minHeight).to.eql(10 + decorationsHeight);
+            expect(workspace.maxHeight).to.eql(32767);
+        });
+
+        it("set the constraints to the default ones when a parent and child have incompatible width constraints", async () => {
+            const config = {
+                children: [
+                    {
+                        type: "column",
+                        children: [
+                            {
+                                type: "group",
+                                config: {
+                                    minWidth: 200,
+                                    maxWidth: 800
+                                },
+                                children: [
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp",
+                                        config: {
+                                            minWidth: 850,
+                                            maxWidth: 1000
+                                        }
+                                    },
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp",
+                                    },
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp",
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            const workspace = await glue.workspaces.createWorkspace(config);
+
+            expect(workspace.minWidth).to.eql(10);
+            expect(workspace.maxWidth).to.eql(32767);
+            expect(workspace.minHeight).to.eql(10 + decorationsHeight);
+            expect(workspace.maxHeight).to.eql(32767);
+        });
+
+        it("set the constraints to the default ones when a parent and child have incompatible height constraints", async () => {
+            const config = {
+                children: [
+                    {
+                        type: "column",
+                        children: [
+                            {
+                                type: "group",
+                                config: {
+                                    minHeight: 200,
+                                    maxHeight: 800
+                                },
+                                children: [
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp",
+                                        config: {
+                                            minHeight: 850,
+                                            maxHeight: 1000
+                                        }
+                                    },
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp",
+                                    },
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp",
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            const workspace = await glue.workspaces.createWorkspace(config);
+
+            expect(workspace.minWidth).to.eql(10);
+            expect(workspace.maxWidth).to.eql(32767);
+            expect(workspace.minHeight).to.eql(10 + decorationsHeight);
+            expect(workspace.maxHeight).to.eql(32767);
+        });
+
+        it("set the constraints to the default ones when a parent and an inderect child have incompatible width constraints", async () => {
+            const config = {
+                children: [
+                    {
+                        type: "column",
+                        config: {
+                            minWidth: 200,
+                            maxWidth: 800
+                        },
+                        children: [
+                            {
+                                type: "group",
+
+                                children: [
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp",
+                                        config: {
+                                            minWidth: 850,
+                                            maxWidth: 1000
+                                        }
+                                    },
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp",
+                                    },
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp",
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            const workspace = await glue.workspaces.createWorkspace(config);
+
+            expect(workspace.minWidth).to.eql(10);
+            expect(workspace.maxWidth).to.eql(32767);
+            expect(workspace.minHeight).to.eql(10 + decorationsHeight);
+            expect(workspace.maxHeight).to.eql(32767);
+        });
+
+        it("set the constraints to the default ones when a parent and an indirect child have incompatible height constraints", async () => {
+            const config = {
+                children: [
+                    {
+                        type: "column",
+                        config: {
+                            minHeight: 200,
+                            maxHeight: 800
+                        },
+                        children: [
+                            {
+                                type: "group",
+
+                                children: [
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp",
+                                        config: {
+                                            minHeight: 850,
+                                            maxHeight: 1000
+                                        }
+                                    },
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp",
+                                    },
+                                    {
+                                        type: "window",
+                                        appName: "noGlueApp",
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            const workspace = await glue.workspaces.createWorkspace(config);
+
+            expect(workspace.minWidth).to.eql(10);
+            expect(workspace.maxWidth).to.eql(32767);
+            expect(workspace.minHeight).to.eql(10 + decorationsHeight);
+            expect(workspace.maxHeight).to.eql(32767);
+        });
+
+    });
+
+    describe("width: Should", () => {
+        it("be a number", async () => {
+            const singleWindowConfig = {
+                children: [
+                    windowConfig
+                ]
+            }
+
+            const workspace = await glue.workspaces.createWorkspace(singleWindowConfig);
+
+            expect(workspace.width).to.be.a("number");
+        });
+    });
+
+    describe("height: Should", () => {
+        it("be a number", async () => {
+            const singleWindowConfig = {
+                children: [
+                    windowConfig
+                ]
+            }
+
+            const workspace = await glue.workspaces.createWorkspace(singleWindowConfig);
+
+            expect(workspace.height).to.be.a("number");
         });
     });
 });

@@ -82,4 +82,16 @@ export const createWaitFor = (signalsToWait: number, timeout?: number) => {
     };
 };
 
-export const getWorkspaceContextName = (id: string) => `___workspace___${id}`;
+export const getWorkspaceContextName = (id: string): string => `___workspace___${id}`;
+
+export const getRealHeight = (obj: JQuery<HTMLElement>): number => {
+    if (!obj || !obj[0]) {
+        return 0;
+    }
+    const clone = obj.clone();
+    clone.css("visibility", "hidden");
+    $("body").append(clone);
+    const height = clone.height();
+    clone.remove();
+    return height;
+};
