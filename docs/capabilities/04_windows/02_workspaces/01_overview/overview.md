@@ -10,7 +10,7 @@ The Glue42 Workspaces enable the users to compose a custom arrangement of applic
 
 The Frame is a web application (also called Workspaces App). It is the shell that can hold multiple Workspaces as tabs in a single or multiple windows (frames). The Frame application is a vital element in the Workspaces functionality as it handles opening and closing Workspaces, arranging windows in a Workspace, adding or removing Workspaces and windows.
 
-A fully functioning Workspaces App is available in [**Glue42 Enterprise**](https://docs.glue42.com/getting-started/what-is-glue42/general-overview/index.html). For **Glue42 Core** projects, however, you have to create your own [Workspaces App](../workspaces-app/index.html). This is extremely simple, as all Workspaces App functionalities are provided as a single React component by the [@glue42/workspaces-ui-react](https://www.npmjs.com/package/@glue42/workspaces-ui-react) library.
+A fully functioning Workspaces App is available in [**Glue42 Enterprise**](https://glue42.com/enterprise/). For [**Glue42 Core**](https://glue42.com/core/) projects, however, you have to create your own [Workspaces App](../workspaces-app/index.html). This is extremely simple, as all Workspaces App functionalities are provided as a single React component by the [@glue42/workspaces-ui-react](https://www.npmjs.com/package/@glue42/workspaces-ui-react) library.
 
 *For more details on how to create and customize your own Workspaces App, see the [Workspaces App](../workspaces-app/index.html) section.*
 

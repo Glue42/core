@@ -2,8 +2,8 @@
 
 The [Interop API](../../../reference/core/latest/interop/index.html) enables applications to:
 
-- offer functionality to other applications in the same Glue42 Core project by registering Interop methods;
-- discover applications in the same Glue42 Core project which offer methods;
+- offer functionality to other applications in the same [**Glue42 Core**](https://glue42.com/core/) project by registering Interop methods;
+- discover applications in the same [**Glue42 Core**](https://glue42.com/core/) project which offer methods;
 - invoke registered Interop methods;
 - stream and subscribe for real-time data using the streaming methods of the Interop API;
 
@@ -17,7 +17,7 @@ The [Live Examples](#live_examples) section demonstrates using the Interop API. 
 
 The Interop API is accessible through the [`glue.interop`](../../../reference/core/latest/interop/index.html) object.
 
-To register an Interop method that will be available to all other Glue42 enabled applications, use the [`register()`](../../../reference/core/latest/interop/index.html#!API-register) method. Provide a name for the method (or a [`MethodDefinition`](../../../reference/core/latest/interop/index.html#MethodDefinition) object) and a callback that will handle invocations from client applications:
+To register an Interop method that will be available to all other Glue42 enabled applications, use the [`register()`](../../../reference/core/latest/interop/index.html#API-register) method. Provide a name for the method (or a [`MethodDefinition`](../../../reference/core/latest/interop/index.html#MethodDefinition) object) and a callback that will handle invocations from client applications:
 
 ```javascript
 // Required name for the method to register.
@@ -32,7 +32,7 @@ const handler = ({ a, b }) => {
 await glue.interop.register(methodName, handler);
 ```
 
-After registration, the "Addition" Interop method will be available to all other Glue42 enabled applications and any of them will be able to [invoke](#method_invocation) it with custom arguments at any time, as long the server offering it is running or until it unregisters it (with the [`unregister()`](../../../reference/core/latest/interop/index.html#!API-unregister) method).
+After registration, the "Addition" Interop method will be available to all other Glue42 enabled applications and any of them will be able to [invoke](#method_invocation) it with custom arguments at any time, as long the server offering it is running or until it unregisters it (with the [`unregister()`](../../../reference/core/latest/interop/index.html#API-unregister) method).
 
 Interop methods with the same name may be registered by different servers. An Interop method is considered the same as another Interop method if their names are the same and if the `accepts` and `returns` properties of their [`MethodDefinition`](../../../reference/core/latest/interop/index.html#MethodDefinition) objects have identical values. The implementation of the handler function, however, may differ for each server.
 
@@ -117,7 +117,7 @@ Otherwise, the result will be automatically wrapped in an object with a single `
 
 ### Asynchronous Results
 
-Interop methods can return asynchronous results as well. Use the [`register()`](../../../reference/core/latest/interop/index.html#!API-register) method to register an asynchronous Interop method:
+Interop methods can return asynchronous results as well. Use the [`register()`](../../../reference/core/latest/interop/index.html#API-register) method to register an asynchronous Interop method:
 
 ```javascript
 const asyncMethodName = "MyAsyncMethod";
@@ -136,7 +136,7 @@ await glue.interop.register(asyncMethodName, asyncHandler);
 
 ## Method Invocation
 
-To invoke an Interop method, use the [`invoke()`](../../../reference/core/latest/interop/index.html#!API-invoke) method. The only required argument for `invoke()` is a method name or a [`MethodDefinition`](../../../reference/core/latest/interop/index.html#MethodDefinition) object. You can also specify arguments, target and other invocation options:
+To invoke an Interop method, use the [`invoke()`](../../../reference/core/latest/interop/index.html#API-invoke) method. The only required argument for `invoke()` is a method name or a [`MethodDefinition`](../../../reference/core/latest/interop/index.html#MethodDefinition) object. You can also specify arguments, target and other invocation options:
 
 ```javascript
 const methodName = "Addition";
@@ -222,7 +222,7 @@ await glue.interop.invoke("Addition", { a: 2, b: 3 }, targets);
 
 ### Consuming Results
 
-The [`invoke()`](../../../reference/core/latest/interop/index.html#!API-invoke) method is asynchronous and resolves with an [`InvocationResult`](../../../reference/core/latest/interop/index.html#!InvocationResult) object. Use the `returned` property of the `InvocationResult` object to extract the returned result:
+The [`invoke()`](../../../reference/core/latest/interop/index.html#API-invoke) method is asynchronous and resolves with an [`InvocationResult`](../../../reference/core/latest/interop/index.html#InvocationResult) object. Use the `returned` property of the `InvocationResult` object to extract the returned result:
 
 ```javascript
 const invocationResult = await glue.interop.invoke("Addition", { a: 2, b: 3 });
@@ -233,7 +233,7 @@ const sum = invocationResult.returned.sum;
 
 #### Multiple Results
 
-Invoking a method on multiple Interop instances produces multiple results. Use the `all_return_values` property of the [`InvocationResult`](../../../reference/core/latest/interop/index.html#!InvocationResult) object to obtain an array of all invocation results:
+Invoking a method on multiple Interop instances produces multiple results. Use the `all_return_values` property of the [`InvocationResult`](../../../reference/core/latest/interop/index.html#InvocationResult) object to obtain an array of all invocation results:
 
 ```javascript
 const invocationResult = await glue.interop.invoke("Addition", { a: 2, b: 3 }, "all");
@@ -283,7 +283,7 @@ await glue.interop.invoke(methodDefinition);
 
 ### Methods
 
-To get a collection of all available Interop methods, use the [`methods()`](../../../reference/core/latest/interop/index.html#!API-methods) method:
+To get a collection of all available Interop methods, use the [`methods()`](../../../reference/core/latest/interop/index.html#API-methods) method:
 
 ```javascript
 const allMethods = glue.interop.methods();
@@ -303,7 +303,7 @@ const instance = { application: "appName" };
 const methods = glue.interop.methodsForInstance(instance);
 ```
 
-If you have a reference to an Interop instance, use its [`getMethods()`](../../../reference/core/latest/interop/index.html#!Instance-getMethods) and [`getStreams()`](../../../reference/core/latest/interop/index.html#!Instance-getStreams) methods:
+If you have a reference to an Interop instance, use its [`getMethods()`](../../../reference/core/latest/interop/index.html#Instance-getMethods) and [`getStreams()`](../../../reference/core/latest/interop/index.html#Instance-getStreams) methods:
 
 ```javascript
 // Get the current Interop instance of the application.
@@ -316,7 +316,7 @@ const streams = myInstance.getStreams();
 
 ### Servers
 
-To get a collection of all Interop servers, use the [`servers()`](../../../reference/core/latest/interop/index.html#!API-servers) method:
+To get a collection of all Interop servers, use the [`servers()`](../../../reference/core/latest/interop/index.html#API-servers) method:
 
 ```javascript
 const servers = glue.interop.servers();
@@ -329,7 +329,7 @@ const methodFilter = { name: "Addition" };
 const serversForMethod = glue.interop.servers(methodFilter);
 ```
 
-If you have a reference to a [`Method`](../../../reference/core/latest/interop/index.html#Method) object, use its [`getServers()`](../../../reference/core/latest/interop/index.html#!Method-getServers) method:
+If you have a reference to a [`Method`](../../../reference/core/latest/interop/index.html#Method) object, use its [`getServers()`](../../../reference/core/latest/interop/index.html#Method-getServers) method:
 
 ```javascript
 const method = glue.interop.methods("Addition")[0];
@@ -340,7 +340,7 @@ const servers = method.getServers();
 
 The Interop API offers means for notifying you when a method has been added/removed or when an application offering methods becomes available/unavailable. All methods for listening for events return an unsubscribe function. Use it to stop receiving event notifications.
 
-To get notified when a method has been added for the first time by any application, use [`methodAdded()`](../../../reference/core/latest/interop/index.html#!API-methodAdded):
+To get notified when a method has been added for the first time by any application, use [`methodAdded()`](../../../reference/core/latest/interop/index.html#API-methodAdded):
 
 ```javascript
 const handler = (method) => {
@@ -350,7 +350,7 @@ const handler = (method) => {
 glue.interop.methodAdded(handler);
 ```
 
-To get notified when a method has been removed from the last application offering it, use [`methodRemoved()`](../../../reference/core/latest/interop/index.html#!API-methodRemoved):
+To get notified when a method has been removed from the last application offering it, use [`methodRemoved()`](../../../reference/core/latest/interop/index.html#API-methodRemoved):
 
 ```javascript
 const handler = (method) => {
@@ -360,7 +360,7 @@ const handler = (method) => {
 glue.interop.methodRemoved(handler);
 ```
 
-To get notified when an application offering methods has been discovered, use [`serverAdded()`](../../../reference/core/latest/interop/index.html#!API-serverAdded):
+To get notified when an application offering methods has been discovered, use [`serverAdded()`](../../../reference/core/latest/interop/index.html#API-serverAdded):
 
 ```javascript
 const handler = (instance) => {
@@ -370,7 +370,7 @@ const handler = (instance) => {
 glue.interop.serverAdded(handler);
 ```
 
-To get notified when an application stops offering methods or is closed, use [`serverRemoved()`](../../../reference/core/latest/interop/index.html#!API-serverRemoved):
+To get notified when an application stops offering methods or is closed, use [`serverRemoved()`](../../../reference/core/latest/interop/index.html#API-serverRemoved):
 
 ```javascript
 const handler = (instance) => {
@@ -380,7 +380,7 @@ const handler = (instance) => {
 glue.interop.serverRemoved(handler);
 ```
 
-To get notified every time a method is offered by any application, use [`serverMethodAdded()`](../../../reference/core/latest/interop/index.html#!API-serverMethodAdded). This event fires every time any application starts offering a method, while [`methodAdded()`](../../../reference/core/latest/interop/index.html#!API-methodAdded) fires only for the first application which starts to offer the method:
+To get notified every time a method is offered by any application, use [`serverMethodAdded()`](../../../reference/core/latest/interop/index.html#API-serverMethodAdded). This event fires every time any application starts offering a method, while [`methodAdded()`](../../../reference/core/latest/interop/index.html#API-methodAdded) fires only for the first application which starts to offer the method:
 
 ```javascript
 const handler = (info) => {
@@ -392,7 +392,7 @@ const handler = (info) => {
 glue.interop.serverMethodAdded(handler);
 ```
 
-To get notified every time a method is removed from any application, use [`serverMethodRemoved()`](../../../reference/core/latest/interop/index.html#!API-serverMethodRemoved). This event fires every time any application stops offering a method, while [`methodRemoved()`](../../../reference/core/latest/interop/index.html#!API-methodRemoved) fires only when the method has been removed from the last application offering it:
+To get notified every time a method is removed from any application, use [`serverMethodRemoved()`](../../../reference/core/latest/interop/index.html#API-serverMethodRemoved). This event fires every time any application stops offering a method, while [`methodRemoved()`](../../../reference/core/latest/interop/index.html#API-methodRemoved) fires only when the method has been removed from the last application offering it:
 
 ```javascript
 const handler = (info) => {
@@ -418,9 +418,9 @@ Applications that create and publish to Interop streams are called *publishers*,
 
 ### Creating Streams
 
-To start publishing data, create an Interop stream by using the [`createStream()`](../../../reference/core/latest/interop/index.html#!API-createStream) method. This registers an Interop method similar to the one created by [`register()`](../../../reference/core/latest/interop/index.html#!API-register), but with streaming semantics. The `createStream()` method accepts a string or a [`MethodDefinition`](../../../reference/core/latest/interop/index.html#!MethodDefinition) object as a first parameter and a [`StreamOptions`](../../../reference/core/latest/interop/index.html#!StreamOptions) object as a second.
+To start publishing data, create an Interop stream by using the [`createStream()`](../../../reference/core/latest/interop/index.html#API-createStream) method. This registers an Interop method similar to the one created by [`register()`](../../../reference/core/latest/interop/index.html#API-register), but with streaming semantics. The `createStream()` method accepts a string or a [`MethodDefinition`](../../../reference/core/latest/interop/index.html#MethodDefinition) object as a first parameter and a [`StreamOptions`](../../../reference/core/latest/interop/index.html#StreamOptions) object as a second.
 
-The [`MethodDefinition`](../../../reference/core/latest/interop/index.html#!MethodDefinition) is identical to the Interop method definition for the [`register()`](../../../reference/core/latest/interop/index.html#!API-register) method. If you pass a string, it will be used as a stream name:
+The [`MethodDefinition`](../../../reference/core/latest/interop/index.html#MethodDefinition) is identical to the Interop method definition for the [`register()`](../../../reference/core/latest/interop/index.html#API-register) method. If you pass a string, it will be used as a stream name:
 
 ```javascript
 const stream = await glue.interop.createStream("MarketData.LastTrades");
@@ -433,14 +433,14 @@ const streamDefinition = { name: "MarketData.LastTrades" };
 const stream = await glue.interop.createStream(streamDefinition);
 ```
 
-The [`StreamOptions`](../../../reference/core/latest/interop/index.html#!StreamOptions) object allows you to pass several optional callbacks which let your application handle subscriptions in a more detailed manner:
+The [`StreamOptions`](../../../reference/core/latest/interop/index.html#StreamOptions) object allows you to pass several optional callbacks which let your application handle subscriptions in a more detailed manner:
 
 - to identify individual subscribers/clients;
 - to accept or reject subscriptions based on the subscription arguments;
 - to unicast data as soon as a client subscribes to the stream;
 - to group subscribers which use the same subscription arguments on a *stream branch* and then publish to that branch, multicasting data to all subscribers;
 
-[`StreamOptions`](../../../reference/core/latest/interop/index.html#!StreamOptions) object example:
+[`StreamOptions`](../../../reference/core/latest/interop/index.html#StreamOptions) object example:
 
 ```javascript
 const streamOptions = {
@@ -481,9 +481,9 @@ initiateStream().catch(console.error);
 
 ### Accepting or Rejecting Subscriptions
 
-Subscriptions are auto accepted by default. You can control this behavior by passing a [`subscriptionRequestHandler`](../../../reference/core/latest/interop/index.html#!StreamOptions-subscriptionRequestHandler) in the [`StreamOptions`](../../../reference/core/latest/interop/index.html#!StreamOptions) object. Note that this handler is called before the [`subscriptionAddedHandler`](../../../reference/core/latest/interop/index.html#!StreamOptions-subscriptionAddedHandler), so if you reject the request, the `subscriptionAddedHandler` will not be called.
+Subscriptions are auto accepted by default. You can control this behavior by passing a [`subscriptionRequestHandler`](../../../reference/core/latest/interop/index.html#StreamOptions-subscriptionRequestHandler) in the [`StreamOptions`](../../../reference/core/latest/interop/index.html#StreamOptions) object. Note that this handler is called before the [`subscriptionAddedHandler`](../../../reference/core/latest/interop/index.html#StreamOptions-subscriptionAddedHandler), so if you reject the request, the `subscriptionAddedHandler` will not be called.
 
-The [`SubscriptionRequest`](../../../reference/core/latest/interop/index.html#!SubscriptionRequest) object, passed as an argument to the subscription request handler, has the following properties and methods:
+The [`SubscriptionRequest`](../../../reference/core/latest/interop/index.html#SubscriptionRequest) object, passed as an argument to the subscription request handler, has the following properties and methods:
 
 | Name | Description |
 |------|-------------|
@@ -519,7 +519,7 @@ function onSubscriptionRequest(subscriptionRequest) {
 
 ### Added and Removed Subscriptions
 
-By default, nothing happens when a new subscription is added or removed. You may, however, want to push data to the subscriber, if such is available, or unsubscribe from the underlying data source when the last subscriber for that data is removed. Use the [`subscriptionAddedHandler`](../../../reference/core/latest/interop/index.html#!StreamOptions-subscriptionAddedHandler) and the [`subscriptionRemovedHandler`](../../../reference/core/latest/interop/index.html#!StreamOptions-subscriptionRemovedHandler) in the [`StreamOptions`](../../../reference/core/latest/interop/index.html#!StreamOptions) object to achieve this.
+By default, nothing happens when a new subscription is added or removed. You may, however, want to push data to the subscriber, if such is available, or unsubscribe from the underlying data source when the last subscriber for that data is removed. Use the [`subscriptionAddedHandler`](../../../reference/core/latest/interop/index.html#StreamOptions-subscriptionAddedHandler) and the [`subscriptionRemovedHandler`](../../../reference/core/latest/interop/index.html#StreamOptions-subscriptionRemovedHandler) in the [`StreamOptions`](../../../reference/core/latest/interop/index.html#StreamOptions) object to achieve this.
 
 #### Handling New Subscriptions
 
@@ -608,7 +608,7 @@ stream.push(data, symbol);
 
 ### Server Side Subscription Object
 
-The [StreamSubscription](../../../reference/core/latest/interop/index.html#!StreamSubscription) object has the following properties and methods:
+The [StreamSubscription](../../../reference/core/latest/interop/index.html#StreamSubscription) object has the following properties and methods:
 
 | Name | Description |
 |------|-------------|
@@ -621,7 +621,7 @@ The [StreamSubscription](../../../reference/core/latest/interop/index.html#!Stre
 
 ### Stream Object
 
-The [Stream](../../../reference/core/latest/interop/index.html#!Stream) object has the following properties and methods:
+The [Stream](../../../reference/core/latest/interop/index.html#Stream) object has the following properties and methods:
 
 | Name | Description |
 |------|-------------|
@@ -633,7 +633,7 @@ The [Stream](../../../reference/core/latest/interop/index.html#!Stream) object h
 
 ### Branch Object
 
-The [StreamBranch](../../../reference/core/latest/interop/index.html#!StreamBranch) object has the following properties and methods:
+The [StreamBranch](../../../reference/core/latest/interop/index.html#StreamBranch) object has the following properties and methods:
 
 | Name | Description |
 |------|-------------|
@@ -646,7 +646,7 @@ The [StreamBranch](../../../reference/core/latest/interop/index.html#!StreamBran
 
 ### Subscribing to a Stream
 
-Streams are simply special Interop methods, so subscribing to a stream resembles very much invoking a method. To subscribe, create a subscription using the [`subscribe()`](../../../reference/core/latest/interop/index.html#!API-subscribe) method. It accepts a string or a [`MethodDefinition`](../../../reference/core/latest/interop/index.html#!MethodDefinition) object as a first required parameter and a [`SubscriptionParams`](../../../reference/core/latest/interop/index.html#!SubscriptionParams) object as a second optional one:
+Streams are simply special Interop methods, so subscribing to a stream resembles very much invoking a method. To subscribe, create a subscription using the [`subscribe()`](../../../reference/core/latest/interop/index.html#API-subscribe) method. It accepts a string or a [`MethodDefinition`](../../../reference/core/latest/interop/index.html#MethodDefinition) object as a first required parameter and a [`SubscriptionParams`](../../../reference/core/latest/interop/index.html#SubscriptionParams) object as a second optional one:
 
 ```javascript
 const subscriptionOptions = {
@@ -665,12 +665,12 @@ createSubscription().catch(console.error);
 // Use subscription here.
 ```
 
-The [`SubscriptionParams`](../../../reference/core/latest/interop/index.html#!SubscriptionParams) object has the following properties:
+The [`SubscriptionParams`](../../../reference/core/latest/interop/index.html#SubscriptionParams) object has the following properties:
 
 | Property | Description |
 |----------|-------------|
 | `arguments` | Object containing arguments for the stream subscription. Passing `arguments` enables you to group subscribers that use the same `arguments` on a stream branch (see [Publishing Stream Data](#publishing_stream_data)), and/or use these as a filter on the publisher side. |
-| `target` | An [`InstanceTarget`](../../../reference/core/latest/interop/index.html#!InstanceTarget) object that can be one of `"best"`, `"all"`, `"skipMine"`, `Instance` or `Instance[]` (see [Invoking Methods](#method_invocation)). |
+| `target` | An [`InstanceTarget`](../../../reference/core/latest/interop/index.html#InstanceTarget) object that can be one of `"best"`, `"all"`, `"skipMine"`, `Instance` or `Instance[]` (see [Invoking Methods](#method_invocation)). |
 | `waitTimeoutMs` | Timeout to discover the stream if not immediately available. |
 | `methodResponseTimeout` | Timeout to wait for the stream reply. |
 | `onData` | Callback for handling new data. |
@@ -679,7 +679,7 @@ The [`SubscriptionParams`](../../../reference/core/latest/interop/index.html#!Su
 
 ### Handling Subscriptions Client Side
 
-The client side [`Subscription`](../../../reference/core/latest/interop/index.html#!Subscription) object has several useful properties providing information about the subscription instance:
+The client side [`Subscription`](../../../reference/core/latest/interop/index.html#Subscription) object has several useful properties providing information about the subscription instance:
 
 | Property | Description |
 |----------|-------------|
@@ -687,7 +687,7 @@ The client side [`Subscription`](../../../reference/core/latest/interop/index.ht
 | `serverInstance` | Instance of the application providing the stream. |
 | `stream` | The stream definition object. |
 
-Once you have a subscription, use its [`onData()`](../../../reference/core/latest/interop/index.html#!Subscription-onData) method to handle stream data. The callback you register with the `onData()` method of the `Subscription` object will fire every time new stream data is received:
+Once you have a subscription, use its [`onData()`](../../../reference/core/latest/interop/index.html#Subscription-onData) method to handle stream data. The callback you register with the `onData()` method of the `Subscription` object will fire every time new stream data is received:
 
 ```javascript
 subscription.onData((streamData) => {
@@ -695,7 +695,7 @@ subscription.onData((streamData) => {
 });
 ```
 
-The [`StreamData`](../../../reference/core/latest/interop/index.html#!StreamData) object has the following properties:
+The [`StreamData`](../../../reference/core/latest/interop/index.html#StreamData) object has the following properties:
 
 | Property | Description |
 |----------|-------------|
@@ -739,7 +739,7 @@ const stream = glue.interop.methods().find(method => method.name === "MarketData
 
 ### Registering and Invoking Methods
 
-The applications below demonstrate how to register and invoke Interop methods using the [`register()`](../../../reference/core/latest/interop/index.html#!API-register) and [`invoke()`](../../../reference/core/latest/interop/index.html#!API-invoke) methods of the Interop API. 
+The applications below demonstrate how to register and invoke Interop methods using the [`register()`](../../../reference/core/latest/interop/index.html#API-register) and [`invoke()`](../../../reference/core/latest/interop/index.html#API-invoke) methods of the Interop API. 
 
 On load, Application B registers a method called "G42Core.Basic". Click the "Invoke" button in Application A to invoke this method and print the result from the method invocation.
 
@@ -778,7 +778,7 @@ Use Application B and Application C to register Interop methods by providing a m
     <iframe src="https://whkfw.csb.app" style="border: none;"></iframe>
 </div>
 
-The applications below demonstrate discovering Interop methods by subscribing to the [`serverMethodAdded()`](../../../reference/core/latest/interop/index.html#!API-serverMethodAdded) and the [`serverMethodRemoved()`](../../../reference/core/latest/interop/index.html#!API-serverMethodRemoved) events of the Interop API. 
+The applications below demonstrate discovering Interop methods by subscribing to the [`serverMethodAdded()`](../../../reference/core/latest/interop/index.html#API-serverMethodAdded) and the [`serverMethodRemoved()`](../../../reference/core/latest/interop/index.html#API-serverMethodRemoved) events of the Interop API. 
 
 On load, Application A subscribes to the `serverMethodAdded()` and `serverMethodRemoved()` events and will print the names of the newly registered method and the server offering it. Use Application B and Application C to register Interop methods by providing a method name.
 

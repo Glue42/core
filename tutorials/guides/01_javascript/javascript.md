@@ -1,8 +1,8 @@
 ## Overview
 
-This tutorial is designed to walk you through every aspect of **Glue42 Core** - setting up a project, initializing a [Main Application](../../developers/core-concepts/web-platform/overview/index.html), multiple [Web Client](../../developers/core-concepts/web-client/overview/index.html) apps and extending your applications with [Shared Contexts](../../capabilities/data-sharing-between-apps/shared-contexts/index.html), [Interop](../../capabilities/data-sharing-between-apps/interop/index.html), [Window Management](../../capabilities/windows/window-management/index.html), [Channels](../../capabilities/data-sharing-between-apps/channels/index.html), [Application Management](../../capabilities/application-management/index.html) and [Workspaces](../../capabilities/windows/workspaces/overview/index.html) capabilities.
+This tutorial is designed to walk you through every aspect of [**Glue42 Core**](https://glue42.com/core/) - setting up a project, initializing a [Main Application](../../developers/core-concepts/web-platform/overview/index.html), multiple [Web Client](../../developers/core-concepts/web-client/overview/index.html) apps and extending your applications with [Shared Contexts](../../capabilities/data-sharing-between-apps/shared-contexts/index.html), [Interop](../../capabilities/data-sharing-between-apps/interop/index.html), [Window Management](../../capabilities/windows/window-management/index.html), [Channels](../../capabilities/data-sharing-between-apps/channels/index.html), [Application Management](../../capabilities/application-management/index.html) and [Workspaces](../../capabilities/windows/workspaces/overview/index.html) capabilities.
 
-This guide uses plain JavaScript and its goal is to allow you to put the basic concepts of **Glue42 Core** to practice. There are also [React](../react/index.html) and [Angular](../angular/index.html) tutorials for **Glue42 Core**, but it is recommended that you go through the JavaScript tutorial first in order to get acquainted with **Glue42 Core** without the distractions of additional libraries and frameworks.
+This guide uses plain JavaScript and its goal is to allow you to put the basic concepts of [**Glue42 Core**](https://glue42.com/core/) to practice. There are also [React](../react/index.html) and [Angular](../angular/index.html) tutorials for [**Glue42 Core**](https://glue42.com/core/), but it is recommended that you go through the JavaScript tutorial first in order to get acquainted with [**Glue42 Core**](https://glue42.com/core/) without the distractions of additional libraries and frameworks.
 
 ## Introduction
 
@@ -22,7 +22,7 @@ It is also recommended to have the [Web Platform](../../developers/core-concepts
 
 ## Tutorial Structure
 
-The tutorial code is located in the **Glue42 Core** [GitHub repo](https://github.com/Glue42/core). There you will find a `/tutorials` directory with the following structure:
+The tutorial code is located in the [**Glue42 Core**](https://glue42.com/core/) [GitHub repo](https://github.com/Glue42/core). There you will find a `/tutorials` directory with the following structure:
 
 ```cmd
 /tutorials
@@ -48,11 +48,11 @@ The tutorial code is located in the **Glue42 Core** [GitHub repo](https://github
 | `/javascript`, `/react` and `/angular` | Contain the starting files for the tutorials and also a full solution for each of them. |
 | `/rest-server` | A simple server used in the tutorials to serve the necessary `JSON` data. |
 
-**Glue42 Core** is an open-source project, so all feedback and contributions, both to the code base and the tutorials, are welcome.
+[**Glue42 Core**](https://glue42.com/core/) is an open-source project, so all feedback and contributions, both to the code base and the tutorials, are welcome.
 
 ## 1. Initial Setup
 
-Clone the **Glue42 Core** [GitHub repo](https://github.com/Glue42/core) to get the tutorial files.
+Clone the [**Glue42 Core**](https://glue42.com/core/) [GitHub repo](https://github.com/Glue42/core) to get the tutorial files.
 
 ### 1.1. Start Files
 
@@ -112,7 +112,7 @@ This will launch the server at port 8080.
 
 ### 2.1. Main Application
 
-Every **Glue42 Core** project *must have a single* central application called [Main Application](../../developers/core-concepts/web-platform/overview/index.html) or Web Platform app. In a real-world scenario this would be an application used for discovering and listing available applications, Workspaces, handling notifications and much more. However, your goal now is to learn about all these aspects with as little complexity as possible. That's why the **Clients** app will serve as your Main application. The users will open the **Clients** app and from there they will be able to click on a client and see their stocks and so on.
+Every [**Glue42 Core**](https://glue42.com/core/) project *must have a single* central application called [Main Application](../../developers/core-concepts/web-platform/overview/index.html) or Web Platform app. In a real-world scenario this would be an application used for discovering and listing available applications, Workspaces, handling notifications and much more. However, your goal now is to learn about all these aspects with as little complexity as possible. That's why the **Clients** app will serve as your Main application. The users will open the **Clients** app and from there they will be able to click on a client and see their stocks and so on.
 
 Setting up a Main application is just as simple as calling a function. First, reference the Glue42 [Web Platform](https://www.npmjs.com/package/@glue42/web-platform) script in the **Clients** app and then initialize the library. The Web Platform library handles the entire Glue42 environment, which is necessary for the [Web Client](../../developers/core-concepts/web-client/overview/index.html) apps to be able to connect to the Main application and to each other.
 
@@ -175,7 +175,7 @@ To verify that the initializations are correct, open the browser console of the 
 await glue.windows.open("stocks", "http://localhost:9100/").catch(console.error);
 ```
 
-This will instruct the **Clients** app to open the **Stocks** app using the Glue42 [Window Management API](../../capabilities/windows/window-management/index.html). The **Stocks** app will now be able to connect to the Glue42 environment and initialize the [Glue42 Web](../../reference/core/latest/glue42%20web/index.html) library correctly. Repeat this for the rest of the apps by changing the values of the `name` and the `url` parameters when calling the [`open()`](../../capabilities/windows/window-management/index.html#!API-open) method.
+This will instruct the **Clients** app to open the **Stocks** app using the Glue42 [Window Management API](../../capabilities/windows/window-management/index.html). The **Stocks** app will now be able to connect to the Glue42 environment and initialize the [Glue42 Web](../../reference/core/latest/glue42%20web/index.html) library correctly. Repeat this for the rest of the apps by changing the values of the `name` and the `url` parameters when calling the [`open()`](../../capabilities/windows/window-management/index.html#API-open) method.
 
 Next, you will begin to add Glue42 functionalities to the apps.
 
@@ -187,7 +187,7 @@ Currently, the only way for the user to open the **Stocks** app is to manually e
 
 ### 3.1. Opening Windows at Runtime
 
-Instruct the **Clients** app to open the **Stocks** app in a new window when the user clicks on the "Stocks" button. Locate the `TODO: Chapter 3.1` comment inside the `stocksButtonHandler()` function. Use the [`open()`](../../reference/core/latest/windows/index.html#!API-open) method to open the **Stocks** app in a new window. The `instanceID` and `counter` variables ensure that the name of each new **Stocks** instance will be unique:
+Instruct the **Clients** app to open the **Stocks** app in a new window when the user clicks on the "Stocks" button. Locate the `TODO: Chapter 3.1` comment inside the `stocksButtonHandler()` function. Use the [`open()`](../../reference/core/latest/windows/index.html#API-open) method to open the **Stocks** app in a new window. The `instanceID` and `counter` variables ensure that the name of each new **Stocks** instance will be unique:
 
 ```javascript
 const stocksButtonHandler = (client) => {
@@ -202,7 +202,7 @@ const stocksButtonHandler = (client) => {
 
 To complete the user flow, instruct the **Stocks** app to open a new window each time a the user clicks on a stock. Remember that each Glue42 Window *must have a unique name*. To avoid errors resulting from attempting to open Glue42 Windows with conflicting names, check whether the clicked stock has already been opened in a new window.
 
-Go to the **Stocks** app and find the `TODO: Chapter 3.1` comment in the `stockClickedHandler()` function. Currently, it rewrites the value of `window.location.href` to redirect to the **Stock Details** view. Remove that and use the [`open()`](../../reference/core/latest/windows/index.html#!API-open) method instead. Use the [`list()`](../../reference/core/latest/windows/index.html#!API-list) method to get a collection of all Glue42 Windows and check whether the clicked stock is already open in a window. It is safe to search by `name`, because all Glue42 Window instances must have a unique `name` property:
+Go to the **Stocks** app and find the `TODO: Chapter 3.1` comment in the `stockClickedHandler()` function. Currently, it rewrites the value of `window.location.href` to redirect to the **Stock Details** view. Remove that and use the [`open()`](../../reference/core/latest/windows/index.html#API-open) method instead. Use the [`list()`](../../reference/core/latest/windows/index.html#API-list) method to get a collection of all Glue42 Windows and check whether the clicked stock is already open in a window. It is safe to search by `name`, because all Glue42 Window instances must have a unique `name` property:
 
 ```javascript
 const stockClickedHandler = (stock) => {
@@ -224,7 +224,7 @@ After refreshing, when you click on a stock, a separate **Stock Details** window
 
 ### 3.2. Window Settings
 
-To position the new **Stock Details** window, extend the logic in the [`open()`](../../reference/core/latest/windows/index.html#!API-open) method by passing an optional [`Settings`](../../reference/core/latest/windows/index.html#!Settings) object containing specific values for the window size (`width` and `height`) and position (`top` and `left`):
+To position the new **Stock Details** window, extend the logic in the [`open()`](../../reference/core/latest/windows/index.html#API-open) method by passing an optional [`Settings`](../../reference/core/latest/windows/index.html#Settings) object containing specific values for the window size (`width` and `height`) and position (`top` and `left`):
 
 ```javascript
 const stockClickedHandler = (stock) => {
@@ -273,7 +273,7 @@ const stockClickedHandler = (stock) => {
 };
 ```
 
-Update the **Stock Details** app to get the `stock` object. Find the `TODO: Chapter 3.3` comment in the **Stock Details** app. Get a reference to the current window using the [`my()`](../../reference/core/latest/windows/index.html#!API-my) method and get its context with the [`getContext()`](../../reference/core/latest/windows/index.html#!WebWindow-getContext) method of the Glue42 Window object:
+Update the **Stock Details** app to get the `stock` object. Find the `TODO: Chapter 3.3` comment in the **Stock Details** app. Get a reference to the current window using the [`my()`](../../reference/core/latest/windows/index.html#API-my) method and get its context with the [`getContext()`](../../reference/core/latest/windows/index.html#WebWindow-getContext) method of the Glue42 Window object:
 
 ```javascript
 // In `start()`.
@@ -289,7 +289,7 @@ Next, you will use the [Interop API](../../reference/core/latest/interop/index.h
 
 When a user clicks on a client, the **Stocks** app should show only the stocks owned by this client. You can achieve this by registering an Interop method in the **Stocks** app which, when invoked, will receive the portfolio of the selected client and re-render the stocks table. Also, the **Stocks** app will create an Interop stream to which it will push the new stock prices. Subscribers to the stream will get notified when new prices have been generated.
 
-Go to the **Stocks** app and find the `TODO: Chapter 4.1` comment. Use the [`register()`](../../reference/core/latest/interop/index.html#!API-register) method to register an Interop method in the `start()` function. Pass a method name (`"SelectClient"`) and a callback for handling method invocations to `register()`. The callback will expect as an argument an object with a `client` property, which in turn holds an object with a `portfolio` property. Filter all stocks and pass only the ones present in the portfolio of the client to the `setupStocks()` function. After that, use [`createStream()`](../../reference/core/latest/interop/index.html#!API-createStream) to create a stream called `"LivePrices"` and assign it to the global `window` object for easy access:
+Go to the **Stocks** app and find the `TODO: Chapter 4.1` comment. Use the [`register()`](../../reference/core/latest/interop/index.html#API-register) method to register an Interop method in the `start()` function. Pass a method name (`"SelectClient"`) and a callback for handling method invocations to `register()`. The callback will expect as an argument an object with a `client` property, which in turn holds an object with a `portfolio` property. Filter all stocks and pass only the ones present in the portfolio of the client to the `setupStocks()` function. After that, use [`createStream()`](../../reference/core/latest/interop/index.html#API-createStream) to create a stream called `"LivePrices"` and assign it to the global `window` object for easy access:
 
 ```javascript
 // In `start()`.
@@ -338,7 +338,7 @@ Next, you will find and invoke the registered method from the **Clients** app.
 
 ### 4.2. Method Discovery
 
-Go to the **Clients** app, find the `TODO: Chapter 4.2.` comment and extend the `clientClickedHandler()`. This function is invoked every time the user clicks on a client. Use [`methods()`](../../reference/core/latest/interop/index.html#!API-methods) to check for a registered Interop method with the name `"SelectClient"`:
+Go to the **Clients** app, find the `TODO: Chapter 4.2.` comment and extend the `clientClickedHandler()`. This function is invoked every time the user clicks on a client. Use [`methods()`](../../reference/core/latest/interop/index.html#API-methods) to check for a registered Interop method with the name `"SelectClient"`:
 
 ```javascript
 // In `clientClickedHandler()`.
@@ -351,7 +351,7 @@ const selectClientStocks = glue.interop.methods().find(method => method.name ===
 
 Next, invoke the `"SelectClient"` Interop method if present.
 
-Find the `TODO: Chapter 4.3.` comment and invoke the method if it has been registered. Use [`invoke()`](../../reference/core/latest/interop/index.html#!API-invoke) and pass the previously found method object to it as a first argument. Wrap the `client` object received by the `clientClickedHandler()` in another object and pass it as a second argument to [`invoke()`](../../reference/core/latest/interop/index.html#!API-invoke):
+Find the `TODO: Chapter 4.3.` comment and invoke the method if it has been registered. Use [`invoke()`](../../reference/core/latest/interop/index.html#API-invoke) and pass the previously found method object to it as a first argument. Wrap the `client` object received by the `clientClickedHandler()` in another object and pass it as a second argument to [`invoke()`](../../reference/core/latest/interop/index.html#API-invoke):
 
 ```javascript
 // In `clientClickedHandler()`.
@@ -378,7 +378,7 @@ const clientClickedHandler = (client) => {
 
 Use the Interop API to subscribe the **Stock Details** app to the previously created `"LivePrices"` stream.
 
-Go to the **Stock Details** app and find the `TODO: Chapter 4.4` comment in the `start()` function. Use the [`subscribe()`](../../reference/core/latest/interop/index.html#!API-subscribe) method to subscribe to the `"LivePrices"` stream and use the [`onData()`](../../reference/core/latest/interop/index.html#!Subscription-onData) method of the returned subscription object to assign a handler for the received stream data:
+Go to the **Stock Details** app and find the `TODO: Chapter 4.4` comment in the `start()` function. Use the [`subscribe()`](../../reference/core/latest/interop/index.html#API-subscribe) method to subscribe to the `"LivePrices"` stream and use the [`onData()`](../../reference/core/latest/interop/index.html#Subscription-onData) method of the returned subscription object to assign a handler for the received stream data:
 
 ```javascript
 // In `start()`.
@@ -405,7 +405,7 @@ The next request of the users is to be able to see in the **Stock Details** app 
 
 ### 5.1. Updating a Context
 
-Go to the **Clients** app and find the `TODO: Chapter 5.1.` comment in the `clientClickedHandler()` function. Comment out or delete the existing code that uses the Interop API. Use the [`update()`](../../reference/core/latest/shared%20contexts/index.html#!API-update) method to create and set a shared context object by providing a name and value - it will hold the selected client object. Other applications will be able to subscribe for updates to this context and be notified when its value changes:
+Go to the **Clients** app and find the `TODO: Chapter 5.1.` comment in the `clientClickedHandler()` function. Comment out or delete the existing code that uses the Interop API. Use the [`update()`](../../reference/core/latest/shared%20contexts/index.html#API-update) method to create and set a shared context object by providing a name and value - it will hold the selected client object. Other applications will be able to subscribe for updates to this context and be notified when its value changes:
 
 ```javascript
 const clientClickedHandler = (client) => {
@@ -417,7 +417,7 @@ const clientClickedHandler = (client) => {
 
 ### 5.2. Subscribing for Context Updates
 
-Next, go to the **Stocks** app and find the `TODO: Chapter 5.2` comment in the `start()` function. Comment out or delete the code that uses the Interop API to register the method `"SelectClient"` (but leave the code that registers the `"LivePrices"` stream). Use the [`subscribe()`](../../reference/core/latest/shared%20contexts/index.html#!API-subscribe) method to subscribe for updates to the `"SelectedClient"` context object:
+Next, go to the **Stocks** app and find the `TODO: Chapter 5.2` comment in the `start()` function. Comment out or delete the code that uses the Interop API to register the method `"SelectClient"` (but leave the code that registers the `"LivePrices"` stream). Use the [`subscribe()`](../../reference/core/latest/shared%20contexts/index.html#API-subscribe) method to subscribe for updates to the `"SelectedClient"` context object:
 
 ```javascript
 // In `start()`.
@@ -560,7 +560,7 @@ The users have to be able to navigate through the Channels for which they will n
 const NO_CHANNEL_VALUE = "No channel";
 ```
 
-- `channelNamesAndColors` - an array of objects with `name` and `color` properties holding the name and the color code of each Channel. You will get them using the [`list()`](../../reference/core/latest/channels/index.html#!API-list) method of the Channels API:
+- `channelNamesAndColors` - an array of objects with `name` and `color` properties holding the name and the color code of each Channel. You will get them using the [`list()`](../../reference/core/latest/channels/index.html#API-list) method of the Channels API:
 
 ```javascript
 // In `start()`.
@@ -578,7 +578,7 @@ const channelNamesAndColors = channelContexts.map((channelContext) => {
 });
 ```
 
-- `onChannelSelected` - a callback that will be called when the user selects a Channel from the widget. Use the [`my()`](../../reference/core/latest/channels/index.html#!API-my) method to get a reference to the current Channel and the [`join()`](../../reference/core/latest/channels/index.html#!API-join) and [`leave()`](../../reference/core/latest/channels/index.html#!API-leave) methods to switch between Channels:
+- `onChannelSelected` - a callback that will be called when the user selects a Channel from the widget. Use the [`my()`](../../reference/core/latest/channels/index.html#API-my) method to get a reference to the current Channel and the [`join()`](../../reference/core/latest/channels/index.html#API-join) and [`leave()`](../../reference/core/latest/channels/index.html#API-leave) methods to switch between Channels:
 
 ```javascript
 // In `start()`.
@@ -612,7 +612,7 @@ Refresh both apps to see the Channel selector widget.
 
 ### 6.3. Publishing and Subscribing
 
-Find the `TODO: Chapter 6.3.` comment in the `clientClickedHandler()` function of the **Clients** app. Use the [`publish()`](../../reference/core/latest/channels/index.html#!API-publish) method and pass the selected client as an argument to update the Channel context when a new client is selected. Note that `publish()` will throw an error if the app tries to publish data but is not on a Channel. Use the `my()` method to check for the current Channel:
+Find the `TODO: Chapter 6.3.` comment in the `clientClickedHandler()` function of the **Clients** app. Use the [`publish()`](../../reference/core/latest/channels/index.html#API-publish) method and pass the selected client as an argument to update the Channel context when a new client is selected. Note that `publish()` will throw an error if the app tries to publish data but is not on a Channel. Use the `my()` method to check for the current Channel:
 
 ```javascript
 // In `clientClickedHandler()`.
@@ -624,7 +624,7 @@ if (currentChannel) {
 };
 ```
 
-Next, go to the **Stocks** app and comment out or delete the code in the `start()` function that uses the Shared Contexts API to listen for updates of the `"SelectedClient"` context. Find the `TODO: Chapter 6.3` comment and use the [`subscribe()`](../../reference/core/latest/channels/index.html#!API-subscribe) method instead to enable the **Stocks** app to listen for updates of the current Channel context. Provide the same callback you used in Chapter 5.2. to handle context updates, but modify it to check for the client portfolio. This is necessary in order to avoid errors if the user decides to change the Channel of the **Stocks** app manually - the context of the new Channel will most likely be an empty object, which will lead to undefined values:
+Next, go to the **Stocks** app and comment out or delete the code in the `start()` function that uses the Shared Contexts API to listen for updates of the `"SelectedClient"` context. Find the `TODO: Chapter 6.3` comment and use the [`subscribe()`](../../reference/core/latest/channels/index.html#API-subscribe) method instead to enable the **Stocks** app to listen for updates of the current Channel context. Provide the same callback you used in Chapter 5.2. to handle context updates, but modify it to check for the client portfolio. This is necessary in order to avoid errors if the user decides to change the Channel of the **Stocks** app manually - the context of the new Channel will most likely be an empty object, which will lead to undefined values:
 
 ```javascript
 // In `start()`.
@@ -704,7 +704,7 @@ The `name` and `url` properties are required when defining an application config
 
 ### 7.2. Starting Applications
 
-Go the the **Clients** app and remove the code in the `stocksButtonHandler()` using the Window Management API (including the code related to the `counter` and `instanceID` variable, as it won't be necessary to create unique window names). Find the `TODO: Chapter 7.2` comment, get the **Stocks** application object with the [`application()`](../../reference/core/latest/appmanager/index.html#!API-application) method and use its [`start()`](../../reference/core/latest/appmanager/index.html#!Application-start) method to start the **Stocks** app when the user clicks the "Stocks" button. Pass the current Channel as a context to the started instance:
+Go the the **Clients** app and remove the code in the `stocksButtonHandler()` using the Window Management API (including the code related to the `counter` and `instanceID` variable, as it won't be necessary to create unique window names). Find the `TODO: Chapter 7.2` comment, get the **Stocks** application object with the [`application()`](../../reference/core/latest/appmanager/index.html#API-application) method and use its [`start()`](../../reference/core/latest/appmanager/index.html#Application-start) method to start the **Stocks** app when the user clicks the "Stocks" button. Pass the current Channel as a context to the started instance:
 
 ```javascript
 // In `stocksButtonHandler()`.
@@ -728,7 +728,7 @@ if (channelToJoin) {
 };
 ```
 
-This, however, will not re-render the Channel selector widget in the **Stocks** app with the newly programmatically joined Channel. To make the Channel selector react to calls to [`join()`](../../reference/core/latest/channels/index.html#!API-join) and [`leave()`](../../reference/core/latest/channels/index.html#!API-leave), define a method which will re-render the widget every time the current Channel has changed. Use the [`onChanged()`](../../reference/core/latest/channels/index.html#!API-onChanged) method to subscribe for changes of the current Channel:
+This, however, will not re-render the Channel selector widget in the **Stocks** app with the newly programmatically joined Channel. To make the Channel selector react to calls to [`join()`](../../reference/core/latest/channels/index.html#API-join) and [`leave()`](../../reference/core/latest/channels/index.html#API-leave), define a method which will re-render the widget every time the current Channel has changed. Use the [`onChanged()`](../../reference/core/latest/channels/index.html#API-onChanged) method to subscribe for changes of the current Channel:
 
 ```javascript
 // In `start()`.
@@ -751,7 +751,7 @@ glue.channels.onChanged(handleChannelChanges);
 
 ### 7.3. Application Instances
 
-Finally, find the `TODO: Chapter 7.3` comment in the `stockClickedHandler()`. Comment out or delete the code that uses the Window Management API to open the **Stock Details** app. Use the [`application()`](../../reference/core/latest/appmanager/index.html#!API-application) method to get the **Stock Details** app. Check whether an instance with the selected stock has already been started by iterating over the contexts of the existing **Stock Details** instances. If there is no instance with the selected stock, call the `start()` method on the application object and pass the selected stock as a context:
+Finally, find the `TODO: Chapter 7.3` comment in the `stockClickedHandler()`. Comment out or delete the code that uses the Window Management API to open the **Stock Details** app. Use the [`application()`](../../reference/core/latest/appmanager/index.html#API-application) method to get the **Stock Details** app. Check whether an instance with the selected stock has already been started by iterating over the contexts of the existing **Stock Details** instances. If there is no instance with the selected stock, call the `start()` method on the application object and pass the selected stock as a context:
 
 ```javascript
 // In `stockClickedHandler()`.
@@ -785,7 +785,7 @@ Everything should work as before, the difference being that the apps now use the
 
 ## 8. Workspaces
 
-The latest feedback from the users is that their desktops very quickly become cluttered with multiple floating windows. The **Glue42 Core** [Workspaces](../../capabilities/windows/workspaces/overview/index.html) feature solves exactly that problem.
+The latest feedback from the users is that their desktops very quickly become cluttered with multiple floating windows. The [**Glue42 Core**](https://glue42.com/core/) [Workspaces](../../capabilities/windows/workspaces/overview/index.html) feature solves exactly that problem.
 
 The new requirement is that when a user clicks on a client in the **Clients** application, a new Workspace should open displaying detailed information about the selected client in one app and his stocks portfolio in another. When the user clicks on a stock, a third application should appear in the same Workspace displaying more details about the selected stock. You will use the **Client Details** application for displaying information about the selected client.
 
@@ -968,7 +968,7 @@ If everything is correct, a new Workspace should now open every time you click a
 
 Handle the starting Workspace context to show the details and the portfolio of the selected client in the **Client Details** and **Stocks** apps. Also, set the Workspace title to the name of the selected client.
 
-Go to the **Client Details** app, find the `TODO: Chapter 8.5` comment in the `start()` function and use the [`onContextUpdated()`](../../reference/core/latest/workspaces/index.html#!Workspace-onContextUpdated) method of the current Workspace to subscribe for context updates. Invoke the `setFields()` function passing the `client` property of the updated context and set the title of the Workspace to the `name` of the selected client:
+Go to the **Client Details** app, find the `TODO: Chapter 8.5` comment in the `start()` function and use the [`onContextUpdated()`](../../reference/core/latest/workspaces/index.html#Workspace-onContextUpdated) method of the current Workspace to subscribe for context updates. Invoke the `setFields()` function passing the `client` property of the updated context and set the title of the Workspace to the `name` of the selected client:
 
 ```javascript
 // In `start()`.
@@ -985,7 +985,7 @@ if (myWorkspace) {
 };
 ```
 
-Go to the **Stocks** app, find the `TODO: Chapter 8.5` comment, use the [`onContextUpdated()`](../../reference/core/latest/workspaces/index.html#!Workspace-onContextUpdated) Workspace method and set up the stocks for the selected client:
+Go to the **Stocks** app, find the `TODO: Chapter 8.5` comment, use the [`onContextUpdated()`](../../reference/core/latest/workspaces/index.html#Workspace-onContextUpdated) Workspace method and set up the stocks for the selected client:
 
 ```javascript
 // In `start()`.
@@ -1012,9 +1012,9 @@ Next, you have to make the **Stock Details** app appear in the same Workspace as
 
 *To achieve this functionality, you will have to manipulate a Workspace and its elements. It is recommended that you familiarize yourself with the Workspaces terminology to fully understand the concepts and steps below. Use the available documentation about [Workspaces Concepts](../../capabilities/windows/workspaces/overview/index.html#workspaces_concepts), [Workspace Box Elements](../../capabilities/windows/workspaces/workspaces-api/index.html#box_elements) and the [Workspaces API](../../reference/core/latest/workspaces/index.html).*
 
-The **Stocks** app is a [`WorkspaceWindow`](../../reference/core/latest/workspaces/index.html#!WorkspaceWindow) that is the only child of a [`Group`](../../reference/core/latest/workspaces/index.html#!Group) element. If you add the **Stock Details** app as a child to that `Group`, it will be added as a second tab window and the user will have to manually switch between both apps. The **Stock Details** has to be a sibling of the **Stocks** app, but both apps have to be visible within the same parent element. That is why, you have to add a new `Group` element as a sibling of the existing `Group` that contains the **Stocks** app, and then load the **Stock Details** app in it.
+The **Stocks** app is a [`WorkspaceWindow`](../../reference/core/latest/workspaces/index.html#WorkspaceWindow) that is the only child of a [`Group`](../../reference/core/latest/workspaces/index.html#Group) element. If you add the **Stock Details** app as a child to that `Group`, it will be added as a second tab window and the user will have to manually switch between both apps. The **Stock Details** has to be a sibling of the **Stocks** app, but both apps have to be visible within the same parent element. That is why, you have to add a new `Group` element as a sibling of the existing `Group` that contains the **Stocks** app, and then load the **Stock Details** app in it.
 
-After the **Stocks Details** app has been opened in the Workspace as a [`WorkspaceWindow`](../../reference/core/latest/workspaces/index.html#!WorkspaceWindow), you have to pass the selected stock as its context. To do that, get a reference to the underlying [Glue42 Window](../../reference/core/latest/windows/index.html#!WebWindow) object of the **Stock Details** window using the [`getGdWindow()`](../../reference/core/latest/workspaces/index.html#!WorkspaceWindow-getGdWindow) method of the [`WorkspaceWindow`](../../reference/core/latest/workspaces/index.html#!WorkspaceWindow) instance and update its context with the [`updateContext()`](../../reference/core/latest/windows/index.html#!WebWindow-updateContext) method.
+After the **Stocks Details** app has been opened in the Workspace as a [`WorkspaceWindow`](../../reference/core/latest/workspaces/index.html#WorkspaceWindow), you have to pass the selected stock as its context. To do that, get a reference to the underlying [Glue42 Window](../../reference/core/latest/windows/index.html#WebWindow) object of the **Stock Details** window using the [`getGdWindow()`](../../reference/core/latest/workspaces/index.html#WorkspaceWindow-getGdWindow) method of the [`WorkspaceWindow`](../../reference/core/latest/workspaces/index.html#WorkspaceWindow) instance and update its context with the [`updateContext()`](../../reference/core/latest/windows/index.html#WebWindow-updateContext) method.
 
 Go to the `stockClickedHandler()` function of the **Stocks** app, find the `TODO: Chapter 8.6` comment in it, comment out or delete the code for starting the **Stock Details** app with the Application Management API and add the following:
 
@@ -1050,7 +1050,7 @@ if (detailsWorkspaceWindow) {
 detailsGlue42Window.updateContext({ stock });
 ```
 
-*Note that [`forceLoad()`](../../reference/core/latest/workspaces/index.html#!WorkspaceWindow-forceLoad) is used to make sure that the **Stock Details** app is loaded and a [Glue42 Window](../../reference/core/latest/windows/index.html#!WebWindow) instance is available. This is necessary, because [`addWindow()`](../../reference/core/latest/workspaces/index.html#!Group-addWindow) adds a new window to the [`Group`](../../reference/core/latest/workspaces/index.html#!Group) (meaning that it exists as an element in the Workspace), but it does not guarantee that the content has loaded.*
+*Note that [`forceLoad()`](../../reference/core/latest/workspaces/index.html#WorkspaceWindow-forceLoad) is used to make sure that the **Stock Details** app is loaded and a [Glue42 Window](../../reference/core/latest/windows/index.html#WebWindow) instance is available. This is necessary, because [`addWindow()`](../../reference/core/latest/workspaces/index.html#Group-addWindow) adds a new window to the [`Group`](../../reference/core/latest/workspaces/index.html#Group) (meaning that it exists as an element in the Workspace), but it does not guarantee that the content has loaded.*
 
 Now, go to the **Stock Details** app, find the `TODO: Chapter 8.6` comment in the `start()` function, check for the selected stock in the window context and subscribe for context updates. Comment out or delete the existing code for setting the stock details and listening for context and subscription updates and replace it with the following:
 
@@ -1085,4 +1085,4 @@ myWindow.onContextUpdated((context) => {
 
 ## Congratulations!
 
-You have successfully completed the **Glue42 Core** JavaScript tutorial! If you are a React or an Angular developer, try also the [React](../react/index.html) and [Angular](../angular/index.html) tutorials for **Glue42 Core**.
+You have successfully completed the [**Glue42 Core**](https://glue42.com/core/) JavaScript tutorial! If you are a React or an Angular developer, try also the [React](../react/index.html) and [Angular](../angular/index.html) tutorials for [**Glue42 Core**](https://glue42.com/core/).

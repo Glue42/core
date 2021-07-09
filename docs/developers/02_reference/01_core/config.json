@@ -1,5 +1,6 @@
 {
     "menuItem": "Glue42 Web",
     "title": "Glue42 Web",
-    "displayTitle": true
+    "displayTitle": true,
+    "externalURL": "https://core-docs.glue42.com/reference/core/latest/glue42%20web/index.html"
 }

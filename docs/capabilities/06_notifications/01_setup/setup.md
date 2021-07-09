@@ -1,8 +1,8 @@
 ## Overview
 
-The [Notifications API](../../../reference/core/latest/notifications/index.html) provides a way to display native notifications with actions and to handle notification and action clicks. **Glue42 Core** supports all available [`Notification`](https://developer.mozilla.org/en-US/docs/Web/API/Notification) settings as defined in the [DOM Notifications API](https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API).
+The [Notifications API](../../../reference/core/latest/notifications/index.html) provides a way to display native notifications with actions and to handle notification and action clicks. [**Glue42 Core**](https://glue42.com/core/) supports all available [`Notification`](https://developer.mozilla.org/en-US/docs/Web/API/Notification) settings as defined in the [DOM Notifications API](https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API).
 
-The **Glue42 Core** Notifications API extends the DOM Notifications API with the option to handle notification and action clicks using [Interop](../../data-sharing-between-apps/interop/index.html#overview) methods.
+The [**Glue42 Core**](https://glue42.com/core/) Notifications API extends the DOM Notifications API with the option to handle notification and action clicks using [Interop](../../data-sharing-between-apps/interop/index.html#overview) methods.
 
 ## Configuration
 
@@ -42,7 +42,7 @@ Use this option if you need access to the Service Worker in some other applicati
 
 ## Glue42 Web Worker
 
-Defining a Service Worker is specific for each application and is outside the scope of **Glue42 Core**. In order for a **Glue42 Core** project to be able to correctly process notification actions and their respective click logic, you must include the [`@glue42/web-worker`](https://www.npmjs.com/package/@glue42/web-worker) package in your Service Worker file.
+Defining a Service Worker is specific for each application and is outside the scope of [**Glue42 Core**](https://glue42.com/core/). In order for a [**Glue42 Core**](https://glue42.com/core/) project to be able to correctly process notification actions and their respective click logic, you must include the [`@glue42/web-worker`](https://www.npmjs.com/package/@glue42/web-worker) package in your Service Worker file.
 
 ### Initialization
 
@@ -64,7 +64,7 @@ const GlueWebWorker = require("@glue42/web-worker");
 GlueWebWorker();
 ```
 
-The `GlueWebWorker()` function adds a listener to the [`notificationclick`](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerGlobalScope/notificationclick_event) event and sets up the necessary communication between the worker and the Glue42 [Web Platform](https://www.npmjs.com/package/@glue42/web-platform). This enables the custom action click logic of **Glue42 Core** notifications.
+The `GlueWebWorker()` function adds a listener to the [`notificationclick`](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerGlobalScope/notificationclick_event) event and sets up the necessary communication between the worker and the Glue42 [Web Platform](https://www.npmjs.com/package/@glue42/web-platform). This enables the custom action click logic of [**Glue42 Core**](https://glue42.com/core/) notifications.
 
 ### Configuration
 
@@ -107,4 +107,4 @@ The [`@glue42/web-worker`](https://www.npmjs.com/package/@glue42/web-worker) pac
 
 - `openCorePlatform()` - asynchronous function that accepts the URL to the [Main app](../../../developers/core-concepts/web-platform/overview/index.html) as an argument and resolves with `void`. Opens the Main app and waits for the [Web Platform](https://www.npmjs.com/package/@glue42/web-platform) library to be fully initialized and configured.
 
-- `raiseGlueNotification()` - this function has the same signature as the [`raise()`](../../../reference/core/latest/notifications/index.html#!API-raise) method of the [Notifications API](../notifications-api/index.html). It is meant to be used if your project utilizes the [Web Push Protocol](https://www.w3.org/TR/push-api/). In such scenario, the Main app is likely not opened and therefore the Service Worker is responsible for displaying the notification.
+- `raiseGlueNotification()` - this function has the same signature as the [`raise()`](../../../reference/core/latest/notifications/index.html#API-raise) method of the [Notifications API](../notifications-api/index.html). It is meant to be used if your project utilizes the [Web Push Protocol](https://www.w3.org/TR/push-api/). In such scenario, the Main app is likely not opened and therefore the Service Worker is responsible for displaying the notification.

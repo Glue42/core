@@ -63,40 +63,40 @@ const { glue } = await GlueWebPlatform(config);
 
 The Intents API is accessible through the [`glue.intents`](../../reference/core/latest/intents/index.html) object.
 
-To find all registered Intents, use the [`all()`](../../reference/core/latest/intents/index.html#!API-all) method:
+To find all registered Intents, use the [`all()`](../../reference/core/latest/intents/index.html#API-all) method:
 
 ```javascript
 const allIntents = await glue.intents.all();
 ```
 
-To get a collection of all Intents that fit certain criteria, use the [`find()`](../../reference/core/latest/intents/index.html#!API-find) method:
+To get a collection of all Intents that fit certain criteria, use the [`find()`](../../reference/core/latest/intents/index.html#API-find) method:
 
 ```javascript
 const intents = await glue.intents.find("ShowChart");
 ```
 
-The [`find()`](../../reference/core/latest/intents/index.html#!API-find) method accepts a string or an [`IntentFilter`](../../reference/core/latest/intents/index.html#!IntentFilter) object as an optional argument. The [`IntentFilter`](../../reference/core/latest/intents/index.html#!IntentFilter) has the following optional properties:
+The [`find()`](../../reference/core/latest/intents/index.html#API-find) method accepts a string or an [`IntentFilter`](../../reference/core/latest/intents/index.html#IntentFilter) object as an optional argument. The [`IntentFilter`](../../reference/core/latest/intents/index.html#IntentFilter) has the following optional properties:
 
 | Property | Description |
 |----------|-------------|
 | `name` | Name of the Intent for which to search. |
 | `contextType` | Context type (pre-defined data structure - e.g., `"Instrument"`) with which the Intent handler works. |
 
-If no filter is supplied, [`find()`](../../reference/core/latest/intents/index.html#!API-find) returns all registered Intents.
+If no filter is supplied, [`find()`](../../reference/core/latest/intents/index.html#API-find) returns all registered Intents.
 
 ## Raising Intents
 
-To raise an Intent, use the [`raise()`](../../reference/core/latest/intents/index.html#!API-raise) method:
+To raise an Intent, use the [`raise()`](../../reference/core/latest/intents/index.html#API-raise) method:
 
 ```javascript
 await glue.intents.raise("ShowChart");
 ```
 
-The [`raise()`](../../reference/core/latest/intents/index.html#!API-raise) method accepts an Intent name as a string or an [`IntentRequest`](../../reference/core/latest/intents/index.html#!IntentRequest) object as a required argument. The only required property of the [`IntentRequest`](../../reference/core/latest/intents/index.html#!IntentRequest) object is [`intent`](../../reference/core/latest/intents/index.html#!IntentRequest-intent) which must specify the name of the Intent to be raised.
+The [`raise()`](../../reference/core/latest/intents/index.html#API-raise) method accepts an Intent name as a string or an [`IntentRequest`](../../reference/core/latest/intents/index.html#IntentRequest) object as a required argument. The only required property of the [`IntentRequest`](../../reference/core/latest/intents/index.html#IntentRequest) object is [`intent`](../../reference/core/latest/intents/index.html#IntentRequest-intent) which must specify the name of the Intent to be raised.
 
 ## Targeting Intent Handlers
 
-When raising an Intent, optionally target one or more Intent handlers using the [`target`](../../reference/core/latest/intents/index.html#!IntentRequest-target) property of the [`IntentRequest`](../../reference/core/latest/intents/index.html#!IntentRequest) object:
+When raising an Intent, optionally target one or more Intent handlers using the [`target`](../../reference/core/latest/intents/index.html#IntentRequest-target) property of the [`IntentRequest`](../../reference/core/latest/intents/index.html#IntentRequest) object:
 
 ```javascript
 const intent = await glue.intents.find("ShowChart")[0];
@@ -110,26 +110,26 @@ const intentRequest = {
 await glue.intents.raise(intentRequest);
 ```
 
-The [`target`](../../reference/core/latest/intents/index.html#!IntentRequest-target) property of the [`IntentRequest`](../../reference/core/latest/intents/index.html#!IntentRequest) object accepts the following values:
+The [`target`](../../reference/core/latest/intents/index.html#IntentRequest-target) property of the [`IntentRequest`](../../reference/core/latest/intents/index.html#IntentRequest) object accepts the following values:
 
 
 | Value | Description |
 |-------|-------------|
 | `"startNew"` | Will start a new instance of the first available Intent handler. |
 | `"reuse"` | Will reuse the first available running instance of an Intent handler or will fall back to `"startNew"` if there are no running instances available. |
-| `{ app?: string, instance?: string}` | An object with optional `app` and `instance` properties. The `app` property accepts an application name, the `instance` property - an ID of a running application instance. Provide a value for the `app` property to start a new instance of a specific Intent handler application. The application name is available in the `applicationName` property of the [`IntentHandler`](../../reference/core/latest/intents/index.html#!IntentHandler) object. Provide a value for the `instance` property to reuse a specific running instance of an Intent handler. The ID of an Intent handler instance is available in the `instanceId` property of the [`IntentHandler`](../../reference/core/latest/intents/index.html#!IntentHandler) object. Using this targeting option gives you full control over the choice of an appropriate Intent handler. |
+| `{ app?: string, instance?: string}` | An object with optional `app` and `instance` properties. The `app` property accepts an application name, the `instance` property - an ID of a running application instance. Provide a value for the `app` property to start a new instance of a specific Intent handler application. The application name is available in the `applicationName` property of the [`IntentHandler`](../../reference/core/latest/intents/index.html#IntentHandler) object. Provide a value for the `instance` property to reuse a specific running instance of an Intent handler. The ID of an Intent handler instance is available in the `instanceId` property of the [`IntentHandler`](../../reference/core/latest/intents/index.html#IntentHandler) object. Using this targeting option gives you full control over the choice of an appropriate Intent handler. |
 
 The default value for the `target` property is `"startNew"` when the Intent has been defined in an application configuration. If the Intent has been [registered dynamically](#registering_intents_at_runtime), the default value is `"reuse"`.
 
-The [`IntentHandler`](../../reference/core/latest/intents/index.html#!IntentHandler) object has a `type` property which shows whether the Intent handler is an application that will be started (`type: "app"`), or an already running instance of an Intent handler (`type: "instance"`).
+The [`IntentHandler`](../../reference/core/latest/intents/index.html#IntentHandler) object has a `type` property which shows whether the Intent handler is an application that will be started (`type: "app"`), or an already running instance of an Intent handler (`type: "instance"`).
 
-*Note that in order for the running Intent handler instance to be registered as type `"instance"`, the application must use the [`addIntentListener()`](../../reference/core/latest/intents/index.html#!API-addIntentListener) method in its code to handle context updates (see [Handling Context Updates](#context-handling_context_updates)) or to register an Intent at runtime (see [Registering Intents at Runtime](#registering_intents_at_runtime)). Otherwise, the running Intent handler instance will be of type `"app"`.*
+*Note that in order for the running Intent handler instance to be registered as type `"instance"`, the application must use the [`addIntentListener()`](../../reference/core/latest/intents/index.html#API-addIntentListener) method in its code to handle context updates (see [Handling Context Updates](#context-handling_context_updates)) or to register an Intent at runtime (see [Registering Intents at Runtime](#registering_intents_at_runtime)). Otherwise, the running Intent handler instance will be of type `"app"`.*
 
 ## Context
 
 ### Passing Initial Context
 
-To pass initial context to the Intent handler, use the [`context`](../../reference/core/latest/intents/index.html#!IntentRequest-context) property of the [`IntentRequest`](../../reference/core/latest/intents/index.html#!IntentRequest) object. It accepts an [`IntentContext`](../../reference/core/latest/intents/index.html#!IntentContext) object as a value:
+To pass initial context to the Intent handler, use the [`context`](../../reference/core/latest/intents/index.html#IntentRequest-context) property of the [`IntentRequest`](../../reference/core/latest/intents/index.html#IntentRequest) object. It accepts an [`IntentContext`](../../reference/core/latest/intents/index.html#IntentContext) object as a value:
 
 ```javascript
 const intentRequest = {
@@ -152,13 +152,13 @@ const intentRequest = {
 await glue.intents.raise(intentRequest);
 ```
 
-The [`type`](../../reference/core/latest/intents/index.html#!IntentContext-type) property of the [`IntentContext`](../../reference/core/latest/intents/index.html#!IntentContext) object is required and specifies the structure of the context object. The [`data`](../../reference/core/latest/intents/index.html#!IntentContext-data) property is the actual data to be passed to the Intent handler.
+The [`type`](../../reference/core/latest/intents/index.html#IntentContext-type) property of the [`IntentContext`](../../reference/core/latest/intents/index.html#IntentContext) object is required and specifies the structure of the context object. The [`data`](../../reference/core/latest/intents/index.html#IntentContext-data) property is the actual data to be passed to the Intent handler.
 
-The [`options`](../../reference/core/latest/intents/index.html#!IntentRequest-options) property of the [`IntentRequest`](../../reference/core/latest/intents/index.html#!IntentRequest) object is used to pass custom [`ApplicationStartOptions`](../../reference/core/latest/appmanager/index.html#!ApplicationStartOptions) to the Intent handler.
+The [`options`](../../reference/core/latest/intents/index.html#IntentRequest-options) property of the [`IntentRequest`](../../reference/core/latest/intents/index.html#IntentRequest) object is used to pass custom [`ApplicationStartOptions`](../../reference/core/latest/appmanager/index.html#ApplicationStartOptions) to the Intent handler.
 
 ### Handling Context Updates
 
-To handle the context data passed when an Intent is raised and targeted at your application, use the [`addIntentListener()`](../../reference/core/latest/intents/index.html#!API-addIntentListener) method. It has two required parameters - an Intent name and a context handler definition:
+To handle the context data passed when an Intent is raised and targeted at your application, use the [`addIntentListener()`](../../reference/core/latest/intents/index.html#API-addIntentListener) method. It has two required parameters - an Intent name and a context handler definition:
 
 ```javascript
 // Context handler definition.
@@ -178,7 +178,7 @@ glue.intents.addIntentListener("ShowChart", contextHandler);
 
 ## Registering Intents at Runtime
 
-To register an Intent at runtime, use the [`addIntentListener()`](../../reference/core/latest/intents/index.html#!API-addIntentListener) method. Besides an Intent name, this method also accepts an object describing an Intent as a first required parameter:
+To register an Intent at runtime, use the [`addIntentListener()`](../../reference/core/latest/intents/index.html#API-addIntentListener) method. Besides an Intent name, this method also accepts an object describing an Intent as a first required parameter:
 
 ```javascript
 // Intent definition.

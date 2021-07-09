@@ -32,7 +32,7 @@ Referencing the Glue42 Web library script will attach a `GlueWeb()` factory func
 
 ## Initialization
 
-Initialize the Glue42 Web library by invoking the exposed `GlueWeb()` factory function. It accepts an *optional* [`Config`](../../../../reference/core/latest/glue42%20web/index.html#!Config) object in which you can specify settings regarding the Glue42 APIs.
+Initialize the Glue42 Web library by invoking the exposed `GlueWeb()` factory function. It accepts an *optional* [`Config`](../../../../reference/core/latest/glue42%20web/index.html#Config) object in which you can specify settings regarding the Glue42 APIs.
 
 Below is an example of initializing the Glue42 Web library with the default settings:
 

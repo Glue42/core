@@ -42,7 +42,7 @@ The [Live Examples](#live_examples) section demonstrates using the Window Manage
 
 The Window Management API is accessible through the [`glue.windows`](../../../reference/core/latest/windows/index.html) object.
 
-To open a new Glue42 Window, use the [`open()`](../../../reference/core/latest/windows/index.html#!API-open) method:
+To open a new Glue42 Window, use the [`open()`](../../../reference/core/latest/windows/index.html#API-open) method:
 
 ```javascript
 const name = "glue42-docs";
@@ -56,13 +56,13 @@ const options = {
 const g42Window = await glue.windows.open(name, url, options);
 ```
 
-The `name` and `url` parameters are required. The window `name` must be unique. The third parameter is an optional [`Settings`](../../../reference/core/latest/windows/index.html#!Settings) object which specifies various settings for the new Glue42 Window - bounds, relative position and context.
+The `name` and `url` parameters are required. The window `name` must be unique. The third parameter is an optional [`Settings`](../../../reference/core/latest/windows/index.html#Settings) object which specifies various settings for the new Glue42 Window - bounds, relative position and context.
 
 *For all available settings when opening a new Glue42 Window, see the [Window Settings](#window_settings) section.*
 
 ### Opening PDF Files
 
-To open a PDF file in a Glue42 Window, use the [`open()`](../../../reference/core/latest/windows/index.html#!API-open) method. Pass the URL to the PDF file and optionally specify parameters in the URL for opening the PDF file:
+To open a PDF file in a Glue42 Window, use the [`open()`](../../../reference/core/latest/windows/index.html#API-open) method. Pass the URL to the PDF file and optionally specify parameters in the URL for opening the PDF file:
 
 ```javascript
 // This will open the PDF file with the PDF toolbar turned off.
@@ -114,11 +114,11 @@ The following table lists the possible values for the `view` parameter:
 
 ## Finding Windows
 
-All functions for finding Glue42 Windows return a [`WebWindow`](../../../reference/core/latest/windows/index.html#!WebWindow) object (or a collection of such objects).
+All functions for finding Glue42 Windows return a [`WebWindow`](../../../reference/core/latest/windows/index.html#WebWindow) object (or a collection of such objects).
 
 ### Listing
 
-To obtain a collection of all Glue42 Windows, use the [`list()`](../../../reference/core/latest/windows/index.html#!API-list) method:
+To obtain a collection of all Glue42 Windows, use the [`list()`](../../../reference/core/latest/windows/index.html#API-list) method:
 
 ```javascript
 const allG42Windows = glue.windows.list();
@@ -126,7 +126,7 @@ const allG42Windows = glue.windows.list();
 
 ### Current Window
 
-To get a reference to the current window, use the [`my()`](../../../reference/core/latest/windows/index.html#!API-my) method:
+To get a reference to the current window, use the [`my()`](../../../reference/core/latest/windows/index.html#API-my) method:
 
 ```javascript
 const currentWindow = glue.windows.my();
@@ -134,7 +134,7 @@ const currentWindow = glue.windows.my();
 
 ### By ID
 
-To find a window by ID, use the [`findById()`](../../../reference/core/latest/windows/index.html#!API-findById) method:
+To find a window by ID, use the [`findById()`](../../../reference/core/latest/windows/index.html#API-findById) method:
 
 ```javascript
 const ID = "2506_04";
@@ -143,7 +143,7 @@ const g42Window = glue.windows.findById(ID);
 
 ## Window Settings
 
-Provide window settings per window by passing a [`Settings`](../../../reference/core/latest/windows/index.html#!Settings) object to the [`open()`](../../../reference/core/latest/windows/index.html#!API-open) method:
+Provide window settings per window by passing a [`Settings`](../../../reference/core/latest/windows/index.html#Settings) object to the [`open()`](../../../reference/core/latest/windows/index.html#API-open) method:
 
 ```javascript
 const name = "glue42-docs";
@@ -191,17 +191,17 @@ await glue.windows.open(name, url, options);
 
 ## Window Operations
 
-The Window Management API enables you to control a [`WebWindow`](../../../reference/core/latest/windows/index.html#!WebWindow) instance programmatically. Access or change various window settings using the provided properties and methods.
+The Window Management API enables you to control a [`WebWindow`](../../../reference/core/latest/windows/index.html#WebWindow) instance programmatically. Access or change various window settings using the provided properties and methods.
 
 ### Title
 
-To get the title of a Glue42 Window, use the [`getTitle()`](../../../reference/core/latest/windows/index.html#!WebWindow-getTitle) method of a [`WebWindow`](../../../reference/core/latest/windows/index.html#!WebWindow) instance:
+To get the title of a Glue42 Window, use the [`getTitle()`](../../../reference/core/latest/windows/index.html#WebWindow-getTitle) method of a [`WebWindow`](../../../reference/core/latest/windows/index.html#WebWindow) instance:
 
 ```javascript
 const winTitle = await myWindow.getTitle();
 ```
 
-To set the title of a window, use the [`setTitle()`](../../../reference/core/latest/windows/index.html#!WebWindow-setTitle) method:
+To set the title of a window, use the [`setTitle()`](../../../reference/core/latest/windows/index.html#WebWindow-setTitle) method:
 
 ```javascript
 await myWindow.setTitle("New Title");
@@ -209,7 +209,7 @@ await myWindow.setTitle("New Title");
 
 ### URL
 
-To get the URL of a Glue42 Window, use the [`getURL()`](../../../reference/core/latest/windows/index.html#!WebWindow-getURL) method of a [`WebWindow`](../../../reference/core/latest/windows/index.html#!WebWindow) instance:
+To get the URL of a Glue42 Window, use the [`getURL()`](../../../reference/core/latest/windows/index.html#WebWindow-getURL) method of a [`WebWindow`](../../../reference/core/latest/windows/index.html#WebWindow) instance:
 
 ```javascript
 const winURL = await myWindow.getURL();
@@ -219,13 +219,13 @@ const winURL = await myWindow.getURL();
 
 The bounds of a window describe its position (top and left coordinates) and size (width and height) on the screen.
 
-To get the bounds of a Glue42 Window, use the [`getBounds()`](../../../reference/core/latest/windows/index.html#!WebWindow-getBounds) method of a [`WebWindow`](../../../reference/core/latest/windows/index.html#!WebWindow) instance:
+To get the bounds of a Glue42 Window, use the [`getBounds()`](../../../reference/core/latest/windows/index.html#WebWindow-getBounds) method of a [`WebWindow`](../../../reference/core/latest/windows/index.html#WebWindow) instance:
 
 ```javascript
 const winBounds = await myWindow.getBounds();
 ```
 
-To move or resize a Glue42 Window, use the [`moveTo()`](../../../reference/core/latest/windows/index.html#!WebWindow-moveTo), [`resizeTo()`](../../../reference/core/latest/windows/index.html#!WebWindow-resizeTo) or [`moveResize()`](../../../reference/core/latest/windows/index.html#!WebWindow-moveResize) methods.
+To move or resize a Glue42 Window, use the [`moveTo()`](../../../reference/core/latest/windows/index.html#WebWindow-moveTo), [`resizeTo()`](../../../reference/core/latest/windows/index.html#WebWindow-resizeTo) or [`moveResize()`](../../../reference/core/latest/windows/index.html#WebWindow-moveResize) methods.
 
 To move a window:
 
@@ -259,7 +259,7 @@ await myWindow.moveResize(bounds);
 
 ### Focus
 
-To bring a window on focus, use the  [`focus()`](../../../reference/core/latest/windows/index.html#!WebWindow-focus) method:
+To bring a window on focus, use the  [`focus()`](../../../reference/core/latest/windows/index.html#WebWindow-focus) method:
 
 ```javascript
 await myWindow.focus();
@@ -269,7 +269,7 @@ await myWindow.focus();
 
 ### Close
 
-To close a Glue42 Window, use the [`close()`](../../../reference/core/latest/windows/index.html#!WebWindow-close) method of a [`WebWindow`](../../../reference/core/latest/windows/index.html#!WebWindow) instance:
+To close a Glue42 Window, use the [`close()`](../../../reference/core/latest/windows/index.html#WebWindow-close) method of a [`WebWindow`](../../../reference/core/latest/windows/index.html#WebWindow) instance:
 
 ```javascript
 await myWindow.close();
@@ -287,7 +287,7 @@ Contexts can be set/passed initially on window creation and updated at runtime. 
 
 ### Get
 
-To get the context of a Glue42 Window, use the [`getContext()`](../../../reference/core/latest/windows/index.html#!WebWindow-getContext) method of a [`WebWindow`](../../../reference/core/latest/windows/index.html#!WebWindow) instance:
+To get the context of a Glue42 Window, use the [`getContext()`](../../../reference/core/latest/windows/index.html#WebWindow-getContext) method of a [`WebWindow`](../../../reference/core/latest/windows/index.html#WebWindow) instance:
 
 ```javascript
 const winContext = await myWindow.getContext();
@@ -295,7 +295,7 @@ const winContext = await myWindow.getContext();
 
 ### Update
 
-To update the context of a Glue42 Window, use the [`updateContext()`](../../../reference/core/latest/windows/index.html#!WebWindow-updateContext) method of a [`WebWindow`](../../../reference/core/latest/windows/index.html#!WebWindow) instance:
+To update the context of a Glue42 Window, use the [`updateContext()`](../../../reference/core/latest/windows/index.html#WebWindow-updateContext) method of a [`WebWindow`](../../../reference/core/latest/windows/index.html#WebWindow) instance:
 
 ```javascript
 const newContext = { glue: 42 };
@@ -307,7 +307,7 @@ This method will update the current context object with the provided properties 
 
 ### Set
 
-To open a Glue42 Window with initially set context, use the `context` property of the [`Settings`](../../../reference/core/latest/windows/index.html#!Settings) object:
+To open a Glue42 Window with initially set context, use the `context` property of the [`Settings`](../../../reference/core/latest/windows/index.html#Settings) object:
 
 ```javascript
 const name = "Glue42 Docs";
@@ -320,7 +320,7 @@ const options = {
 const g42Window = await glue.windows.open(name, url, options);
 ```
 
-To replace the current window context, use the [`setContext()`](../../../reference/core/latest/windows/index.html#!WebWindow-setContext) method of a [`WebWindow`](../../../reference/core/latest/windows/index.html#!WebWindow) instance:
+To replace the current window context, use the [`setContext()`](../../../reference/core/latest/windows/index.html#WebWindow-setContext) method of a [`WebWindow`](../../../reference/core/latest/windows/index.html#WebWindow) instance:
 
 ```javascript
 const newContext = { tick: 42 };
@@ -331,13 +331,13 @@ This method will completely overwrite the existing context object, replacing its
 
 ## Window Events
 
-Methods for tracking Glue42 Window events are available at top-level of the Window Management API and on the [`WebWindow`](../../../reference/core/latest/windows/index.html#!WebWindow) instance. Below are described the available window events with examples of how to handle them.
+Methods for tracking Glue42 Window events are available at top-level of the Window Management API and on the [`WebWindow`](../../../reference/core/latest/windows/index.html#WebWindow) instance. Below are described the available window events with examples of how to handle them.
 
 *The window event methods return an unsubscribe function which you can use to stop tracking the respective event.*
 
 ### Window Added/Removed
 
-To track the opening and closing of Glue42 Windows, use the [`onWindowAdded()`](../../../reference/core/latest/windows/index.html#!API-onWindowAdded) and [`onWindowRemoved()`](../../../reference/core/latest/windows/index.html#!API-onWindowRemoved) methods of the Window Management API and pass handlers for the respective events:
+To track the opening and closing of Glue42 Windows, use the [`onWindowAdded()`](../../../reference/core/latest/windows/index.html#API-onWindowAdded) and [`onWindowRemoved()`](../../../reference/core/latest/windows/index.html#API-onWindowRemoved) methods of the Window Management API and pass handlers for the respective events:
 
 ```javascript
 const handlers = {
@@ -356,7 +356,7 @@ glue.windows.onWindowRemoved(handlers.onRemoved);
 
 ### Context Update
 
-To track updates of the context of a Glue42 Window, use the [`onContextUpdated()`](../../../reference/core/latest/windows/index.html#!WebWindow-onContextUpdated) method of a [`WebWindow`](../../../reference/core/latest/windows/index.html#!WebWindow) instance and pass an event handler:
+To track updates of the context of a Glue42 Window, use the [`onContextUpdated()`](../../../reference/core/latest/windows/index.html#WebWindow-onContextUpdated) method of a [`WebWindow`](../../../reference/core/latest/windows/index.html#WebWindow) instance and pass an event handler:
 
 ```javascript
 const contextUpdatedHandler = (context, g42window) => {
@@ -370,7 +370,7 @@ myWindow.onContextUpdated(contextUpdatedHandler);
 
 ### Opening Windows
 
-The application below demonstrates opening a new window with basic configuration (context and size) by using the [`open()`](../../../reference/core/latest/windows/index.html#!API-open) method of the Window Management API.
+The application below demonstrates opening a new window with basic configuration (context and size) by using the [`open()`](../../../reference/core/latest/windows/index.html#API-open) method of the Window Management API.
 
 Use the input fields in Application A to assign a name (required) to the new window and set the window context and size. Click the "Open Window" button to open a new window.
 
@@ -395,7 +395,7 @@ example 11 -->
 
 The applications below demonstrate handling window events - opening and closing windows.
 
-On load, Application A and Application B subscribe for the [`onWindowAdded()`](../../../reference/core/latest/windows/index.html#!API-onWindowAdded) and the [`onWindowRemoved()`](../../../reference/core/latest/windows/index.html#!API-onWindowRemoved) events of the Window Management API and will print to the page every time a new window is opened or an existing window is closed. 
+On load, Application A and Application B subscribe for the [`onWindowAdded()`](../../../reference/core/latest/windows/index.html#API-onWindowAdded) and the [`onWindowRemoved()`](../../../reference/core/latest/windows/index.html#API-onWindowRemoved) events of the Window Management API and will print to the page every time a new window is opened or an existing window is closed. 
 
 Open several new windows by using the input fields in Application A to assign a name (required) to the new window and set the window context and size. Click the "Open Window" button to open a new window.
 

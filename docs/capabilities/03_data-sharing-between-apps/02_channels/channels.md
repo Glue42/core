@@ -37,7 +37,7 @@ Different applications on the same Channel may use different parts of the data. 
 
 ## Defining Channels
 
-The Glue42 Channels are enabled by default for all applications in a **Glue42 Core** project. If you decide to migrate your app to [**Glue42 Enterprise**](https://docs.glue42.com/getting-started/what-is-glue42/general-overview/index.html), no code change will be necessary as the Glue42 Channels will be automatically enabled for your app there as well.
+The Glue42 Channels are enabled by default for all applications in a [**Glue42 Core**](https://glue42.com/core/) project. If you decide to migrate your app to [**Glue42 Enterprise**](https://glue42.com/enterprise/), no code change will be necessary as the Glue42 Channels will be automatically enabled for your app there as well.
 
 Use the `channels` property of the configuration object when initializing the Glue42 [Web Platform](https://www.npmjs.com/package/@glue42/web-platform) library in the [Main application](../../../developers/core-concepts/web-platform/overview/index.html) to define the Channels that will be available for your project:
 
@@ -76,7 +76,7 @@ The [Live Examples](#live_examples) section demonstrates using the Channels API.
 
 The Channels API is accessible through the [`glue.channels`](../../../reference/core/latest/channels/index.html) object.
 
-To get the name of the Channel your application is currently on, use the [`my()`](../../../reference/core/latest/channels/index.html#!API-my) method:
+To get the name of the Channel your application is currently on, use the [`my()`](../../../reference/core/latest/channels/index.html#API-my) method:
 
 ```javascript
 const myChannel = glue.channels.my();
@@ -84,7 +84,7 @@ const myChannel = glue.channels.my();
 
 ## All Channels
 
-To get a list of all Channel names, use the [`all()`](../../../reference/core/latest/channels/index.html#!API-all) method:
+To get a list of all Channel names, use the [`all()`](../../../reference/core/latest/channels/index.html#API-all) method:
 
 ```javascript
 const channelNames = await glue.channels.all();
@@ -92,13 +92,13 @@ const channelNames = await glue.channels.all();
 
 ## Joining or Leaving a Channel
 
-To make your application join a Channel programmatically, use the [`join()`](../../../reference/core/latest/channels/index.html#!API-join) method and specify the name of the Channel to join:
+To make your application join a Channel programmatically, use the [`join()`](../../../reference/core/latest/channels/index.html#API-join) method and specify the name of the Channel to join:
 
 ```javascript
 await glue.channels.join("Red");
 ```
 
-To leave the Channel your application is currently on, use the [`leave()`](../../../reference/core/latest/channels/index.html#!API-leave) method:
+To leave the Channel your application is currently on, use the [`leave()`](../../../reference/core/latest/channels/index.html#API-leave) method:
 
 ```javascript
 await glue.channels.leave();
@@ -106,13 +106,13 @@ await glue.channels.leave();
 
 ## Retrieving Channel Context
 
-To get the context of a Channel, use the [`get()`](../../../reference/core/latest/channels/index.html#!API-get) method which accepts a Channel name as a required parameter:
+To get the context of a Channel, use the [`get()`](../../../reference/core/latest/channels/index.html#API-get) method which accepts a Channel name as a required parameter:
 
 ```javascript
 const data = await glue.channels.get("Green");
 ```
 
-To get a list of the contexts of all Channels, use the [`list()`](../../../reference/core/latest/channels/index.html#!API-list) method:
+To get a list of the contexts of all Channels, use the [`list()`](../../../reference/core/latest/channels/index.html#API-list) method:
 
 ```javascript
 const channelContexts = await glue.channels.list();
@@ -120,7 +120,7 @@ const channelContexts = await glue.channels.list();
 
 ## Subscribing for Data
 
-To track the data in the current Channel, use the [`subscribe()`](../../../reference/core/latest/channels/index.html#!API-subscribe) method:
+To track the data in the current Channel, use the [`subscribe()`](../../../reference/core/latest/channels/index.html#API-subscribe) method:
 
 ```javascript
 const handler = (data, channelInfo) => {
@@ -139,7 +139,7 @@ The callback will be invoked in three cases:
 - the user has switched the Channel and you are receiving a snapshot of the new Channel data; 
 - your app is not joined to a Channel anymore (e.g., the user has deselected the current Channel). In this case, both `data` and `channelInfo` will be `undefined`;
 
-To subscribe for updates from a specific Channel, use the [`subscribeFor()`](../../../reference/core/latest/channels/index.html#!API-subscribeFor) method:
+To subscribe for updates from a specific Channel, use the [`subscribeFor()`](../../../reference/core/latest/channels/index.html#API-subscribeFor) method:
 
 ```javascript
 const channelName = "Green";
@@ -163,7 +163,7 @@ unsubscribe();
 
 ## Publishing Data
 
-To update the context of the Channel, use [`publish()`](../../../reference/core/latest/channels/index.html#!API-publish). The `publish()` method accepts two parameters - data to publish (required) and an optional Channel ID specifying which Channel context to update. If you do not specify a Channel ID, the current Channel will be updated.
+To update the context of the Channel, use [`publish()`](../../../reference/core/latest/channels/index.html#API-publish). The `publish()` method accepts two parameters - data to publish (required) and an optional Channel ID specifying which Channel context to update. If you do not specify a Channel ID, the current Channel will be updated.
 
 Updating the current Channel:
 
@@ -184,11 +184,11 @@ await glue.channels.publish(data, channelName);
 
 Note that a Channel may contain multiple data structures, e.g. `RIC` and `clientId`. When executing the code above, only the `RIC` field will be updated, leaving the other fields of the context unchanged.
 
-The [`publish()`](../../../reference/core/latest/channels/index.html#!API-publish) method will throw an exception if you are not on a Channel and try to publish data.
+The [`publish()`](../../../reference/core/latest/channels/index.html#API-publish) method will throw an exception if you are not on a Channel and try to publish data.
 
 ## Channel Events
 
-If you want to monitor how your app moves between Channels, subscribe for updates with the [`onChanged()`](../../../reference/core/latest/channels/index.html#!API-onChanged) method:
+If you want to monitor how your app moves between Channels, subscribe for updates with the [`onChanged()`](../../../reference/core/latest/channels/index.html#API-onChanged) method:
 
 ```javascript
 const handler = (newChannel) => {
@@ -209,7 +209,7 @@ glue.channels.onChanged(handler);
 
 ### Discover and Navigate
 
-The application below demonstrates how to navigate through the available Channels using the [`join()`](../../../reference/core/latest/channels/index.html#!API-join) and [`leave()`](../../../reference/core/latest/channels/index.html#!API-leave) methods of the Channels API. An application can be part of only one Channel at a time. The example application also demonstrates how to get the context (`name`, `meta`, `data`) of any Channel using the [`get()`](../../../reference/core/latest/channels/index.html#!API-get) method. Discovering the available Channels is achieved using the [`all()`](../../../reference/core/latest/channels/index.html#!API-all) method.
+The application below demonstrates how to navigate through the available Channels using the [`join()`](../../../reference/core/latest/channels/index.html#API-join) and [`leave()`](../../../reference/core/latest/channels/index.html#API-leave) methods of the Channels API. An application can be part of only one Channel at a time. The example application also demonstrates how to get the context (`name`, `meta`, `data`) of any Channel using the [`get()`](../../../reference/core/latest/channels/index.html#API-get) method. Discovering the available Channels is achieved using the [`all()`](../../../reference/core/latest/channels/index.html#API-all) method.
 
 The background color of the example application reflects the color of the current Channel. Click on the "Get" button to log the context data of the selected Channel.
 
@@ -222,7 +222,7 @@ The background color of the example application reflects the color of the curren
 
 ### Publish and Subscribe
 
-Once multiple applications are on the same Channel, they can communicate by publishing and subscribing data to the Channel. This is achieved through the shared context data object that the applications monitor using the [`subscribe()`](../../../reference/core/latest/channels/index.html#!API-subscribe) method of the Channels API and/or update using the [`publish()`](../../../reference/core/latest/channels/index.html#!API-publish) method. The callback provided to `subscribe()` is invoked when the context of the Channel that the application is currently on has been updated.
+Once multiple applications are on the same Channel, they can communicate by publishing and subscribing data to the Channel. This is achieved through the shared context data object that the applications monitor using the [`subscribe()`](../../../reference/core/latest/channels/index.html#API-subscribe) method of the Channels API and/or update using the [`publish()`](../../../reference/core/latest/channels/index.html#API-publish) method. The callback provided to `subscribe()` is invoked when the context of the Channel that the application is currently on has been updated.
 
 When the two applications below are on the same Channel, App B can publish data that is received and logged by App A if it has subscribed for updates of the current Channel. Note that if the applications are not on the same Channel, or if App A has not subscribed for updates, the applications will not exchange any data.
 
@@ -235,9 +235,9 @@ When the two applications below are on the same Channel, App B can publish data 
 
 ### Channel Selector UI
 
-To allow the users of your **Glue42 Core** application to use the available Channels, you will need to provide them with some sort of UI. Below are examples of Channel Selector widgets developed using the [Channels API](../../../reference/core/latest/channels/index.html) and some of the most popular libraries and frameworks.
+To allow the users of your [**Glue42 Core**](https://glue42.com/core/) application to use the available Channels, you will need to provide them with some sort of UI. Below are examples of Channel Selector widgets developed using the [Channels API](../../../reference/core/latest/channels/index.html) and some of the most popular libraries and frameworks.
 
-*Note that these widgets are only examples. Feel free to use them as they are or as a reference to create your own Channel Selector. **Glue42 Enterprise** ships with a fully functioning Channel Selector that all apps with enabled Glue42 Channels can use.*
+*Note that these widgets are only examples. Feel free to use them as they are or as a reference to create your own Channel Selector. [**Glue42 Enterprise**](https://glue42.com/enterprise/) ships with a fully functioning Channel Selector that all apps with enabled Glue42 Channels can use.*
 
 #### JavaScript
 

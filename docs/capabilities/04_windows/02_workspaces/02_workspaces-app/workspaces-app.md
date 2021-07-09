@@ -1,10 +1,10 @@
 ## Workspaces App
 
-The Workspaces App (or [Frame](../overview/index.html#workspaces_concepts-frame)) is mandatory for using any Workspaces functionality. For **Glue42 Core** projects you have to create your own Workspaces App using the [@glue42/workspaces-ui-react](https://www.npmjs.com/package/@glue42/workspaces-ui-react) library which provides all functionalities necessary for building a Workspaces App as a single React component - `<Workspaces />`. The `<Workspaces />` component provides extensibility points for passing custom components to it and can also be wrapped in other components (see [Workspaces Component](#workspaces_component)). The library enables you to use custom system popups, create your own popups from HTML elements (see [Custom Popups](#custom_popups)) and compose the content of a Workspace (see [Composing Workspace Content](#composing_workspace_content)).
+The Workspaces App (or [Frame](../overview/index.html#workspaces_concepts-frame)) is mandatory for using any Workspaces functionality. For [**Glue42 Core**](https://glue42.com/core/) projects you have to create your own Workspaces App using the [@glue42/workspaces-ui-react](https://www.npmjs.com/package/@glue42/workspaces-ui-react) library which provides all functionalities necessary for building a Workspaces App as a single React component - `<Workspaces />`. The `<Workspaces />` component provides extensibility points for passing custom components to it and can also be wrapped in other components (see [Workspaces Component](#workspaces_component)). The library enables you to use custom system popups, create your own popups from HTML elements (see [Custom Popups](#custom_popups)) and compose the content of a Workspace (see [Composing Workspace Content](#composing_workspace_content)).
 
 Hot module reloading is supported, but keep in mind that each refresh closes all apps and Workspaces in the Frame.
 
-*Use the [Workspaces App template](https://github.com/Glue42/templates/tree/master/workspaces-react) provided in the **Glue42 Core** GitHub repo as a startup skeleton to create and customize your own Workspaces App.*
+*Use the [Workspaces App template](https://github.com/Glue42/templates/tree/master/workspaces-react) provided in the [**Glue42 Core**](https://glue42.com/core/) GitHub repo as a startup skeleton to create and customize your own Workspaces App.*
 
 ## Header Area Zones
 
@@ -373,7 +373,7 @@ The other way to create a popup is to implement a custom popup element and use t
 
 - `useWorkspacePopup()` - accepts the ref object to the HTML element of the popup as a parameter;
 
-*Note that this hook is meant to be used mainly in **Glue42 Enterprise** projects to ensure Windows 7 compatibility. It returns an array of two functions - the first one is to manually notify **Glue42 Enterprise** that the popup has been resized and the second one is to manually notify **Glue42 Enterprise** that the popup has been hidden. In a **Glue42 Core** project these functions are irrelevant and won't throw an error if used.*
+*Note that this hook is meant to be used mainly in [**Glue42 Enterprise**](https://glue42.com/enterprise/) projects to ensure Windows 7 compatibility. It returns an array of two functions - the first one is to manually notify [**Glue42 Enterprise**](https://glue42.com/enterprise/) that the popup has been resized and the second one is to manually notify [**Glue42 Enterprise**](https://glue42.com/enterprise/) that the popup has been hidden. In a [**Glue42 Core**](https://glue42.com/core/) project these functions are irrelevant and won't throw an error if used.*
 
 ```javascript
 const popupRef = React.createRef();

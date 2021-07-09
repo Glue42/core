@@ -1,8 +1,8 @@
 ## Overview
 
-This tutorial is designed to walk you through every aspect of **Glue42 Core** - setting up a project, initializing a [Main Application](../../developers/core-concepts/web-platform/overview/index.html), multiple [Web Client](../../developers/core-concepts/web-client/overview/index.html) apps and extending your applications with [Shared Contexts](../../capabilities/data-sharing-between-apps/shared-contexts/index.html), [Interop](../../capabilities/data-sharing-between-apps/interop/index.html), [Window Management](../../capabilities/windows/window-management/index.html), [Channels](../../capabilities/data-sharing-between-apps/channels/index.html), [Application Management](../../capabilities/application-management/index.html) and [Workspaces](../../capabilities/windows/workspaces/overview/index.html) capabilities.
+This tutorial is designed to walk you through every aspect of [**Glue42 Core**](https://glue42.com/core/) - setting up a project, initializing a [Main Application](../../developers/core-concepts/web-platform/overview/index.html), multiple [Web Client](../../developers/core-concepts/web-client/overview/index.html) apps and extending your applications with [Shared Contexts](../../capabilities/data-sharing-between-apps/shared-contexts/index.html), [Interop](../../capabilities/data-sharing-between-apps/interop/index.html), [Window Management](../../capabilities/windows/window-management/index.html), [Channels](../../capabilities/data-sharing-between-apps/channels/index.html), [Application Management](../../capabilities/application-management/index.html) and [Workspaces](../../capabilities/windows/workspaces/overview/index.html) capabilities.
 
-This guide will show you how to use **Glue42 Core** in an Angular application using the [`@glue42/ng`](https://www.npmjs.com/package/@glue42/ng) library. If you haven't checked out the [Vanilla JS](../javascript/index.html) tutorial, we recommend going through that one first, as there you will get a better understanding of Glue42 Core without the added complexity level of a web framework. 
+This guide will show you how to use [**Glue42 Core**](https://glue42.com/core/) in an Angular application using the [`@glue42/ng`](https://www.npmjs.com/package/@glue42/ng) library. If you haven't checked out the [Vanilla JS](../javascript/index.html) tutorial, we recommend going through that one first, as there you will get a better understanding of [**Glue42 Core**](https://glue42.com/core/) without the added complexity level of a web framework. 
 
 ## Introduction
 
@@ -22,7 +22,7 @@ It is also recommended to have the [Web Platform](../../developers/core-concepts
 
 ## Tutorial Structure
 
-The tutorial code is located in the **Glue42 Core** [**GitHub repo**](https://github.com/Glue42/core). There you will find a `/tutorials` directory with the following structure:
+The tutorial code is located in the [**Glue42 Core**](https://glue42.com/core/) [**GitHub repo**](https://github.com/Glue42/core). There you will find a `/tutorials` directory with the following structure:
 
 ```cmd
 /tutorials
@@ -48,11 +48,11 @@ The tutorial code is located in the **Glue42 Core** [**GitHub repo**](https://gi
 | `/javascript`, `/react` and `/angular` | Contain the starting files for the tutorials and also a full solution for each of them. |
 | `/rest-server` | A simple server used in the tutorials to serve the necessary `JSON` data. |
 
-**Glue42 Core** is an open-source project, so all feedback and contributions, both to the code base and the tutorials, are welcome.
+[**Glue42 Core**](https://glue42.com/core/) is an open-source project, so all feedback and contributions, both to the code base and the tutorials, are welcome.
 
 ## 1. Initial Setup
 
-Clone the **Glue42 Core** [**GitHub repo**](https://github.com/Glue42/core) to get the tutorial files.
+Clone the [**Glue42 Core**](https://glue42.com/core/) [**GitHub repo**](https://github.com/Glue42/core) to get the tutorial files.
 
 ### 1.1. Start Files
 
@@ -114,7 +114,7 @@ This will launch the server at port 8080.
 
 ### 2.1. Main Application
 
-Every **Glue42 Core** project *must have a single* central application called [Main Application](../../developers/core-concepts/web-platform/overview/index.html) or Web Platform app. In a real-world scenario this would be an application used for discovering and listing available applications, Workspaces, handling notifications and much more. However, your goal now is to learn about all these aspects with as little complexity as possible. That's why the **Clients** app will serve as your Main application. The users will open the **Clients** app and from there they will be able to click on a client and see their stocks and so on.
+Every [**Glue42 Core**](https://glue42.com/core/) project *must have a single* central application called [Main Application](../../developers/core-concepts/web-platform/overview/index.html) or Web Platform app. In a real-world scenario this would be an application used for discovering and listing available applications, Workspaces, handling notifications and much more. However, your goal now is to learn about all these aspects with as little complexity as possible. That's why the **Clients** app will serve as your Main application. The users will open the **Clients** app and from there they will be able to click on a client and see their stocks and so on.
 
 Setting up a Main application is just as simple as installing a new npm package and calling a function. Go to the **Clients** app base directory and run:
 
@@ -124,7 +124,7 @@ npm install --save @glue42/ng
 
 The `@glue42/ng` library comes with the latest [`@glue42/web`](https://www.npmjs.com/package/@glue42/web) and [`@glue42/web-platform`](https://www.npmjs.com/package/@glue42/web-platform) packages, so you don't have to add any additional dependencies.
 
-Next, import the `Glue42Ng` module and the `GlueWebPlatform` factory function in the **Clients**'s root `AppModule`. Call the `.forRoot()` method of `Glue42Ng` and define a config object with a single property `webPlatform` and pass the `GlueWebPlatform` factory function:
+Next, import the `Glue42Ng` module and the `GlueWebPlatform` factory function in the **Clients**'s root `AppModule`. Call the `forRoot()` method of `Glue42Ng` and define a config object with a single property `webPlatform` and pass the `GlueWebPlatform` factory function:
 
 ```javascript
 ...
@@ -350,7 +350,7 @@ Now, when you click on a stock, the new window will open with the specified posi
 
 ## 4. Interop
 
-In this section you will use some of the functionalities provided by the **Glue42 Core** [**Interop API**](../../reference/core/latest/interop/index.html).
+In this section you will use some of the functionalities provided by the [**Glue42 Core**](https://glue42.com/core/) [**Interop API**](../../reference/core/latest/interop/index.html).
 
 ### 4.1. Registering Interop Methods and Streams
 
@@ -819,4 +819,4 @@ Now, when you can open several instances of the **Stocks** app and keep them on 
 
 ## Congratulations
 
-You have successfully completed the **Glue42 Core** Angular tutorial! See also the [JavaScript](../javascript/index.html) and [React](../react/index.html) tutorials for **Glue42 Core**.
+You have successfully completed the [**Glue42 Core**](https://glue42.com/core/) Angular tutorial! See also the [JavaScript](../javascript/index.html) and [React](../react/index.html) tutorials for [**Glue42 Core**](https://glue42.com/core/).

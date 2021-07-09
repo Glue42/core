@@ -13,14 +13,14 @@ The [Live Examples](#live_examples) section demonstrates using the Shared Contex
 
 The Shared Contexts API is accessible through the [`glue.contexts`](../../../reference/core/latest/shared%20contexts/index.html) object.
 
-To get the names of all currently available shared contexts, use the [`all()`](../../../reference/core/latest/shared%20contexts/index.html#!API-all) method:
+To get the names of all currently available shared contexts, use the [`all()`](../../../reference/core/latest/shared%20contexts/index.html#API-all) method:
 
 ```javascript
 // Returns a string array with the available context names.
 const availableContexts = glue.contexts.all();
 ```
 
-To get the value of a specific context object, use the [`get()`](../../../reference/core/latest/shared%20contexts/index.html#!API-get) method:
+To get the value of a specific context object, use the [`get()`](../../../reference/core/latest/shared%20contexts/index.html#API-get) method:
 
 ```javascript
 const data = await glue.contexts.get("app-styling");
@@ -28,7 +28,7 @@ const data = await glue.contexts.get("app-styling");
 
 ## Updating a Context
 
-Use the [`update()`](../../../reference/core/latest/shared%20contexts/index.html#!API-update) method to create a new shared context or update the properties of an existing shared context. New properties (context keys) will be added, existing ones will be updated, and you can also remove context keys by setting them to `null`.
+Use the [`update()`](../../../reference/core/latest/shared%20contexts/index.html#API-update) method to create a new shared context or update the properties of an existing shared context. New properties (context keys) will be added, existing ones will be updated, and you can also remove context keys by setting them to `null`.
 
 ```javascript
 const contextUpdate = {
@@ -49,7 +49,7 @@ await glue.contexts.update("app-styling", keysToRemove);
 
 ## Replacing a Context
 
-Other than updating a context, you have the option to replace its value completely by using the [`set()`](../../../reference/core/latest/shared%20contexts/index.html#!API-set) method:
+Other than updating a context, you have the option to replace its value completely by using the [`set()`](../../../reference/core/latest/shared%20contexts/index.html#API-set) method:
 
 ```javascript
 const newContext = { backgroundColor: "purple" };
@@ -58,11 +58,11 @@ const newContext = { backgroundColor: "purple" };
 await glue.contexts.set("app-styling", newContext);
 ```
 
-The [`set()`](../../../reference/core/latest/shared%20contexts/index.html#!API-set) method overwrites the existing context object, as opposed to the [`update()`](../../../reference/core/latest/shared%20contexts/index.html#!API-update) method, which only updates the values of its properties.
+The [`set()`](../../../reference/core/latest/shared%20contexts/index.html#API-set) method overwrites the existing context object, as opposed to the [`update()`](../../../reference/core/latest/shared%20contexts/index.html#API-update) method, which only updates the values of its properties.
 
 ## Subscribing for Context Updates
 
-To subscribe for context updates, use the [`subscribe()`](../../../reference/core/latest/shared%20contexts/index.html#!API-subscribe) method. It accepts the name of the context as a first required parameter and a function that will handle the context updates as a second required parameter:
+To subscribe for context updates, use the [`subscribe()`](../../../reference/core/latest/shared%20contexts/index.html#API-subscribe) method. It accepts the name of the context as a first required parameter and a function that will handle the context updates as a second required parameter:
 
 ```javascript
 const handler = (context, delta, removed) => {
@@ -76,7 +76,7 @@ await glue.contexts.subscribe("app-styling", handler);
 
 ## Unsubscribing
 
-The [`subscribe()`](../../../reference/core/latest/shared%20contexts/index.html#!API-subscribe) method returns a `Promise` which resolves with a function you can use to unsubscribe from context updates:
+The [`subscribe()`](../../../reference/core/latest/shared%20contexts/index.html#API-subscribe) method returns a `Promise` which resolves with a function you can use to unsubscribe from context updates:
 
 ```javascript
 const unsubscribe = await glue.contexts.subscribe("app-styling", handler);
@@ -86,7 +86,7 @@ unsubscribe();
 
 ## Destroying a Context
 
-To destroy a context object, use the [`destroy()`](../../../reference/core/latest/shared%20contexts/index.html#!API-destroy) method:
+To destroy a context object, use the [`destroy()`](../../../reference/core/latest/shared%20contexts/index.html#API-destroy) method:
 
 ```javascript
 await glue.contexts.destroy("app-styling");
@@ -96,7 +96,7 @@ await glue.contexts.destroy("app-styling");
 
 ### Setting and Getting Context
 
-The applications below demonstrate how to set and get context using the [`get()`](../../../reference/core/latest/shared%20contexts/index.html#!API-get) and [`set()`](../../../reference/core/latest/shared%20contexts/index.html#!API-set) methods of the Shared Contexts API. 
+The applications below demonstrate how to set and get context using the [`get()`](../../../reference/core/latest/shared%20contexts/index.html#API-get) and [`set()`](../../../reference/core/latest/shared%20contexts/index.html#API-set) methods of the Shared Contexts API. 
 
 Create a value in Application B (any string) that will be assigned to a pre-defined property of the context object and set the "G42Core" context by clicking the "Set Context" button. Click "Get Context" in Application A to print the current value of the shared context object.
 
@@ -109,7 +109,7 @@ Create a value in Application B (any string) that will be assigned to a pre-defi
 
 ### Subscribing for Context Updates
 
-The applications below demonstrate how to update a shared context object and how to subscribe for updates of a context by using the [`update()`](../../../reference/core/latest/shared%20contexts/index.html#!API-update) and [`subscribe()`](../../../reference/core/latest/shared%20contexts/index.html#!API-subscribe) methods of the Shared Contexts API. 
+The applications below demonstrate how to update a shared context object and how to subscribe for updates of a context by using the [`update()`](../../../reference/core/latest/shared%20contexts/index.html#API-update) and [`subscribe()`](../../../reference/core/latest/shared%20contexts/index.html#API-subscribe) methods of the Shared Contexts API. 
 
 Click the "Subscribe" button in Application A to subscribe for updates of the "G42Core" context. Every time the "G42Core" context changes, the context value will be printed. Create a context value and click the "Update Context" button in Application B to update the "G42Core" context.
 

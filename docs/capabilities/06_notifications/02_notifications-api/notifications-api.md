@@ -2,7 +2,7 @@
 
 The Notifications API is accessible through the [`glue.notifications`](../../../reference/core/latest/notifications/index.html) object.
 
-To raise a notification from your application, use the [`raise()`](../../../reference/core/latest/notifications/index.html#!API-raise) method of the API. The method accepts as an argument a required [`RaiseOptions`](../../../reference/core/latest/notifications/index.html#RaiseOptions) object with settings for the notification you want to raise:
+To raise a notification from your application, use the [`raise()`](../../../reference/core/latest/notifications/index.html#API-raise) method of the API. The method accepts as an argument a required [`RaiseOptions`](../../../reference/core/latest/notifications/index.html#RaiseOptions) object with settings for the notification you want to raise:
 
 ```javascript
 const options = {
@@ -30,7 +30,7 @@ The [`RaiseOptions`](../../../reference/core/latest/notifications/index.html#Rai
 
 | Property | Description |
 |----------|-------------|
-| `actions` | An array of [`NotificationAction`](../../../reference/core/latest/notifications/index.html#!NotificationAction) objects. |
+| `actions` | An array of [`NotificationAction`](../../../reference/core/latest/notifications/index.html#NotificationAction) objects. |
 | `title` | The title of the notification. |
 | `clickInterop` | Accepts an [`InteropActionSettings`](../../../reference/core/latest/notifications/index.html#InteropActionSettings) object as a value. Use this property to [invoke an Interop method](../../data-sharing-between-apps/interop/index.html#method_invocation) when the user clicks on the notification. You can specify arguments for the method and an [Interop target](../../data-sharing-between-apps/interop/index.html#method_invocation-targeting). |
 
@@ -38,7 +38,7 @@ The [`RaiseOptions`](../../../reference/core/latest/notifications/index.html#Rai
 
 ### Standard Click Handler
 
-The `raise()` method returns a [`Notification`](../../../reference/core/latest/notifications/index.html#!Notification) object. Use its `onshow` and `onclick` properties to specify callbacks that will be invoked respectively when the notification is shown or when the user clicks on the notification:
+The `raise()` method returns a [`Notification`](../../../reference/core/latest/notifications/index.html#Notification) object. Use its `onshow` and `onclick` properties to specify callbacks that will be invoked respectively when the notification is shown or when the user clicks on the notification:
 
 ```javascript
 const options = {
@@ -104,7 +104,7 @@ You can create action buttons for the notification. When the user clicks on an a
 
 ![Actions](../../../images/notifications/actions.png)
 
-To define action buttons, use the `actions` property of the [`RaiseOptions`](../../../reference/core/latest/notifications/index.html#RaiseOptions) object when creating a notification. The `actions` property accepts an array of [`InteropActionSettings`](../../../reference/core/latest/notifications/index.html#!InteropActionSettings) objects:
+To define action buttons, use the `actions` property of the [`RaiseOptions`](../../../reference/core/latest/notifications/index.html#RaiseOptions) object when creating a notification. The `actions` property accepts an array of [`InteropActionSettings`](../../../reference/core/latest/notifications/index.html#InteropActionSettings) objects:
 
 ```javascript
 const options = {
@@ -171,7 +171,7 @@ const notification = await glue.notifications.raise(notificationOptions);
 
 ## Default Notification Handlers
 
-In each **Glue42 Core** [Web Client](../../../developers/core-concepts/web-client/overview/index.html) app (including the [Main app](../../../developers/core-concepts/web-platform/overview/index.html)) you can define default handlers for notification and action clicks. The appropriate handlers will be called when the notification or the action is clicked. Use the `notification` property of the configuration object for the [Glue42 Web](https://www.npmjs.com/package/@glue42/web) library to specify default notification handlers.
+In each [**Glue42 Core**](https://glue42.com/core/) [Web Client](../../../developers/core-concepts/web-client/overview/index.html) app (including the [Main app](../../../developers/core-concepts/web-platform/overview/index.html)) you can define default handlers for notification and action clicks. The appropriate handlers will be called when the notification or the action is clicked. Use the `notification` property of the configuration object for the [Glue42 Web](https://www.npmjs.com/package/@glue42/web) library to specify default notification handlers.
 
 Web Client apps:
 
@@ -215,7 +215,7 @@ const { glue } = await GlueWebPlatform(config);
 
 An often neglected UX element is the notification permission request. Usually websites ask for notifications permission as soon as the user lands on the site which in most cases leads to a rejection by the user, because they don't know whether they'll be interested in receiving notifications from the site. Generally, users avoid notifications if they aren't absolutely sure they want to receive them. To make matters worse, once a user declines the request, undoing the rejection becomes complicated as it can't be done programmatically and requires the user to manually find the relevant browser setting, find the site in question and unblock it from sending notifications.
 
-This is the reason why **Glue42 Core** won't request a permission on startup. A permission will be requested when a [`raise()`](../../../reference/core/latest/notifications/index.html#!API-raise) call is made or when the dedicated [`requestPermission()`](../../../reference/core/latest/notifications/index.html#!API-requestPermission) method is used:
+This is the reason why [**Glue42 Core**](https://glue42.com/core/) won't request a permission on startup. A permission will be requested when a [`raise()`](../../../reference/core/latest/notifications/index.html#API-raise) call is made or when the dedicated [`requestPermission()`](../../../reference/core/latest/notifications/index.html#API-requestPermission) method is used:
 
 ```javascript
 // Returns a boolean value.

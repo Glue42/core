@@ -4,7 +4,7 @@
 
 ## FDC3 for Glue42 Core
 
-This guide explains how to run an FDC3 compliant app in a **Glue42 Core** project. For detailed information on the FDC3 API itself, see the [FDC3 documentation](https://fdc3.finos.org/docs/next/api/overview).
+This guide explains how to run an FDC3 compliant app in a [**Glue42 Core**](https://glue42.com/core/) project. For detailed information on the FDC3 API itself, see the [FDC3 documentation](https://fdc3.finos.org/docs/next/api/overview).
 
 ### Initialization
 
@@ -14,7 +14,7 @@ The [`@glue42/fdc3`](https://www.npmjs.com/package/@glue42/fdc3) library is the 
 <script src="https://unpkg.com/@glue42/fdc3@latest/dist/fdc3-glue42.js"></script>
 ```
 
-The Glue42 FDC3 library determines internally the environment it runs in (**Glue42 Core** or **Glue42 Enterprise**) and initializes the correct Glue42 library. In a **Glue42 Core** project that can be either [`@glue42/web-platform`](https://www.npmjs.com/package/@glue42/web-platform) or [`@glue42/web`](https://www.npmjs.com/package/@glue42/web) depending on whether your application is a [Main application](../../developers/core-concepts/web-platform/overview/index.html) or [a Web Client](../../developers/core-concepts/web-client/overview/index.html). You don't need to call the `GlueWeb()`/`GlueWebPlatform()` factory functions. The FDC3 API entry point `fdc3` is available as a property of the global `window` object:
+The Glue42 FDC3 library determines internally the environment it runs in ([**Glue42 Core**](https://glue42.com/core/) or [**Glue42 Enterprise**](https://glue42.com/enterprise/)) and initializes the correct Glue42 library. In a [**Glue42 Core**](https://glue42.com/core/) project that can be either [`@glue42/web-platform`](https://www.npmjs.com/package/@glue42/web-platform) or [`@glue42/web`](https://www.npmjs.com/package/@glue42/web) depending on whether your application is a [Main application](../../developers/core-concepts/web-platform/overview/index.html) or [a Web Client](../../developers/core-concepts/web-client/overview/index.html). You don't need to call the `GlueWeb()`/`GlueWebPlatform()` factory functions. The FDC3 API entry point `fdc3` is available as a property of the global `window` object:
 
 ```javascript
 fdc3.addContextListener(context => console.log(`Context: ${context}.`));
@@ -120,9 +120,9 @@ To define Channels, use the [Main application](../../developers/core-concepts/we
 
 All Glue42 Channels are available as FDC3 system Channels.
 
-**Glue42 Core** applications can interact with FDC3 Channels by using the [Shared Contexts API](../../capabilities/data-sharing-between-apps/shared-contexts/index.html). For each FDC3 Channel there is a shared context with the same name. Use the `get()`, `set()`, `update()` and `subscribe()` methods to interact with it.
+[**Glue42 Core**](https://glue42.com/core/) applications can interact with FDC3 Channels by using the [Shared Contexts API](../../capabilities/data-sharing-between-apps/shared-contexts/index.html). For each FDC3 Channel there is a shared context with the same name. Use the `get()`, `set()`, `update()` and `subscribe()` methods to interact with it.
 
-*For a sample Channel Selector widget implementation, see the [Channels: Channel Selector UI](../../capabilities/data-sharing-between-apps/channels/index.html#channel_selector_ui) section, which offers example implementations for the most popular JavaScript frameworks. Note that internally the examples use the **Glue42 Core** Channels API and not the FDC3 Channels API.*
+*For a sample Channel Selector widget implementation, see the [Channels: Channel Selector UI](../../capabilities/data-sharing-between-apps/channels/index.html#channel_selector_ui) section, which offers example implementations for the most popular JavaScript frameworks. Note that internally the examples use the [**Glue42 Core**](https://glue42.com/core/) Channels API and not the FDC3 Channels API.*
 
 *For more information on using Channels, see the [FDC3 Channels API](https://fdc3.finos.org/docs/next/api/ref/Channel).*
 
@@ -154,7 +154,7 @@ To connect to a remote source of application definitions, attach a `remoteSource
 | `requestTimeout` | The request timeout for fetching application definitions from the remote source in milliseconds. Defaults to 3000. |
 
 
-*Note that any application can connect to remote sources and not only the Main application. The application definitions from all remote sources are then merged by the Main application. The remote sources can supply both **Glue42 Core** and FDC3 application definitions. **Glue42 Core** supports both. The only requirement for an FDC3 application definition to be usable in **Glue42 Core** is to have a valid `details.url` or a `url` top-level property in its `manifest` JSON string property.*
+*Note that any application can connect to remote sources and not only the Main application. The application definitions from all remote sources are then merged by the Main application. The remote sources can supply both [**Glue42 Core**](https://glue42.com/core/) and FDC3 application definitions. [**Glue42 Core**](https://glue42.com/core/) supports both. The only requirement for an FDC3 application definition to be usable in [**Glue42 Core**](https://glue42.com/core/) is to have a valid `details.url` or a `url` top-level property in its `manifest` JSON string property.*
 
 Alternatively, you can supply the application definitions locally to the Main application using the `webPlatformConfig.applications.local` property.
 

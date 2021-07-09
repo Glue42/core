@@ -2,15 +2,15 @@
 
 The [Live Examples](#live_examples) section demonstrates using the Workspaces API. To see the code and experiment with it, open the embedded examples directly in [CodeSandbox](https://codesandbox.io).
 
-The [`Frame`](../../../../reference/core/latest/workspaces/index.html#!Frame) is the topmost level window which contains all Workspaces. 
+The [`Frame`](../../../../reference/core/latest/workspaces/index.html#Frame) is the topmost level window which contains all Workspaces. 
 
 ### Frame Reference
 
-There are several ways to get a reference to a [`Frame`](../../../../reference/core/latest/workspaces/index.html#!Frame) instance.
+There are several ways to get a reference to a [`Frame`](../../../../reference/core/latest/workspaces/index.html#Frame) instance.
 
 #### Current Window Frame
 
-Get the [`Frame`](../../../../reference/core/latest/workspaces/index.html#!Frame) of the current window by using the [`getMyFrame()`](../../../../reference/core/latest/workspaces/index.html#!API-getMyFrame) method:
+Get the [`Frame`](../../../../reference/core/latest/workspaces/index.html#Frame) of the current window by using the [`getMyFrame()`](../../../../reference/core/latest/workspaces/index.html#API-getMyFrame) method:
 
 ```javascript
 // This method will return the Frame of the current window.
@@ -20,7 +20,7 @@ const frame = await glue.workspaces.getMyFrame().catch(console.error);
 
 #### All Frames
 
-Get all [`Frame`](../../../../reference/core/latest/workspaces/index.html#!Frame) instances by using the [`getAllFrames()`](../../../../reference/core/latest/workspaces/index.html#!API-getAllFrames) method:
+Get all [`Frame`](../../../../reference/core/latest/workspaces/index.html#Frame) instances by using the [`getAllFrames()`](../../../../reference/core/latest/workspaces/index.html#API-getAllFrames) method:
 
 ```javascript
 // Getting all Frames.
@@ -29,7 +29,7 @@ const allFrames = await glue.workspaces.getAllFrames();
 
 #### Specific Frame
 
-Get a specific [`Frame`](../../../../reference/core/latest/workspaces/index.html#!Frame) instance by using the [`getFrame()`](../../../../reference/core/latest/workspaces/index.html#!API-getFrame) method:
+Get a specific [`Frame`](../../../../reference/core/latest/workspaces/index.html#Frame) instance by using the [`getFrame()`](../../../../reference/core/latest/workspaces/index.html#API-getFrame) method:
 
 ```javascript
 // Getting a specific Frame.
@@ -38,7 +38,7 @@ const specificFrame = await glue.workspaces.getFrame(frame => frame.id === "fram
 
 ### Frame Bounds
 
-Once you get a [`Frame`](../../../../reference/core/latest/workspaces/index.html#!Frame) instance, you can manipulate its bounds using the [`move()`](../../../../reference/core/latest/workspaces/index.html#!Frame-move) and [`resize()`](../../../../reference/core/latest/workspaces/index.html#!Frame-resize) methods: 
+Once you get a [`Frame`](../../../../reference/core/latest/workspaces/index.html#Frame) instance, you can manipulate its bounds using the [`move()`](../../../../reference/core/latest/workspaces/index.html#Frame-move) and [`resize()`](../../../../reference/core/latest/workspaces/index.html#Frame-resize) methods: 
 
 ```javascript
 const myFrame = await glue.workspaces.getMyFrame();
@@ -52,7 +52,7 @@ await myFrame.resize({ width: 600, height: 600 });
 
 ### Focusing a Frame
 
-To bring a [`Frame`](../../../../reference/core/latest/workspaces/index.html#!Frame) on focus, use the [`focus()`](../../../../reference/core/latest/workspaces/index.html#!Frame-focus) method:
+To bring a [`Frame`](../../../../reference/core/latest/workspaces/index.html#Frame) on focus, use the [`focus()`](../../../../reference/core/latest/workspaces/index.html#Frame-focus) method:
 
 ```javascript
 const frame = await glue.workspaces.getFrame(frame => frame.id === "frame-id");
@@ -63,7 +63,7 @@ await frame.focus();
 
 ### Closing a Frame
 
-To close a [`Frame`](../../../../reference/core/latest/workspaces/index.html#!Frame), use the [`close()`](../../../../reference/core/latest/workspaces/index.html#!Frame-close) method:
+To close a [`Frame`](../../../../reference/core/latest/workspaces/index.html#Frame), use the [`close()`](../../../../reference/core/latest/workspaces/index.html#Frame-close) method:
 
 ```javascript
 const frame = await glue.workspaces.getFrame(frame => frame.id === "frame-id");
@@ -74,7 +74,7 @@ await frame.close();
 
 ### Frame Workspaces
 
-To get all [`Workspace`](../../../../reference/core/latest/workspaces/index.html#!Workspace) objects in a [`Frame`](../../../../reference/core/latest/workspaces/index.html#!Frame), use the [`workspaces()`](../../../../reference/core/latest/workspaces/index.html#!Frame-workspaces) method:
+To get all [`Workspace`](../../../../reference/core/latest/workspaces/index.html#Workspace) objects in a [`Frame`](../../../../reference/core/latest/workspaces/index.html#Frame), use the [`workspaces()`](../../../../reference/core/latest/workspaces/index.html#Frame-workspaces) method:
 
 ```javascript
 const myFrame = await glue.workspaces.getMyFrame();
@@ -85,13 +85,13 @@ const frameWorkspaces = await myFrame.workspaces();
 
 ## Workspace
 
-A [`Workspace`](../../../../reference/core/latest/workspaces/index.html#!Workspace) contains one or more application windows arranged in columns, rows or groups. 
+A [`Workspace`](../../../../reference/core/latest/workspaces/index.html#Workspace) contains one or more application windows arranged in columns, rows or groups. 
 
-*A [`Group`](../../../../reference/core/latest/workspaces/index.html#!Group) is a Workspace element that holds tabbed windows. If a window is placed directly in a [`Column`](../../../../reference/core/latest/workspaces/index.html#!Column) or a [`Row`](../../../../reference/core/latest/workspaces/index.html#!Row), it will be static and without a tab - the user will not be able to move it or close it and manipulating it will be possible only through the API.*  
+*A [`Group`](../../../../reference/core/latest/workspaces/index.html#Group) is a Workspace element that holds tabbed windows. If a window is placed directly in a [`Column`](../../../../reference/core/latest/workspaces/index.html#Column) or a [`Row`](../../../../reference/core/latest/workspaces/index.html#Row), it will be static and without a tab - the user will not be able to move it or close it and manipulating it will be possible only through the API.*  
 
-You can use the [`frame`](../../../../reference/core/latest/workspaces/index.html#!Workspace-frame) property of a Workspace to get a reference to the [`Frame`](../../../../reference/core/latest/workspaces/index.html#!Frame) containing it. 
+You can use the [`frame`](../../../../reference/core/latest/workspaces/index.html#Workspace-frame) property of a Workspace to get a reference to the [`Frame`](../../../../reference/core/latest/workspaces/index.html#Frame) containing it. 
 
-To get a collection of the immediate children of a Workspace, use its [`children`](../../../../reference/core/latest/workspaces/index.html#!Workspace-children) property.
+To get a collection of the immediate children of a Workspace, use its [`children`](../../../../reference/core/latest/workspaces/index.html#Workspace-children) property.
 
 ### Workspace Reference
 
@@ -99,7 +99,7 @@ There are several methods available for getting a reference to a Workspace.
 
 #### Current Window Workspace
 
-To get the Workspace of the current window, use the [`getMyWorkspace()`](../../../../reference/core/latest/workspaces/index.html#!Workspace-getMyWorkspace) method:
+To get the Workspace of the current window, use the [`getMyWorkspace()`](../../../../reference/core/latest/workspaces/index.html#Workspace-getMyWorkspace) method:
 
 ```javascript
 // This method will return the Workspace of the current window.
@@ -109,7 +109,7 @@ const workspace = await glue.workspaces.getMyWorkspace().catch(console.error);
 
 #### All Workspaces
 
-To get all Workspaces, use the [`getAllWorkspaces()`](../../../../reference/core/latest/workspaces/index.html#!Workspace-getAllWorkspaces) method:
+To get all Workspaces, use the [`getAllWorkspaces()`](../../../../reference/core/latest/workspaces/index.html#Workspace-getAllWorkspaces) method:
 
 ```javascript
 // Getting all Workspaces.
@@ -118,7 +118,7 @@ const allWorkspaces = await glue.workspaces.getAllWorkspaces();
 
 #### Specific Workspace
 
-To get a specific Workspace, use the [`getWorkspace()`](../../../../reference/core/latest/workspaces/index.html#!Workspace-getWorkspace) method:
+To get a specific Workspace, use the [`getWorkspace()`](../../../../reference/core/latest/workspaces/index.html#Workspace-getWorkspace) method:
 
 ```javascript
 // Getting a specific Workspace.
@@ -127,7 +127,7 @@ const specificWorkspace = await glue.workspaces.getWorkspace(workspace => worksp
 
 #### Workspace State
 
-The Workspaces are designed to be freely modified programmatically as well as by the end user via the UI. Keeping a correct reference to a modified Workspace instance object is important in order for your code to be able to update the Workspace accordingly. For example, the user may have already closed a Workspace element that you want to update. To avoid such errors, you can either get a new reference to that element using the API, or you can use the [`refreshReference()`](../../../../reference/core/latest/workspaces/index.html#!Workspace-refreshReference) method of a Workspace instance:
+The Workspaces are designed to be freely modified programmatically as well as by the end user via the UI. Keeping a correct reference to a modified Workspace instance object is important in order for your code to be able to update the Workspace accordingly. For example, the user may have already closed a Workspace element that you want to update. To avoid such errors, you can either get a new reference to that element using the API, or you can use the [`refreshReference()`](../../../../reference/core/latest/workspaces/index.html#Workspace-refreshReference) method of a Workspace instance:
 
 ```javascript
 // Updating the reference to an already existing Workspace instance.
@@ -138,7 +138,7 @@ await myWorkspace.refreshReference();
 
 ### Restoring Workspaces
 
-You can restore a Workspace by using the [`restoreWorkspace()`](../../../../reference/core/latest/workspaces/index.html#!API-restoreWorkspace) method which is available at top level of the API. It accepts an optional [`RestoreWorkspaceConfig`](../../../../reference/core/latest/workspaces/index.html#!RestoreWorkspaceConfig) object in which you can specify a title and a context for the restored Workspace, and also whether to restore it in a specific existing Frame or in a new Frame: 
+You can restore a Workspace by using the [`restoreWorkspace()`](../../../../reference/core/latest/workspaces/index.html#API-restoreWorkspace) method which is available at top level of the API. It accepts an optional [`RestoreWorkspaceConfig`](../../../../reference/core/latest/workspaces/index.html#RestoreWorkspaceConfig) object in which you can specify a title and a context for the restored Workspace, and also whether to restore it in a specific existing Frame or in a new Frame: 
 
 ```javascript
 // Specify the Frame in which to restore the Workspace.
@@ -160,7 +160,7 @@ const workspace = await myFrame.restoreWorkspace("myWorkspace");
 
 ### Creating Workspaces
 
-You can create Workspaces runtime by using the [`createWorkspace()`](../../../../reference/core/latest/workspaces/index.html#!API-createWorkspace) method available at top level of the API and on a [`Frame`](../../../../reference/core/latest/workspaces/index.html#!Frame) instance. Using the `createWorkspace()` method, however, may often be quite inconvenient as every time you want to create a Workspace you will have to pass a JSON object describing a full Workspace Layout. This Layout can quickly become very complex depending on the number and arrangement of applications participating in it. Below is an example of creating a [`Workspace`](../../../../reference/core/latest/workspaces/index.html#!Workspace) by passing a [`WorkspaceDefinition`](../../../../reference/core/latest/workspaces/index.html#!WorkspaceDefinition) with only two applications arranged in a single column:
+You can create Workspaces runtime by using the [`createWorkspace()`](../../../../reference/core/latest/workspaces/index.html#API-createWorkspace) method available at top level of the API and on a [`Frame`](../../../../reference/core/latest/workspaces/index.html#Frame) instance. Using the `createWorkspace()` method, however, may often be quite inconvenient as every time you want to create a Workspace you will have to pass a JSON object describing a full Workspace Layout. This Layout can quickly become very complex depending on the number and arrangement of applications participating in it. Below is an example of creating a [`Workspace`](../../../../reference/core/latest/workspaces/index.html#Workspace) by passing a [`WorkspaceDefinition`](../../../../reference/core/latest/workspaces/index.html#WorkspaceDefinition) with only two applications arranged in a single column:
 
 ```javascript
 // Workspace definition.
@@ -191,13 +191,13 @@ const definition = {
 const workspace = await glue.workspaces.createWorkspace(definition);
 ```
 
-*If you insert an empty [`Column`](../../../../reference/core/latest/workspaces/index.html#!Column), [`Row`](../../../../reference/core/latest/workspaces/index.html#!Row) or [`Group`](../../../../reference/core/latest/workspaces/index.html#!Group) element in a Workspace (without a window as its content), it will be visually represented in the Workspace as an empty space with a grey background and a button in the middle from which the user will be able to add an application. The user will not be able to move or close this empty element.*
+*If you insert an empty [`Column`](../../../../reference/core/latest/workspaces/index.html#Column), [`Row`](../../../../reference/core/latest/workspaces/index.html#Row) or [`Group`](../../../../reference/core/latest/workspaces/index.html#Group) element in a Workspace (without a window as its content), it will be visually represented in the Workspace as an empty space with a grey background and a button in the middle from which the user will be able to add an application. The user will not be able to move or close this empty element.*
 
 #### Workspaces Builder API
 
 An easier solution is to use the Workspaces Builder API. The builder allows you to compose entire Workspaces as well as different Workspace elements (rows, columns or groups) depending on the builder type you set.
 
-You can define a builder with the [`getBuilder()`](../../../../reference/core/latest/workspaces/index.html#!API-getBuilder) method. It accepts a [`BuilderConfig`](../../../../reference/core/latest/workspaces/index.html#!BuilderConfig) object as a parameter in which you should specify the type of the builder (`"workspace"`, `"row"`, `"colum"` or `"group"`) and provide either a Workspace definition or a definition for the element (row, column or group) you want to build. You can then use the methods of the builder instance to add rows, columns, groups or windows. 
+You can define a builder with the [`getBuilder()`](../../../../reference/core/latest/workspaces/index.html#API-getBuilder) method. It accepts a [`BuilderConfig`](../../../../reference/core/latest/workspaces/index.html#BuilderConfig) object as a parameter in which you should specify the type of the builder (`"workspace"`, `"row"`, `"colum"` or `"group"`) and provide either a Workspace definition or a definition for the element (row, column or group) you want to build. You can then use the methods of the builder instance to add rows, columns, groups or windows. 
 
 Here is how you can create the same Workspace as above using a builder: 
 
@@ -228,13 +228,13 @@ const workspace = await builder.create();
 
 ### Finding Workspace Elements
 
-The Workspaces API offers various methods for finding elements in a Workspace - [`Row`](../../../../reference/core/latest/workspaces/index.html#!Row), [`Column`](../../../../reference/core/latest/workspaces/index.html#!Column), [`Group`](../../../../reference/core/latest/workspaces/index.html#!Group) and [`WorkspaceWindow`](../../../../reference/core/latest/workspaces/index.html#!WorkspaceWindow). All methods for querying Workspaces accept a predicate function as a parameter which you can use to find the desired Workspace elements.
+The Workspaces API offers various methods for finding elements in a Workspace - [`Row`](../../../../reference/core/latest/workspaces/index.html#Row), [`Column`](../../../../reference/core/latest/workspaces/index.html#Column), [`Group`](../../../../reference/core/latest/workspaces/index.html#Group) and [`WorkspaceWindow`](../../../../reference/core/latest/workspaces/index.html#WorkspaceWindow). All methods for querying Workspaces accept a predicate function as a parameter which you can use to find the desired Workspace elements.
 
 #### Box Elements
 
-[`Box`](../../../../reference/core/latest/workspaces/index.html#!Box) elements are Workspace elements that can contain other Workspace elements - [`Row`](../../../../reference/core/latest/workspaces/index.html#!Row), [`Column`](../../../../reference/core/latest/workspaces/index.html#!Column) and [`Group`](../../../../reference/core/latest/workspaces/index.html#!Group). These elements are the building blocks of a Workspace Layout, while the actual windows (applications) can be viewed as their content. 
+[`Box`](../../../../reference/core/latest/workspaces/index.html#Box) elements are Workspace elements that can contain other Workspace elements - [`Row`](../../../../reference/core/latest/workspaces/index.html#Row), [`Column`](../../../../reference/core/latest/workspaces/index.html#Column) and [`Group`](../../../../reference/core/latest/workspaces/index.html#Group). These elements are the building blocks of a Workspace Layout, while the actual windows (applications) can be viewed as their content. 
 
-To get all box elements in a Workspace, use the [`getAllBoxes()`](../../../../reference/core/latest/workspaces/index.html#!Workspace-getAllBoxes) method of a Workspace instance:
+To get all box elements in a Workspace, use the [`getAllBoxes()`](../../../../reference/core/latest/workspaces/index.html#Workspace-getAllBoxes) method of a Workspace instance:
 
 ```javascript
 const myWorkspace = await glue.workspaces.getMyWorkspace();
@@ -243,7 +243,7 @@ const myWorkspace = await glue.workspaces.getMyWorkspace();
 const allBoxElements = myWorkspace.getAllBoxes();
 ```
 
-The Workspace instance also offers methods for specific types of box elements. For example, to get all rows in a Workspace, use the [`getAllRows()`](../../../../reference/core/latest/workspaces/index.html#!Workspace-getAllRows) method:
+The Workspace instance also offers methods for specific types of box elements. For example, to get all rows in a Workspace, use the [`getAllRows()`](../../../../reference/core/latest/workspaces/index.html#Workspace-getAllRows) method:
 
 ```javascript
 const myWorkspace = await glue.workspaces.getMyWorkspace();
@@ -251,9 +251,9 @@ const myWorkspace = await glue.workspaces.getMyWorkspace();
 const allRows = myWorkspace.getAllRows();
 ```
 
-To get all columns or groups, use the [`getAllColumns()`](../../../../reference/core/latest/workspaces/index.html#!Workspace-getAllColumns) or [`getAllGroups()`](../../../../reference/core/latest/workspaces/index.html#!Workspace-getAllGroups) method respectively.
+To get all columns or groups, use the [`getAllColumns()`](../../../../reference/core/latest/workspaces/index.html#Workspace-getAllColumns) or [`getAllGroups()`](../../../../reference/core/latest/workspaces/index.html#Workspace-getAllGroups) method respectively.
 
-You can also get a specific box element using the [`getBox()`](../../../../reference/core/latest/workspaces/index.html#!API-getBox) method available on top level of the API as well as on a Workspace instance. Below is an example of getting the immediate parent element of a window using the window ID:
+You can also get a specific box element using the [`getBox()`](../../../../reference/core/latest/workspaces/index.html#API-getBox) method available on top level of the API as well as on a Workspace instance. Below is an example of getting the immediate parent element of a window using the window ID:
 
 ```javascript
 const myWorkspace = await glue.workspaces.getMyWorkspace();
@@ -265,11 +265,11 @@ const targetElement = myWorkspace.getBox((boxElement) => {
 });
 ```
 
-The Workspace instance also offers methods for finding specific rows, columns or groups - [`getRow()`](../../../../reference/core/latest/workspaces/index.html#!Workspace-getRow), [`getColumn()`](../../../../reference/core/latest/workspaces/index.html#!Workspace-getColumn) and [`getGroup()`](../../../../reference/core/latest/workspaces/index.html#!Workspace-getGroup).
+The Workspace instance also offers methods for finding specific rows, columns or groups - [`getRow()`](../../../../reference/core/latest/workspaces/index.html#Workspace-getRow), [`getColumn()`](../../../../reference/core/latest/workspaces/index.html#Workspace-getColumn) and [`getGroup()`](../../../../reference/core/latest/workspaces/index.html#Workspace-getGroup).
 
 #### Workspace Windows
 
-To get all windows in a Workspace, use the [`getAllWindows()`](../../../../reference/core/latest/workspaces/index.html#!Workspace-getAllWindows) method of a Workspace instance:
+To get all windows in a Workspace, use the [`getAllWindows()`](../../../../reference/core/latest/workspaces/index.html#Workspace-getAllWindows) method of a Workspace instance:
 
 ```javascript
 const myWorkspace = await glue.workspaces.getMyWorkspace();
@@ -277,7 +277,7 @@ const myWorkspace = await glue.workspaces.getMyWorkspace();
 const allWorkspaceWindows = myWorkspace.getAllWindows();
 ```
 
-To get a specific window, use the [`getWindow()`](../../../../reference/core/latest/workspaces/index.html#!API-getWindow) method available on top level of the API as well as on a Workspace instance:
+To get a specific window, use the [`getWindow()`](../../../../reference/core/latest/workspaces/index.html#API-getWindow) method available on top level of the API as well as on a Workspace instance:
 
 ```javascript
 const specificWindow = await glue.workspaces.getWindow(window => window.id === "target-id");
@@ -285,9 +285,9 @@ const specificWindow = await glue.workspaces.getWindow(window => window.id === "
 
 ### Editing Workspaces
 
-Workspace instances and [`Box`](../../../../reference/core/latest/workspaces/index.html#!Box) element instances offer methods for adding and removing Workspace elements. This, combined with the powerful querying methods, gives you full programmatic control over a Workspace. 
+Workspace instances and [`Box`](../../../../reference/core/latest/workspaces/index.html#Box) element instances offer methods for adding and removing Workspace elements. This, combined with the powerful querying methods, gives you full programmatic control over a Workspace. 
 
-Below is an example of adding a new window as a sibling to another window in a Workspace using the [`addWindow()`](../../../../reference/core/latest/workspaces/index.html#!Box-addWindow) method of a box element:
+Below is an example of adding a new window as a sibling to another window in a Workspace using the [`addWindow()`](../../../../reference/core/latest/workspaces/index.html#Box-addWindow) method of a box element:
 
 ```javascript
 const myWorkspace = await glue.workspaces.getMyWorkspace();
@@ -315,7 +315,7 @@ The following table lists the available size constraint properties and the Works
 
 Mind that if you set the same max or min property of more than one of several nested elements to different values (e.g., you've set `maxWidth: 400` for a column and `maxWidth: 500` for a window inside that column), then in the case of maximum values, the lower one will be used, and in the case of minimum values, the higher one will be used. This way, all defined constraints will be respected when the user resizes the Workspace or its elements. 
 
-To set size constraints for Workspace elements when creating a Workspace, use the `config` property of the [`WorkspaceDefinition`](../../../../reference/core/latest/workspaces/index.html#!WorkspaceDefinition) object:
+To set size constraints for Workspace elements when creating a Workspace, use the `config` property of the [`WorkspaceDefinition`](../../../../reference/core/latest/workspaces/index.html#WorkspaceDefinition) object:
 
 ```javascript
 const definition = {
@@ -362,7 +362,7 @@ const workspace = await glue.workspaces.createWorkspace(definition);
 
 *Note that if the specified constraints are invalid, they will be ignored - e.g., when min exceeds max or conflicting constraints between different elements.*
 
-You can set size constraints also when using the [Workspaces Builder API](#workspaces_builder_api) or when adding Workspace elements using the `addRow()`, `addColumn()`, `addGroup()` or `addWindow()` methods of a [`Workspace`](../../../../reference/core/latest/workspaces/index.html#!Workspace) instance or [box elements](#box_elements):
+You can set size constraints also when using the [Workspaces Builder API](#workspaces_builder_api) or when adding Workspace elements using the `addRow()`, `addColumn()`, `addGroup()` or `addWindow()` methods of a [`Workspace`](../../../../reference/core/latest/workspaces/index.html#Workspace) instance or [box elements](#box_elements):
 
 ```javascript
 const rowDefinition = {
@@ -386,7 +386,7 @@ await myWorkspace.addRow(rowDefinition);
 
 ### Hibernation
 
-To hibernate a Workspace instance, use the [`hibernate()`](../../../../reference/core/latest/workspaces/index.html#!Workspace-hibernate) method of a Workspace instance:
+To hibernate a Workspace instance, use the [`hibernate()`](../../../../reference/core/latest/workspaces/index.html#Workspace-hibernate) method of a Workspace instance:
 
 ```javascript
 const myWorkspace = await glue.workspaces.getMyWorkspace();
@@ -394,7 +394,7 @@ const myWorkspace = await glue.workspaces.getMyWorkspace();
 await myWorkspace.hibernate();
 ```
 
-To resume a hibernated Workspace, use the [`resume()`](../../../../reference/core/latest/workspaces/index.html#!Workspace-resume) method of a Workspace instance:
+To resume a hibernated Workspace, use the [`resume()`](../../../../reference/core/latest/workspaces/index.html#Workspace-resume) method of a Workspace instance:
 
 ```javascript
 const myWorkspace = await glue.workspaces.getMyWorkspace();
@@ -406,7 +406,7 @@ await myWorkspace.resume();
 
 ### Loading Strategies
 
-When creating a Workspace with the [createWorkspace()](../../../../reference/core/latest/workspaces/index.html#!API-createWorkspace) method or when restoring a Workspace with the [restoreWorkspace()](../../../../reference/core/latest/workspaces/index.html#!API-restoreWorkspace) method, you can specify a loading strategy:
+When creating a Workspace with the [createWorkspace()](../../../../reference/core/latest/workspaces/index.html#API-createWorkspace) method or when restoring a Workspace with the [restoreWorkspace()](../../../../reference/core/latest/workspaces/index.html#API-restoreWorkspace) method, you can specify a loading strategy:
 
 ```javascript
 const options = { loadingStrategy: "lazy" };
@@ -417,9 +417,9 @@ const workspace = await glue.workspaces.restoreWorkspace("My Workspace", options
 
 ### Lockdown
 
-[`Workspace`](../../../../reference/core/latest/workspaces/index.html#!Workspace) instances, [`Group`](../../../../reference/core/latest/workspaces/index.html#!Group), [`Row`](../../../../reference/core/latest/workspaces/index.html#!Row), [`Column`](../../../../reference/core/latest/workspaces/index.html#!Column) and [`WorkspaceWindow`](../../../../reference/core/latest/workspaces/index.html#!WorkspaceWindow) elements can be locked using the [`lock()`](../../../../reference/core/latest/workspaces/index.html#!Workspace-lock) method of the respective instance. Locking a Workspace or any of its elements allows you to control the extent to which the user can modify it. For instance, you may want to prevent the user from removing or extracting a window from the Workspace, but at the same time allow them to resize the Workspace contents, or you may want to disable any Workspace modifications whatsoever.
+[`Workspace`](../../../../reference/core/latest/workspaces/index.html#Workspace) instances, [`Group`](../../../../reference/core/latest/workspaces/index.html#Group), [`Row`](../../../../reference/core/latest/workspaces/index.html#Row), [`Column`](../../../../reference/core/latest/workspaces/index.html#Column) and [`WorkspaceWindow`](../../../../reference/core/latest/workspaces/index.html#WorkspaceWindow) elements can be locked using the [`lock()`](../../../../reference/core/latest/workspaces/index.html#Workspace-lock) method of the respective instance. Locking a Workspace or any of its elements allows you to control the extent to which the user can modify it. For instance, you may want to prevent the user from removing or extracting a window from the Workspace, but at the same time allow them to resize the Workspace contents, or you may want to disable any Workspace modifications whatsoever.
 
-The `lock()` method accepts as an optional argument either a [`WorkspaceLockConfig`](../../../../reference/core/latest/workspaces/index.html#!WorkspaceLockConfig) object or a callback that will receive the current [`WorkspaceLockConfig`](../../../../reference/core/latest/workspaces/index.html#!WorkspaceLockConfig) as an argument and must return an object. If you don't provide a locking configuration, all locking properties (applicable to the respective element) will be automatically set to `false`:
+The `lock()` method accepts as an optional argument either a [`WorkspaceLockConfig`](../../../../reference/core/latest/workspaces/index.html#WorkspaceLockConfig) object or a callback that will receive the current [`WorkspaceLockConfig`](../../../../reference/core/latest/workspaces/index.html#WorkspaceLockConfig) as an argument and must return an object. If you don't provide a locking configuration, all locking properties (applicable to the respective element) will be automatically set to `false`:
 
 ```javascript
 const myWorkspace = await glue.workspaces.getMyWorkspace();
@@ -454,7 +454,7 @@ To set all locking properties to `true`, pass an empty object as an argument:
 myWorkspace.lock({});
 ```
 
-Locking properties for a [`Workspace`](../../../../reference/core/latest/workspaces/index.html#!Workspace):
+Locking properties for a [`Workspace`](../../../../reference/core/latest/workspaces/index.html#Workspace):
 
 | Property | Description |
 |----------|-------------|
@@ -466,7 +466,7 @@ Locking properties for a [`Workspace`](../../../../reference/core/latest/workspa
 | `showEjectButtons` | If `false`, will hide all Eject buttons in the headers of window groups. |
 | `showWindowCloseButtons` | If `false`, will hide all Close buttons on the window tabs. |
 
-Locking properties for a [`Group`](../../../../reference/core/latest/workspaces/index.html#!Group):
+Locking properties for a [`Group`](../../../../reference/core/latest/workspaces/index.html#Group):
 
 | Property | Description |
 |----------|-------------|
@@ -476,26 +476,26 @@ Locking properties for a [`Group`](../../../../reference/core/latest/workspaces/
 | `showEjectButton` | If `false`, will hide the Eject button in the header of the window group. |
 | `showAddWindowButton` | If `false`, will hide the Add Window button (the "+" button) in the header of the window group. |
 
-Locking properties for a [`Row`](../../../../reference/core/latest/workspaces/index.html#!Row):
+Locking properties for a [`Row`](../../../../reference/core/latest/workspaces/index.html#Row):
 
 | Property | Description |
 |----------|-------------|
 | `allowDrop` | If `false`, will prevent the user from adding windows by dropping them in the Workspace row. |
 
-Locking properties for a [`Column`](../../../../reference/core/latest/workspaces/index.html#!Column):
+Locking properties for a [`Column`](../../../../reference/core/latest/workspaces/index.html#Column):
 
 | Property | Description |
 |----------|-------------|
 | `allowDrop` | If `false`, will prevent the user from adding windows by dropping them in the Workspace column. |
 
-Locking properties for a [`WorkspaceWindow`](../../../../reference/core/latest/workspaces/index.html#!WorkspaceWindow):
+Locking properties for a [`WorkspaceWindow`](../../../../reference/core/latest/workspaces/index.html#WorkspaceWindow):
 
 | Property | Description |
 |----------|-------------|
 | `allowExtract` | If `false`, will prevent the user from extracting the window from the Workspace. |
 | `showCloseButton` | If `false`, will hide the Close button on the window tab. |
 
-To set the locking properties of a Workspace and any of its elements when creating it, use the `config` property of the [`WorkspaceDefinition`](../../../../reference/core/latest/workspaces/index.html#!WorkspaceDefinition) object. The locking configuration of a Workspace element will override the locking configuration of the Workspace:
+To set the locking properties of a Workspace and any of its elements when creating it, use the `config` property of the [`WorkspaceDefinition`](../../../../reference/core/latest/workspaces/index.html#WorkspaceDefinition) object. The locking configuration of a Workspace element will override the locking configuration of the Workspace:
 
 ```javascript
 const definition = {
@@ -542,7 +542,7 @@ const definition = {
 const workspace = await glue.workspaces.createWorkspace(definition);
 ```
 
-You can set locking configuration for a Workspace and its elements also when using the [Workspaces Builder API](#workspaces_builder_api) or when adding Workspace elements using the `addRow()`, `addColumn()`, `addGroup()` or `addWindow()` methods of a [`Workspace`](../../../../reference/core/latest/workspaces/index.html#!Workspace) instance or [box elements](#box_elements):
+You can set locking configuration for a Workspace and its elements also when using the [Workspaces Builder API](#workspaces_builder_api) or when adding Workspace elements using the `addRow()`, `addColumn()`, `addGroup()` or `addWindow()` methods of a [`Workspace`](../../../../reference/core/latest/workspaces/index.html#Workspace) instance or [box elements](#box_elements):
 
 ```javascript
 const rowDefinition = {
@@ -578,7 +578,7 @@ const allLayoutNames = layoutSummaries.map(summary => summary.name);
 
 #### Saving Workspace Layouts
 
-You can save the Layout of a Workspace after you create it by using the [`saveLayout()`](../../../../reference/core/latest/workspaces/index.html#!Workspace-saveLayout) method of a Workspace instance:
+You can save the Layout of a Workspace after you create it by using the [`saveLayout()`](../../../../reference/core/latest/workspaces/index.html#Workspace-saveLayout) method of a Workspace instance:
 
 ```javascript
 // Saving the Layout of a previously created Workspace instance.
@@ -605,7 +605,7 @@ Each Workspace instance has a dedicated context (based on [Shared Contexts](../.
 
 ### Initial
 
-To specify initial context data when creating a Workspace, use the `context` property of the [`WorkspaceDefinition`](../../../../reference/core/latest/workspaces/index.html#!WorkspaceDefinition) object:
+To specify initial context data when creating a Workspace, use the `context` property of the [`WorkspaceDefinition`](../../../../reference/core/latest/workspaces/index.html#WorkspaceDefinition) object:
 
 ```javascript
 const definition = {
@@ -615,7 +615,7 @@ const definition = {
 const workspace = await glue.workspaces.createWorkspace(definition);
 ```
 
-To specify initial context data when restoring a Workspace, use the `context` property of the [`RestoreWorkspaceConfig`](../../../../reference/core/latest/workspaces/index.html#!RestoreWorkspaceConfig) object:
+To specify initial context data when restoring a Workspace, use the `context` property of the [`RestoreWorkspaceConfig`](../../../../reference/core/latest/workspaces/index.html#RestoreWorkspaceConfig) object:
 
 ```javascript
 const restoreOptions = {
@@ -627,7 +627,7 @@ const workspace = await glue.workspaces.restoreWorkspace("myWorkspace", restoreO
 
 ### Get
 
-To get the Workspace context, use the [`getContext()`](../../../../reference/core/latest/workspaces/index.html#!Workspace-getContext) method of a Workspace instance:
+To get the Workspace context, use the [`getContext()`](../../../../reference/core/latest/workspaces/index.html#Workspace-getContext) method of a Workspace instance:
 
 ```javascript
 const context = await myWorkspace.getContext();
@@ -635,7 +635,7 @@ const context = await myWorkspace.getContext();
 
 ### Set
 
-To set the Workspace context, use the [`setContext()`](../../../../reference/core/latest/workspaces/index.html#!Workspace-setContext) method of a Workspace instance. Using this method will overwrite entirely the existing context:
+To set the Workspace context, use the [`setContext()`](../../../../reference/core/latest/workspaces/index.html#Workspace-setContext) method of a Workspace instance. Using this method will overwrite entirely the existing context:
 
 ```javascript
 const newContext = { instrument: "MSFT" };
@@ -645,7 +645,7 @@ await myWorkspace.setContext(newContext);
 
 ### Update
 
-To update the Workspace context, use the [`updateContext()`](../../../../reference/core/latest/workspaces/index.html#!Workspace-updateContext) method of a Workspace instance. Using this method will merge the update with the existing context:
+To update the Workspace context, use the [`updateContext()`](../../../../reference/core/latest/workspaces/index.html#Workspace-updateContext) method of a Workspace instance. Using this method will merge the update with the existing context:
 
 ```javascript
 // Existing context: `{ clientID: 1 }`.
@@ -679,7 +679,7 @@ const unsubscribe = await glue.workspaces.onWindowAdded((window) => {
 unsubscribe();
 ```
 
-*For more available global events, see the [Workspaces Reference](../../../../reference/core/latest/workspaces/index.html#!API).*
+*For more available global events, see the [Workspaces Reference](../../../../reference/core/latest/workspaces/index.html#API).*
 
 ### Frame Events
 
@@ -693,7 +693,7 @@ myFrame.onWindowAdded((window) => {
 });
 ```
 
-*For more available Frame events, see the [Workspaces Reference](../../../../reference/core/latest/workspaces/index.html#!Frame).*
+*For more available Frame events, see the [Workspaces Reference](../../../../reference/core/latest/workspaces/index.html#Frame).*
 
 ### Workspace Events
 
@@ -707,7 +707,7 @@ workspace.onWindowAdded((window) => {
 });
 ```
 
-*For more available Workspace events, see the [Workspaces Reference](../../../../reference/core/latest/workspaces/index.html#!Workspace).*
+*For more available Workspace events, see the [Workspaces Reference](../../../../reference/core/latest/workspaces/index.html#Workspace).*
 
 ### Window Events
 
@@ -721,7 +721,7 @@ workspaceWindow.onRemoved((window) => {
 });
 ```
 
-*For more available window events, see the [Workspaces Reference](../../../../reference/core/latest/workspaces/index.html#!WorkspaceWindow).* 
+*For more available window events, see the [Workspaces Reference](../../../../reference/core/latest/workspaces/index.html#WorkspaceWindow).* 
 
 ## Live Examples
 

@@ -50,7 +50,7 @@ GlueProvider: FC<GlueProviderProps>;
 - `children` - React components which may contain Glue42 related logic;
 - `glueFactory` - Factory function used to initialize the Glue42 Web library (the factory function returned by either `@glue42/web` or `@glue42/desktop`). Defaults to `window.GlueWeb`.
 - `fallback` - *Optional*. A React component to display while initializing Glue42;
-- `config` - *Optional*. A [Config](../../../../reference/core/latest/glue42%20web/index.html#!Config) object for the `GlueWeb()` factory function (for detailed configuration options, see the [**Glue42 Client: Overview**](../overview/index.html#initializing_a_glue42_client) section);
+- `config` - *Optional*. A [Config](../../../../reference/core/latest/glue42%20web/index.html#Config) object for the `GlueWeb()` factory function (for detailed configuration options, see the [**Glue42 Client: Overview**](../overview/index.html#initializing_a_glue42_client) section);
 
 - #### GlueContext
 
@@ -82,7 +82,7 @@ Below is the signature of `useGlue()`:
 
 - #### useGlueInit()
 
-The `useGlueInit()` hook is a React hook which initializes the provided Glue JS library. It accepts an *optional* [Glue42Web.Config](../../../../reference/core/latest/glue42%20web/index.html#!Config) object and a Glue42 factory function as arguments.
+The `useGlueInit()` hook is a React hook which initializes the provided Glue JS library. It accepts an *optional* [Glue42Web.Config](../../../../reference/core/latest/glue42%20web/index.html#Config) object and a Glue42 factory function as arguments.
 
 ```typescript
 useGlueInitProps = (
@@ -93,7 +93,7 @@ useGlueInitProps = (
 useGlueInit: useGlueInitProps;
 ```
 
-- `config` - *Optional*. A [Glue42Web.Config](../../../../reference/core/latest/glue42%20web/index.html#!Config) object for the `GlueWeb()` factory function (for detailed configuration options, see the [**Glue42 Client: Overview**](../overview/index.html#initializing_a_glue42_client) section);
+- `config` - *Optional*. A [Glue42Web.Config](../../../../reference/core/latest/glue42%20web/index.html#Config) object for the `GlueWeb()` factory function (for detailed configuration options, see the [**Glue42 Client: Overview**](../overview/index.html#initializing_a_glue42_client) section);
 - `glueFactory` - *Optional*. Factory function used to initialize the provided Glue JS library. Defaults to `window.GlueWeb`.
 
 ## Usage
