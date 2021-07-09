@@ -31,7 +31,7 @@ export default GlueWebFactory;
  * Or:
  *
  * ``` javascript
- * import GlueWeb from "@glue42/web";
+ * import GlueWeb from "&commat;glue42/web";
  * ```
  *
  * When deploying your application in production, it is recommended to always reference a specific minified version:
@@ -79,7 +79,7 @@ export namespace Glue42Web {
 
         /**
          * Connect with GW in memory.
-         * Used for testing in node environment, where the GW isn't started by @glue42/worker-web and an inproc GW is used instead.
+         * Used for testing in node environment, where the GW isn't started by &commat;glue42/worker-web and an inproc GW is used instead.
          * @ignore
          */
         inproc?: Glue42Core.InprocGWSettings;

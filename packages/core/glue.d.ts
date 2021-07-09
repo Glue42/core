@@ -381,7 +381,7 @@ export namespace Glue42Core {
              *     }
              * );
              * ```
-             * @param name  A unique string or a [`MethodDefinition`](#!MethodDefinition) for the method to be registered.
+             * @param name  A unique string or a [`MethodDefinition`](#MethodDefinition) for the method to be registered.
              * @param handler The JavaScript function that will be called when the method is invoked.
              */
             register<T = any, R = any>(name: string | MethodDefinition, handler: (args: T, caller: Instance) => R | void | Promise<R>): Promise<void>;
@@ -389,7 +389,7 @@ export namespace Glue42Core {
             /**
              * Registers a new async Interop method. Async methods can delay returning the result
              * from the method invocation.
-             * @param name  A unique string or a [`MethodDefinition`](#!MethodDefinition) for the method to be registered.
+             * @param name  A unique string or a [`MethodDefinition`](#MethodDefinition) for the method to be registered.
              * @param handler The JavaScript function that will be called when the method is invoked. Accepts two extra arguments - a `success` and an `error` callbacks.
              * To return a result, you must call the `success` callback, or the `error` callback for errors.
              */
@@ -397,7 +397,7 @@ export namespace Glue42Core {
 
             /**
              * Unregisters an Interop method.
-             * @param definition The unique `name` or the [`MethodDefinition`](#!MethodDefinition) of the method to be unregistered.
+             * @param definition The unique `name` or the [`MethodDefinition`](#MethodDefinition) of the method to be unregistered.
              */
             unregister(definition: string | MethodDefinition): void;
 
@@ -415,9 +415,9 @@ export namespace Glue42Core {
              *         console.error(`Failed to execute Sum ${err.message}`);
              *     });
              * ```
-             * @param method The unique `name` or the [`MethodDefinition`](#!MethodDefinition) of the method to be invoked.
+             * @param method The unique `name` or the [`MethodDefinition`](#MethodDefinition) of the method to be invoked.
              * @param argumentObj A plain JavaScript object (or JSON) holding key/value pairs passed as named arguments to the handler of the registered Interop method.
-             * @param target Specifies which servers to target. Can be one of: "best", "all", [`Instance`](#!Instance), `Instance[]`.
+             * @param target Specifies which servers to target. Can be one of: "best", "all", [`Instance`](#Instance), `Instance[]`.
              * @param options An optional [`InvokeOptions`] object specifying the timeouts to discover a method and to wait for a method reply.
              * @param success An [`InvokeSuccessHandler`](#InvokeSuccessHandler) handler to be called if the invocation succeeds.
              * @param error An [`InvokeErrorHandler`](#InvokeErrorHandler) handler to be called in case of error.
@@ -448,7 +448,7 @@ export namespace Glue42Core {
              *     )
              *     .catch(console.error);
              * ```
-             * @param methodDefinition A unique string or a [`MethodDefinition`](#!MethodDefinition) for the stream to be registered.
+             * @param methodDefinition A unique string or a [`MethodDefinition`](#MethodDefinition) for the stream to be registered.
              * @param options The [`StreamOptions`](#StreamOptions) object allows you to pass several optional callbacks which let your application
              * handle subscriptions in a more detailed manner.
              * @param successCallback An optional handler to be called if the creation of the stream succeeds.
@@ -472,7 +472,7 @@ export namespace Glue42Core {
              *     	    // subscription rejected or failed
              *     });
              * ```
-             * @param methodDefinition The unique `name` or the [`MethodDefinition`](#!MethodDefinition) of the stream to subscribe to.
+             * @param methodDefinition The unique `name` or the [`MethodDefinition`](#MethodDefinition) of the stream to subscribe to.
              * @param parameters An optional [`SubscriptionParams`](#SubscriptionParams) object with parameters.
              */
             subscribe(methodDefinition: string | MethodDefinition, parameters?: SubscriptionParams): Promise<Subscription>;
@@ -515,7 +515,7 @@ export namespace Glue42Core {
 
             /**
              * Subscribes to the event which fires when an application starts offering a method. This will be called every time a server starts offering the method,
-             * whereas [`methodAdded()`](#!API-methodAdded) will be called only the first time the method is registered.
+             * whereas [`methodAdded()`](#API-methodAdded) will be called only the first time the method is registered.
              */
             serverMethodAdded(callback: (info: {
                 server: Instance;
@@ -524,7 +524,7 @@ export namespace Glue42Core {
 
             /**
              * Subscribes for the event which fires when a server stops offering a method. This will be called every time a server stops offering the method,
-             * whereas [`methodRemoved()`](#!API-methodRemoved) will be called only when the method is removed from the last application offering it.
+             * whereas [`methodRemoved()`](#API-methodRemoved) will be called only when the method is removed from the last application offering it.
              * @param callback A handler to be called when the event fires.
              */
             serverMethodRemoved(
@@ -537,7 +537,7 @@ export namespace Glue42Core {
 
             /**
              * Returns all Interop methods registered by a server.
-             * @param server An Interop [`Instance`](#!Instance) identifying an application.
+             * @param server An Interop [`Instance`](#Instance) identifying an application.
              */
             methodsForInstance(server: Instance): Method[];
 
@@ -549,7 +549,7 @@ export namespace Glue42Core {
             waitForMethod(name: string): Promise<Method>;
         }
 
-        /** Optional object with parameters passed to [`subscribe()`](#!API-subscribe) when subscribing to a stream. */
+        /** Optional object with parameters passed to [`subscribe()`](#API-subscribe) when subscribing to a stream. */
         export interface SubscriptionParams {
 
             /**
@@ -558,7 +558,7 @@ export namespace Glue42Core {
              */
             waitTimeoutMs?: number;
 
-            /** Specifies which servers to target. Can be one of: "best", "all", [`Instance`](#!Instance), `Instance[]`. */
+            /** Specifies which servers to target. Can be one of: "best", "all", [`Instance`](#Instance), `Instance[]`. */
             target?: InstanceTarget;
 
             /** A plain JavaScript object (or JSON) holding key/value pairs passed as named arguments to the handler of the registered Interop stream. */
@@ -922,7 +922,7 @@ export namespace Glue42Core {
             status?: number;
         }
 
-        /** Extends [`InvocationResultCore`](#!InvocationResultCore). Results from a method invocation. */
+        /** Extends [`InvocationResultCore`](#InvocationResultCore). Results from a method invocation. */
         export interface InvocationResult<T = any> extends InvocationResultCore<T> {
 
             /** An array of invocation results. */
