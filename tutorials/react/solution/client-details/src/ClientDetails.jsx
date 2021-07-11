@@ -1,16 +1,26 @@
-import React, { useState } from "react";
-import { useGlue } from "@glue42/react-hooks";
+import React, { useState, useContext } from "react";
+import {GlueContext, useGlue} from "@glue42/react-hooks";
 import { setClientFromWorkspace } from "./glue";
 
 function ClientDetails() {
     const [client, setClient] = useState({});
+    const glue = useContext(GlueContext);
     useGlue(setClientFromWorkspace(setClient));
 
     return (
         <div className="container-fluid">
             <div className="row">
                 <div className="col-md-2">
-                    <span id="glueSpan" className="label label-warning">Glue42 is unavailable</span>
+                    {!glue && (
+                      <span id="glueSpan" className="badge badge-warning">
+                            Glue42 is unavailable
+                        </span>
+                    )}
+                    {glue && (
+                      <span id="glueSpan" className="badge badge-success">
+                            Glue42 is available
+                        </span>
+                    )}
                 </div>
                 <div className="col-md-10">
                     <h1 className="text-center">Client Details</h1>
