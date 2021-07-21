@@ -38,7 +38,7 @@
         "ws": "7.4.6"
     },
     "devDependencies": {
-        "@glue42/gateway-ws": "^3.0.10",
+        "@glue42/gateway-ws": "^3.0.13-beta.3",
         "@types/chai": "^4.2.7",
         "@types/lodash.isequal": "^4.5.5",
         "@types/lodash.ismatch": "^4.4.6",

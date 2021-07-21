@@ -6,6 +6,8 @@ export interface ContextBridge {
 
     all(): ContextName[];
 
+    createContext(name: ContextName, data: any, options?: Glue42Core.Contexts.CreateOptions): Promise<string>;
+
     update(name: ContextName, delta: any): Promise<void>;
 
     set(name: ContextName, data: any): Promise<void>;

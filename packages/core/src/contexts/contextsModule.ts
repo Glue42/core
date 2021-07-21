@@ -26,6 +26,13 @@ export class ContextsModule implements Glue42Core.Contexts.API {
         return this._bridge.all();
     }
 
+    public create(name: ContextName, data: any, options?: Glue42Core.Contexts.CreateOptions): Promise<void> {
+        this.checkName(name);
+        this.checkData(data);
+
+        return this._bridge.createContext(name, data, options).then((x) => {/**/});
+    }
+
     /**
      * Updates a context with some object. The object properties will replace the context properties, any other
      * context properties will remain in the context. If the context does not exists the update call will create it.

@@ -20,7 +20,7 @@ export default function (domain: string, connection: Connection, logger: Logger,
         domain = "global";
     }
 
-    successMessages = successMessages || ["success"];
+    successMessages = successMessages || ["context-created", "success", "subscribed-context"];
     errorMessages = errorMessages || ["error"];
 
     let isJoined = false;
